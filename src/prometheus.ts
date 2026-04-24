@@ -28,32 +28,32 @@ export type prometheusConfig = {
         tlsSkipVerify?: boolean;
         keepCookies?: string[];
         pdcInjected?: boolean;
-    },
+    };
     secureJsonData: {
         basicAuthPassword?: string;
         tlsCACert?: string;
         tlsClientCert?: string;
         tlsClientKey?: string;
-    }
-}
+    };
+};
 
 enum PromApplication {
-    Cortex = 'Cortex',
-    Mimir = 'Mimir',
-    Prometheus = 'Prometheus',
-    Thanos = 'Thanos',
+    Cortex = "Cortex",
+    Mimir = "Mimir",
+    Prometheus = "Prometheus",
+    Thanos = "Thanos",
 }
 
 enum PrometheusCacheLevel {
-    Low = 'Low',
-    Medium = 'Medium',
-    High = 'High',
-    None = 'None',
+    Low = "Low",
+    Medium = "Medium",
+    High = "High",
+    None = "None",
 }
 
 enum QueryEditorMode {
-    Code = 'code',
-    Builder = 'builder',
+    Code = "code",
+    Builder = "builder",
 }
 
 type ExemplarTraceIdDestination = {
@@ -62,4 +62,3 @@ type ExemplarTraceIdDestination = {
     urlDisplayLabel?: string;
     datasourceUid?: string;
 };
-

@@ -1,1 +1,2 @@
-export { prometheusConfig } from "./prometheus"
+export { prometheusConfig } from "./prometheus";
+export { lokiConfig } from "./loki";
