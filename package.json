@@ -18,5 +18,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "packageManager": "yarn@4.13.0"
+  "packageManager": "yarn@4.13.0",
+  "dependencies": {
+    "@grafana/data": "12.4.2",
+    "@grafana/schema": "12.4.2"
+  }
 }
