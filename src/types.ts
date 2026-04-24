@@ -1,0 +1,1 @@
+export { prometheusConfig } from "./prometheus"
