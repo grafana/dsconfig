@@ -1,0 +1,22 @@
+{
+  "name": "@grafana/dsconfig",
+  "version": "0.0.1",
+  "description": "Grafana data source configuration",
+  "keywords": [],
+  "license": "Apache-2.0",
+  "author": "Grafana Labs",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "homepage": "https://github.com/grafana/dsconfig#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grafana/dsconfig.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grafana/dsconfig/issues"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "packageManager": "yarn@4.13.0"
+}

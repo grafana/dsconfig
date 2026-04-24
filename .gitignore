@@ -1,0 +1,10 @@
+.env
+
+node_modules/
+.yarn/install-state.gz
+
+.turbo/
+
+*.log
+
+dist/
