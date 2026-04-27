@@ -47,14 +47,32 @@ func (s *DatasourceConfigSchema) Validate() error {
 
 func (s *DatasourceConfigSchema) ValidateIDs() error {
 	seen := map[string]bool{}
-	for _, f := range s.Fields {
-		if seen[f.ID] {
-			return fmt.Errorf("duplicate field id: %s", f.ID)
+
+	var visit func(fields []ConfigField) error
+	visit = func(fields []ConfigField) error {
+		for i := range fields {
+			f := fields[i]
+
+			if f.ID == "" {
+				return fmt.Errorf("field id is required")
+			}
+
+			if seen[f.ID] {
+				return fmt.Errorf("duplicate field id: %s", f.ID)
+			}
+			seen[f.ID] = true
+
+			if f.Item != nil {
+				if err := visit(f.Item.Fields); err != nil {
+					return err
+				}
+			}
 		}
-		seen[f.ID] = true
+
+		return nil
 	}
 
-	return nil
+	return visit(s.Fields)
 }
 
 // ============================================================
