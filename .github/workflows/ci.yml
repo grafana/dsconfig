@@ -47,8 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Validate JSON Schema syntax
-        run: python3 -c 'import json; s=json.load(open("schema/schema.json")); assert "definitions" in s; print("schema.json: valid")'
+        run: |
+          python3 -c 'import json; s=json.load(open("schema/schema.json")); assert "definitions" in s; print("schema.json: valid")'
 
       - name: Validate example files
         shell: bash
