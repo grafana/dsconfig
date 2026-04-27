@@ -185,38 +185,6 @@
             "allOf": [
                 {
                     "if": {
-                        "properties": {
-                            "kind": {
-                                "const": "virtual"
-                            }
-                        }
-                    },
-                    "then": {
-                        "not": {
-                            "required": [
-                                "target"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "isItemField": {
-                                "const": true
-                            }
-                        }
-                    },
-                    "then": {
-                        "not": {
-                            "required": [
-                                "target"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "if": {
                         "not": {
                             "anyOf": [
                                 {
@@ -224,14 +192,20 @@
                                         "kind": {
                                             "const": "virtual"
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "kind"
+                                    ]
                                 },
                                 {
                                     "properties": {
                                         "isItemField": {
                                             "const": true
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "isItemField"
+                                    ]
                                 }
                             ]
                         }
@@ -244,11 +218,15 @@
                 },
                 {
                     "if": {
+                        "type": "object",
                         "properties": {
                             "valueType": {
                                 "const": "array"
                             }
-                        }
+                        },
+                        "required": [
+                            "valueType"
+                        ]
                     },
                     "then": {
                         "required": [
@@ -282,6 +260,7 @@
                                 "$ref": "#/definitions/ConfigField"
                             },
                             {
+                                "type": "object",
                                 "properties": {
                                     "isItemField": {
                                         "const": true
