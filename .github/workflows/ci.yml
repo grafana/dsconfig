@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test -count=1 -race ./...
+      - name: Vet
+        run: go vet ./...
+
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Typecheck
+        run: yarn tsc --noEmit
+      - name: Test
+        run: yarn test
+
+  json-schema:
+    name: JSON Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON Schema syntax
+        run: |
+          python3 -c "
+          import json, sys
+          with open('schema/schema.json') as f:
+              schema = json.load(f)
+          print('schema.json: valid JSON')
+          assert '\$schema' in schema, 'missing \$schema'
+          assert 'definitions' in schema, 'missing definitions'
+          print('schema.json: has required top-level keys')
+          "
+      - name: Validate example files against schema structure
+        run: |
+          python3 -c "
+          import json, glob, sys
+          files = glob.glob('examples/*.schema.json')
+          assert len(files) >= 5, f'expected >= 5 examples, found {len(files)}'
+          for f in sorted(files):
+              with open(f) as fh:
+                  data = json.load(fh)
+              assert 'schemaVersion' in data, f'{f}: missing schemaVersion'
+              assert 'pluginType' in data, f'{f}: missing pluginType'
+              assert 'pluginName' in data, f'{f}: missing pluginName'
+              assert 'fields' in data and len(data['fields']) > 0, f'{f}: missing fields'
+              print(f'{f}: OK ({len(data[\"fields\"])} fields)')
+          print(f'All {len(files)} examples valid')
+          "
