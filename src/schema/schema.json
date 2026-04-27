@@ -131,8 +131,11 @@
                 "ui": {
                     "$ref": "#/definitions/FieldUI"
                 },
-                "validation": {
-                    "$ref": "#/definitions/FieldValidation"
+                "validations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FieldValidationRule"
+                    }
                 },
                 "dependsOn": {
                     "type": "string"
@@ -436,101 +439,66 @@
                 }
             }
         },
-        "FieldValidation": {
+        "FieldValidationRule": {
             "type": "object",
-            "title": "Field Validation",
-            "description": "Validation rules for a configuration field. These rules describe the data contract and should be enforced by validation tooling. UI hints such as select options should not be treated as the source of truth for allowed values.",
+            "title": "Field Validation Rule",
+            "description": "A single validation rule. Uses 'type' as discriminator.",
+            "required": ["type"],
             "properties": {
-                "pattern": {
+                "id": {
                     "type": "string",
-                    "description": "Regular expression pattern used to validate string values. Typically used for URLs, hostnames, durations, IDs, or other structured string inputs.",
-                    "examples": [
-                        "^https?://.+",
-                        "^[a-zA-Z0-9_-]+$"
-                    ]
+                    "description": "Optional stable ID for docs, localization, and test snapshots."
                 },
                 "message": {
                     "type": "string",
-                    "description": "Human-readable validation error message shown when validation fails.",
-                    "examples": [
-                        "Must be a valid HTTP or HTTPS URL",
-                        "Only letters, numbers, underscores, and hyphens are allowed"
-                    ]
-                },
-                "min": {
-                    "type": "number",
-                    "description": "Minimum allowed numeric value. Applies when the parent field valueType is number.",
-                    "examples": [
-                        1,
-                        0
-                    ]
-                },
-                "max": {
-                    "type": "number",
-                    "description": "Maximum allowed numeric value. Applies when the parent field valueType is number.",
-                    "examples": [
-                        300,
-                        100
-                    ]
-                },
-                "minItems": {
-                    "type": "number",
-                    "description": "Minimum number of items allowed. Applies when the parent field valueType is array.",
-                    "examples": [
-                        0,
-                        1
-                    ]
-                },
-                "maxItems": {
-                    "type": "number",
-                    "description": "Maximum number of items allowed. Applies when the parent field valueType is array.",
-                    "examples": [
-                        10,
-                        100
-                    ]
-                },
-                "allowedValues": {
-                    "type": "array",
-                    "description": "Allowed values for this field. Values should match the parent field's valueType. This defines the data contract; UI options are only presentation hints.",
-                    "items": {},
-                    "examples": [
-                        [
-                            "no-auth",
-                            "bearer-token"
-                        ],
-                        [
-                            "GET",
-                            "POST"
-                        ],
-                        [
-                            "Prometheus",
-                            "Mimir",
-                            "Cortex",
-                            "Thanos"
-                        ]
-                    ]
+                    "description": "Human-readable validation error message."
                 }
             },
-            "examples": [
+            "oneOf": [
                 {
-                    "pattern": "^https?://.+",
-                    "message": "Must be a valid HTTP or HTTPS URL"
+                    "properties": {
+                        "type": { "const": "pattern" },
+                        "pattern": { "type": "string" }
+                    },
+                    "required": ["type", "pattern"]
                 },
                 {
-                    "min": 1,
-                    "max": 300,
-                    "message": "Must be between 1 and 300"
+                    "properties": {
+                        "type": { "const": "range" },
+                        "min": { "type": "number" },
+                        "max": { "type": "number" }
+                    },
+                    "required": ["type"]
                 },
                 {
-                    "minItems": 1,
-                    "maxItems": 10,
-                    "message": "Must contain between 1 and 10 items"
+                    "properties": {
+                        "type": { "const": "length" },
+                        "min": { "type": "number" },
+                        "max": { "type": "number" }
+                    },
+                    "required": ["type"]
                 },
                 {
-                    "allowedValues": [
-                        "no-auth",
-                        "bearer-token"
-                    ]
+                    "properties": {
+                        "type": { "const": "itemCount" },
+                        "min": { "type": "number" },
+                        "max": { "type": "number" }
+                    },
+                    "required": ["type"]
+                },
+                {
+                    "properties": {
+                        "type": { "const": "allowedValues" },
+                        "values": { "type": "array", "items": {} }
+                    },
+                    "required": ["type", "values"]
+                },
+                {
+                    "properties": {
+                        "type": { "const": "custom" },
+                        "expression": { "type": "string" }
+                    },
+                    "required": ["type", "expression"]
                 }
             ]
         },
@@ -553,8 +521,11 @@
                 "tooltip": {
                     "type": "string"
                 },
-                "validation": {
-                    "$ref": "#/definitions/FieldValidation"
+                "validations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FieldValidationRule"
+                    }
                 },
                 "options": {
                     "type": "array",

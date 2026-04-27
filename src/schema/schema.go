@@ -111,7 +111,7 @@ type ConfigField struct {
 	UI *FieldUI `json:"ui,omitempty"`
 
 	// Validation rules
-	Validation *FieldValidation `json:"validation,omitempty"`
+	Validations []FieldValidationRule `json:"validations,omitempty"`
 
 	// Conditional behavior (CEL)
 	DependsOn    string `json:"dependsOn,omitempty"`
@@ -326,17 +326,63 @@ const (
 )
 
 // ============================================================
-// Validation
+// Validations
 // ============================================================
 
-type FieldValidation struct {
-	Pattern       string   `json:"pattern,omitempty"`
-	Message       string   `json:"message,omitempty"`
-	Min           *float64 `json:"min,omitempty"`
-	Max           *float64 `json:"max,omitempty"`
-	MinItems      *int     `json:"minItems,omitempty"`
-	MaxItems      *int     `json:"maxItems,omitempty"`
-	AllowedValues []any    `json:"allowedValues,omitempty"`
+// ValidationRuleType defines the kind of validation rule.
+type ValidationRuleType string
+
+const (
+	PatternValidation       ValidationRuleType = "pattern"
+	RangeValidation         ValidationRuleType = "range"
+	LengthValidation        ValidationRuleType = "length"
+	ItemCountValidation     ValidationRuleType = "itemCount"
+	AllowedValuesValidation ValidationRuleType = "allowedValues"
+	CustomValidation        ValidationRuleType = "custom"
+)
+
+// FieldValidationRule is a discriminated union of validation rules.
+type FieldValidationRule struct {
+	Type    ValidationRuleType `json:"type"`
+	ID      string             `json:"id,omitempty"`
+	Message string             `json:"message,omitempty"`
+
+	// PatternValidation
+	Pattern string `json:"pattern,omitempty"`
+
+	// RangeValidation / LengthValidation / ItemCountValidation
+	Min *float64 `json:"min,omitempty"`
+	Max *float64 `json:"max,omitempty"`
+
+	// AllowedValuesValidation
+	Values []any `json:"values,omitempty"`
+
+	// CustomValidation
+	Expression string `json:"expression,omitempty"`
+}
+
+func (r *FieldValidationRule) Validate() error {
+	switch r.Type {
+	case PatternValidation:
+		if r.Pattern == "" {
+			return fmt.Errorf("pattern validation requires pattern")
+		}
+	case RangeValidation, LengthValidation, ItemCountValidation:
+		if r.Min == nil && r.Max == nil {
+			return fmt.Errorf("%s validation requires min or max", r.Type)
+		}
+	case AllowedValuesValidation:
+		if len(r.Values) == 0 {
+			return fmt.Errorf("allowedValues validation requires values")
+		}
+	case CustomValidation:
+		if r.Expression == "" {
+			return fmt.Errorf("custom validation requires expression")
+		}
+	default:
+		return fmt.Errorf("unknown validation rule type: %s", r.Type)
+	}
+	return nil
 }
 
 // ============================================================
@@ -352,8 +398,8 @@ type FieldOverride struct {
 	Placeholder  string `json:"placeholder,omitempty"`
 	Tooltip      string `json:"tooltip,omitempty"`
 
-	Validation *FieldValidation `json:"validation,omitempty"`
-	Options    []FieldOption    `json:"options,omitempty"`
+	Validations []FieldValidationRule `json:"validations,omitempty"`
+	Options     []FieldOption        `json:"options,omitempty"`
 }
 
 // ============================================================
