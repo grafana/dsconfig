@@ -330,12 +330,13 @@ const (
 // ============================================================
 
 type FieldValidation struct {
-	Pattern  string   `json:"pattern,omitempty"`
-	Message  string   `json:"message,omitempty"`
-	Min      *float64 `json:"min,omitempty"`
-	Max      *float64 `json:"max,omitempty"`
-	MinItems *int     `json:"minItems,omitempty"`
-	MaxItems *int     `json:"maxItems,omitempty"`
+	Pattern       string   `json:"pattern,omitempty"`
+	Message       string   `json:"message,omitempty"`
+	Min           *float64 `json:"min,omitempty"`
+	Max           *float64 `json:"max,omitempty"`
+	MinItems      *int     `json:"minItems,omitempty"`
+	MaxItems      *int     `json:"maxItems,omitempty"`
+	AllowedValues []any    `json:"allowedValues,omitempty"`
 }
 
 // ============================================================

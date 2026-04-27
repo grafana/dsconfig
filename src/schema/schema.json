@@ -438,26 +438,101 @@
         },
         "FieldValidation": {
             "type": "object",
+            "title": "Field Validation",
+            "description": "Validation rules for a configuration field. These rules describe the data contract and should be enforced by validation tooling. UI hints such as select options should not be treated as the source of truth for allowed values.",
             "properties": {
                 "pattern": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Regular expression pattern used to validate string values. Typically used for URLs, hostnames, durations, IDs, or other structured string inputs.",
+                    "examples": [
+                        "^https?://.+",
+                        "^[a-zA-Z0-9_-]+$"
+                    ]
                 },
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Human-readable validation error message shown when validation fails.",
+                    "examples": [
+                        "Must be a valid HTTP or HTTPS URL",
+                        "Only letters, numbers, underscores, and hyphens are allowed"
+                    ]
                 },
                 "min": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Minimum allowed numeric value. Applies when the parent field valueType is number.",
+                    "examples": [
+                        1,
+                        0
+                    ]
                 },
                 "max": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Maximum allowed numeric value. Applies when the parent field valueType is number.",
+                    "examples": [
+                        300,
+                        100
+                    ]
                 },
                 "minItems": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Minimum number of items allowed. Applies when the parent field valueType is array.",
+                    "examples": [
+                        0,
+                        1
+                    ]
                 },
                 "maxItems": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Maximum number of items allowed. Applies when the parent field valueType is array.",
+                    "examples": [
+                        10,
+                        100
+                    ]
+                },
+                "allowedValues": {
+                    "type": "array",
+                    "description": "Allowed values for this field. Values should match the parent field's valueType. This defines the data contract; UI options are only presentation hints.",
+                    "items": {},
+                    "examples": [
+                        [
+                            "no-auth",
+                            "bearer-token"
+                        ],
+                        [
+                            "GET",
+                            "POST"
+                        ],
+                        [
+                            "Prometheus",
+                            "Mimir",
+                            "Cortex",
+                            "Thanos"
+                        ]
+                    ]
                 }
-            }
+            },
+            "examples": [
+                {
+                    "pattern": "^https?://.+",
+                    "message": "Must be a valid HTTP or HTTPS URL"
+                },
+                {
+                    "min": 1,
+                    "max": 300,
+                    "message": "Must be between 1 and 300"
+                },
+                {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "message": "Must contain between 1 and 10 items"
+                },
+                {
+                    "allowedValues": [
+                        "no-auth",
+                        "bearer-token"
+                    ]
+                }
+            ]
         },
         "FieldOverride": {
             "type": "object",

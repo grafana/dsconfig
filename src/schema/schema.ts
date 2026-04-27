@@ -308,6 +308,8 @@ export interface FieldValidation {
 
     minItems?: number
     maxItems?: number
+
+    allowedValues?: unknown[]
 }
 
 
