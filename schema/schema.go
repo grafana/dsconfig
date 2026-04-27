@@ -629,11 +629,11 @@ type FieldOption struct {
 	Value any    `json:"value"`
 }
 
-// ValidateOptionValue checks that an option value is compatible with
-// the given field valueType.
+// ValidateOptionValue checks that an option value is non-nil and
+// compatible with the given field valueType.
 func ValidateOptionValue(v any, vt ValueType) bool {
 	if v == nil {
-		return true
+		return false
 	}
 	switch vt {
 	case StringType:

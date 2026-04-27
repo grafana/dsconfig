@@ -1224,11 +1224,14 @@ func TestValidateOptionValue_BoolMismatch(t *testing.T) {
 	assert.False(t, schema.ValidateOptionValue("true", schema.BooleanType))
 }
 
-// TestValidateOptionValue_NilAlwaysValid confirms that nil values
-// are accepted for any field type.
-func TestValidateOptionValue_NilAlwaysValid(t *testing.T) {
-	assert.True(t, schema.ValidateOptionValue(nil, schema.StringType))
-	assert.True(t, schema.ValidateOptionValue(nil, schema.NumberType))
+// TestValidateOptionValue_NilRejected confirms that nil values are
+// rejected for all field types, matching JSON Schema's "value is required".
+func TestValidateOptionValue_NilRejected(t *testing.T) {
+	assert.False(t, schema.ValidateOptionValue(nil, schema.StringType))
+	assert.False(t, schema.ValidateOptionValue(nil, schema.NumberType))
+	assert.False(t, schema.ValidateOptionValue(nil, schema.BooleanType))
+	assert.False(t, schema.ValidateOptionValue(nil, schema.ArrayType))
+	assert.False(t, schema.ValidateOptionValue(nil, schema.ObjectType))
 }
 
 // TestValidateOptionValue_ArrayObjectSkipped confirms that array
