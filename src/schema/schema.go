@@ -32,7 +32,8 @@ type DatasourceConfigSchema struct {
 }
 
 func (s *DatasourceConfigSchema) Validate() error {
-	if err := s.ValidateIDs(); err != nil {
+	fieldIDs, err := s.FieldIDs()
+	if err != nil {
 		return err
 	}
 
@@ -42,37 +43,33 @@ func (s *DatasourceConfigSchema) Validate() error {
 		}
 	}
 
+	if err := s.ValidateRefs(fieldIDs); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (s *DatasourceConfigSchema) ValidateIDs() error {
-	seen := map[string]bool{}
-
-	var visit func(fields []ConfigField) error
-	visit = func(fields []ConfigField) error {
-		for i := range fields {
-			f := fields[i]
-
-			if f.ID == "" {
-				return fmt.Errorf("field id is required")
-			}
-
-			if seen[f.ID] {
-				return fmt.Errorf("duplicate field id: %s", f.ID)
-			}
-			seen[f.ID] = true
-
-			if f.Item != nil {
-				if err := visit(f.Item.Fields); err != nil {
-					return err
-				}
+// ValidateRefs checks that all group and relationship field references
+// point to existing field IDs.
+func (s *DatasourceConfigSchema) ValidateRefs(fieldIDs map[string]bool) error {
+	for _, g := range s.Groups {
+		for _, ref := range g.FieldRefs {
+			if !fieldIDs[ref] {
+				return fmt.Errorf("group %s references unknown field id: %s", g.ID, ref)
 			}
 		}
-
-		return nil
 	}
 
-	return visit(s.Fields)
+	for _, r := range s.Relationships {
+		for _, ref := range r.Fields {
+			if !fieldIDs[ref] {
+				return fmt.Errorf("relationship references unknown field id: %s", ref)
+			}
+		}
+	}
+
+	return nil
 }
 
 // ============================================================
@@ -166,11 +163,21 @@ func (f *ConfigField) Validate() error {
 		}
 	}
 
+	if f.Kind != "" && !f.Kind.IsValid() {
+		return fmt.Errorf("field %s: invalid kind %q", f.ID, f.Kind)
+	}
+
 	if f.Target != nil && !f.Target.IsValid() {
 		return fmt.Errorf("field %s: invalid target: %s", f.ID, *f.Target)
 	}
 
 	if f.Item != nil {
+		if !f.Item.ValueType.IsValid() {
+			return fmt.Errorf("field %s: invalid item valueType %q", f.ID, f.Item.ValueType)
+		}
+		if f.Item.ValueType != ObjectType && len(f.Item.Fields) > 0 {
+			return fmt.Errorf("field %s: item fields are only allowed when item valueType is object", f.ID)
+		}
 		for i := range f.Item.Fields {
 			sub := &f.Item.Fields[i]
 			if sub.IsItemField == nil || !*sub.IsItemField {
@@ -297,6 +304,15 @@ const (
 	StorageField FieldKind = "storage"
 	VirtualField FieldKind = "virtual"
 )
+
+func (k FieldKind) IsValid() bool {
+	switch k {
+	case StorageField, VirtualField:
+		return true
+	default:
+		return false
+	}
+}
 
 // ============================================================
 // Lifecycle
