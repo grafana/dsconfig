@@ -16,11 +16,16 @@
     "url": "https://github.com/grafana/dsconfig/issues"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "packageManager": "yarn@4.13.0",
   "dependencies": {
     "@grafana/data": "12.4.2",
     "@grafana/schema": "12.4.2"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   }
 }
