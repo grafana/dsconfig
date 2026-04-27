@@ -69,7 +69,7 @@ describe("example schemas", () => {
                     storage: {
                         type: "indexedPair",
                         key: { target: "jsonData", pattern: "httpHeaderName{index}" },
-                        value: { target: "jsonData", pattern: "httpHeaderValue{index}" },
+                        value: { target: "secureJsonData", pattern: "httpHeaderValue{index}" },
                     },
                 },
                 {
@@ -361,7 +361,7 @@ describe("JSON round-trip", () => {
                     storage: {
                         type: "indexedPair",
                         key: { target: "jsonData", pattern: "headerName{i}" },
-                        value: { target: "jsonData", pattern: "headerValue{i}" },
+                        value: { target: "secureJsonData", pattern: "headerValue{i}" },
                     },
                 },
             ],

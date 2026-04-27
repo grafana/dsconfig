@@ -758,7 +758,7 @@ func TestStorageMapping_IndexedPair_Valid(t *testing.T) {
 	m := schema.StorageMapping{
 		Type:  schema.IndexedPairMapping,
 		Key:   &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "httpHeaderName{index}"},
-		Value: &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "httpHeaderValue{index}"},
+		Value: &schema.MappingField{Target: schema.SecureJSONTarget, Pattern: "httpHeaderValue{index}"},
 	}
 	require.NoError(t, m.Validate())
 }
@@ -977,7 +977,7 @@ func TestFullSchemaValidation_Prometheus(t *testing.T) {
 				Storage: &schema.StorageMapping{
 					Type:  schema.IndexedPairMapping,
 					Key:   &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "httpHeaderName{index}"},
-					Value: &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "httpHeaderValue{index}"},
+					Value: &schema.MappingField{Target: schema.SecureJSONTarget, Pattern: "httpHeaderValue{index}"},
 				},
 			},
 			{

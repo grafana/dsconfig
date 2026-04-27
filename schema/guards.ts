@@ -12,6 +12,18 @@ import type {
 } from "./schema"
 
 // ============================================================
+// Guards: shallow runtime type narrowing
+//
+// These guards check ONLY the type discriminator or enum membership.
+// They do NOT validate completeness or correctness of the full object.
+//
+// Use guards for:  JSON loading, type narrowing, conditional branching
+// Use validateSchema/validateField for:  full contract validation
+//
+// Example:
+//   isStorageMapping({ type: "indexedPair" })  → true  (shallow)
+//   validateStorageMapping({ type: "indexedPair" })  → errors (missing key/value)
+// ============================================================
 // Enum Guards
 // ============================================================
 
@@ -80,7 +92,11 @@ export function isRelationshipType(value: unknown): value is RelationshipType {
 
 const STORAGE_MAPPING_TYPES: ReadonlySet<string> = new Set(["direct", "indexedPair", "computed"])
 
-/** Checks if a value is a valid StorageMapping (has a recognized type discriminator) */
+/**
+ * Shallow guard: checks if a value has a recognized StorageMapping type discriminator.
+ * Does NOT validate completeness (e.g. indexedPair missing key/value passes).
+ * Use validateStorageMapping() for full contract validation.
+ */
 export function isStorageMapping(value: unknown): value is StorageMapping {
     return (
         typeof value === "object" &&
@@ -95,7 +111,11 @@ const VALIDATION_RULE_TYPES: ReadonlySet<string> = new Set([
     "pattern", "range", "length", "itemCount", "allowedValues", "custom",
 ])
 
-/** Checks if a value is a valid FieldValidationRule (has a recognized type discriminator) */
+/**
+ * Shallow guard: checks if a value has a recognized FieldValidationRule type discriminator.
+ * Does NOT validate completeness (e.g. pattern rule missing pattern passes).
+ * Use validateValidationRule() for full contract validation.
+ */
 export function isValidationRule(value: unknown): value is FieldValidationRule {
     return (
         typeof value === "object" &&
