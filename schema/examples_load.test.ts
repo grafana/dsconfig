@@ -11,7 +11,7 @@ import { validateSchema } from "./validate"
  * agree on what constitutes a valid schema.
  */
 
-const examplesDir = join(__dirname, "..", "examples")
+const examplesDir = join(__dirname, "examples")
 
 function loadExample(filename: string): DatasourceConfigSchema {
     const data = readFileSync(join(examplesDir, filename), "utf-8")

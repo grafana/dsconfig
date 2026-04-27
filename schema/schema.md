@@ -17,15 +17,15 @@ Declarative schema for Grafana datasource configuration.
 
 ## Root schema
 
-```
-schemaVersion  string        Required. Schema spec version (e.g. "v1").
-pluginType     string        Required. Unique plugin identifier (e.g. "prometheus").
-pluginName     string        Required. Human-readable name.
-docURL         string        Optional documentation URL.
-fields         ConfigField[] Required. Source of truth for all config fields.
-groups         ConfigGroup[] Optional UI layout grouping.
-relationships  FieldRelationship[]  Optional semantic relationships between fields.
-```
+| name          | type                | required  | descrption                                    |
+| ------------- | ------------------- | --------- | --------------------------------------------- |
+| schemaVersion | string              | Required. | Schema spec version (e.g. "v1").              |
+| pluginType    | string              | Required. | Unique plugin identifier (e.g. "prometheus"). |
+| pluginName    | string              | Required. | Human-readable name.                          |
+| docURL        | string              | Optional  | documentation URL.                            |
+| fields        | ConfigField[]       | Required. | Source of truth for all config fields.        |
+| groups        | ConfigGroup[]       | Optional  | UI layout grouping.                           |
+| relationships | FieldRelationship[] | Optional  | semantic relationships between fields.        |
 
 ## Field identity: `id` vs `key`
 
@@ -194,7 +194,7 @@ Expression fields (`dependsOn`, `requiredWhen`, `disabledWhen`, `overrides[].whe
 
 ## Examples
 
-See [`examples/`](../examples/) for copy-pasteable schema examples:
+See [`examples/`](./examples/) for copy-pasteable schema examples:
 
 - `simple-url.schema.json` — Minimal URL field
 - `bearer-token.schema.json` — Auth method select + secure token

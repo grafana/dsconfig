@@ -14,7 +14,7 @@ import (
 // examplesDir returns the path to the examples directory relative to the
 // test file. This allows `go test` to find examples from the schema/ dir.
 func examplesDir() string {
-	return filepath.Join("..", "examples")
+	return filepath.Join("examples")
 }
 
 // loadExample reads a JSON example file, unmarshals it into a
