@@ -594,7 +594,10 @@
                     "type": "string"
                 },
                 "value": {
-                    "description": "Must match parent field valueType"
+                    "not": {
+                        "type": "null"
+                    },
+                    "description": "Option value. Must not be null. Must match parent field valueType."
                 }
             }
         },

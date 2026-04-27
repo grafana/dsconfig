@@ -8,7 +8,8 @@
         "skipLibCheck": true,
         "outDir": "dist",
         "rootDir": ".",
-        "declaration": true
+        "declaration": true,
+        "types": ["node", "vitest/globals"]
     },
     "include": ["schema/**/*.ts"],
     "exclude": ["node_modules", "dist"]

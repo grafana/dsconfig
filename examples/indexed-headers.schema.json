@@ -1,0 +1,87 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "example-headers",
+    "pluginName": "HTTP Headers Datasource",
+    "fields": [
+        {
+            "id": "connection.url",
+            "key": "url",
+            "label": "URL",
+            "valueType": "string",
+            "semanticType": "url",
+            "target": "root",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional headers sent with every request",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header Name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Must be a valid HTTP header name"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Header Value",
+                        "valueType": "string",
+                        "isItemField": true
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                }
+            },
+            "validations": [
+                {
+                    "type": "itemCount",
+                    "max": 10,
+                    "message": "Maximum 10 custom headers"
+                }
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "connection.url"
+            ]
+        },
+        {
+            "id": "headers",
+            "title": "HTTP Headers",
+            "fieldRefs": [
+                "httpHeaders"
+            ]
+        }
+    ]
+}
