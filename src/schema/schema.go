@@ -1,5 +1,7 @@
 package schema
 
+import "fmt"
+
 // ============================================================
 // Root Schema
 // ============================================================
@@ -27,6 +29,27 @@ type DatasourceConfigSchema struct {
 
 	// Relationships between fields
 	Relationships []FieldRelationship `json:"relationships,omitempty"`
+}
+
+func (s *DatasourceConfigSchema) Validate() error {
+	for _, f := range s.Fields {
+		if err := f.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *DatasourceConfigSchema) ValidateIDs() error {
+	seen := map[string]bool{}
+	for _, f := range s.Fields {
+		if seen[f.ID] {
+			return fmt.Errorf("duplicate field id: %s", f.ID)
+		}
+		seen[f.ID] = true
+	}
+
+	return nil
 }
 
 // ============================================================
@@ -87,9 +110,27 @@ type ConfigField struct {
 	Storage *StorageMapping `json:"storage,omitempty"`
 
 	// Metadata
-	Tags         []string      `json:"tags,omitempty"`
-	Examples     []interface{} `json:"examples,omitempty"`
-	DefaultValue interface{}   `json:"defaultValue,omitempty"`
+	Tags         []string `json:"tags,omitempty"`
+	Examples     []any    `json:"examples,omitempty"`
+	DefaultValue any      `json:"defaultValue,omitempty"`
+}
+
+func (f *ConfigField) Validate() error {
+	if f.Item != nil {
+		for _, sub := range f.Item.Fields {
+			if sub.IsItemField == nil || !*sub.IsItemField {
+				return fmt.Errorf("field %s: item field %s must have isItemField=true", f.ID, sub.ID)
+			}
+		}
+	}
+	return nil
+}
+
+func (f ConfigField) Path() string {
+	if f.Target == nil {
+		return f.Key
+	}
+	return string(*f.Target) + "." + f.Key
 }
 
 // ============================================================
@@ -115,6 +156,15 @@ const (
 	ArrayType   ValueType = "array"
 	ObjectType  ValueType = "object"
 )
+
+func (v ValueType) IsValid() bool {
+	switch v {
+	case StringType, NumberType, BooleanType, ArrayType, ObjectType:
+		return true
+	default:
+		return false
+	}
+}
 
 // ============================================================
 // Semantic Types
@@ -228,10 +278,10 @@ type FieldValidation struct {
 type FieldOverride struct {
 	When string `json:"when"`
 
-	DefaultValue interface{} `json:"defaultValue,omitempty"`
-	Description  string      `json:"description,omitempty"`
-	Placeholder  string      `json:"placeholder,omitempty"`
-	Tooltip      string      `json:"tooltip,omitempty"`
+	DefaultValue any    `json:"defaultValue,omitempty"`
+	Description  string `json:"description,omitempty"`
+	Placeholder  string `json:"placeholder,omitempty"`
+	Tooltip      string `json:"tooltip,omitempty"`
 
 	Validation *FieldValidation `json:"validation,omitempty"`
 	Options    []FieldOption    `json:"options,omitempty"`
@@ -264,6 +314,26 @@ type StorageMapping struct {
 	Write string `json:"write,omitempty"`
 }
 
+func (m *StorageMapping) Validate() error {
+	switch m.Type {
+	case DirectMapping:
+		if m.Key != nil || m.Value != nil {
+			return fmt.Errorf("direct mapping must not have key/value")
+		}
+	case IndexedPairMapping:
+		if m.Key == nil || m.Value == nil {
+			return fmt.Errorf("indexedPair requires key and value")
+		}
+	case ComputedMapping:
+		if m.Read == "" && m.Write == "" {
+			return fmt.Errorf("computed mapping requires read or write")
+		}
+	default:
+		return fmt.Errorf("unknown mapping type: %s", m.Type)
+	}
+	return nil
+}
+
 // MappingField describes a mapped field.
 type MappingField struct {
 	Target  TargetLocation `json:"target"`
@@ -275,8 +345,8 @@ type MappingField struct {
 // ============================================================
 
 type FieldOption struct {
-	Label string      `json:"label"`
-	Value interface{} `json:"value"`
+	Label string `json:"label"`
+	Value any    `json:"value"`
 }
 
 // ============================================================
