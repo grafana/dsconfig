@@ -32,11 +32,16 @@ type DatasourceConfigSchema struct {
 }
 
 func (s *DatasourceConfigSchema) Validate() error {
-	for _, f := range s.Fields {
-		if err := f.Validate(); err != nil {
+	if err := s.ValidateIDs(); err != nil {
+		return err
+	}
+
+	for i := range s.Fields {
+		if err := s.Fields[i].Validate(); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -116,13 +121,49 @@ type ConfigField struct {
 }
 
 func (f *ConfigField) Validate() error {
+	if f.ID == "" {
+		return fmt.Errorf("field id is required")
+	}
+	if f.Key == "" {
+		return fmt.Errorf("field %s: key is required", f.ID)
+	}
+	if !f.ValueType.IsValid() {
+		return fmt.Errorf("field %s: invalid valueType %q", f.ID, f.ValueType)
+	}
+
+	isVirtual := f.Kind == VirtualField
+	isItem := f.IsItemField != nil && *f.IsItemField
+
+	if !isVirtual && !isItem && f.Target == nil {
+		return fmt.Errorf("field %s: target is required for storage fields", f.ID)
+	}
+
+	if f.ValueType == ArrayType && f.Item == nil {
+		return fmt.Errorf("field %s: item is required for array fields", f.ID)
+	}
+
+	if f.Storage != nil {
+		if err := f.Storage.Validate(); err != nil {
+			return fmt.Errorf("field %s: invalid storage mapping: %w", f.ID, err)
+		}
+	}
+
+	if f.Target != nil && !f.Target.IsValid() {
+		return fmt.Errorf("field %s: invalid target: %s", f.ID, *f.Target)
+	}
+
 	if f.Item != nil {
-		for _, sub := range f.Item.Fields {
+		for i := range f.Item.Fields {
+			sub := &f.Item.Fields[i]
 			if sub.IsItemField == nil || !*sub.IsItemField {
 				return fmt.Errorf("field %s: item field %s must have isItemField=true", f.ID, sub.ID)
 			}
+			if err := sub.Validate(); err != nil {
+				return fmt.Errorf("field %s: invalid item field %s: %w", f.ID, sub.ID, err)
+			}
 		}
 	}
+
 	return nil
 }
 
@@ -214,6 +255,15 @@ const (
 	JSONDataTarget   TargetLocation = "jsonData"
 	SecureJSONTarget TargetLocation = "secureJsonData"
 )
+
+func (t TargetLocation) IsValid() bool {
+	switch t {
+	case RootTarget, JSONDataTarget, SecureJSONTarget:
+		return true
+	default:
+		return false
+	}
+}
 
 // ============================================================
 // UI Components
@@ -317,20 +367,36 @@ type StorageMapping struct {
 func (m *StorageMapping) Validate() error {
 	switch m.Type {
 	case DirectMapping:
-		if m.Key != nil || m.Value != nil {
-			return fmt.Errorf("direct mapping must not have key/value")
+		if m.Key != nil || m.Value != nil || m.StartIndex != nil || m.Read != "" || m.Write != "" {
+			return fmt.Errorf("direct mapping must not have key/value/startIndex/read/write")
 		}
+
 	case IndexedPairMapping:
 		if m.Key == nil || m.Value == nil {
 			return fmt.Errorf("indexedPair requires key and value")
 		}
+		if m.Read != "" || m.Write != "" {
+			return fmt.Errorf("indexedPair must not have read/write")
+		}
+		if err := m.Key.Validate(); err != nil {
+			return fmt.Errorf("indexedPair key: %w", err)
+		}
+		if err := m.Value.Validate(); err != nil {
+			return fmt.Errorf("indexedPair value: %w", err)
+		}
+
 	case ComputedMapping:
 		if m.Read == "" && m.Write == "" {
 			return fmt.Errorf("computed mapping requires read or write")
 		}
+		if m.Key != nil || m.Value != nil || m.StartIndex != nil {
+			return fmt.Errorf("computed mapping must not have key/value/startIndex")
+		}
+
 	default:
 		return fmt.Errorf("unknown mapping type: %s", m.Type)
 	}
+
 	return nil
 }
 
@@ -338,6 +404,16 @@ func (m *StorageMapping) Validate() error {
 type MappingField struct {
 	Target  TargetLocation `json:"target"`
 	Pattern string         `json:"pattern"`
+}
+
+func (m MappingField) Validate() error {
+	if !m.Target.IsValid() {
+		return fmt.Errorf("invalid target %q", m.Target)
+	}
+	if m.Pattern == "" {
+		return fmt.Errorf("pattern is required")
+	}
+	return nil
 }
 
 // ============================================================
