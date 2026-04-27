@@ -182,7 +182,55 @@ func (f *ConfigField) Validate() error {
 		}
 	}
 
+	for i := range f.Validations {
+		if err := f.Validations[i].Validate(); err != nil {
+			return fmt.Errorf("field %s: invalid validation rule: %w", f.ID, err)
+		}
+	}
+
+	for i := range f.Overrides {
+		for j := range f.Overrides[i].Validations {
+			if err := f.Overrides[i].Validations[j].Validate(); err != nil {
+				return fmt.Errorf("field %s: invalid override validation rule: %w", f.ID, err)
+			}
+		}
+	}
+
 	return nil
+}
+
+func (s *DatasourceConfigSchema) FieldIDs() (map[string]bool, error) {
+	seen := map[string]bool{}
+
+	var visit func(fields []ConfigField) error
+	visit = func(fields []ConfigField) error {
+		for i := range fields {
+			f := fields[i]
+
+			if f.ID == "" {
+				return fmt.Errorf("field id is required")
+			}
+
+			if seen[f.ID] {
+				return fmt.Errorf("duplicate field id: %s", f.ID)
+			}
+			seen[f.ID] = true
+
+			if f.Item != nil {
+				if err := visit(f.Item.Fields); err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}
+
+	if err := visit(s.Fields); err != nil {
+		return nil, err
+	}
+
+	return seen, nil
 }
 
 func (f ConfigField) Path() string {
@@ -399,7 +447,7 @@ type FieldOverride struct {
 	Tooltip      string `json:"tooltip,omitempty"`
 
 	Validations []FieldValidationRule `json:"validations,omitempty"`
-	Options     []FieldOption        `json:"options,omitempty"`
+	Options     []FieldOption         `json:"options,omitempty"`
 }
 
 // ============================================================

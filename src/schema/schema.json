@@ -443,7 +443,9 @@
             "type": "object",
             "title": "Field Validation Rule",
             "description": "A single validation rule. Uses 'type' as discriminator.",
-            "required": ["type"],
+            "required": [
+                "type"
+            ],
             "properties": {
                 "id": {
                     "type": "string",
@@ -457,48 +459,94 @@
             "oneOf": [
                 {
                     "properties": {
-                        "type": { "const": "pattern" },
-                        "pattern": { "type": "string" }
+                        "type": {
+                            "const": "pattern"
+                        },
+                        "pattern": {
+                            "type": "string"
+                        }
                     },
-                    "required": ["type", "pattern"]
+                    "required": [
+                        "type",
+                        "pattern"
+                    ]
                 },
                 {
                     "properties": {
-                        "type": { "const": "range" },
-                        "min": { "type": "number" },
-                        "max": { "type": "number" }
+                        "type": {
+                            "const": "range"
+                        },
+                        "min": {
+                            "type": "number"
+                        },
+                        "max": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["type"]
+                    "required": [
+                        "type"
+                    ]
                 },
                 {
                     "properties": {
-                        "type": { "const": "length" },
-                        "min": { "type": "number" },
-                        "max": { "type": "number" }
+                        "type": {
+                            "const": "length"
+                        },
+                        "min": {
+                            "type": "number"
+                        },
+                        "max": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["type"]
+                    "required": [
+                        "type"
+                    ]
                 },
                 {
                     "properties": {
-                        "type": { "const": "itemCount" },
-                        "min": { "type": "number" },
-                        "max": { "type": "number" }
+                        "type": {
+                            "const": "itemCount"
+                        },
+                        "min": {
+                            "type": "number"
+                        },
+                        "max": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["type"]
+                    "required": [
+                        "type"
+                    ]
                 },
                 {
                     "properties": {
-                        "type": { "const": "allowedValues" },
-                        "values": { "type": "array", "items": {} }
+                        "type": {
+                            "const": "allowedValues"
+                        },
+                        "values": {
+                            "type": "array",
+                            "items": {}
+                        }
                     },
-                    "required": ["type", "values"]
+                    "required": [
+                        "type",
+                        "values"
+                    ]
                 },
                 {
                     "properties": {
-                        "type": { "const": "custom" },
-                        "expression": { "type": "string" }
+                        "type": {
+                            "const": "custom"
+                        },
+                        "expression": {
+                            "type": "string"
+                        }
                     },
-                    "required": ["type", "expression"]
+                    "required": [
+                        "type",
+                        "expression"
+                    ]
                 }
             ]
         },
