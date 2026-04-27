@@ -32,15 +32,28 @@ type DatasourceConfigSchema struct {
 }
 
 func (s *DatasourceConfigSchema) Validate() error {
-	fieldIDs, err := s.FieldIDs()
-	if err != nil {
-		return err
+	if s.SchemaVersion == "" {
+		return fmt.Errorf("schemaVersion is required")
+	}
+	if s.PluginType == "" {
+		return fmt.Errorf("pluginType is required")
+	}
+	if s.PluginName == "" {
+		return fmt.Errorf("pluginName is required")
+	}
+	if len(s.Fields) == 0 {
+		return fmt.Errorf("fields is required")
 	}
 
 	for i := range s.Fields {
 		if err := s.Fields[i].Validate(); err != nil {
 			return err
 		}
+	}
+
+	fieldIDs, err := s.FieldIDs()
+	if err != nil {
+		return err
 	}
 
 	if err := s.ValidateRefs(fieldIDs); err != nil {

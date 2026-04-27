@@ -24,6 +24,14 @@ func validStorageField(id, key string) schema.ConfigField {
 // and the provided fields. Useful for testing schema-level validation
 // without repeating root-level boilerplate.
 func minimalSchema(fields ...schema.ConfigField) *schema.DatasourceConfigSchema {
+	if len(fields) == 0 {
+		fields = append(fields, schema.ConfigField{
+			ID:        "url",
+			Key:       "url",
+			ValueType: schema.StringType,
+			Target:    ptr(schema.RootTarget),
+		})
+	}
 	return &schema.DatasourceConfigSchema{
 		SchemaVersion: "v1",
 		PluginType:    "test",
