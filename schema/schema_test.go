@@ -1,9 +1,10 @@
 package schema_test
 
 import (
+	"encoding/json"
 	"testing"
 
-	"github.com/grafana/dsconfig/src/schema"
+	"github.com/grafana/dsconfig/schema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1000,4 +1001,617 @@ func TestFullSchemaValidation_Prometheus(t *testing.T) {
 	ids, err := s.FieldIDs()
 	require.NoError(t, err)
 	assert.Len(t, ids, 10)
+}
+
+// ============================================================
+// SemanticType.IsValid
+// ============================================================
+
+// TestSemanticType_Valid verifies all defined SemanticType constants
+// are recognized as valid.
+func TestSemanticType_Valid(t *testing.T) {
+	for _, st := range []schema.SemanticType{
+		schema.URLType, schema.PasswordType, schema.TokenType,
+		schema.HostnameType, schema.DurationType,
+	} {
+		assert.True(t, st.IsValid(), "%s should be valid", st)
+	}
+}
+
+// TestSemanticType_Invalid verifies that empty and unknown semantic
+// types are rejected.
+func TestSemanticType_Invalid(t *testing.T) {
+	assert.False(t, schema.SemanticType("").IsValid())
+	assert.False(t, schema.SemanticType("email").IsValid())
+}
+
+// TestFieldValidate_InvalidSemanticType ensures that a field with an
+// unrecognized semanticType is rejected during validation.
+func TestFieldValidate_InvalidSemanticType(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.SemanticType = "email"
+	assert.ErrorContains(t, f.Validate(), "invalid semanticType")
+}
+
+// TestFieldValidate_ValidSemanticType confirms that known semantic
+// types pass validation.
+func TestFieldValidate_ValidSemanticType(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.SemanticType = schema.PasswordType
+	require.NoError(t, f.Validate())
+}
+
+// ============================================================
+// Lifecycle.IsValid
+// ============================================================
+
+// TestLifecycle_Valid verifies all defined Lifecycle constants
+// are recognized as valid.
+func TestLifecycle_Valid(t *testing.T) {
+	for _, l := range []schema.Lifecycle{
+		schema.StableLifecycle, schema.DeprecatedLifecycle, schema.ExperimentalLifecycle,
+	} {
+		assert.True(t, l.IsValid(), "%s should be valid", l)
+	}
+}
+
+// TestLifecycle_Invalid verifies that empty and unknown lifecycle
+// values are rejected.
+func TestLifecycle_Invalid(t *testing.T) {
+	assert.False(t, schema.Lifecycle("").IsValid())
+	assert.False(t, schema.Lifecycle("beta").IsValid())
+}
+
+// TestFieldValidate_InvalidLifecycle ensures that a field with an
+// unrecognized lifecycle is rejected during validation.
+func TestFieldValidate_InvalidLifecycle(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.Lifecycle = "beta"
+	assert.ErrorContains(t, f.Validate(), "invalid lifecycle")
+}
+
+// TestFieldValidate_ValidLifecycle confirms that known lifecycle
+// values pass validation.
+func TestFieldValidate_ValidLifecycle(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.Lifecycle = schema.DeprecatedLifecycle
+	require.NoError(t, f.Validate())
+}
+
+// ============================================================
+// UIComponent.IsValid
+// ============================================================
+
+// TestUIComponent_Valid verifies all defined UIComponent constants
+// are recognized as valid.
+func TestUIComponent_Valid(t *testing.T) {
+	for _, c := range []schema.UIComponent{
+		schema.UIInput, schema.UITextarea, schema.UISelect, schema.UIMultiselect,
+		schema.UIRadio, schema.UICheckbox, schema.UISwitch, schema.UICode,
+		schema.UIKeyValue, schema.UIList,
+	} {
+		assert.True(t, c.IsValid(), "%s should be valid", c)
+	}
+}
+
+// TestUIComponent_Invalid verifies that empty and unknown component
+// names are rejected.
+func TestUIComponent_Invalid(t *testing.T) {
+	assert.False(t, schema.UIComponent("").IsValid())
+	assert.False(t, schema.UIComponent("datepicker").IsValid())
+}
+
+// TestFieldValidate_InvalidUIComponent ensures that a field with
+// an unrecognized UI component is rejected during validation.
+func TestFieldValidate_InvalidUIComponent(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.UI = &schema.FieldUI{Component: "datepicker"}
+	assert.ErrorContains(t, f.Validate(), "invalid ui component")
+}
+
+// TestFieldValidate_ValidUIComponent confirms that a field with
+// a known UI component passes validation.
+func TestFieldValidate_ValidUIComponent(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.UI = &schema.FieldUI{Component: schema.UIInput}
+	require.NoError(t, f.Validate())
+}
+
+// ============================================================
+// UIWidth.IsValid
+// ============================================================
+
+// TestUIWidth_Valid verifies that full and half are accepted.
+func TestUIWidth_Valid(t *testing.T) {
+	assert.True(t, schema.FullWidth.IsValid())
+	assert.True(t, schema.HalfWidth.IsValid())
+}
+
+// TestUIWidth_Invalid verifies that empty and unknown widths
+// are rejected.
+func TestUIWidth_Invalid(t *testing.T) {
+	assert.False(t, schema.UIWidth("").IsValid())
+	assert.False(t, schema.UIWidth("third").IsValid())
+}
+
+// TestFieldValidate_InvalidUIWidth ensures that a field with an
+// unrecognized UI width is rejected during validation.
+func TestFieldValidate_InvalidUIWidth(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.UI = &schema.FieldUI{Component: schema.UIInput, Width: "third"}
+	assert.ErrorContains(t, f.Validate(), "invalid ui width")
+}
+
+// TestFieldValidate_ValidUIWidth confirms that a known UI width
+// passes validation.
+func TestFieldValidate_ValidUIWidth(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.UI = &schema.FieldUI{Component: schema.UIInput, Width: schema.HalfWidth}
+	require.NoError(t, f.Validate())
+}
+
+// ============================================================
+// RelationshipType.IsValid
+// ============================================================
+
+// TestRelationshipType_Valid verifies that pair and group are
+// accepted as valid relationship types.
+func TestRelationshipType_Valid(t *testing.T) {
+	assert.True(t, schema.PairRelationship.IsValid())
+	assert.True(t, schema.GroupRelationship.IsValid())
+}
+
+// TestRelationshipType_Invalid verifies that empty and unknown
+// relationship types are rejected.
+func TestRelationshipType_Invalid(t *testing.T) {
+	assert.False(t, schema.RelationshipType("").IsValid())
+	assert.False(t, schema.RelationshipType("dependency").IsValid())
+}
+
+// TestValidateRefs_InvalidRelationshipType ensures that a schema
+// with an invalid relationship type is rejected.
+func TestValidateRefs_InvalidRelationshipType(t *testing.T) {
+	s := minimalSchema(validStorageField("a", "a"))
+	s.Relationships = []schema.FieldRelationship{
+		{Type: "dependency", Fields: []string{"a"}},
+	}
+	assert.ErrorContains(t, s.Validate(), "invalid type")
+}
+
+// ============================================================
+// ValidateOptionValue — option type checking
+// ============================================================
+
+// TestValidateOptionValue_StringMatch confirms that string options
+// are accepted for string fields.
+func TestValidateOptionValue_StringMatch(t *testing.T) {
+	assert.True(t, schema.ValidateOptionValue("hello", schema.StringType))
+}
+
+// TestValidateOptionValue_StringMismatch ensures that a numeric
+// option is rejected for a string field.
+func TestValidateOptionValue_StringMismatch(t *testing.T) {
+	assert.False(t, schema.ValidateOptionValue(42, schema.StringType))
+}
+
+// TestValidateOptionValue_NumberInt confirms that int values are
+// accepted for number fields.
+func TestValidateOptionValue_NumberInt(t *testing.T) {
+	assert.True(t, schema.ValidateOptionValue(42, schema.NumberType))
+}
+
+// TestValidateOptionValue_NumberFloat confirms that float64 values
+// are accepted for number fields.
+func TestValidateOptionValue_NumberFloat(t *testing.T) {
+	assert.True(t, schema.ValidateOptionValue(3.14, schema.NumberType))
+}
+
+// TestValidateOptionValue_NumberMismatch ensures that a string
+// value is rejected for a number field.
+func TestValidateOptionValue_NumberMismatch(t *testing.T) {
+	assert.False(t, schema.ValidateOptionValue("not-a-number", schema.NumberType))
+}
+
+// TestValidateOptionValue_BoolMatch confirms that bool values are
+// accepted for boolean fields.
+func TestValidateOptionValue_BoolMatch(t *testing.T) {
+	assert.True(t, schema.ValidateOptionValue(true, schema.BooleanType))
+}
+
+// TestValidateOptionValue_BoolMismatch ensures that a string value
+// is rejected for a boolean field.
+func TestValidateOptionValue_BoolMismatch(t *testing.T) {
+	assert.False(t, schema.ValidateOptionValue("true", schema.BooleanType))
+}
+
+// TestValidateOptionValue_NilAlwaysValid confirms that nil values
+// are accepted for any field type.
+func TestValidateOptionValue_NilAlwaysValid(t *testing.T) {
+	assert.True(t, schema.ValidateOptionValue(nil, schema.StringType))
+	assert.True(t, schema.ValidateOptionValue(nil, schema.NumberType))
+}
+
+// TestValidateOptionValue_ArrayObjectSkipped confirms that array
+// and object fields skip type checking on option values.
+func TestValidateOptionValue_ArrayObjectSkipped(t *testing.T) {
+	assert.True(t, schema.ValidateOptionValue("anything", schema.ArrayType))
+	assert.True(t, schema.ValidateOptionValue(42, schema.ObjectType))
+}
+
+// TestFieldValidate_OptionTypeMismatch ensures that a select field
+// with an option value that doesn't match the field's valueType is
+// rejected during validation.
+func TestFieldValidate_OptionTypeMismatch(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.ValueType = schema.StringType
+	f.UI = &schema.FieldUI{
+		Component: schema.UISelect,
+		Options: []schema.FieldOption{
+			{Label: "Good", Value: "good"},
+			{Label: "Bad", Value: 42}, // mismatch: number in string field
+		},
+	}
+	assert.ErrorContains(t, f.Validate(), "option[1] value type mismatch")
+}
+
+// TestFieldValidate_OptionTypeValid confirms that a select field
+// with correctly-typed option values passes validation.
+func TestFieldValidate_OptionTypeValid(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.ValueType = schema.StringType
+	f.UI = &schema.FieldUI{
+		Component: schema.UISelect,
+		Options: []schema.FieldOption{
+			{Label: "GET", Value: "GET"},
+			{Label: "POST", Value: "POST"},
+		},
+	}
+	require.NoError(t, f.Validate())
+}
+
+// TestFieldValidate_NumberOptionTypeValid confirms that number
+// field options with numeric values pass validation.
+func TestFieldValidate_NumberOptionTypeValid(t *testing.T) {
+	f := validStorageField("x", "x")
+	f.ValueType = schema.NumberType
+	f.UI = &schema.FieldUI{
+		Component: schema.UISelect,
+		Options: []schema.FieldOption{
+			{Label: "Low", Value: 1},
+			{Label: "High", Value: 100},
+		},
+	}
+	require.NoError(t, f.Validate())
+}
+
+// ============================================================
+// JSON round-trip compatibility
+// ============================================================
+
+// TestJSONRoundTrip_MinimalSchema verifies that a minimal schema
+// survives JSON marshal/unmarshal and still validates.
+func TestJSONRoundTrip_MinimalSchema(t *testing.T) {
+	s := minimalSchema(validStorageField("url", "url"))
+	require.NoError(t, s.Validate())
+
+	data, err := json.Marshal(s)
+	require.NoError(t, err)
+
+	var decoded schema.DatasourceConfigSchema
+	require.NoError(t, json.Unmarshal(data, &decoded))
+	require.NoError(t, decoded.Validate())
+
+	assert.Equal(t, s.SchemaVersion, decoded.SchemaVersion)
+	assert.Equal(t, s.PluginType, decoded.PluginType)
+	assert.Len(t, decoded.Fields, 1)
+	assert.Equal(t, "url", decoded.Fields[0].ID)
+}
+
+// TestJSONRoundTrip_FullSchema verifies that a complex schema with
+// all feature areas (groups, relationships, validations, overrides,
+// storage mappings, item fields) survives JSON round-trip.
+func TestJSONRoundTrip_FullSchema(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1",
+		PluginType:    "test",
+		PluginName:    "Test Plugin",
+		DocURL:        "https://example.com/docs",
+		Fields: []schema.ConfigField{
+			{
+				ID: "url", Key: "url", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget), Required: true,
+				SemanticType: schema.URLType,
+				Lifecycle:    schema.StableLifecycle,
+				Validations: []schema.FieldValidationRule{
+					{Type: schema.PatternValidation, Pattern: "^https?://", ID: "url-check", Message: "Must be URL"},
+				},
+				UI: &schema.FieldUI{Component: schema.UIInput, Width: schema.FullWidth, Placeholder: "https://..."},
+			},
+			{
+				ID: "method", Key: "httpMethod", ValueType: schema.StringType,
+				Target: ptr(schema.JSONDataTarget),
+				Validations: []schema.FieldValidationRule{
+					{Type: schema.AllowedValuesValidation, Values: []any{"GET", "POST"}},
+				},
+				UI: &schema.FieldUI{
+					Component: schema.UISelect,
+					Options: []schema.FieldOption{
+						{Label: "GET", Value: "GET"},
+						{Label: "POST", Value: "POST"},
+					},
+				},
+				Overrides: []schema.FieldOverride{
+					{When: "version == 'v2'", DefaultValue: "POST"},
+				},
+			},
+			{
+				ID: "headers", Key: "headers", ValueType: schema.ArrayType,
+				Target: ptr(schema.JSONDataTarget),
+				Item: &schema.FieldItemSchema{
+					ValueType: schema.ObjectType,
+					Fields: []schema.ConfigField{
+						{ID: "headers.item.k", Key: "key", ValueType: schema.StringType, IsItemField: ptr(true)},
+						{ID: "headers.item.v", Key: "value", ValueType: schema.StringType, IsItemField: ptr(true)},
+					},
+				},
+				Storage: &schema.StorageMapping{
+					Type:  schema.IndexedPairMapping,
+					Key:   &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "headerName{index}"},
+					Value: &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "headerValue{index}"},
+				},
+			},
+		},
+		Groups: []schema.ConfigGroup{
+			{ID: "conn", Title: "Connection", FieldRefs: []string{"url", "method"}},
+		},
+		Relationships: []schema.FieldRelationship{
+			{Type: schema.PairRelationship, Fields: []string{"headers.item.k", "headers.item.v"}},
+		},
+	}
+
+	require.NoError(t, s.Validate())
+
+	data, err := json.Marshal(s)
+	require.NoError(t, err)
+
+	var decoded schema.DatasourceConfigSchema
+	require.NoError(t, json.Unmarshal(data, &decoded))
+	require.NoError(t, decoded.Validate())
+
+	assert.Equal(t, s.PluginType, decoded.PluginType)
+	assert.Len(t, decoded.Fields, 3)
+	assert.Len(t, decoded.Groups, 1)
+	assert.Len(t, decoded.Relationships, 1)
+	assert.Equal(t, schema.IndexedPairMapping, decoded.Fields[2].Storage.Type)
+}
+
+// TestJSONRoundTrip_ValidationRules verifies that all validation
+// rule types survive JSON serialization with correct discriminators.
+func TestJSONRoundTrip_ValidationRules(t *testing.T) {
+	rules := []schema.FieldValidationRule{
+		{Type: schema.PatternValidation, Pattern: "^[a-z]+$", Message: "lowercase only"},
+		{Type: schema.RangeValidation, Min: ptr(0.0), Max: ptr(100.0)},
+		{Type: schema.LengthValidation, Min: ptr(1.0)},
+		{Type: schema.ItemCountValidation, Max: ptr(10.0)},
+		{Type: schema.AllowedValuesValidation, Values: []any{"a", "b"}},
+		{Type: schema.CustomValidation, Expression: "self.size() > 0"},
+	}
+
+	data, err := json.Marshal(rules)
+	require.NoError(t, err)
+
+	var decoded []schema.FieldValidationRule
+	require.NoError(t, json.Unmarshal(data, &decoded))
+
+	require.Len(t, decoded, 6)
+	for i := range decoded {
+		assert.Equal(t, rules[i].Type, decoded[i].Type)
+		require.NoError(t, decoded[i].Validate())
+	}
+}
+
+// TestJSONRoundTrip_StorageMappingTypes verifies that all three
+// storage mapping types survive JSON serialization.
+func TestJSONRoundTrip_StorageMappingTypes(t *testing.T) {
+	mappings := []schema.StorageMapping{
+		{Type: schema.DirectMapping},
+		{
+			Type:  schema.IndexedPairMapping,
+			Key:   &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "k{i}"},
+			Value: &schema.MappingField{Target: schema.JSONDataTarget, Pattern: "v{i}"},
+		},
+		{Type: schema.ComputedMapping, Read: "expr"},
+	}
+
+	for _, m := range mappings {
+		data, err := json.Marshal(m)
+		require.NoError(t, err)
+
+		var decoded schema.StorageMapping
+		require.NoError(t, json.Unmarshal(data, &decoded))
+		assert.Equal(t, m.Type, decoded.Type)
+		require.NoError(t, decoded.Validate())
+	}
+}
+
+// ============================================================
+// Example schemas — Loki & Tempo
+// ============================================================
+
+// TestExampleSchema_Loki validates a Loki-like datasource schema
+// with derived fields (array of objects), basic auth, and groups.
+func TestExampleSchema_Loki(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1",
+		PluginType:    "loki",
+		PluginName:    "Loki",
+		Fields: []schema.ConfigField{
+			{
+				ID: "url", Key: "url", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget), Required: true,
+				SemanticType: schema.URLType,
+			},
+			{
+				ID: "jsonData.maxLines", Key: "maxLines", ValueType: schema.StringType,
+				Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "jsonData.derivedFields", Key: "derivedFields",
+				ValueType: schema.ArrayType, Target: ptr(schema.JSONDataTarget),
+				Item: &schema.FieldItemSchema{
+					ValueType: schema.ObjectType,
+					Fields: []schema.ConfigField{
+						{ID: "derivedFields.item.name", Key: "name", ValueType: schema.StringType, IsItemField: ptr(true)},
+						{ID: "derivedFields.item.matcherRegex", Key: "matcherRegex", ValueType: schema.StringType, IsItemField: ptr(true)},
+						{ID: "derivedFields.item.url", Key: "url", ValueType: schema.StringType, IsItemField: ptr(true),
+							SemanticType: schema.URLType},
+					},
+				},
+			},
+			{
+				ID: "jsonData.timeout", Key: "timeout", ValueType: schema.NumberType,
+				Target: ptr(schema.JSONDataTarget),
+				Validations: []schema.FieldValidationRule{
+					{Type: schema.RangeValidation, Min: ptr(1.0), Max: ptr(600.0)},
+				},
+			},
+		},
+		Groups: []schema.ConfigGroup{
+			{ID: "connection", Title: "Connection", FieldRefs: []string{"url", "jsonData.timeout"}},
+			{ID: "derived", Title: "Derived Fields", FieldRefs: []string{"jsonData.derivedFields"}},
+		},
+	}
+	require.NoError(t, s.Validate())
+
+	ids, err := s.FieldIDs()
+	require.NoError(t, err)
+	assert.Len(t, ids, 7) // 4 top-level + 3 item fields
+}
+
+// TestExampleSchema_Tempo validates a Tempo-like datasource schema
+// with nested config (service map), virtual fields, and custom
+// validation rules.
+func TestExampleSchema_Tempo(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1",
+		PluginType:    "tempo",
+		PluginName:    "Tempo",
+		Fields: []schema.ConfigField{
+			{
+				ID: "url", Key: "url", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget), Required: true,
+				SemanticType: schema.URLType,
+				Lifecycle:    schema.StableLifecycle,
+			},
+			{
+				ID: "jsonData.serviceMap.datasourceUid", Key: "serviceMap.datasourceUid",
+				ValueType: schema.StringType, Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "jsonData.search.hide", Key: "search.hide",
+				ValueType: schema.BooleanType, Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "jsonData.nodeGraph.enabled", Key: "nodeGraph.enabled",
+				ValueType: schema.BooleanType, Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "jsonData.streamingEnabled.search", Key: "streamingEnabled.search",
+				ValueType: schema.BooleanType, Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "jsonData.streamingEnabled.metrics", Key: "streamingEnabled.metrics",
+				ValueType: schema.BooleanType, Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "derived.hasServiceMap", Key: "hasServiceMap",
+				ValueType: schema.BooleanType, Kind: schema.VirtualField,
+				Lifecycle: schema.ExperimentalLifecycle,
+				DependsOn: "jsonData.serviceMap.datasourceUid != ''",
+			},
+		},
+		Groups: []schema.ConfigGroup{
+			{ID: "connection", Title: "Connection", FieldRefs: []string{"url"}},
+			{ID: "features", Title: "Features", FieldRefs: []string{
+				"jsonData.nodeGraph.enabled",
+				"jsonData.streamingEnabled.search",
+				"jsonData.streamingEnabled.metrics",
+			}},
+		},
+		Relationships: []schema.FieldRelationship{
+			{
+				Type:   schema.GroupRelationship,
+				Fields: []string{"jsonData.streamingEnabled.search", "jsonData.streamingEnabled.metrics"},
+			},
+		},
+	}
+	require.NoError(t, s.Validate())
+}
+
+// TestExampleSchema_MySQL validates a MySQL-like datasource schema
+// with secure fields, conditional requirements, and legacy patterns.
+func TestExampleSchema_MySQL(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1",
+		PluginType:    "mysql",
+		PluginName:    "MySQL",
+		Fields: []schema.ConfigField{
+			{
+				ID: "url", Key: "url", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget), Required: true,
+				SemanticType: schema.URLType,
+				Validations: []schema.FieldValidationRule{
+					{Type: schema.PatternValidation, Pattern: ".+:\\d+", Message: "Must include host:port"},
+				},
+			},
+			{
+				ID: "root.database", Key: "database", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget),
+			},
+			{
+				ID: "root.user", Key: "user", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget),
+			},
+			{
+				ID: "secureJsonData.password", Key: "password", ValueType: schema.StringType,
+				Target: ptr(schema.SecureJSONTarget), SemanticType: schema.PasswordType,
+				RequiredWhen: "root.user != ''",
+			},
+			{
+				ID: "jsonData.maxOpenConns", Key: "maxOpenConns", ValueType: schema.NumberType,
+				Target: ptr(schema.JSONDataTarget),
+				Validations: []schema.FieldValidationRule{
+					{Type: schema.RangeValidation, Min: ptr(0.0), Max: ptr(100.0)},
+				},
+			},
+			{
+				ID: "jsonData.connMaxLifetime", Key: "connMaxLifetime", ValueType: schema.NumberType,
+				Target:       ptr(schema.JSONDataTarget),
+				SemanticType: schema.DurationType,
+			},
+			{
+				ID: "jsonData.tlsAuth", Key: "tlsAuth", ValueType: schema.BooleanType,
+				Target: ptr(schema.JSONDataTarget),
+			},
+			{
+				ID: "secureJsonData.tlsCACert", Key: "tlsCACert", ValueType: schema.StringType,
+				Target:    ptr(schema.SecureJSONTarget),
+				DependsOn: "jsonData.tlsAuth == true",
+				UI:        &schema.FieldUI{Component: schema.UITextarea, Rows: 5},
+			},
+		},
+		Groups: []schema.ConfigGroup{
+			{ID: "connection", Title: "Connection", FieldRefs: []string{"url", "root.database"}},
+			{ID: "auth", Title: "Authentication", FieldRefs: []string{"root.user", "secureJsonData.password"}},
+			{ID: "tls", Title: "TLS / SSL", FieldRefs: []string{"jsonData.tlsAuth", "secureJsonData.tlsCACert"}},
+		},
+		Relationships: []schema.FieldRelationship{
+			{Type: schema.PairRelationship, Fields: []string{"root.user", "secureJsonData.password"}},
+		},
+	}
+	require.NoError(t, s.Validate())
+
+	ids, err := s.FieldIDs()
+	require.NoError(t, err)
+	assert.Len(t, ids, 8)
 }

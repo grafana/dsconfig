@@ -1,7 +1,7 @@
 package schema_test
 
 import (
-	"github.com/grafana/dsconfig/src/schema"
+	"github.com/grafana/dsconfig/schema"
 )
 
 // ptr returns a pointer to the given value. Useful for constructing

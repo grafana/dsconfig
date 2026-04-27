@@ -62,6 +62,9 @@ func (s *DatasourceConfigSchema) ValidateRefs(fieldIDs map[string]bool) error {
 	}
 
 	for _, r := range s.Relationships {
+		if !r.Type.IsValid() {
+			return fmt.Errorf("relationship has invalid type %q", r.Type)
+		}
 		for _, ref := range r.Fields {
 			if !fieldIDs[ref] {
 				return fmt.Errorf("relationship references unknown field id: %s", ref)
@@ -165,6 +168,28 @@ func (f *ConfigField) Validate() error {
 
 	if f.Kind != "" && !f.Kind.IsValid() {
 		return fmt.Errorf("field %s: invalid kind %q", f.ID, f.Kind)
+	}
+
+	if f.SemanticType != "" && !f.SemanticType.IsValid() {
+		return fmt.Errorf("field %s: invalid semanticType %q", f.ID, f.SemanticType)
+	}
+
+	if f.Lifecycle != "" && !f.Lifecycle.IsValid() {
+		return fmt.Errorf("field %s: invalid lifecycle %q", f.ID, f.Lifecycle)
+	}
+
+	if f.UI != nil {
+		if !f.UI.Component.IsValid() {
+			return fmt.Errorf("field %s: invalid ui component %q", f.ID, f.UI.Component)
+		}
+		if f.UI.Width != "" && !f.UI.Width.IsValid() {
+			return fmt.Errorf("field %s: invalid ui width %q", f.ID, f.UI.Width)
+		}
+		for i, opt := range f.UI.Options {
+			if !ValidateOptionValue(opt.Value, f.ValueType) {
+				return fmt.Errorf("field %s: ui option[%d] value type mismatch (expected %s)", f.ID, i, f.ValueType)
+			}
+		}
 	}
 
 	if f.Target != nil && !f.Target.IsValid() {
@@ -294,6 +319,15 @@ const (
 	DurationType SemanticType = "duration"
 )
 
+func (s SemanticType) IsValid() bool {
+	switch s {
+	case URLType, PasswordType, TokenType, HostnameType, DurationType:
+		return true
+	default:
+		return false
+	}
+}
+
 // ============================================================
 // Field Kind
 // ============================================================
@@ -325,6 +359,15 @@ const (
 	DeprecatedLifecycle   Lifecycle = "deprecated"
 	ExperimentalLifecycle Lifecycle = "experimental"
 )
+
+func (l Lifecycle) IsValid() bool {
+	switch l {
+	case StableLifecycle, DeprecatedLifecycle, ExperimentalLifecycle:
+		return true
+	default:
+		return false
+	}
+}
 
 // ============================================================
 // Target Location
@@ -367,6 +410,16 @@ const (
 	UIList        UIComponent = "list"
 )
 
+func (c UIComponent) IsValid() bool {
+	switch c {
+	case UIInput, UITextarea, UISelect, UIMultiselect, UIRadio,
+		UICheckbox, UISwitch, UICode, UIKeyValue, UIList:
+		return true
+	default:
+		return false
+	}
+}
+
 // FieldUI defines UI rendering hints.
 type FieldUI struct {
 	Component UIComponent `json:"component"`
@@ -388,6 +441,15 @@ const (
 	FullWidth UIWidth = "full"
 	HalfWidth UIWidth = "half"
 )
+
+func (w UIWidth) IsValid() bool {
+	switch w {
+	case FullWidth, HalfWidth:
+		return true
+	default:
+		return false
+	}
+}
 
 // ============================================================
 // Validations
@@ -554,6 +616,32 @@ type FieldOption struct {
 	Value any    `json:"value"`
 }
 
+// ValidateOptionValue checks that an option value is compatible with
+// the given field valueType.
+func ValidateOptionValue(v any, vt ValueType) bool {
+	if v == nil {
+		return true
+	}
+	switch vt {
+	case StringType:
+		_, ok := v.(string)
+		return ok
+	case NumberType:
+		switch v.(type) {
+		case int, int64, float64, float32:
+			return true
+		default:
+			return false
+		}
+	case BooleanType:
+		_, ok := v.(bool)
+		return ok
+	default:
+		// array/object options are not type-checked
+		return true
+	}
+}
+
 // ============================================================
 // Groups
 // ============================================================
@@ -576,6 +664,15 @@ const (
 	PairRelationship  RelationshipType = "pair"
 	GroupRelationship RelationshipType = "group"
 )
+
+func (r RelationshipType) IsValid() bool {
+	switch r {
+	case PairRelationship, GroupRelationship:
+		return true
+	default:
+		return false
+	}
+}
 
 type FieldRelationship struct {
 	Type        RelationshipType `json:"type"`
