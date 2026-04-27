@@ -122,9 +122,9 @@ export interface ConfigField {
     ui?: FieldUI
 
     /**
-     * Validation rules
+     * Validations rules
      */
-    validation?: FieldValidation
+    validations?: FieldValidationRule[]
 
     /**
      * Visibility condition (CEL expression)
@@ -296,23 +296,69 @@ export interface FieldUI {
 
 
 // ============================================================
-// Validation
+// Validations
 // ============================================================
 
-export interface FieldValidation {
-    pattern?: string
+export type FieldValidationRule =
+    | PatternValidationRule
+    | RangeValidationRule
+    | LengthValidationRule
+    | ItemCountValidationRule
+    | AllowedValuesValidationRule
+    | CustomValidationRule
+
+
+export interface BaseValidationRule {
+    /**
+     * Optional stable ID for the validation rule.
+     * Useful for docs, localization, and test snapshots.
+     */
+    id?: string
+
+    /**
+     * Human-readable validation error message.
+     */
     message?: string
-
-    min?: number
-    max?: number
-
-    minItems?: number
-    maxItems?: number
-
-    allowedValues?: unknown[]
 }
 
+export interface PatternValidationRule extends BaseValidationRule {
+    type: "pattern"
+    pattern: string
+}
 
+export interface RangeValidationRule extends BaseValidationRule {
+    type: "range"
+    min?: number
+    max?: number
+}
+
+export interface LengthValidationRule extends BaseValidationRule {
+    type: "length"
+    min?: number
+    max?: number
+}
+
+export interface ItemCountValidationRule extends BaseValidationRule {
+    type: "itemCount"
+    min?: number
+    max?: number
+}
+
+export interface AllowedValuesValidationRule extends BaseValidationRule {
+    type: "allowedValues"
+    values: unknown[]
+}
+
+export interface CustomValidationRule extends BaseValidationRule {
+    type: "custom"
+
+    /**
+     * CEL expression.
+     *
+     * Should evaluate to true when the field value is valid.
+     */
+    expression: Expression
+}
 // ============================================================
 // Overrides
 // ============================================================
@@ -328,7 +374,7 @@ export interface FieldOverride {
     placeholder?: string
     tooltip?: string
 
-    validation?: FieldValidation
+    validations?: FieldValidationRule[]
     options?: FieldOption[]
 }
 
