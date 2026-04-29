@@ -1,0 +1,63 @@
+{
+    "spec": {
+        "type": "object",
+        "required": [
+            "url"
+        ],
+        "properties": {
+            "url": {
+                "description": "Datasource URL",
+                "type": "string",
+                "format": "uri"
+            },
+            "basicAuth": {
+                "description": "Enable basic authentication",
+                "type": "boolean"
+            },
+            "basicAuthUser": {
+                "description": "Basic auth username",
+                "type": "string"
+            }
+        },
+        "anyOf": [
+            {
+                "not": {
+                    "required": [
+                        "basicAuth"
+                    ]
+                }
+            },
+            {
+                "properties": {
+                    "basicAuth": {
+                        "enum": [
+                            true
+                        ]
+                    }
+                },
+                "required": [
+                    "basicAuth",
+                    "basicAuthUser"
+                ]
+            },
+            {
+                "properties": {
+                    "basicAuth": {
+                        "enum": [
+                            false
+                        ]
+                    }
+                },
+                "required": [
+                    "basicAuth"
+                ]
+            }
+        ]
+    },
+    "secureValues": [
+        {
+            "key": "basicAuthPassword",
+            "description": "Basic auth password"
+        }
+    ]
+}

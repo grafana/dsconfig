@@ -1,0 +1,92 @@
+{
+    "spec": {
+        "type": "object",
+        "required": [
+            "url"
+        ],
+        "properties": {
+            "url": {
+                "description": "Server URL",
+                "type": "string",
+                "format": "uri"
+            },
+            "jsonData": {
+                "type": "object",
+                "properties": {
+                    "authType": {
+                        "description": "Authentication type",
+                        "type": "string",
+                        "default": "none",
+                        "enum": [
+                            "none",
+                            "basic",
+                            "oauth"
+                        ]
+                    },
+                    "username": {
+                        "description": "Username for authentication",
+                        "type": "string"
+                    },
+                    "tokenUrl": {
+                        "description": "OAuth token endpoint URL",
+                        "type": "string",
+                        "format": "uri"
+                    }
+                },
+                "anyOf": [
+                    {
+                        "not": {
+                            "required": [
+                                "authType"
+                            ]
+                        }
+                    },
+                    {
+                        "properties": {
+                            "authType": {
+                                "enum": [
+                                    "none"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "authType"
+                        ]
+                    },
+                    {
+                        "properties": {
+                            "authType": {
+                                "enum": [
+                                    "basic"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "authType",
+                            "username"
+                        ]
+                    },
+                    {
+                        "properties": {
+                            "authType": {
+                                "enum": [
+                                    "oauth"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "authType",
+                            "tokenUrl"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "secureValues": [
+        {
+            "key": "password",
+            "description": "Password for authentication"
+        }
+    ]
+}
