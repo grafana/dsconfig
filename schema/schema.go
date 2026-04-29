@@ -111,6 +111,11 @@ type ConfigField struct {
 	// Storage location (required for storage fields)
 	Target *TargetLocation `json:"target,omitempty"`
 
+	// Section is the dotted path prefix within the target for nested objects.
+	// Example: for jsonData.tracesToLogs.datasourceUid, target="jsonData",
+	// section="tracesToLogs", key="datasourceUid".
+	Section string `json:"section,omitempty"`
+
 	// Field type: storage (default) or virtual
 	Kind FieldKind `json:"kind,omitempty"`
 
@@ -282,6 +287,9 @@ func (f ConfigField) Path() string {
 	if f.Target == nil {
 		return f.Key
 	}
+	if f.Section != "" {
+		return string(*f.Target) + "." + f.Section + "." + f.Key
+	}
 	return string(*f.Target) + "." + f.Key
 }
 
@@ -325,16 +333,19 @@ func (v ValueType) IsValid() bool {
 type SemanticType string
 
 const (
-	URLType      SemanticType = "url"
-	PasswordType SemanticType = "password"
-	TokenType    SemanticType = "token"
-	HostnameType SemanticType = "hostname"
-	DurationType SemanticType = "duration"
+	URLType            SemanticType = "url"
+	PasswordType       SemanticType = "password"
+	TokenType          SemanticType = "token"
+	HostnameType       SemanticType = "hostname"
+	DurationType       SemanticType = "duration"
+	DatasourceUIDType  SemanticType = "datasourceUid"
+	QueryType          SemanticType = "query"
 )
 
 func (s SemanticType) IsValid() bool {
 	switch s {
-	case URLType, PasswordType, TokenType, HostnameType, DurationType:
+	case URLType, PasswordType, TokenType, HostnameType, DurationType,
+		DatasourceUIDType, QueryType:
 		return true
 	default:
 		return false
@@ -445,6 +456,10 @@ type FieldUI struct {
 	Width       UIWidth `json:"width,omitempty"`
 
 	Placeholder string `json:"placeholder,omitempty"`
+
+	// Language hint for code editor components.
+	// Example: "promql", "logql", "traceql", "sql", "json"
+	Language string `json:"language,omitempty"`
 }
 
 // UIWidth defines layout width.
@@ -674,13 +689,14 @@ type ConfigGroup struct {
 type RelationshipType string
 
 const (
-	PairRelationship  RelationshipType = "pair"
-	GroupRelationship RelationshipType = "group"
+	PairRelationship             RelationshipType = "pair"
+	GroupRelationship            RelationshipType = "group"
+	DatasourceRefRelationship    RelationshipType = "datasourceReference"
 )
 
 func (r RelationshipType) IsValid() bool {
 	switch r {
-	case PairRelationship, GroupRelationship:
+	case PairRelationship, GroupRelationship, DatasourceRefRelationship:
 		return true
 	default:
 		return false
@@ -691,4 +707,8 @@ type FieldRelationship struct {
 	Type        RelationshipType `json:"type"`
 	Fields      []string         `json:"fields"`
 	Description string           `json:"description,omitempty"`
+
+	// TargetPluginType constrains the datasource UID to a specific plugin.
+	// Only applicable when Type is "datasourceReference".
+	TargetPluginType string `json:"targetPluginType,omitempty"`
 }

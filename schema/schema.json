@@ -96,7 +96,9 @@
                         "password",
                         "token",
                         "hostname",
-                        "duration"
+                        "duration",
+                        "datasourceUid",
+                        "query"
                     ]
                 },
                 "target": {
@@ -107,6 +109,10 @@
                         "secureJsonData"
                     ],
                     "description": "Storage location. Required for storage fields."
+                },
+                "section": {
+                    "type": "string",
+                    "description": "Dotted path prefix within the target for nested objects. Example: for jsonData.tracesToLogs.datasourceUid, target=jsonData, section=tracesToLogs, key=datasourceUid."
                 },
                 "kind": {
                     "type": "string",
@@ -415,6 +421,10 @@
                 },
                 "placeholder": {
                     "type": "string"
+                },
+                "language": {
+                    "type": "string",
+                    "description": "Language hint for code editor components. Example: promql, logql, traceql, sql, json."
                 }
             }
         },
@@ -619,7 +629,8 @@
                     "type": "string",
                     "enum": [
                         "pair",
-                        "group"
+                        "group",
+                        "datasourceReference"
                     ]
                 },
                 "fields": {
@@ -630,6 +641,10 @@
                 },
                 "description": {
                     "type": "string"
+                },
+                "targetPluginType": {
+                    "type": "string",
+                    "description": "Constrains the datasource UID to a specific plugin type. Only applicable when type is datasourceReference."
                 }
             }
         }

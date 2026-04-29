@@ -100,6 +100,13 @@ export interface ConfigField {
     target?: TargetLocation
 
     /**
+     * Dotted path prefix within the target for nested objects.
+     * Example: for jsonData.tracesToLogs.datasourceUid,
+     * target="jsonData", section="tracesToLogs", key="datasourceUid".
+     */
+    section?: string
+
+    /**
      * Field kind
      * - storage (default)
      * - virtual (derived)
@@ -226,6 +233,8 @@ export type SemanticType =
     | "token"
     | "hostname"
     | "duration"
+    | "datasourceUid"
+    | "query"
 
 
 // ============================================================
@@ -292,6 +301,12 @@ export interface FieldUI {
     width?: UIWidth
 
     placeholder?: string
+
+    /**
+     * Language hint for code editor components.
+     * Example: "promql", "logql", "traceql", "sql", "json"
+     */
+    language?: string
 }
 
 
@@ -464,6 +479,7 @@ export interface ConfigGroup {
 export type RelationshipType =
     | "pair"
     | "group"
+    | "datasourceReference"
 
 export interface FieldRelationship {
     type: RelationshipType
@@ -474,6 +490,12 @@ export interface FieldRelationship {
     fields: string[]
 
     description?: string
+
+    /**
+     * Constrains the datasource UID to a specific plugin type.
+     * Only applicable when type is "datasourceReference".
+     */
+    targetPluginType?: string
 }
 
 
