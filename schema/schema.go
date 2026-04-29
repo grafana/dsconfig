@@ -333,13 +333,13 @@ func (v ValueType) IsValid() bool {
 type SemanticType string
 
 const (
-	URLType            SemanticType = "url"
-	PasswordType       SemanticType = "password"
-	TokenType          SemanticType = "token"
-	HostnameType       SemanticType = "hostname"
-	DurationType       SemanticType = "duration"
-	DatasourceUIDType  SemanticType = "datasourceUid"
-	QueryType          SemanticType = "query"
+	URLType           SemanticType = "url"
+	PasswordType      SemanticType = "password"
+	TokenType         SemanticType = "token"
+	HostnameType      SemanticType = "hostname"
+	DurationType      SemanticType = "duration"
+	DatasourceUIDType SemanticType = "datasourceUid"
+	QueryType         SemanticType = "query"
 )
 
 func (s SemanticType) IsValid() bool {
@@ -689,9 +689,9 @@ type ConfigGroup struct {
 type RelationshipType string
 
 const (
-	PairRelationship             RelationshipType = "pair"
-	GroupRelationship            RelationshipType = "group"
-	DatasourceRefRelationship    RelationshipType = "datasourceReference"
+	PairRelationship          RelationshipType = "pair"
+	GroupRelationship         RelationshipType = "group"
+	DatasourceRefRelationship RelationshipType = "datasourceReference"
 )
 
 func (r RelationshipType) IsValid() bool {

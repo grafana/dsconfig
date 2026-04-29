@@ -16,48 +16,17 @@
             },
             "basicAuthUser": {
                 "description": "Basic auth username",
-                "type": "string"
+                "type": "string",
+                "x-depends-on": "auth.basicAuth == true",
+                "x-required-when": "auth.basicAuth == true"
             }
-        },
-        "anyOf": [
-            {
-                "not": {
-                    "required": [
-                        "basicAuth"
-                    ]
-                }
-            },
-            {
-                "properties": {
-                    "basicAuth": {
-                        "enum": [
-                            true
-                        ]
-                    }
-                },
-                "required": [
-                    "basicAuth",
-                    "basicAuthUser"
-                ]
-            },
-            {
-                "properties": {
-                    "basicAuth": {
-                        "enum": [
-                            false
-                        ]
-                    }
-                },
-                "required": [
-                    "basicAuth"
-                ]
-            }
-        ]
+        }
     },
     "secureValues": [
         {
             "key": "basicAuthPassword",
-            "description": "Basic auth password"
+            "description": "Basic auth password",
+            "x-depends-on": "auth.basicAuth == true"
         }
     ]
 }

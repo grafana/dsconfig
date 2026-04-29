@@ -2,7 +2,6 @@ package schema
 
 import (
 	"fmt"
-	"strings"
 
 	"k8s.io/kube-openapi/pkg/validation/spec"
 )
@@ -17,9 +16,11 @@ type PluginSettings struct {
 
 // SecureValueInfo describes a secret required by the datasource.
 type SecureValueInfo struct {
-	Key         string `json:"key"`
-	Description string `json:"description,omitempty"`
-	Required    bool   `json:"required,omitempty"`
+	Key          string `json:"key"`
+	Description  string `json:"description,omitempty"`
+	Required     bool   `json:"required,omitempty"`
+	DependsOn    string `json:"x-depends-on,omitempty"`
+	RequiredWhen string `json:"x-required-when,omitempty"`
 }
 
 // ToPluginSettings converts the schema to a PluginSettings object
@@ -31,11 +32,6 @@ type SecureValueInfo struct {
 func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 	if err := s.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
-	}
-
-	fieldByID := make(map[string]*ConfigField)
-	for i := range s.Fields {
-		fieldByID[s.Fields[i].ID] = &s.Fields[i]
 	}
 
 	rootProps := make(map[string]spec.Schema)
@@ -52,11 +48,18 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 		}
 
 		if f.Target != nil && *f.Target == SecureJSONTarget {
-			secureValues = append(secureValues, SecureValueInfo{
+			sv := SecureValueInfo{
 				Key:         f.Key,
 				Description: f.Description,
 				Required:    f.Required,
-			})
+			}
+			if f.DependsOn != "" {
+				sv.DependsOn = f.DependsOn
+			}
+			if f.RequiredWhen != "" {
+				sv.RequiredWhen = f.RequiredWhen
+			}
+			secureValues = append(secureValues, sv)
 			continue
 		}
 
@@ -73,10 +76,6 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 		}
 	}
 
-	// Build conditional constraints using anyOf/allOf.
-	jsonDataConstraints := buildAnyOfConstraints(s.Fields, fieldByID, JSONDataTarget)
-	rootConstraints := buildAnyOfConstraints(s.Fields, fieldByID, RootTarget)
-
 	if len(jsonDataProps) > 0 {
 		jd := spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -87,7 +86,6 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 		if len(jsonDataRequired) > 0 {
 			jd.Required = jsonDataRequired
 		}
-		applyAnyOfConstraints(&jd, jsonDataConstraints)
 		rootProps["jsonData"] = jd
 	}
 
@@ -100,195 +98,11 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 	if len(rootRequired) > 0 {
 		specSchema.Required = rootRequired
 	}
-	applyAnyOfConstraints(specSchema, rootConstraints)
 
 	return &PluginSettings{
 		Spec:         specSchema,
 		SecureValues: secureValues,
 	}, nil
-}
-
-// applyAnyOfConstraints adds conditional constraints to a schema.
-// For a single discriminator group, anyOf is applied directly.
-// For multiple groups, each is wrapped in allOf.
-func applyAnyOfConstraints(s *spec.Schema, constraints []spec.Schema) {
-	switch len(constraints) {
-	case 0:
-		return
-	case 1:
-		s.AnyOf = constraints[0].AnyOf
-	default:
-		s.AllOf = constraints
-	}
-}
-
-// ============================================================
-// Conditional constraint builder
-// ============================================================
-
-// conditionExpr represents a parsed "fieldID == value" condition.
-type conditionExpr struct {
-	fieldID string
-	value   string
-}
-
-// parseEqualityCondition parses "fieldID == 'value'" or "fieldID == value".
-func parseEqualityCondition(expr string) (conditionExpr, bool) {
-	idx := strings.Index(expr, " == ")
-	if idx < 0 {
-		return conditionExpr{}, false
-	}
-	fieldID := strings.TrimSpace(expr[:idx])
-	valueStr := strings.TrimSpace(expr[idx+4:])
-
-	if len(valueStr) >= 2 {
-		if (valueStr[0] == '\'' && valueStr[len(valueStr)-1] == '\'') ||
-			(valueStr[0] == '"' && valueStr[len(valueStr)-1] == '"') {
-			valueStr = valueStr[1 : len(valueStr)-1]
-		}
-	}
-
-	if fieldID == "" || valueStr == "" {
-		return conditionExpr{}, false
-	}
-	return conditionExpr{fieldID: fieldID, value: valueStr}, true
-}
-
-// discriminatorGroup tracks conditional requirements for one discriminator.
-type discriminatorGroup struct {
-	key        string
-	valueType  ValueType
-	enumValues []any
-	// condValue (string repr) → required field keys
-	requiredByValue map[string][]string
-}
-
-// buildAnyOfConstraints analyses requiredWhen conditions on fields in the
-// given target and builds anyOf constraint schemas grouped by discriminator.
-//
-// Each discriminator produces an anyOf with:
-//  1. A "not present" branch (discriminator field absent).
-//  2. One branch per known enum value with const + required fields.
-func buildAnyOfConstraints(
-	fields []ConfigField,
-	fieldByID map[string]*ConfigField,
-	target TargetLocation,
-) []spec.Schema {
-	var order []string
-	groups := make(map[string]*discriminatorGroup)
-
-	for i := range fields {
-		f := &fields[i]
-		if f.Kind == VirtualField || f.Target == nil || *f.Target != target {
-			continue
-		}
-		if f.RequiredWhen == "" {
-			continue
-		}
-
-		cond, ok := parseEqualityCondition(f.RequiredWhen)
-		if !ok {
-			continue
-		}
-
-		discField, exists := fieldByID[cond.fieldID]
-		if !exists || discField.Target == nil || *discField.Target != target {
-			continue // discriminator not found or in a different target
-		}
-
-		g, exists := groups[cond.fieldID]
-		if !exists {
-			enumVals := collectDiscriminatorValues(discField)
-			if len(enumVals) == 0 {
-				continue
-			}
-			g = &discriminatorGroup{
-				key:             discField.Key,
-				valueType:       discField.ValueType,
-				enumValues:      enumVals,
-				requiredByValue: make(map[string][]string),
-			}
-			groups[cond.fieldID] = g
-			order = append(order, cond.fieldID)
-		}
-
-		g.requiredByValue[cond.value] = append(g.requiredByValue[cond.value], f.Key)
-	}
-
-	var result []spec.Schema
-	for _, id := range order {
-		g := groups[id]
-		result = append(result, spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				AnyOf: buildAnyOfBranches(g),
-			},
-		})
-	}
-	return result
-}
-
-// buildAnyOfBranches generates anyOf branches for a single discriminator.
-func buildAnyOfBranches(g *discriminatorGroup) []spec.Schema {
-	branches := make([]spec.Schema, 0, 1+len(g.enumValues))
-
-	// Branch: discriminator not present (field omitted entirely).
-	branches = append(branches, spec.Schema{
-		SchemaProps: spec.SchemaProps{
-			Not: &spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Required: []string{g.key},
-				},
-			},
-		},
-	})
-
-	// One branch per known enum value.
-	for _, ev := range g.enumValues {
-		evStr := fmt.Sprintf("%v", ev)
-		required := []string{g.key}
-		if extra, ok := g.requiredByValue[evStr]; ok {
-			required = append(required, extra...)
-		}
-		branches = append(branches, spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Properties: map[string]spec.Schema{
-					g.key: {
-						SchemaProps: spec.SchemaProps{
-							Enum: []any{ev},
-						},
-					},
-				},
-				Required: required,
-			},
-		})
-	}
-
-	return branches
-}
-
-// collectDiscriminatorValues returns the known values for a discriminator field.
-func collectDiscriminatorValues(f *ConfigField) []any {
-	for _, v := range f.Validations {
-		if v.Type == AllowedValuesValidation {
-			return v.Values
-		}
-	}
-	if f.UI != nil {
-		switch f.UI.Component {
-		case UISelect, UIRadio:
-			var vals []any
-			for _, opt := range f.UI.Options {
-				vals = append(vals, opt.Value)
-			}
-			if len(vals) > 0 {
-				return vals
-			}
-		}
-	}
-	if f.ValueType == BooleanType {
-		return []any{true, false}
-	}
-	return nil
 }
 
 // fieldToSpecSchema converts a ConfigField to an OpenAPI spec.Schema.
@@ -312,6 +126,7 @@ func fieldToSpecSchema(f ConfigField) spec.Schema {
 
 	applyValidations(&s, f)
 	applyUIEnum(&s, f)
+	applyConditions(&s, f)
 
 	if f.ValueType == ArrayType && f.Item != nil {
 		itemSchema := itemSchemaToSpec(*f.Item)
@@ -319,6 +134,24 @@ func fieldToSpecSchema(f ConfigField) spec.Schema {
 	}
 
 	return s
+}
+
+// applyConditions maps conditional behavior (CEL expressions) to
+// vendor extensions on the spec.Schema.
+func applyConditions(s *spec.Schema, f ConfigField) {
+	if f.DependsOn == "" && f.RequiredWhen == "" && f.DisabledWhen == "" {
+		return
+	}
+	s.Extensions = make(spec.Extensions)
+	if f.DependsOn != "" {
+		s.Extensions["x-depends-on"] = f.DependsOn
+	}
+	if f.RequiredWhen != "" {
+		s.Extensions["x-required-when"] = f.RequiredWhen
+	}
+	if f.DisabledWhen != "" {
+		s.Extensions["x-disabled-when"] = f.DisabledWhen
+	}
 }
 
 // applyValidations maps dsconfig validation rules to JSON Schema keywords.

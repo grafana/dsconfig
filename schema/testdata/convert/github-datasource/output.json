@@ -23,7 +23,10 @@
                     "githubUrl": {
                         "description": "The URL of the GitHub Enterprise Server instance",
                         "type": "string",
-                        "format": "uri"
+                        "format": "uri",
+                        "x-depends-on": "jsonData.githubPlan == 'github-enterprise-server'",
+                        "x-required-when": "jsonData.githubPlan == 'github-enterprise-server'",
+                        "x-disabled-when": "jsonData.githubPlan != 'github-enterprise-server'"
                     },
                     "selectedAuthType": {
                         "description": "Authentication type",
@@ -36,111 +39,33 @@
                     },
                     "appId": {
                         "description": "The GitHub App ID",
-                        "type": "string"
+                        "type": "string",
+                        "x-depends-on": "jsonData.selectedAuthType == 'github-app'",
+                        "x-required-when": "jsonData.selectedAuthType == 'github-app'",
+                        "x-disabled-when": "jsonData.selectedAuthType != 'github-app'"
                     },
                     "installationId": {
                         "description": "The GitHub App installation ID",
-                        "type": "string"
+                        "type": "string",
+                        "x-depends-on": "jsonData.selectedAuthType == 'github-app'",
+                        "x-required-when": "jsonData.selectedAuthType == 'github-app'",
+                        "x-disabled-when": "jsonData.selectedAuthType != 'github-app'"
                     }
-                },
-                "allOf": [
-                    {
-                        "anyOf": [
-                            {
-                                "not": {
-                                    "required": [
-                                        "githubPlan"
-                                    ]
-                                }
-                            },
-                            {
-                                "properties": {
-                                    "githubPlan": {
-                                        "enum": [
-                                            "github-basic"
-                                        ]
-                                    }
-                                },
-                                "required": [
-                                    "githubPlan"
-                                ]
-                            },
-                            {
-                                "properties": {
-                                    "githubPlan": {
-                                        "enum": [
-                                            "github-enterprise-cloud"
-                                        ]
-                                    }
-                                },
-                                "required": [
-                                    "githubPlan"
-                                ]
-                            },
-                            {
-                                "properties": {
-                                    "githubPlan": {
-                                        "enum": [
-                                            "github-enterprise-server"
-                                        ]
-                                    }
-                                },
-                                "required": [
-                                    "githubPlan",
-                                    "githubUrl"
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "anyOf": [
-                            {
-                                "not": {
-                                    "required": [
-                                        "selectedAuthType"
-                                    ]
-                                }
-                            },
-                            {
-                                "properties": {
-                                    "selectedAuthType": {
-                                        "enum": [
-                                            "personal-access-token"
-                                        ]
-                                    }
-                                },
-                                "required": [
-                                    "selectedAuthType"
-                                ]
-                            },
-                            {
-                                "properties": {
-                                    "selectedAuthType": {
-                                        "enum": [
-                                            "github-app"
-                                        ]
-                                    }
-                                },
-                                "required": [
-                                    "selectedAuthType",
-                                    "appId",
-                                    "installationId"
-                                ]
-                            }
-                        ]
-                    }
-                ]
+                }
             }
         }
     },
     "secureValues": [
         {
             "key": "accessToken",
-            "description": "Personal access token for GitHub API authentication"
+            "description": "Personal access token for GitHub API authentication",
+            "x-depends-on": "jsonData.selectedAuthType == 'personal-access-token'",
+            "x-required-when": "jsonData.selectedAuthType == 'personal-access-token'"
         },
         {
             "key": "privateKey",
-            "description": "Private key for GitHub App authentication (PEM format)"
-        }
+            "description": "Private key for GitHub App authentication (PEM format)",
+            "x-depends-on": "jsonData.selectedAuthType == 'github-app'",
+            "x-required-when": "jsonData.selectedAuthType == 'github-app'"        }
     ]
 }
