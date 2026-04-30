@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"strings"
 
 	"k8s.io/kube-openapi/pkg/validation/spec"
 )
@@ -107,13 +108,24 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 
 // placeInSection places a field into the correct section sub-object within props.
 // If the field has no Section, it is placed directly. If it has a Section,
-// the field is nested under an object property with that section name.
+// the field is nested under an object property path. Dotted sections
+// (e.g. "oauth2.endpoints") are resolved recursively, creating intermediate
+// objects as needed.
 func placeInSection(props map[string]spec.Schema, f ConfigField) {
 	if f.Section == "" {
 		props[f.Key] = fieldToSpecSchema(f)
 		return
 	}
-	section, exists := props[f.Section]
+	placeInSectionPath(props, strings.Split(f.Section, "."), f)
+}
+
+// placeInSectionPath recursively walks the section path segments,
+// creating intermediate object schemas as needed, then places the
+// field at the final level.
+func placeInSectionPath(props map[string]spec.Schema, segments []string, f ConfigField) {
+	seg := segments[0]
+
+	section, exists := props[seg]
 	if !exists {
 		section = spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -125,11 +137,19 @@ func placeInSection(props map[string]spec.Schema, f ConfigField) {
 	if section.Properties == nil {
 		section.Properties = make(map[string]spec.Schema)
 	}
-	section.Properties[f.Key] = fieldToSpecSchema(f)
-	if f.Required {
-		section.Required = append(section.Required, f.Key)
+
+	if len(segments) == 1 {
+		// Leaf section — place the field here.
+		section.Properties[f.Key] = fieldToSpecSchema(f)
+		if f.Required {
+			section.Required = append(section.Required, f.Key)
+		}
+	} else {
+		// Intermediate segment — recurse into the next level.
+		placeInSectionPath(section.Properties, segments[1:], f)
 	}
-	props[f.Section] = section
+
+	props[seg] = section
 }
 
 // fieldToSpecSchema converts a ConfigField to an OpenAPI spec.Schema.
@@ -158,6 +178,21 @@ func fieldToSpecSchema(f ConfigField) spec.Schema {
 	if f.ValueType == ArrayType && f.Item != nil {
 		itemSchema := itemSchemaToSpec(*f.Item)
 		s.Items = &spec.SchemaOrArray{Schema: &itemSchema}
+	}
+
+	if f.ValueType == ObjectType && f.Item != nil && len(f.Item.Fields) > 0 {
+		props := make(map[string]spec.Schema)
+		var required []string
+		for _, sub := range f.Item.Fields {
+			props[sub.Key] = fieldToSpecSchema(sub)
+			if sub.Required {
+				required = append(required, sub.Key)
+			}
+		}
+		s.Properties = props
+		if len(required) > 0 {
+			s.Required = required
+		}
 	}
 
 	return s

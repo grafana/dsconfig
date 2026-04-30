@@ -185,6 +185,21 @@ export function validateField(field: ConfigField, path = "field"): ValidationErr
         })
     }
 
+    if (field.section && isItem) {
+        errors.push({
+            path: `${path}.section`,
+            code: "invalid_section",
+            message: "section is not allowed on item fields",
+        })
+    }
+    if (field.section && isVirtual) {
+        errors.push({
+            path: `${path}.section`,
+            code: "invalid_section",
+            message: "section is not allowed on virtual fields",
+        })
+    }
+
     if (field.target && !isTargetLocation(field.target)) {
         errors.push({
             path: `${path}.target`,

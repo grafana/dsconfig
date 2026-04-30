@@ -251,6 +251,36 @@ func TestFieldValidate_ItemFieldOmitsTarget(t *testing.T) {
 	require.NoError(t, f.Validate())
 }
 
+// TestFieldValidate_SectionOnItemFieldRejected ensures that section
+// is not allowed on item fields (they inherit storage from the parent).
+func TestFieldValidate_SectionOnItemFieldRejected(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.StringType,
+		IsItemField: ptr(true), Section: "nested",
+	}
+	assert.ErrorContains(t, f.Validate(), "section is not allowed on item fields")
+}
+
+// TestFieldValidate_SectionOnVirtualFieldRejected ensures that section
+// is not allowed on virtual fields (they have no storage target).
+func TestFieldValidate_SectionOnVirtualFieldRejected(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.StringType,
+		Kind: schema.VirtualField, Section: "nested",
+	}
+	assert.ErrorContains(t, f.Validate(), "section is not allowed on virtual fields")
+}
+
+// TestFieldValidate_SectionOnStorageFieldAllowed confirms that section
+// is valid on a normal storage field with a target.
+func TestFieldValidate_SectionOnStorageFieldAllowed(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.StringType,
+		Target: ptr(schema.JSONDataTarget), Section: "oauth2.endpoints",
+	}
+	require.NoError(t, f.Validate())
+}
+
 // TestFieldValidate_InvalidTarget ensures that an unrecognized target
 // location string is rejected.
 func TestFieldValidate_InvalidTarget(t *testing.T) {

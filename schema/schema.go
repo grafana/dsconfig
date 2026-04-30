@@ -174,6 +174,13 @@ func (f *ConfigField) Validate() error {
 		return fmt.Errorf("field %s: target is required for storage fields", f.ID)
 	}
 
+	if f.Section != "" && isItem {
+		return fmt.Errorf("field %s: section is not allowed on item fields", f.ID)
+	}
+	if f.Section != "" && isVirtual {
+		return fmt.Errorf("field %s: section is not allowed on virtual fields", f.ID)
+	}
+
 	if f.ValueType == ArrayType && f.Item == nil {
 		return fmt.Errorf("field %s: item is required for array fields", f.ID)
 	}

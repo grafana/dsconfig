@@ -216,6 +216,21 @@ describe("validateField — target", () => {
         expect(errors.filter((e) => e.code === "missing_target")).toHaveLength(0)
     })
 
+    it("rejects section on item fields", () => {
+        const errors = validateField({ id: "x", key: "x", valueType: "string", isItemField: true, section: "nested" })
+        expect(errors.some((e) => e.code === "invalid_section")).toBe(true)
+    })
+
+    it("rejects section on virtual fields", () => {
+        const errors = validateField({ id: "x", key: "x", valueType: "string", kind: "virtual", section: "nested" })
+        expect(errors.some((e) => e.code === "invalid_section")).toBe(true)
+    })
+
+    it("allows section on storage fields", () => {
+        const errors = validateField({ id: "x", key: "x", valueType: "string", target: "jsonData", section: "oauth2.endpoints" })
+        expect(errors.filter((e) => e.code === "invalid_section")).toHaveLength(0)
+    })
+
     it("rejects invalid target", () => {
         const errors = validateField({ id: "x", key: "x", valueType: "string", target: "bad" as any })
         expect(errors.some((e) => e.code === "invalid_enum" && e.path.endsWith(".target"))).toBe(true)
