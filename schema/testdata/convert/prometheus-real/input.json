@@ -13,7 +13,10 @@
             "semanticType": "url",
             "target": "root",
             "required": true,
-            "ui": { "component": "input", "placeholder": "http://localhost:9090" }
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:9090"
+            }
         },
         {
             "id": "auth.basicAuth",
@@ -22,7 +25,9 @@
             "description": "Enable basic authentication",
             "valueType": "boolean",
             "target": "root",
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "auth.basicAuthUser",
@@ -33,7 +38,9 @@
             "target": "root",
             "dependsOn": "auth.basicAuth == true",
             "requiredWhen": "auth.basicAuth == true",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.httpMethod",
@@ -44,13 +51,25 @@
             "target": "jsonData",
             "defaultValue": "POST",
             "validations": [
-                { "type": "allowedValues", "values": ["GET", "POST"] }
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "GET",
+                        "POST"
+                    ]
+                }
             ],
             "ui": {
                 "component": "radio",
                 "options": [
-                    { "label": "GET", "value": "GET" },
-                    { "label": "POST", "value": "POST" }
+                    {
+                        "label": "GET",
+                        "value": "GET"
+                    },
+                    {
+                        "label": "POST",
+                        "value": "POST"
+                    }
                 ]
             }
         },
@@ -62,15 +81,35 @@
             "valueType": "string",
             "target": "jsonData",
             "validations": [
-                { "type": "allowedValues", "values": ["Prometheus", "Mimir", "Cortex", "Thanos"] }
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Prometheus",
+                        "Mimir",
+                        "Cortex",
+                        "Thanos"
+                    ]
+                }
             ],
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Prometheus", "value": "Prometheus" },
-                    { "label": "Mimir", "value": "Mimir" },
-                    { "label": "Cortex", "value": "Cortex" },
-                    { "label": "Thanos", "value": "Thanos" }
+                    {
+                        "label": "Prometheus",
+                        "value": "Prometheus"
+                    },
+                    {
+                        "label": "Mimir",
+                        "value": "Mimir"
+                    },
+                    {
+                        "label": "Cortex",
+                        "value": "Cortex"
+                    },
+                    {
+                        "label": "Thanos",
+                        "value": "Thanos"
+                    }
                 ]
             }
         },
@@ -81,7 +120,9 @@
             "description": "Prometheus server version",
             "valueType": "string",
             "target": "jsonData",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.cacheLevel",
@@ -92,15 +133,35 @@
             "target": "jsonData",
             "defaultValue": "High",
             "validations": [
-                { "type": "allowedValues", "values": ["Low", "Medium", "High", "None"] }
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Low",
+                        "Medium",
+                        "High",
+                        "None"
+                    ]
+                }
             ],
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Low", "value": "Low" },
-                    { "label": "Medium", "value": "Medium" },
-                    { "label": "High", "value": "High" },
-                    { "label": "None", "value": "None" }
+                    {
+                        "label": "Low",
+                        "value": "Low"
+                    },
+                    {
+                        "label": "Medium",
+                        "value": "Medium"
+                    },
+                    {
+                        "label": "High",
+                        "value": "High"
+                    },
+                    {
+                        "label": "None",
+                        "value": "None"
+                    }
                 ]
             }
         },
@@ -113,13 +174,25 @@
             "target": "jsonData",
             "defaultValue": "builder",
             "validations": [
-                { "type": "allowedValues", "values": ["code", "builder"] }
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "code",
+                        "builder"
+                    ]
+                }
             ],
             "ui": {
                 "component": "radio",
                 "options": [
-                    { "label": "Code", "value": "code" },
-                    { "label": "Builder", "value": "builder" }
+                    {
+                        "label": "Code",
+                        "value": "code"
+                    },
+                    {
+                        "label": "Builder",
+                        "value": "builder"
+                    }
                 ]
             }
         },
@@ -132,7 +205,10 @@
             "semanticType": "duration",
             "target": "jsonData",
             "defaultValue": "15s",
-            "ui": { "component": "input", "placeholder": "15s" }
+            "ui": {
+                "component": "input",
+                "placeholder": "15s"
+            }
         },
         {
             "id": "jsonData.queryTimeout",
@@ -143,7 +219,10 @@
             "semanticType": "duration",
             "target": "jsonData",
             "defaultValue": "60s",
-            "ui": { "component": "input", "placeholder": "60s" }
+            "ui": {
+                "component": "input",
+                "placeholder": "60s"
+            }
         },
         {
             "id": "jsonData.disableMetricsLookup",
@@ -153,7 +232,9 @@
             "valueType": "boolean",
             "target": "jsonData",
             "defaultValue": false,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.incrementalQuerying",
@@ -163,7 +244,9 @@
             "valueType": "boolean",
             "target": "jsonData",
             "defaultValue": false,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.manageAlerts",
@@ -173,7 +256,9 @@
             "valueType": "boolean",
             "target": "jsonData",
             "defaultValue": true,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.exemplarTraceIdDestinations",
@@ -226,7 +311,9 @@
             "description": "Enable TLS client authentication",
             "valueType": "boolean",
             "target": "jsonData",
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "tls.tlsAuthWithCACert",
@@ -235,7 +322,9 @@
             "description": "Enable TLS with CA certificate",
             "valueType": "boolean",
             "target": "jsonData",
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "tls.tlsSkipVerify",
@@ -245,7 +334,9 @@
             "valueType": "boolean",
             "target": "jsonData",
             "defaultValue": false,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "tls.serverName",
@@ -255,7 +346,9 @@
             "valueType": "string",
             "semanticType": "hostname",
             "target": "jsonData",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "secure.basicAuthPassword",
@@ -292,15 +385,86 @@
         }
     ],
     "groups": [
-        { "id": "connection", "title": "Connection", "fieldRefs": ["connection.url"] },
-        { "id": "auth", "title": "Authentication", "fieldRefs": ["auth.basicAuth", "auth.basicAuthUser", "secure.basicAuthPassword"] },
-        { "id": "query", "title": "Query Settings", "fieldRefs": ["jsonData.httpMethod", "jsonData.prometheusType", "jsonData.prometheusVersion", "jsonData.cacheLevel", "jsonData.defaultEditor", "jsonData.timeInterval", "jsonData.queryTimeout"] },
-        { "id": "features", "title": "Features", "fieldRefs": ["jsonData.disableMetricsLookup", "jsonData.incrementalQuerying", "jsonData.manageAlerts"] },
-        { "id": "exemplars", "title": "Exemplars", "fieldRefs": ["jsonData.exemplarTraceIdDestinations"] },
-        { "id": "tls", "title": "TLS / SSL", "fieldRefs": ["tls.tlsAuth", "tls.tlsAuthWithCACert", "tls.tlsSkipVerify", "tls.serverName", "secure.tlsCACert", "secure.tlsClientCert", "secure.tlsClientKey"] }
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "connection.url"
+            ]
+        },
+        {
+            "id": "auth",
+            "title": "Authentication",
+            "fieldRefs": [
+                "auth.basicAuth",
+                "auth.basicAuthUser",
+                "secure.basicAuthPassword"
+            ]
+        },
+        {
+            "id": "query",
+            "title": "Query Settings",
+            "fieldRefs": [
+                "jsonData.httpMethod",
+                "jsonData.prometheusType",
+                "jsonData.prometheusVersion",
+                "jsonData.cacheLevel",
+                "jsonData.defaultEditor",
+                "jsonData.timeInterval",
+                "jsonData.queryTimeout"
+            ]
+        },
+        {
+            "id": "features",
+            "title": "Features",
+            "fieldRefs": [
+                "jsonData.disableMetricsLookup",
+                "jsonData.incrementalQuerying",
+                "jsonData.manageAlerts"
+            ]
+        },
+        {
+            "id": "exemplars",
+            "title": "Exemplars",
+            "fieldRefs": [
+                "jsonData.exemplarTraceIdDestinations"
+            ]
+        },
+        {
+            "id": "tls",
+            "title": "TLS / SSL",
+            "fieldRefs": [
+                "tls.tlsAuth",
+                "tls.tlsAuthWithCACert",
+                "tls.tlsSkipVerify",
+                "tls.serverName",
+                "secure.tlsCACert",
+                "secure.tlsClientCert",
+                "secure.tlsClientKey"
+            ]
+        }
     ],
     "relationships": [
-        { "type": "pair", "fields": ["auth.basicAuthUser", "secure.basicAuthPassword"], "description": "Basic auth credentials" },
-        { "type": "group", "fields": ["tls.tlsAuth", "tls.tlsAuthWithCACert", "tls.tlsSkipVerify", "tls.serverName", "secure.tlsCACert", "secure.tlsClientCert", "secure.tlsClientKey"], "description": "TLS configuration" }
+        {
+            "type": "pair",
+            "fields": [
+                "auth.basicAuthUser",
+                "secure.basicAuthPassword"
+            ],
+            "description": "Basic auth credentials"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "tls.tlsAuth",
+                "tls.tlsAuthWithCACert",
+                "tls.tlsSkipVerify",
+                "tls.serverName",
+                "secure.tlsCACert",
+                "secure.tlsClientCert",
+                "secure.tlsClientKey"
+            ],
+            "description": "TLS configuration"
+        }
     ]
 }

@@ -10,7 +10,10 @@
             "apiKeyKey": "X-API-Key",
             "apiKeyType": "header",
             "timeoutInSeconds": 60,
-            "allowedHosts": ["api.example.com", "cdn.example.com"],
+            "allowedHosts": [
+                "api.example.com",
+                "cdn.example.com"
+            ],
             "tlsSkipVerify": false,
             "unsecuredQueryHandling": "warn"
         },
@@ -28,10 +31,15 @@
             "oauth2": {
                 "client_id": "my-client-id",
                 "token_url": "https://auth.example.com/oauth/token",
-                "scopes": ["read", "write"]
+                "scopes": [
+                    "read",
+                    "write"
+                ]
             },
             "timeoutInSeconds": 30,
-            "allowedHosts": ["secure-api.example.com"],
+            "allowedHosts": [
+                "secure-api.example.com"
+            ],
             "tlsSkipVerify": false,
             "unsecuredQueryHandling": "deny"
         },

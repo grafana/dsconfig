@@ -34,7 +34,7 @@ export function isValueType(value: unknown): value is ValueType {
     return typeof value === "string" && VALUE_TYPES.has(value)
 }
 
-const SEMANTIC_TYPES: ReadonlySet<string> = new Set(["url", "password", "token", "hostname", "duration"])
+const SEMANTIC_TYPES: ReadonlySet<string> = new Set(["url", "password", "token", "hostname", "duration", "datasourceUid", "query"])
 
 /** Checks if a value is a valid SemanticType */
 export function isSemanticType(value: unknown): value is SemanticType {
@@ -79,7 +79,7 @@ export function isUIWidth(value: unknown): value is UIWidth {
     return typeof value === "string" && UI_WIDTHS.has(value)
 }
 
-const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set(["pair", "group"])
+const RELATIONSHIP_TYPES: ReadonlySet<string> = new Set(["pair", "group", "datasourceReference"])
 
 /** Checks if a value is a valid RelationshipType */
 export function isRelationshipType(value: unknown): value is RelationshipType {

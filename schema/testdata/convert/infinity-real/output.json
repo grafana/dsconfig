@@ -24,7 +24,17 @@
                         "description": "Authentication method to use",
                         "type": "string",
                         "default": "none",
-                        "enum": ["none", "basicAuth", "apiKey", "bearerToken", "oauthPassThru", "digestAuth", "aws", "azureBlob", "oauth2"]
+                        "enum": [
+                            "none",
+                            "basicAuth",
+                            "apiKey",
+                            "bearerToken",
+                            "oauthPassThru",
+                            "digestAuth",
+                            "aws",
+                            "azureBlob",
+                            "oauth2"
+                        ]
                     },
                     "apiKeyKey": {
                         "description": "Name of the header or query parameter for the API key",
@@ -36,28 +46,36 @@
                         "description": "Where to send the API key",
                         "type": "string",
                         "default": "header",
-                        "enum": ["header", "query"],
+                        "enum": [
+                            "header",
+                            "query"
+                        ],
                         "x-depends-on": "jsonData.auth_method == 'apiKey'"
                     },
-                    "client_id": {
-                        "description": "OAuth2 client ID",
-                        "type": "string",
-                        "x-depends-on": "jsonData.auth_method == 'oauth2'",
-                        "x-required-when": "jsonData.auth_method == 'oauth2'"
-                    },
-                    "token_url": {
-                        "description": "OAuth2 token endpoint",
-                        "type": "string",
-                        "format": "uri",
-                        "x-depends-on": "jsonData.auth_method == 'oauth2'",
-                        "x-required-when": "jsonData.auth_method == 'oauth2'"
-                    },
-                    "scopes": {
-                        "description": "OAuth2 scopes",
-                        "type": "array",
-                        "x-depends-on": "jsonData.auth_method == 'oauth2'",
-                        "items": {
-                            "type": "string"
+                    "oauth2": {
+                        "type": "object",
+                        "properties": {
+                            "client_id": {
+                                "description": "OAuth2 client ID",
+                                "type": "string",
+                                "x-depends-on": "jsonData.auth_method == 'oauth2'",
+                                "x-required-when": "jsonData.auth_method == 'oauth2'"
+                            },
+                            "token_url": {
+                                "description": "OAuth2 token endpoint",
+                                "type": "string",
+                                "format": "uri",
+                                "x-depends-on": "jsonData.auth_method == 'oauth2'",
+                                "x-required-when": "jsonData.auth_method == 'oauth2'"
+                            },
+                            "scopes": {
+                                "description": "OAuth2 scopes",
+                                "type": "array",
+                                "x-depends-on": "jsonData.auth_method == 'oauth2'",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     },
                     "timeoutInSeconds": {
@@ -87,19 +105,53 @@
                         "description": "Policy for unsecured queries",
                         "type": "string",
                         "default": "warn",
-                        "enum": ["warn", "allow", "deny"]
+                        "enum": [
+                            "warn",
+                            "allow",
+                            "deny"
+                        ]
                     }
                 }
             }
         }
     },
     "secureValues": [
-        { "key": "basicAuthPassword", "description": "Basic auth password", "x-depends-on": "jsonData.auth_method == 'basicAuth'" },
-        { "key": "apiKeyValue", "description": "API key value", "x-depends-on": "jsonData.auth_method == 'apiKey'", "x-required-when": "jsonData.auth_method == 'apiKey'" },
-        { "key": "bearerToken", "description": "Bearer token", "x-depends-on": "jsonData.auth_method == 'bearerToken'", "x-required-when": "jsonData.auth_method == 'bearerToken'" },
-        { "key": "oauth2ClientSecret", "description": "OAuth2 client secret", "x-depends-on": "jsonData.auth_method == 'oauth2'", "x-required-when": "jsonData.auth_method == 'oauth2'" },
-        { "key": "tlsCACert", "description": "TLS CA certificate" },
-        { "key": "tlsClientCert", "description": "TLS client certificate", "x-depends-on": "jsonData.tlsAuth == true" },
-        { "key": "tlsClientKey", "description": "TLS client key", "x-depends-on": "jsonData.tlsAuth == true" }
+        {
+            "key": "basicAuthPassword",
+            "description": "Basic auth password",
+            "x-depends-on": "jsonData.auth_method == 'basicAuth'"
+        },
+        {
+            "key": "apiKeyValue",
+            "description": "API key value",
+            "x-depends-on": "jsonData.auth_method == 'apiKey'",
+            "x-required-when": "jsonData.auth_method == 'apiKey'"
+        },
+        {
+            "key": "bearerToken",
+            "description": "Bearer token",
+            "x-depends-on": "jsonData.auth_method == 'bearerToken'",
+            "x-required-when": "jsonData.auth_method == 'bearerToken'"
+        },
+        {
+            "key": "oauth2ClientSecret",
+            "description": "OAuth2 client secret",
+            "x-depends-on": "jsonData.auth_method == 'oauth2'",
+            "x-required-when": "jsonData.auth_method == 'oauth2'"
+        },
+        {
+            "key": "tlsCACert",
+            "description": "TLS CA certificate"
+        },
+        {
+            "key": "tlsClientCert",
+            "description": "TLS client certificate",
+            "x-depends-on": "jsonData.tlsAuth == true"
+        },
+        {
+            "key": "tlsClientKey",
+            "description": "TLS client key",
+            "x-depends-on": "jsonData.tlsAuth == true"
+        }
     ]
 }

@@ -64,8 +64,8 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 		}
 
 		if f.Target != nil && *f.Target == JSONDataTarget {
-			jsonDataProps[f.Key] = fieldToSpecSchema(f)
-			if f.Required {
+			placeInSection(jsonDataProps, f)
+			if f.Required && f.Section == "" {
 				jsonDataRequired = append(jsonDataRequired, f.Key)
 			}
 		} else {
@@ -103,6 +103,33 @@ func (s *DatasourceConfigSchema) ToPluginSettings() (*PluginSettings, error) {
 		Spec:         specSchema,
 		SecureValues: secureValues,
 	}, nil
+}
+
+// placeInSection places a field into the correct section sub-object within props.
+// If the field has no Section, it is placed directly. If it has a Section,
+// the field is nested under an object property with that section name.
+func placeInSection(props map[string]spec.Schema, f ConfigField) {
+	if f.Section == "" {
+		props[f.Key] = fieldToSpecSchema(f)
+		return
+	}
+	section, exists := props[f.Section]
+	if !exists {
+		section = spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type:       spec.StringOrArray{"object"},
+				Properties: make(map[string]spec.Schema),
+			},
+		}
+	}
+	if section.Properties == nil {
+		section.Properties = make(map[string]spec.Schema)
+	}
+	section.Properties[f.Key] = fieldToSpecSchema(f)
+	if f.Required {
+		section.Required = append(section.Required, f.Key)
+	}
+	props[f.Section] = section
 }
 
 // fieldToSpecSchema converts a ConfigField to an OpenAPI spec.Schema.

@@ -195,7 +195,8 @@ export interface FieldItemSchema {
     valueType: ValueType
 
     /**
-     * Required when valueType = "object"
+     * Sub-fields for object items. Optional even when valueType = "object"
+     * (omitting allows an unconstrained object).
      */
     fields?: ConfigField[]
 }

@@ -408,7 +408,21 @@ export function validateStorageMapping(mapping: StorageMapping, path = "storage"
 
     switch (mapping.type) {
         case "direct":
-            // Direct mapping must not have any extra fields
+            if ("key" in mapping && mapping.key != null) {
+                errors.push({ path: `${path}.key`, code: "extra_field", message: "direct mapping must not have key" })
+            }
+            if ("value" in mapping && mapping.value != null) {
+                errors.push({ path: `${path}.value`, code: "extra_field", message: "direct mapping must not have value" })
+            }
+            if ("startIndex" in mapping && mapping.startIndex != null) {
+                errors.push({ path: `${path}.startIndex`, code: "extra_field", message: "direct mapping must not have startIndex" })
+            }
+            if ("read" in mapping && mapping.read) {
+                errors.push({ path: `${path}.read`, code: "extra_field", message: "direct mapping must not have read" })
+            }
+            if ("write" in mapping && mapping.write) {
+                errors.push({ path: `${path}.write`, code: "extra_field", message: "direct mapping must not have write" })
+            }
             break
 
         case "indexedPair":
@@ -422,6 +436,12 @@ export function validateStorageMapping(mapping: StorageMapping, path = "storage"
             } else {
                 errors.push(...validateMappingField(mapping.value, `${path}.value`))
             }
+            if ("read" in mapping && mapping.read) {
+                errors.push({ path: `${path}.read`, code: "extra_field", message: "indexedPair must not have read" })
+            }
+            if ("write" in mapping && mapping.write) {
+                errors.push({ path: `${path}.write`, code: "extra_field", message: "indexedPair must not have write" })
+            }
             break
 
         case "computed":
@@ -431,6 +451,15 @@ export function validateStorageMapping(mapping: StorageMapping, path = "storage"
                     code: "required",
                     message: "computed mapping requires read or write",
                 })
+            }
+            if ("key" in mapping && mapping.key != null) {
+                errors.push({ path: `${path}.key`, code: "extra_field", message: "computed mapping must not have key" })
+            }
+            if ("value" in mapping && mapping.value != null) {
+                errors.push({ path: `${path}.value`, code: "extra_field", message: "computed mapping must not have value" })
+            }
+            if ("startIndex" in mapping && mapping.startIndex != null) {
+                errors.push({ path: `${path}.startIndex`, code: "extra_field", message: "computed mapping must not have startIndex" })
             }
             break
 

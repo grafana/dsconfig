@@ -17,7 +17,7 @@ Declarative schema for Grafana datasource configuration.
 
 ## Root schema
 
-| name          | type                | required  | descrption                                    |
+| name          | type                | required  | description                                   |
 | ------------- | ------------------- | --------- | --------------------------------------------- |
 | schemaVersion | string              | Required. | Schema spec version (e.g. "v1").              |
 | pluginType    | string              | Required. | Unique plugin identifier (e.g. "prometheus"). |

@@ -1,7 +1,9 @@
 {
     "spec": {
         "type": "object",
-        "required": ["url"],
+        "required": [
+            "url"
+        ],
         "properties": {
             "url": {
                 "description": "Loki server URL",
@@ -42,7 +44,10 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["matcherRegex", "name"],
+                            "required": [
+                                "matcherRegex",
+                                "name"
+                            ],
                             "properties": {
                                 "matcherRegex": {
                                     "description": "Regex to match and extract value from log line",
@@ -70,7 +75,10 @@
                                 "matcherType": {
                                     "description": "Type of matcher",
                                     "type": "string",
-                                    "enum": ["label", "regex"]
+                                    "enum": [
+                                        "label",
+                                        "regex"
+                                    ]
                                 }
                             }
                         }
@@ -98,9 +106,25 @@
         }
     },
     "secureValues": [
-        { "key": "basicAuthPassword", "description": "Basic auth password", "x-depends-on": "auth.basicAuth == true" },
-        { "key": "tlsCACert", "description": "TLS CA certificate", "x-depends-on": "tls.tlsAuthWithCACert == true" },
-        { "key": "tlsClientCert", "description": "TLS client certificate", "x-depends-on": "tls.tlsAuth == true" },
-        { "key": "tlsClientKey", "description": "TLS client key", "x-depends-on": "tls.tlsAuth == true" }
+        {
+            "key": "basicAuthPassword",
+            "description": "Basic auth password",
+            "x-depends-on": "auth.basicAuth == true"
+        },
+        {
+            "key": "tlsCACert",
+            "description": "TLS CA certificate",
+            "x-depends-on": "tls.tlsAuthWithCACert == true"
+        },
+        {
+            "key": "tlsClientCert",
+            "description": "TLS client certificate",
+            "x-depends-on": "tls.tlsAuth == true"
+        },
+        {
+            "key": "tlsClientKey",
+            "description": "TLS client key",
+            "x-depends-on": "tls.tlsAuth == true"
+        }
     ]
 }

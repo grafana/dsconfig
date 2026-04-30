@@ -1,7 +1,9 @@
 {
     "spec": {
         "type": "object",
-        "required": ["url"],
+        "required": [
+            "url"
+        ],
         "properties": {
             "url": {
                 "description": "Prometheus server URL",
@@ -25,12 +27,20 @@
                         "description": "HTTP method for querying Prometheus",
                         "type": "string",
                         "default": "POST",
-                        "enum": ["GET", "POST"]
+                        "enum": [
+                            "GET",
+                            "POST"
+                        ]
                     },
                     "prometheusType": {
                         "description": "Type of Prometheus-compatible backend",
                         "type": "string",
-                        "enum": ["Prometheus", "Mimir", "Cortex", "Thanos"]
+                        "enum": [
+                            "Prometheus",
+                            "Mimir",
+                            "Cortex",
+                            "Thanos"
+                        ]
                     },
                     "prometheusVersion": {
                         "description": "Prometheus server version",
@@ -40,13 +50,21 @@
                         "description": "Browser cache level for queries",
                         "type": "string",
                         "default": "High",
-                        "enum": ["Low", "Medium", "High", "None"]
+                        "enum": [
+                            "Low",
+                            "Medium",
+                            "High",
+                            "None"
+                        ]
                     },
                     "defaultEditor": {
                         "description": "Default query editor mode",
                         "type": "string",
                         "default": "builder",
-                        "enum": ["code", "builder"]
+                        "enum": [
+                            "code",
+                            "builder"
+                        ]
                     },
                     "timeInterval": {
                         "description": "Set this to the typical scrape and evaluation interval",
@@ -80,7 +98,9 @@
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["name"],
+                            "required": [
+                                "name"
+                            ],
                             "properties": {
                                 "name": {
                                     "description": "Label name containing the trace ID",
@@ -125,9 +145,25 @@
         }
     },
     "secureValues": [
-        { "key": "basicAuthPassword", "description": "Basic auth password", "x-depends-on": "auth.basicAuth == true" },
-        { "key": "tlsCACert", "description": "TLS CA certificate", "x-depends-on": "tls.tlsAuthWithCACert == true" },
-        { "key": "tlsClientCert", "description": "TLS client certificate", "x-depends-on": "tls.tlsAuth == true" },
-        { "key": "tlsClientKey", "description": "TLS client key", "x-depends-on": "tls.tlsAuth == true" }
+        {
+            "key": "basicAuthPassword",
+            "description": "Basic auth password",
+            "x-depends-on": "auth.basicAuth == true"
+        },
+        {
+            "key": "tlsCACert",
+            "description": "TLS CA certificate",
+            "x-depends-on": "tls.tlsAuthWithCACert == true"
+        },
+        {
+            "key": "tlsClientCert",
+            "description": "TLS client certificate",
+            "x-depends-on": "tls.tlsAuth == true"
+        },
+        {
+            "key": "tlsClientKey",
+            "description": "TLS client key",
+            "x-depends-on": "tls.tlsAuth == true"
+        }
     ]
 }

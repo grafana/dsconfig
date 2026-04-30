@@ -13,7 +13,10 @@
             "semanticType": "url",
             "target": "root",
             "required": true,
-            "ui": { "component": "input", "placeholder": "http://localhost:3200" }
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:3200"
+            }
         },
         {
             "id": "auth.basicAuth",
@@ -22,7 +25,9 @@
             "description": "Enable basic authentication",
             "valueType": "boolean",
             "target": "root",
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "auth.basicAuthUser",
@@ -33,7 +38,9 @@
             "target": "root",
             "dependsOn": "auth.basicAuth == true",
             "requiredWhen": "auth.basicAuth == true",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.tracesToMetrics",
@@ -43,7 +50,9 @@
             "valueType": "object",
             "target": "jsonData",
             "section": "tracesToMetrics",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.tracesToMetrics.datasourceUid",
@@ -54,7 +63,9 @@
             "semanticType": "datasourceUid",
             "target": "jsonData",
             "section": "tracesToMetrics",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.tracesToMetrics.spanStartTimeShift",
@@ -65,7 +76,10 @@
             "semanticType": "duration",
             "target": "jsonData",
             "section": "tracesToMetrics",
-            "ui": { "component": "input", "placeholder": "-2m" }
+            "ui": {
+                "component": "input",
+                "placeholder": "-2m"
+            }
         },
         {
             "id": "jsonData.tracesToMetrics.spanEndTimeShift",
@@ -76,7 +90,10 @@
             "semanticType": "duration",
             "target": "jsonData",
             "section": "tracesToMetrics",
-            "ui": { "component": "input", "placeholder": "2m" }
+            "ui": {
+                "component": "input",
+                "placeholder": "2m"
+            }
         },
         {
             "id": "jsonData.tracesToMetrics.queries",
@@ -103,7 +120,10 @@
                         "valueType": "string",
                         "semanticType": "query",
                         "isItemField": true,
-                        "ui": { "component": "code", "language": "promql" }
+                        "ui": {
+                            "component": "code",
+                            "language": "promql"
+                        }
                     }
                 ]
             }
@@ -117,7 +137,9 @@
             "semanticType": "datasourceUid",
             "target": "jsonData",
             "section": "tracesToLogsV2",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.tracesToLogsV2.filterByTraceID",
@@ -128,7 +150,9 @@
             "target": "jsonData",
             "section": "tracesToLogsV2",
             "defaultValue": true,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.tracesToLogsV2.filterBySpanID",
@@ -139,7 +163,9 @@
             "target": "jsonData",
             "section": "tracesToLogsV2",
             "defaultValue": false,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.tracesToLogsV2.customQuery",
@@ -150,7 +176,9 @@
             "target": "jsonData",
             "section": "tracesToLogsV2",
             "defaultValue": false,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.tracesToLogsV2.query",
@@ -162,7 +190,10 @@
             "target": "jsonData",
             "section": "tracesToLogsV2",
             "dependsOn": "jsonData.tracesToLogsV2.customQuery == true",
-            "ui": { "component": "code", "language": "logql" }
+            "ui": {
+                "component": "code",
+                "language": "logql"
+            }
         },
         {
             "id": "jsonData.serviceMap.datasourceUid",
@@ -173,7 +204,9 @@
             "semanticType": "datasourceUid",
             "target": "jsonData",
             "section": "serviceMap",
-            "ui": { "component": "input" }
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "jsonData.nodeGraph.enabled",
@@ -184,7 +217,9 @@
             "target": "jsonData",
             "section": "nodeGraph",
             "defaultValue": true,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.streamingEnabled.search",
@@ -195,7 +230,9 @@
             "target": "jsonData",
             "section": "streamingEnabled",
             "defaultValue": true,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "tls.tlsSkipVerify",
@@ -204,7 +241,9 @@
             "valueType": "boolean",
             "target": "jsonData",
             "defaultValue": false,
-            "ui": { "component": "switch" }
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "secure.basicAuthPassword",
@@ -238,16 +277,83 @@
         }
     ],
     "groups": [
-        { "id": "connection", "title": "Connection", "fieldRefs": ["connection.url"] },
-        { "id": "auth", "title": "Authentication", "fieldRefs": ["auth.basicAuth", "auth.basicAuthUser", "secure.basicAuthPassword"] },
-        { "id": "tracesToMetrics", "title": "Trace to Metrics", "fieldRefs": ["jsonData.tracesToMetrics.datasourceUid", "jsonData.tracesToMetrics.spanStartTimeShift", "jsonData.tracesToMetrics.spanEndTimeShift", "jsonData.tracesToMetrics.queries"] },
-        { "id": "tracesToLogs", "title": "Trace to Logs", "fieldRefs": ["jsonData.tracesToLogsV2.datasourceUid", "jsonData.tracesToLogsV2.filterByTraceID", "jsonData.tracesToLogsV2.filterBySpanID", "jsonData.tracesToLogsV2.customQuery", "jsonData.tracesToLogsV2.query"] },
-        { "id": "serviceMap", "title": "Service Map", "fieldRefs": ["jsonData.serviceMap.datasourceUid"] },
-        { "id": "display", "title": "Display", "fieldRefs": ["jsonData.nodeGraph.enabled", "jsonData.streamingEnabled.search"] }
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "connection.url"
+            ]
+        },
+        {
+            "id": "auth",
+            "title": "Authentication",
+            "fieldRefs": [
+                "auth.basicAuth",
+                "auth.basicAuthUser",
+                "secure.basicAuthPassword"
+            ]
+        },
+        {
+            "id": "tracesToMetrics",
+            "title": "Trace to Metrics",
+            "fieldRefs": [
+                "jsonData.tracesToMetrics.datasourceUid",
+                "jsonData.tracesToMetrics.spanStartTimeShift",
+                "jsonData.tracesToMetrics.spanEndTimeShift",
+                "jsonData.tracesToMetrics.queries"
+            ]
+        },
+        {
+            "id": "tracesToLogs",
+            "title": "Trace to Logs",
+            "fieldRefs": [
+                "jsonData.tracesToLogsV2.datasourceUid",
+                "jsonData.tracesToLogsV2.filterByTraceID",
+                "jsonData.tracesToLogsV2.filterBySpanID",
+                "jsonData.tracesToLogsV2.customQuery",
+                "jsonData.tracesToLogsV2.query"
+            ]
+        },
+        {
+            "id": "serviceMap",
+            "title": "Service Map",
+            "fieldRefs": [
+                "jsonData.serviceMap.datasourceUid"
+            ]
+        },
+        {
+            "id": "display",
+            "title": "Display",
+            "fieldRefs": [
+                "jsonData.nodeGraph.enabled",
+                "jsonData.streamingEnabled.search"
+            ]
+        }
     ],
     "relationships": [
-        { "type": "datasourceReference", "fields": ["jsonData.tracesToMetrics.datasourceUid"], "targetPluginType": "prometheus", "description": "Metrics datasource for trace-to-metrics" },
-        { "type": "datasourceReference", "fields": ["jsonData.tracesToLogsV2.datasourceUid"], "targetPluginType": "loki", "description": "Loki datasource for trace-to-logs" },
-        { "type": "datasourceReference", "fields": ["jsonData.serviceMap.datasourceUid"], "targetPluginType": "prometheus", "description": "Prometheus datasource for service map" }
+        {
+            "type": "datasourceReference",
+            "fields": [
+                "jsonData.tracesToMetrics.datasourceUid"
+            ],
+            "targetPluginType": "prometheus",
+            "description": "Metrics datasource for trace-to-metrics"
+        },
+        {
+            "type": "datasourceReference",
+            "fields": [
+                "jsonData.tracesToLogsV2.datasourceUid"
+            ],
+            "targetPluginType": "loki",
+            "description": "Loki datasource for trace-to-logs"
+        },
+        {
+            "type": "datasourceReference",
+            "fields": [
+                "jsonData.serviceMap.datasourceUid"
+            ],
+            "targetPluginType": "prometheus",
+            "description": "Prometheus datasource for service map"
+        }
     ]
 }

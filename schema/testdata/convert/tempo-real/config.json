@@ -11,8 +11,14 @@
             "spanStartTimeShift": "-2m",
             "spanEndTimeShift": "2m",
             "queries": [
-                { "name": "Request Rate", "query": "sum(rate(http_requests_total{service=\"$__service\"}[5m]))" },
-                { "name": "Error Rate", "query": "sum(rate(http_requests_total{service=\"$__service\",status=~\"5..\"}[5m]))" }
+                {
+                    "name": "Request Rate",
+                    "query": "sum(rate(http_requests_total{service=\"$__service\"}[5m]))"
+                },
+                {
+                    "name": "Error Rate",
+                    "query": "sum(rate(http_requests_total{service=\"$__service\",status=~\"5..\"}[5m]))"
+                }
             ]
         },
         "tracesToLogsV2": {
