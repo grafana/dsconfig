@@ -53,3 +53,72 @@ describe("JSON Schema (AJV) validation", () => {
         })
     }
 })
+
+describe("JSON Schema rejects invalid validation rules (parity with Go/TS)", () => {
+    const ajv = new Ajv({ allErrors: true })
+    addFormats(ajv)
+    const schemaSpec = loadJsonSchema()
+    const validate = ajv.compile(schemaSpec)
+
+    function schemaWithValidation(rule: Record<string, unknown>) {
+        return {
+            schemaVersion: "v1",
+            pluginType: "test",
+            pluginName: "Test",
+            fields: [{
+                id: "x",
+                key: "x",
+                valueType: "string",
+                target: "jsonData",
+                validations: [rule],
+            }],
+        }
+    }
+
+    it.each(["range", "length", "itemCount"])(
+        "rejects %s rule with neither min nor max",
+        (ruleType) => {
+            const doc = schemaWithValidation({ type: ruleType })
+            expect(validate(doc)).toBe(false)
+        },
+    )
+
+    it.each(["range", "length", "itemCount"])(
+        "accepts %s rule with only min",
+        (ruleType) => {
+            const doc = schemaWithValidation({ type: ruleType, min: 1 })
+            expect(validate(doc), ajv.errorsText(validate.errors)).toBe(true)
+        },
+    )
+
+    it.each(["range", "length", "itemCount"])(
+        "accepts %s rule with only max",
+        (ruleType) => {
+            const doc = schemaWithValidation({ type: ruleType, max: 100 })
+            expect(validate(doc), ajv.errorsText(validate.errors)).toBe(true)
+        },
+    )
+
+    it.each(["range", "length", "itemCount"])(
+        "accepts %s rule with both min and max",
+        (ruleType) => {
+            const doc = schemaWithValidation({ type: ruleType, min: 1, max: 100 })
+            expect(validate(doc), ajv.errorsText(validate.errors)).toBe(true)
+        },
+    )
+
+    it("rejects pattern rule without pattern", () => {
+        const doc = schemaWithValidation({ type: "pattern" })
+        expect(validate(doc)).toBe(false)
+    })
+
+    it("rejects allowedValues rule without values", () => {
+        const doc = schemaWithValidation({ type: "allowedValues" })
+        expect(validate(doc)).toBe(false)
+    })
+
+    it("rejects custom rule without expression", () => {
+        const doc = schemaWithValidation({ type: "custom" })
+        expect(validate(doc)).toBe(false)
+    })
+})

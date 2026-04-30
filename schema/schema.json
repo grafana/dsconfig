@@ -474,6 +474,10 @@
                     },
                     "required": [
                         "type"
+                    ],
+                    "anyOf": [
+                        { "required": ["min"] },
+                        { "required": ["max"] }
                     ]
                 },
                 {
@@ -490,6 +494,10 @@
                     },
                     "required": [
                         "type"
+                    ],
+                    "anyOf": [
+                        { "required": ["min"] },
+                        { "required": ["max"] }
                     ]
                 },
                 {
@@ -506,6 +514,10 @@
                     },
                     "required": [
                         "type"
+                    ],
+                    "anyOf": [
+                        { "required": ["min"] },
+                        { "required": ["max"] }
                     ]
                 },
                 {
