@@ -71,12 +71,83 @@ For each field found in settings structs, ConfigEditor, and documentation, colle
 |-----------|--------|
 | **Field name** | Go JSON tag or TypeScript property name |
 | **Type** | Go type / TS type; create companion enum/type aliases for constrained values |
+| **Source definition** | Permalink to the exact struct/interface/type where this field is declared (see below) |
+| **Package origin** | If the field is inherited from an external package, permalink to that package's type definition |
 | **Required / Optional / Conditionally required** | Backend validation, docs, UI `required` props |
 | **Default value** | Backend defaults, UI defaults, docs |
 | **Backend behavior** | What happens if missing/empty; validation errors; migration logic |
 | **UI hints** | ConfigEditor label, placeholder, conditional visibility, help text |
 | **Provisioning examples** | From docs or README |
 | **Legacy / migration notes** | Field renames, fallback logic, deprecated alternatives |
+
+#### 4a. Tracing Field Origins — Source Definition & Package Links
+
+Many datasource config types extend or embed types from external packages. Every field MUST include:
+
+1. **Source definition link**: A permalink to the file and line(s) where the field is declared in the datasource's own type definition.
+   - For Go: the struct field with its `json:"..."` tag (e.g., `settings.go` or `types.go`).
+   - For TypeScript: the interface property in `types.ts` or similar.
+
+2. **Package origin link** (when applicable): If the field is inherited from a parent type in an external package, include a permalink to that package's type definition too.
+
+Common package inheritance patterns:
+
+| Datasource | Frontend type extends | Package repo |
+|------------|----------------------|-------------|
+| CloudWatch | `AwsAuthDataSourceJsonData` | [`@grafana/aws-sdk`](https://github.com/grafana/grafana-aws-sdk-react) |
+| CloudWatch (backend) | `awsds.AWSDatasourceSettings` | [`grafana/grafana-aws-sdk`](https://github.com/grafana/grafana-aws-sdk) — `pkg/awsds/settings.go` |
+| Azure Monitor | `AzureDataSourceJsonData` | [`@grafana/azure-sdk`](https://github.com/grafana/grafana-azure-sdk-react) |
+| Azure Monitor (backend) | `azcredentials.AzureCredentials` | [`grafana/grafana-azure-sdk-go`](https://github.com/grafana/grafana-azure-sdk-go) |
+| Google Cloud (Sheets, etc.) | Custom per-plugin | Plugin repo itself |
+
+**How to trace a field's origin:**
+
+1. Find the datasource's main settings type (e.g., `CloudWatchJsonData`, `AzureMonitorDataSourceJsonData`).
+2. Check if it extends/embeds another type (e.g., `extends AwsAuthDataSourceJsonData`, `embeds awsds.AWSDatasourceSettings`).
+3. For each field, determine whether it's declared directly on the datasource type or inherited from the parent.
+4. Include both links when inherited.
+
+**Example JSDoc pattern for inherited fields:**
+
+```typescript
+/**
+ * REQUIRED.
+ *
+ * AWS authentication method.
+ *
+ * Source definition:
+ * - Datasource type: CloudWatchJsonData extends AwsAuthDataSourceJsonData
+ *   https://github.com/grafana/grafana/blob/<SHA>/public/app/plugins/datasource/cloudwatch/types.ts#L20-L40
+ * - Inherited from AwsAuthDataSourceJsonData.authType in @grafana/aws-sdk:
+ *   https://github.com/grafana/grafana-aws-sdk-react/blob/<SHA>/src/types.ts#L5-L15
+ * - Backend struct: awsds.AWSDatasourceSettings.AuthType
+ *   https://github.com/grafana/grafana-aws-sdk/blob/<SHA>/pkg/awsds/settings.go#L91-L100
+ *
+ * Backend behavior:
+ * ...
+ */
+authType?: CloudWatchAuthType;
+```
+
+**Example JSDoc pattern for fields declared directly on the datasource type:**
+
+```typescript
+/**
+ * OPTIONAL.
+ *
+ * Timeout for CloudWatch Logs queries.
+ *
+ * Source definition:
+ * - Frontend: CloudWatchJsonData.logsTimeout
+ *   https://github.com/grafana/grafana/blob/<SHA>/public/app/plugins/datasource/cloudwatch/types.ts#L28
+ * - Backend: CloudWatchSettings.LogsTimeout
+ *   https://github.com/grafana/grafana/blob/<SHA>/pkg/tsdb/cloudwatch/models/settings.go#L18-L20
+ *
+ * Backend behavior:
+ * ...
+ */
+logsTimeout?: string;
+```
 
 ### 5. Generate the TypeScript Type File
 
@@ -136,7 +207,7 @@ Every field comment MUST include:
 
 - [ ] **Requirement level**: One of `REQUIRED`, `OPTIONAL`, or `CONDITIONALLY REQUIRED: <when>` as the first word
 - [ ] **Description**: One-line summary of what the field controls
-- [ ] **Source permalink**: At least one link to where the field is defined or validated in the backend
+- [ ] **Source definition link(s)**: Permalink to the type/struct where this field is declared — both the datasource's own type AND the parent package type if inherited (see Step 4a)
 - [ ] **Backend behavior**: What error or behavior occurs if the field is missing or invalid (with link)
 - [ ] **UI hints** (if a ConfigEditor exists): How the field appears in the Grafana UI (with link)
 
@@ -145,6 +216,7 @@ Optional but encouraged:
 - **Defaults**: Note any default value
 - **Provisioning examples**: Link to docs showing YAML provisioning
 - **Legacy/migration**: Note if the field replaces or aliases another field
+- **Package origin**: If the field comes from an external SDK/package, note the package name and link
 
 ### 7. Naming Conventions
 
@@ -174,8 +246,32 @@ The gold standard is `src/googleSheets.ts`. Key qualities to match:
 1. **Permalink format**: `https://github.com/grafana/<repo>/blob/<SHA>/<path>#L<start>-L<end>` — always with commit SHA, never branch name
 2. **Requirement prefix**: Every field starts with `REQUIRED`, `OPTIONAL`, or `CONDITIONALLY REQUIRED: for \`<condition>\``
 3. **Multi-source evidence**: Comments cite backend Go code, frontend ConfigEditor, AND docs when all three mention the field
-4. **Legacy handling**: Legacy/alias fields are documented with migration logic references
-5. **Companion types**: String unions extracted as named type aliases at the bottom of the file
+4. **Source definition links**: Every field links to the exact line in the type/struct/interface where it is declared
+5. **Package origin links**: When a field is inherited from an external package (e.g., `@grafana/aws-sdk`, `grafana-azure-sdk-go`), the comment includes a link to both the datasource's type AND the external package's type definition
+6. **Legacy handling**: Legacy/alias fields are documented with migration logic references
+7. **Companion types**: String unions extracted as named type aliases at the bottom of the file
+
+### Source Linking Examples from Existing Types
+
+For a CloudWatch field inherited from `@grafana/aws-sdk`:
+```
+ * Source definition:
+ * - Frontend: CloudWatchJsonData extends AwsAuthDataSourceJsonData
+ *   https://github.com/grafana/grafana/blob/<SHA>/public/app/plugins/datasource/cloudwatch/types.ts#L20-L40
+ * - Package: AwsAuthDataSourceJsonData in @grafana/aws-sdk
+ *   https://github.com/grafana/grafana-aws-sdk-react/blob/<SHA>/src/types.ts#L5-L15
+ * - Backend: awsds.AWSDatasourceSettings in grafana-aws-sdk
+ *   https://github.com/grafana/grafana-aws-sdk/blob/<SHA>/pkg/awsds/settings.go#L91-L100
+```
+
+For a field declared directly on the datasource type:
+```
+ * Source definition:
+ * - Frontend: CloudWatchJsonData.logsTimeout
+ *   https://github.com/grafana/grafana/blob/<SHA>/public/app/plugins/datasource/cloudwatch/types.ts#L28
+ * - Backend: CloudWatchSettings.LogsTimeout
+ *   https://github.com/grafana/grafana/blob/<SHA>/pkg/tsdb/cloudwatch/models/settings.go#L18-L20
+```
 
 ## Common Datasource Repos
 
@@ -202,3 +298,17 @@ The gold standard is `src/googleSheets.ts`. Key qualities to match:
 - **Multiple settings structs**: Some datasources split settings across multiple structs (e.g., one for jsonData, one for secureJsonData). Merge them into the single output type.
 - **Feature flags**: Some fields are gated behind feature flags. Note this in the comment if found.
 - **Cross-datasource fields**: Fields like `timeout`, `tlsAuth`, `tlsSkipVerify`, `keepCookies`, `pdcInjected` are common across many datasources. Still document them with source links specific to this datasource's usage.
+- **Tracing inherited fields**: Always follow the `extends`/`embeds` chain. For example, `CloudWatchJsonData extends AwsAuthDataSourceJsonData` — every field from `AwsAuthDataSourceJsonData` needs a link to both the CloudWatch types file and the aws-sdk package where it originates.
+- **Go module dependencies**: Use `go.mod` to find the exact version of embedded packages (e.g., `grafana-aws-sdk`, `grafana-azure-sdk-go`). Search the package repo for the struct definition.
+- **npm package dependencies**: Use `package.json` to find the exact version of frontend SDK packages (e.g., `@grafana/aws-sdk`, `@grafana/azure-sdk`). Search the package repo for the TypeScript interface.
+
+## Common External Package Repos
+
+| Package | Repository | Key types |
+|---------|-----------|----------|
+| `@grafana/aws-sdk` (frontend) | `grafana/grafana-aws-sdk-react` | `AwsAuthDataSourceJsonData`, `AwsAuthDataSourceSecureJsonData` |
+| `grafana-aws-sdk` (Go) | `grafana/grafana-aws-sdk` | `awsds.AWSDatasourceSettings`, `awsds.AuthSettings`, `awsds.AuthType` |
+| `@grafana/azure-sdk` (frontend) | `grafana/grafana-azure-sdk-react` | `AzureDataSourceJsonData`, `AzureDataSourceSecureJsonData`, `AzureCredentials` |
+| `grafana-azure-sdk-go` (Go) | `grafana/grafana-azure-sdk-go` | `azcredentials.AzureCredentials`, `azsettings.AzureSettings` |
+| `@grafana/google-sdk` (frontend) | `grafana/grafana-google-sdk-react` | `GoogleAuthType` |
+| `grafana-google-sdk-go` (Go) | `grafana/grafana-google-sdk-go` | Google auth settings |
