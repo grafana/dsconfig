@@ -286,7 +286,7 @@ A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings
   "secureValues": [
     {
       "key": "basicAuthPassword",
-      "x-depends-on": "connection.basicAuth == true"
+      "x-dsconfig-depends-on": "connection.basicAuth == true"
     },
     { "key": "tlsCACert" }
   ]
@@ -298,7 +298,7 @@ Key points:
 - `target: "root"` fields become top-level properties in the SDK spec
 - `target: "jsonData"` fields are nested under a `jsonData` object
 - `target: "secureJsonData"` fields become `secureValues` entries — values are **write-only** and never returned in the spec
-- `dependsOn` expressions become `x-depends-on` vendor extensions
+- `dependsOn` expressions become `x-dsconfig-depends-on` vendor extensions
 - `validations[].range` maps to `minimum`/`maximum` in JSON Schema
 
 ---
@@ -393,8 +393,8 @@ Auth methods often involve a selector that conditionally shows/requires a secret
   "secureValues": [
     {
       "key": "bearerToken",
-      "x-depends-on": "auth.method == 'bearer-token'",
-      "x-required-when": "auth.method == 'bearer-token'"
+      "x-dsconfig-depends-on": "auth.method == 'bearer-token'",
+      "x-dsconfig-required-when": "auth.method == 'bearer-token'"
     }
   ]
 }

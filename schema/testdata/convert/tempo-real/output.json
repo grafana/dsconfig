@@ -15,8 +15,8 @@
             "basicAuthUser": {
                 "description": "Basic auth username",
                 "type": "string",
-                "x-depends-on": "auth.basicAuth == true",
-                "x-required-when": "auth.basicAuth == true"
+                "x-dsconfig-depends-on": "auth.basicAuth == true",
+                "x-dsconfig-required-when": "auth.basicAuth == true"
             },
             "jsonData": {
                 "type": "object",
@@ -86,7 +86,7 @@
                             "query": {
                                 "description": "Custom LogQL query for trace-to-logs",
                                 "type": "string",
-                                "x-depends-on": "jsonData.tracesToLogsV2.customQuery == true"
+                                "x-dsconfig-depends-on": "jsonData.tracesToLogsV2.customQuery == true"
                             }
                         }
                     },
@@ -129,7 +129,7 @@
         }
     },
     "secureValues": [
-        { "key": "basicAuthPassword", "description": "Basic auth password", "x-depends-on": "auth.basicAuth == true" },
+        { "key": "basicAuthPassword", "description": "Basic auth password", "x-dsconfig-depends-on": "auth.basicAuth == true" },
         { "key": "tlsCACert", "description": "TLS CA certificate" },
         { "key": "tlsClientCert", "description": "TLS client certificate" },
         { "key": "tlsClientKey", "description": "TLS client key" }

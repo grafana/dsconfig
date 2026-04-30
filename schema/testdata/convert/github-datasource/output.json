@@ -24,9 +24,9 @@
                         "description": "The URL of the GitHub Enterprise Server instance",
                         "type": "string",
                         "format": "uri",
-                        "x-depends-on": "jsonData.githubPlan == 'github-enterprise-server'",
-                        "x-required-when": "jsonData.githubPlan == 'github-enterprise-server'",
-                        "x-disabled-when": "jsonData.githubPlan != 'github-enterprise-server'"
+                        "x-dsconfig-depends-on": "jsonData.githubPlan == 'github-enterprise-server'",
+                        "x-dsconfig-required-when": "jsonData.githubPlan == 'github-enterprise-server'",
+                        "x-dsconfig-disabled-when": "jsonData.githubPlan != 'github-enterprise-server'"
                     },
                     "selectedAuthType": {
                         "description": "Authentication type",
@@ -40,16 +40,16 @@
                     "appId": {
                         "description": "The GitHub App ID",
                         "type": "string",
-                        "x-depends-on": "jsonData.selectedAuthType == 'github-app'",
-                        "x-required-when": "jsonData.selectedAuthType == 'github-app'",
-                        "x-disabled-when": "jsonData.selectedAuthType != 'github-app'"
+                        "x-dsconfig-depends-on": "jsonData.selectedAuthType == 'github-app'",
+                        "x-dsconfig-required-when": "jsonData.selectedAuthType == 'github-app'",
+                        "x-dsconfig-disabled-when": "jsonData.selectedAuthType != 'github-app'"
                     },
                     "installationId": {
                         "description": "The GitHub App installation ID",
                         "type": "string",
-                        "x-depends-on": "jsonData.selectedAuthType == 'github-app'",
-                        "x-required-when": "jsonData.selectedAuthType == 'github-app'",
-                        "x-disabled-when": "jsonData.selectedAuthType != 'github-app'"
+                        "x-dsconfig-depends-on": "jsonData.selectedAuthType == 'github-app'",
+                        "x-dsconfig-required-when": "jsonData.selectedAuthType == 'github-app'",
+                        "x-dsconfig-disabled-when": "jsonData.selectedAuthType != 'github-app'"
                     }
                 }
             }
@@ -59,13 +59,13 @@
         {
             "key": "accessToken",
             "description": "Personal access token for GitHub API authentication",
-            "x-depends-on": "jsonData.selectedAuthType == 'personal-access-token'",
-            "x-required-when": "jsonData.selectedAuthType == 'personal-access-token'"
+            "x-dsconfig-depends-on": "jsonData.selectedAuthType == 'personal-access-token'",
+            "x-dsconfig-required-when": "jsonData.selectedAuthType == 'personal-access-token'"
         },
         {
             "key": "privateKey",
             "description": "Private key for GitHub App authentication (PEM format)",
-            "x-depends-on": "jsonData.selectedAuthType == 'github-app'",
-            "x-required-when": "jsonData.selectedAuthType == 'github-app'"        }
+            "x-dsconfig-depends-on": "jsonData.selectedAuthType == 'github-app'",
+            "x-dsconfig-required-when": "jsonData.selectedAuthType == 'github-app'"        }
     ]
 }

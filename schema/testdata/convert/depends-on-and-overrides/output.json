@@ -26,15 +26,15 @@
                     "username": {
                         "description": "Username for authentication",
                         "type": "string",
-                        "x-depends-on": "auth.type == 'basic'",
-                        "x-required-when": "auth.type == 'basic'"
+                        "x-dsconfig-depends-on": "auth.type == 'basic'",
+                        "x-dsconfig-required-when": "auth.type == 'basic'"
                     },
                     "tokenUrl": {
                         "description": "OAuth token endpoint URL",
                         "type": "string",
                         "format": "uri",
-                        "x-depends-on": "auth.type == 'oauth'",
-                        "x-required-when": "auth.type == 'oauth'"
+                        "x-dsconfig-depends-on": "auth.type == 'oauth'",
+                        "x-dsconfig-required-when": "auth.type == 'oauth'"
                     }
                 }
             }
@@ -44,8 +44,8 @@
         {
             "key": "password",
             "description": "Password for authentication",
-            "x-depends-on": "auth.type != 'none'",
-            "x-required-when": "auth.type == 'basic'"
+            "x-dsconfig-depends-on": "auth.type != 'none'",
+            "x-dsconfig-required-when": "auth.type == 'basic'"
         }
     ]
 }

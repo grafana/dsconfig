@@ -14,8 +14,8 @@
             "basicAuthUser": {
                 "description": "Basic auth username",
                 "type": "string",
-                "x-depends-on": "auth.basicAuth == true",
-                "x-required-when": "auth.basicAuth == true"
+                "x-dsconfig-depends-on": "auth.basicAuth == true",
+                "x-dsconfig-required-when": "auth.basicAuth == true"
             },
             "jsonData": {
                 "type": "object",
@@ -39,8 +39,8 @@
                     "apiKeyKey": {
                         "description": "Name of the header or query parameter for the API key",
                         "type": "string",
-                        "x-depends-on": "jsonData.auth_method == 'apiKey'",
-                        "x-required-when": "jsonData.auth_method == 'apiKey'"
+                        "x-dsconfig-depends-on": "jsonData.auth_method == 'apiKey'",
+                        "x-dsconfig-required-when": "jsonData.auth_method == 'apiKey'"
                     },
                     "apiKeyType": {
                         "description": "Where to send the API key",
@@ -50,7 +50,7 @@
                             "header",
                             "query"
                         ],
-                        "x-depends-on": "jsonData.auth_method == 'apiKey'"
+                        "x-dsconfig-depends-on": "jsonData.auth_method == 'apiKey'"
                     },
                     "oauth2": {
                         "type": "object",
@@ -58,20 +58,20 @@
                             "client_id": {
                                 "description": "OAuth2 client ID",
                                 "type": "string",
-                                "x-depends-on": "jsonData.auth_method == 'oauth2'",
-                                "x-required-when": "jsonData.auth_method == 'oauth2'"
+                                "x-dsconfig-depends-on": "jsonData.auth_method == 'oauth2'",
+                                "x-dsconfig-required-when": "jsonData.auth_method == 'oauth2'"
                             },
                             "token_url": {
                                 "description": "OAuth2 token endpoint",
                                 "type": "string",
                                 "format": "uri",
-                                "x-depends-on": "jsonData.auth_method == 'oauth2'",
-                                "x-required-when": "jsonData.auth_method == 'oauth2'"
+                                "x-dsconfig-depends-on": "jsonData.auth_method == 'oauth2'",
+                                "x-dsconfig-required-when": "jsonData.auth_method == 'oauth2'"
                             },
                             "scopes": {
                                 "description": "OAuth2 scopes",
                                 "type": "array",
-                                "x-depends-on": "jsonData.auth_method == 'oauth2'",
+                                "x-dsconfig-depends-on": "jsonData.auth_method == 'oauth2'",
                                 "items": {
                                     "type": "string"
                                 }
@@ -119,25 +119,25 @@
         {
             "key": "basicAuthPassword",
             "description": "Basic auth password",
-            "x-depends-on": "jsonData.auth_method == 'basicAuth'"
+            "x-dsconfig-depends-on": "jsonData.auth_method == 'basicAuth'"
         },
         {
             "key": "apiKeyValue",
             "description": "API key value",
-            "x-depends-on": "jsonData.auth_method == 'apiKey'",
-            "x-required-when": "jsonData.auth_method == 'apiKey'"
+            "x-dsconfig-depends-on": "jsonData.auth_method == 'apiKey'",
+            "x-dsconfig-required-when": "jsonData.auth_method == 'apiKey'"
         },
         {
             "key": "bearerToken",
             "description": "Bearer token",
-            "x-depends-on": "jsonData.auth_method == 'bearerToken'",
-            "x-required-when": "jsonData.auth_method == 'bearerToken'"
+            "x-dsconfig-depends-on": "jsonData.auth_method == 'bearerToken'",
+            "x-dsconfig-required-when": "jsonData.auth_method == 'bearerToken'"
         },
         {
             "key": "oauth2ClientSecret",
             "description": "OAuth2 client secret",
-            "x-depends-on": "jsonData.auth_method == 'oauth2'",
-            "x-required-when": "jsonData.auth_method == 'oauth2'"
+            "x-dsconfig-depends-on": "jsonData.auth_method == 'oauth2'",
+            "x-dsconfig-required-when": "jsonData.auth_method == 'oauth2'"
         },
         {
             "key": "tlsCACert",
@@ -146,12 +146,12 @@
         {
             "key": "tlsClientCert",
             "description": "TLS client certificate",
-            "x-depends-on": "jsonData.tlsAuth == true"
+            "x-dsconfig-depends-on": "jsonData.tlsAuth == true"
         },
         {
             "key": "tlsClientKey",
             "description": "TLS client key",
-            "x-depends-on": "jsonData.tlsAuth == true"
+            "x-dsconfig-depends-on": "jsonData.tlsAuth == true"
         }
     ]
 }

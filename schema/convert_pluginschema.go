@@ -20,8 +20,8 @@ type SecureValueInfo struct {
 	Key          string `json:"key"`
 	Description  string `json:"description,omitempty"`
 	Required     bool   `json:"required,omitempty"`
-	DependsOn    string `json:"x-depends-on,omitempty"`
-	RequiredWhen string `json:"x-required-when,omitempty"`
+	DependsOn    string `json:"x-dsconfig-depends-on,omitempty"`
+	RequiredWhen string `json:"x-dsconfig-required-when,omitempty"`
 }
 
 // ToPluginSettings converts the schema to a PluginSettings object
@@ -206,13 +206,13 @@ func applyConditions(s *spec.Schema, f ConfigField) {
 	}
 	s.Extensions = make(spec.Extensions)
 	if f.DependsOn != "" {
-		s.Extensions["x-depends-on"] = f.DependsOn
+		s.Extensions["x-dsconfig-depends-on"] = f.DependsOn
 	}
 	if f.RequiredWhen != "" {
-		s.Extensions["x-required-when"] = f.RequiredWhen
+		s.Extensions["x-dsconfig-required-when"] = f.RequiredWhen
 	}
 	if f.DisabledWhen != "" {
-		s.Extensions["x-disabled-when"] = f.DisabledWhen
+		s.Extensions["x-dsconfig-disabled-when"] = f.DisabledWhen
 	}
 }
 

@@ -17,8 +17,8 @@
             "basicAuthUser": {
                 "description": "Basic auth username",
                 "type": "string",
-                "x-depends-on": "auth.basicAuth == true",
-                "x-required-when": "auth.basicAuth == true"
+                "x-dsconfig-depends-on": "auth.basicAuth == true",
+                "x-dsconfig-required-when": "auth.basicAuth == true"
             }
         }
     },
@@ -26,7 +26,7 @@
         {
             "key": "basicAuthPassword",
             "description": "Basic auth password",
-            "x-depends-on": "auth.basicAuth == true"
+            "x-dsconfig-depends-on": "auth.basicAuth == true"
         }
     ]
 }

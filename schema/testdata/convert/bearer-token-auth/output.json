@@ -30,8 +30,8 @@
         {
             "key": "bearerToken",
             "description": "Token used for Bearer authentication",
-            "x-depends-on": "auth.method == 'bearer-token'",
-            "x-required-when": "auth.method == 'bearer-token'"
+            "x-dsconfig-depends-on": "auth.method == 'bearer-token'",
+            "x-dsconfig-required-when": "auth.method == 'bearer-token'"
         }
     ]
 }

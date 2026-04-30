@@ -17,8 +17,8 @@
             "basicAuthUser": {
                 "description": "Basic auth username",
                 "type": "string",
-                "x-depends-on": "auth.basicAuth == true",
-                "x-required-when": "auth.basicAuth == true"
+                "x-dsconfig-depends-on": "auth.basicAuth == true",
+                "x-dsconfig-required-when": "auth.basicAuth == true"
             },
             "jsonData": {
                 "type": "object",
@@ -109,22 +109,22 @@
         {
             "key": "basicAuthPassword",
             "description": "Basic auth password",
-            "x-depends-on": "auth.basicAuth == true"
+            "x-dsconfig-depends-on": "auth.basicAuth == true"
         },
         {
             "key": "tlsCACert",
             "description": "TLS CA certificate",
-            "x-depends-on": "tls.tlsAuthWithCACert == true"
+            "x-dsconfig-depends-on": "tls.tlsAuthWithCACert == true"
         },
         {
             "key": "tlsClientCert",
             "description": "TLS client certificate",
-            "x-depends-on": "tls.tlsAuth == true"
+            "x-dsconfig-depends-on": "tls.tlsAuth == true"
         },
         {
             "key": "tlsClientKey",
             "description": "TLS client key",
-            "x-depends-on": "tls.tlsAuth == true"
+            "x-dsconfig-depends-on": "tls.tlsAuth == true"
         }
     ]
 }
