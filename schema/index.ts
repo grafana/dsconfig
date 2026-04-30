@@ -57,3 +57,18 @@ export {
     isValidationRule,
     isValidOptionValue,
 } from "./guards"
+
+// Runtime loader and validator
+export {
+    loadAndValidate,
+    newDatasourceConfig,
+} from "./runtime"
+export type {
+    LoadMode,
+    DatasourceConfig,
+    ConfigError,
+    SecureState,
+    ValueSource,
+    FieldValue,
+    LoadResult,
+} from "./runtime"
