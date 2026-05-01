@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "Yugabyte",
+  "id": "grafana-yugabyte-datasource",
+  "metrics": true,
+  "backend": true,
+  "alerting": true,
+  "executable": "gpx_yugabyte",
+  "info": {
+    "description": "Yugabyte datasource plugin for grafana",
+    "author": {
+      "name": "Grafana Labs"
+    },
+    "keywords": [
+      "yugabyte",
+      "datasource",
+      "database",
+      "sql"
+    ],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [],
+    "screenshots": [],
+    "version": "2.1.1",
+    "updated": "2026-03-02"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=11.6.0",
+    "plugins": []
+  },
+  "buildMode": "production"
+}

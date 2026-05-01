@@ -1,0 +1,84 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.7",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_snowflake",
+  "id": "grafana-snowflake-datasource",
+  "includes": [
+    {
+      "name": "Snowflake Billing & Usage",
+      "path": "./dashboards/billing.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Snowpark Metrics",
+      "path": "./dashboards/snowpark-metrics.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Logs Example",
+      "path": "./dashboards/logs.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Snowflake datasource plugin for Grafana",
+    "keywords": [
+      "datasource",
+      "snowflake"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-snowflake-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/snowflake.svg",
+      "small": "img/snowflake.svg"
+    },
+    "screenshots": [
+      {
+        "name": "Example Dashboard",
+        "path": "screenshots/snowflake-sample-dashboard1.png"
+      },
+      {
+        "name": "Query Editor",
+        "path": "screenshots/snowflake-query-editor.png"
+      },
+      {
+        "name": "Datasource Configuration",
+        "path": "screenshots/snowflake-datasource-config.png"
+      }
+    ],
+    "updated": "2026-04-29",
+    "version": "1.16.0"
+  },
+  "logs": true,
+  "metrics": true,
+  "name": "Snowflake",
+  "type": "datasource"
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.11",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_cockroachdb",
+  "id": "grafana-cockroachdb-datasource",
+  "info": {
+    "author": {
+      "name": "Grafana"
+    },
+    "description": "A data source for CockroachDB",
+    "keywords": [
+      "datasource"
+    ],
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://grafana.com/grafana/plugins/grafana-cockroachdb-datasource"
+      },
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-cockroachdb-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/logo.jpg",
+      "small": "img/logo.jpg"
+    },
+    "screenshots": [],
+    "updated": "2026-04-21",
+    "version": "0.3.8"
+  },
+  "logs": true,
+  "metrics": true,
+  "name": "CockroachDB",
+  "type": "datasource"
+}

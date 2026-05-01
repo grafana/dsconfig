@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.11 <12 || >=12.0.10 <12.1 || >=12.1.7 <12.2 || >=12.2.5",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_databricks",
+  "id": "grafana-databricks-datasource",
+  "info": {
+    "author": {
+      "name": "Grafana Labs"
+    },
+    "description": "Databricks datasource plugin for Grafana",
+    "keywords": [
+      "Databricks"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-databricks-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/databricks.svg",
+      "small": "img/databricks.svg"
+    },
+    "screenshots": [],
+    "updated": "2026-04-16",
+    "version": "1.14.1"
+  },
+  "logs": true,
+  "metrics": true,
+  "name": "Databricks",
+  "type": "datasource"
+}

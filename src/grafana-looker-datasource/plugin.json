@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.7",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_looker",
+  "id": "grafana-looker-datasource",
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Looker datasource plugin for Grafana",
+    "keywords": [
+      "datasource",
+      "looker",
+      "google cloud"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-looker-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/looker.svg",
+      "small": "img/looker.svg"
+    },
+    "screenshots": [],
+    "updated": "2026-04-16",
+    "version": "0.4.15"
+  },
+  "metrics": true,
+  "name": "Looker",
+  "type": "datasource"
+}

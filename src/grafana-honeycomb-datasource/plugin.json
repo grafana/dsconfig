@@ -1,0 +1,59 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.7",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_honeycomb-datasource",
+  "id": "grafana-honeycomb-datasource",
+  "includes": [
+    {
+      "name": "Honeycomb (demo)",
+      "path": "dashboards/dashboard.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Honeycomb datasource plugin for Grafana",
+    "keywords": [
+      "honeycomb"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-honeycomb-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/honeycomb.png",
+      "small": "img/honeycomb.png"
+    },
+    "screenshots": [],
+    "updated": "2026-04-22",
+    "version": "2.15.0"
+  },
+  "metrics": true,
+  "name": "Honeycomb",
+  "type": "datasource"
+}

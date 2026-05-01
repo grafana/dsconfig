@@ -1,0 +1,61 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.7",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_newrelic",
+  "id": "grafana-newrelic-datasource",
+  "includes": [
+    {
+      "path": "dashboards/host-metrics.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "New Relic datasource plugin for Grafana",
+    "keywords": [
+      "New Relic"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-newrelic-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/logo.jpeg",
+      "small": "img/logo.jpeg"
+    },
+    "updated": "2026-04-21",
+    "version": "4.6.18"
+  },
+  "logs": true,
+  "metrics": true,
+  "name": "New Relic",
+  "queryOptions": {
+    "minInterval": true
+  },
+  "type": "datasource"
+}
