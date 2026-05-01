@@ -599,6 +599,10 @@
                     "type": "string"
                 },
                 "defaultValue": {},
+                "readOnly": {
+                    "type": "boolean",
+                    "description": "When true, the field is disabled/read-only while this override is active."
+                },
                 "description": {
                     "type": "string"
                 },

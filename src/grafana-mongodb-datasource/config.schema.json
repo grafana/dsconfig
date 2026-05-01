@@ -154,7 +154,6 @@
             "label": "Ccache Lookup File",
             "description": "Path to Kerberos credentials cache lookup file.",
             "valueType": "string",
-            "semanticType": "filepath",
             "target": "jsonData",
             "dependsOn": "jsonData.authType == 'custom-Kerberos'"
         },
@@ -164,7 +163,6 @@
             "label": "Keytab File Path",
             "description": "Path to Kerberos keytab file.",
             "valueType": "string",
-            "semanticType": "filepath",
             "target": "jsonData",
             "dependsOn": "jsonData.authType == 'custom-Kerberos'"
         },
@@ -174,7 +172,6 @@
             "label": "Global Ccache File Path",
             "description": "Path to global Kerberos credentials cache file.",
             "valueType": "string",
-            "semanticType": "filepath",
             "target": "jsonData",
             "dependsOn": "jsonData.authType == 'custom-Kerberos'"
         },

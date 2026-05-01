@@ -132,3 +132,91 @@ func TestExampleFiles_GoRoundTrip(t *testing.T) {
 		})
 	}
 }
+
+// srcDir returns the path to the src/ directory containing real datasource schemas.
+func srcDir() string {
+	return filepath.Join("..", "src")
+}
+
+// datasourceSchemaFiles discovers all src/*/config.schema.json files.
+func datasourceSchemaFiles(t *testing.T) []string {
+	t.Helper()
+	pattern := filepath.Join(srcDir(), "*", "config.schema.json")
+	files, err := filepath.Glob(pattern)
+	require.NoError(t, err)
+	return files
+}
+
+// TestDatasourceSchemas_GoValidation loads every src/*/config.schema.json,
+// unmarshals it, and validates it with the Go schema validator.
+func TestDatasourceSchemas_GoValidation(t *testing.T) {
+	files := datasourceSchemaFiles(t)
+	require.GreaterOrEqual(t, len(files), 60, "expected at least 60 datasource schemas")
+
+	for _, path := range files {
+		dir := filepath.Base(filepath.Dir(path))
+		t.Run(dir, func(t *testing.T) {
+			data, err := os.ReadFile(path)
+			require.NoError(t, err)
+
+			var s schema.DatasourceConfigSchema
+			require.NoError(t, json.Unmarshal(data, &s), "failed to unmarshal %s", dir)
+			require.NoError(t, s.Validate(), "%s failed validation", dir)
+
+			// pluginType must match directory name
+			assert.Equal(t, dir, s.PluginType, "pluginType should match directory name")
+			assert.NotEmpty(t, s.PluginName, "pluginName required")
+			assert.NotEmpty(t, s.Fields, "fields must not be empty")
+		})
+	}
+}
+
+// TestDatasourceSchemas_LabelsAndDescriptions enforces that every field
+// in every datasource schema has a label and description set.
+func TestDatasourceSchemas_LabelsAndDescriptions(t *testing.T) {
+	files := datasourceSchemaFiles(t)
+
+	for _, path := range files {
+		dir := filepath.Base(filepath.Dir(path))
+		t.Run(dir, func(t *testing.T) {
+			data, err := os.ReadFile(path)
+			require.NoError(t, err)
+
+			var s schema.DatasourceConfigSchema
+			require.NoError(t, json.Unmarshal(data, &s))
+
+			for _, f := range s.Fields {
+				assert.NotEmpty(t, f.Label, "field %s missing label", f.ID)
+				assert.NotEmpty(t, f.Description, "field %s missing description", f.ID)
+			}
+		})
+	}
+}
+
+// TestDatasourceSchemas_GoRoundTrip verifies that each datasource schema
+// survives Go unmarshal -> marshal -> unmarshal and still validates.
+func TestDatasourceSchemas_GoRoundTrip(t *testing.T) {
+	files := datasourceSchemaFiles(t)
+
+	for _, path := range files {
+		dir := filepath.Base(filepath.Dir(path))
+		t.Run(dir, func(t *testing.T) {
+			data, err := os.ReadFile(path)
+			require.NoError(t, err)
+
+			var original schema.DatasourceConfigSchema
+			require.NoError(t, json.Unmarshal(data, &original))
+			require.NoError(t, original.Validate())
+
+			roundTripped, err := json.Marshal(&original)
+			require.NoError(t, err)
+
+			var decoded schema.DatasourceConfigSchema
+			require.NoError(t, json.Unmarshal(roundTripped, &decoded))
+			require.NoError(t, decoded.Validate())
+
+			assert.Equal(t, original.PluginType, decoded.PluginType)
+			assert.Len(t, decoded.Fields, len(original.Fields))
+		})
+	}
+}

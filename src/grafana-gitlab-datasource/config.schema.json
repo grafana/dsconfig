@@ -13,6 +13,7 @@
             "target": "root",
             "required": true,
             "ui": {
+                "component": "input",
                 "placeholder": "Default: https://gitlab.com"
             }
         },

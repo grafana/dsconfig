@@ -398,6 +398,7 @@ export interface FieldOverride {
     when: Expression
 
     defaultValue?: unknown
+    readOnly?: boolean
     description?: string
     placeholder?: string
     tooltip?: string

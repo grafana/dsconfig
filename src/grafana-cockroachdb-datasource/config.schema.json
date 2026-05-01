@@ -165,7 +165,6 @@
             "label": "SSL Root Cert File",
             "description": "Path to the SSL root certificate.",
             "valueType": "string",
-            "semanticType": "filepath",
             "target": "jsonData",
             "dependsOn": "jsonData.tlsConfigurationMethod == 'file-path'"
         },
@@ -175,7 +174,6 @@
             "label": "SSL Client Cert File",
             "description": "Path to the SSL client certificate.",
             "valueType": "string",
-            "semanticType": "filepath",
             "target": "jsonData",
             "dependsOn": "jsonData.tlsConfigurationMethod == 'file-path'"
         },
@@ -185,7 +183,6 @@
             "label": "SSL Client Key File",
             "description": "Path to the SSL client key.",
             "valueType": "string",
-            "semanticType": "filepath",
             "target": "jsonData",
             "dependsOn": "jsonData.tlsConfigurationMethod == 'file-path'"
         },

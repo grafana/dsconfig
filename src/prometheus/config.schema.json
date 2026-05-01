@@ -38,14 +38,80 @@
             ]
         },
         {
+            "id": "auth.method",
+            "key": "authMethod",
+            "label": "Authentication method",
+            "description": "Choose an authentication method to access the data source.",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "no-auth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "no-auth",
+                        "basic-auth",
+                        "forward-oauth"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "No Authentication",
+                        "value": "no-auth",
+                        "description": "Data source is available without authentication"
+                    },
+                    {
+                        "label": "Basic authentication",
+                        "value": "basic-auth",
+                        "description": "Authenticate with your data source username and password"
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "forward-oauth",
+                        "description": "Forward the OAuth access token (and if available: the OIDC ID token) of the user querying the data source"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "root.basicAuth == true ? 'basic-auth' : (jsonData.oauthPassThru == true ? 'forward-oauth' : 'no-auth')"
+            },
+            "effects": [
+                {
+                    "when": "value == 'no-auth'",
+                    "set": {
+                        "root.basicAuth": false,
+                        "jsonData.oauthPassThru": false
+                    }
+                },
+                {
+                    "when": "value == 'basic-auth'",
+                    "set": {
+                        "root.basicAuth": true,
+                        "jsonData.oauthPassThru": false
+                    }
+                },
+                {
+                    "when": "value == 'forward-oauth'",
+                    "set": {
+                        "root.basicAuth": false,
+                        "jsonData.oauthPassThru": true
+                    }
+                }
+            ]
+        },
+        {
             "id": "root.basicAuthUser",
             "key": "basicAuthUser",
             "label": "User",
             "description": "Username for basic authentication.",
             "valueType": "string",
             "target": "root",
-            "dependsOn": "root.basicAuth == true",
-            "requiredWhen": "root.basicAuth == true"
+            "dependsOn": "auth.method == 'basic-auth'",
+            "requiredWhen": "auth.method == 'basic-auth'"
         },
         {
             "id": "jsonData.timeInterval",
@@ -491,7 +557,7 @@
             "valueType": "string",
             "semanticType": "password",
             "target": "secureJsonData",
-            "dependsOn": "root.basicAuth == true"
+            "dependsOn": "auth.method == 'basic-auth'"
         },
         {
             "id": "secureJsonData.tlsCACert",
@@ -549,6 +615,7 @@
             "id": "auth",
             "title": "Authentication",
             "fieldRefs": [
+                "auth.method",
                 "root.basicAuthUser",
                 "secureJsonData.basicAuthPassword"
             ]
@@ -625,7 +692,6 @@
             "fieldRefs": [
                 "jsonData.timeout",
                 "jsonData.keepCookies",
-                "jsonData.oauthPassThru",
                 "jsonData.pdcInjected"
             ]
         }

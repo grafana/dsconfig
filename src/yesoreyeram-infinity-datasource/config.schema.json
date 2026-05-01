@@ -8,9 +8,81 @@
             "id": "jsonData.auth_method",
             "key": "auth_method",
             "label": "Authentication method",
-            "description": "Authentication method for requests (none, basicAuth, apiKey, bearerToken, oauthPassThru, digestAuth, oauth2).",
+            "description": "Authentication method for requests.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "defaultValue": "none",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "none",
+                        "basicAuth",
+                        "apiKey",
+                        "bearerToken",
+                        "oauthPassThru",
+                        "digestAuth",
+                        "oauth2",
+                        "aws",
+                        "azureBlob"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "No Auth",
+                        "value": "none"
+                    },
+                    {
+                        "label": "Basic Authentication",
+                        "value": "basicAuth"
+                    },
+                    {
+                        "label": "API Key",
+                        "value": "apiKey"
+                    },
+                    {
+                        "label": "Bearer Token",
+                        "value": "bearerToken"
+                    },
+                    {
+                        "label": "Forward OAuth",
+                        "value": "oauthPassThru"
+                    },
+                    {
+                        "label": "Digest Auth",
+                        "value": "digestAuth"
+                    },
+                    {
+                        "label": "OAuth2",
+                        "value": "oauth2"
+                    },
+                    {
+                        "label": "AWS",
+                        "value": "aws"
+                    },
+                    {
+                        "label": "Azure Blob",
+                        "value": "azureBlob"
+                    }
+                ]
+            },
+            "effects": [
+                {
+                    "when": "value == 'oauthPassThru'",
+                    "set": {
+                        "jsonData.oauthPassThru": true
+                    }
+                },
+                {
+                    "when": "value != 'oauthPassThru'",
+                    "set": {
+                        "jsonData.oauthPassThru": false
+                    }
+                }
+            ]
         },
         {
             "id": "jsonData.apiKeyKey",
@@ -87,6 +159,10 @@
             "description": "Forward the user's OAuth token.",
             "valueType": "boolean",
             "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:jsonData.auth_method"
+            ],
             "ui": {
                 "component": "switch"
             }
@@ -160,10 +236,11 @@
             "id": "secureJsonData.basicAuthPassword",
             "key": "basicAuthPassword",
             "label": "Password",
-            "description": "Basic auth password.",
+            "description": "Basic auth / digest auth password.",
             "valueType": "string",
             "semanticType": "password",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.auth_method == 'basicAuth' || jsonData.auth_method == 'digestAuth'"
         },
         {
             "id": "secureJsonData.tlsCACert",
@@ -232,7 +309,8 @@
             "description": "OAuth2 client secret.",
             "valueType": "string",
             "semanticType": "token",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.auth_method == 'oauth2'"
         }
     ],
     "groups": [
