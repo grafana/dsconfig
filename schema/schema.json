@@ -163,6 +163,13 @@
                         "$ref": "#/definitions/FieldOverride"
                     }
                 },
+                "effects": {
+                    "type": "array",
+                    "description": "Declarative multi-field write side-effects. When this field's value matches a condition, the listed target fields are set to specified values.",
+                    "items": {
+                        "$ref": "#/definitions/FieldEffect"
+                    }
+                },
                 "item": {
                     "$ref": "#/definitions/FieldItemSchema"
                 },
@@ -585,6 +592,26 @@
                     "items": {
                         "$ref": "#/definitions/FieldOption"
                     }
+                }
+            }
+        },
+        "FieldEffect": {
+            "type": "object",
+            "description": "Declares that when a field's value matches a condition, listed target fields should be set to specified values.",
+            "required": [
+                "when",
+                "set"
+            ],
+            "properties": {
+                "when": {
+                    "type": "string",
+                    "description": "CEL expression. Use 'value' to refer to the field's current value. Example: \"value == 'basic-auth'\""
+                },
+                "set": {
+                    "type": "object",
+                    "description": "Maps field IDs to the values they should be set to when the condition matches.",
+                    "minProperties": 1,
+                    "additionalProperties": true
                 }
             }
         },

@@ -85,6 +85,29 @@ func (s *DatasourceConfigSchema) ValidateRefs(fieldIDs map[string]bool) error {
 		}
 	}
 
+	// Validate effect set keys reference known field IDs
+	var visitEffects func(fields []ConfigField) error
+	visitEffects = func(fields []ConfigField) error {
+		for _, f := range fields {
+			for i, eff := range f.Effects {
+				for ref := range eff.Set {
+					if !fieldIDs[ref] {
+						return fmt.Errorf("field %s: effect[%d].set references unknown field id: %s", f.ID, i, ref)
+					}
+				}
+			}
+			if f.Item != nil {
+				if err := visitEffects(f.Item.Fields); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+	if err := visitEffects(s.Fields); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -139,6 +162,13 @@ type ConfigField struct {
 
 	// Dynamic overrides
 	Overrides []FieldOverride `json:"overrides,omitempty"`
+
+	// Effects: declarative multi-field write side-effects.
+	// When this field's value matches a condition, the listed target
+	// fields are set to the specified values. Typically used on virtual
+	// selector fields (e.g. auth method dropdown) to drive multiple
+	// storage fields without opaque CEL expressions.
+	Effects []FieldEffect `json:"effects,omitempty"`
 
 	// Array schema (required when ValueType == array)
 	Item *FieldItemSchema `json:"item,omitempty"`
@@ -250,6 +280,12 @@ func (f *ConfigField) Validate() error {
 			if err := f.Overrides[i].Validations[j].Validate(); err != nil {
 				return fmt.Errorf("field %s: invalid override validation rule: %w", f.ID, err)
 			}
+		}
+	}
+
+	for i := range f.Effects {
+		if err := f.Effects[i].Validate(); err != nil {
+			return fmt.Errorf("field %s: invalid effect[%d]: %w", f.ID, i, err)
 		}
 	}
 
@@ -565,6 +601,39 @@ type FieldOverride struct {
 
 	Validations []FieldValidationRule `json:"validations,omitempty"`
 	Options     []FieldOption         `json:"options,omitempty"`
+}
+
+// ============================================================
+// Effects
+// ============================================================
+
+// FieldEffect declares that when a field's value matches a condition,
+// the listed target fields should be set to the specified values.
+//
+// This provides a structured, machine-readable alternative to opaque
+// computed write expressions for virtual selector fields.
+//
+// Example: an auth method dropdown that sets root.basicAuth and
+// jsonData.oauthPassThru depending on which option is selected.
+type FieldEffect struct {
+	// When is a CEL expression evaluated against the field's value.
+	// Convention: use "value" to refer to the field's current value.
+	// Example: "value == 'basic-auth'"
+	When string `json:"when"`
+
+	// Set maps field IDs to the values they should be set to when
+	// the condition matches.
+	Set map[string]any `json:"set"`
+}
+
+func (e *FieldEffect) Validate() error {
+	if e.When == "" {
+		return fmt.Errorf("effect when is required")
+	}
+	if len(e.Set) == 0 {
+		return fmt.Errorf("effect set must not be empty")
+	}
+	return nil
 }
 
 // ============================================================

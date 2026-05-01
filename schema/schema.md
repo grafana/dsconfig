@@ -189,6 +189,53 @@ Virtual fields:
 - May have a `computed` storage mapping with `read`/`write` expressions
 - Are useful for UI state that doesn't map 1:1 to storage
 
+## Effects: virtual selector → multi-field writes
+
+Many datasources have a **selector dropdown** (e.g. "Authentication method") that controls **multiple storage fields** simultaneously. The `effects` array provides a structured, machine-readable way to declare these side-effects without opaque CEL expressions.
+
+```json
+{
+  "id": "auth.method",
+  "kind": "virtual",
+  "defaultValue": "no-auth",
+  "validations": [{ "type": "allowedValues", "values": ["no-auth", "basic-auth", "forward-oauth"] }],
+  "ui": {
+    "component": "select",
+    "options": [
+      { "label": "No Authentication", "value": "no-auth" },
+      { "label": "Basic authentication", "value": "basic-auth" },
+      { "label": "Forward OAuth Identity", "value": "forward-oauth" }
+    ]
+  },
+  "storage": {
+    "type": "computed",
+    "read": "root.basicAuth == true ? 'basic-auth' : (jsonData.oauthPassThru == true ? 'forward-oauth' : 'no-auth')"
+  },
+  "effects": [
+    { "when": "value == 'no-auth'",       "set": { "auth.basicAuth": false, "auth.oauthPassThru": false } },
+    { "when": "value == 'basic-auth'",    "set": { "auth.basicAuth": true,  "auth.oauthPassThru": false } },
+    { "when": "value == 'forward-oauth'", "set": { "auth.basicAuth": false, "auth.oauthPassThru": true  } }
+  ]
+}
+```
+
+### Effect rules
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `when` | string (CEL) | Yes | Condition. Use `value` to refer to the field's current value. |
+| `set` | `Record<fieldId, value>` | Yes | Maps field IDs to the values they should be set to. Must not be empty. |
+
+### How effects work with other primitives
+
+- **`storage.computed.read`**: Derives the virtual field's value when loading existing config.
+- **`effects[].set`**: Declares what to write when the virtual field changes.
+- **`dependsOn`**: On target storage fields, controls visibility (e.g. show username only when `auth.method == 'basic-auth'`).
+- **`requiredWhen`**: On target storage fields, conditional validation.
+- **`tags: ["managed-by:auth.method"]`**: Convention for tagging fields that are driven by a selector.
+
+Effects keys (`set`) reference field **IDs**, consistent with groups and relationships. They are validated against the schema's field ID set.
+
 ## Modeling patterns
 
 ### Recursive types
@@ -300,3 +347,4 @@ See [`examples/`](./examples/) for copy-pasteable schema examples:
 - `virtual-auth.schema.json` — Basic auth with virtual computed field
 - `array-of-objects.schema.json` — Array of trace-to-metrics queries
 - `map-and-any.schema.json` — Map type (Record) and any type (union) fields
+- `auth-selector.schema.json` — Virtual auth method selector with multi-field effects

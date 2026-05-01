@@ -159,6 +159,14 @@ export interface ConfigField {
     overrides?: FieldOverride[]
 
     /**
+     * Declarative multi-field write side-effects.
+     * When this field's value matches a condition, the listed target
+     * fields are set to specified values. Typically used on virtual
+     * selector fields (e.g. auth method dropdown).
+     */
+    effects?: FieldEffect[]
+
+    /**
      * Item schema for array elements or map values.
      * Required if valueType === "array" or "map".
      */
@@ -396,6 +404,29 @@ export interface FieldOverride {
 
     validations?: FieldValidationRule[]
     options?: FieldOption[]
+}
+
+
+// ============================================================
+// Effects
+// ============================================================
+
+/**
+ * Declares that when a field's value matches a condition,
+ * listed target fields should be set to specified values.
+ *
+ * Use "value" in the `when` expression to refer to the field's value.
+ */
+export interface FieldEffect {
+    /**
+     * CEL expression. Example: "value == 'basic-auth'"
+     */
+    when: Expression
+
+    /**
+     * Maps field IDs to the values they should be set to.
+     */
+    set: Record<string, unknown>
 }
 
 

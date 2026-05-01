@@ -70,6 +70,11 @@ func TestExampleFiles_GoValidation(t *testing.T) {
 			description: "Map type (Record) and any type (union) fields",
 			fieldCount:  6, // url + customizedRoutes + 2 item fields + labels + filterValue
 		},
+		{
+			file:        "auth-selector.schema.json",
+			description: "Virtual auth method selector with multi-field effects",
+			fieldCount:  6, // url + auth.method + basicAuth + oauthPassThru + basicAuthUser + basicAuthPassword
+		},
 	}
 
 	for _, tc := range examples {

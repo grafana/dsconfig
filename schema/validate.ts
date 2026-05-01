@@ -2,6 +2,7 @@ import type {
     DatasourceConfigSchema,
     ConfigField,
     FieldValidationRule,
+    FieldEffect,
     StorageMapping,
     FieldOverride,
     MappingField,
@@ -114,6 +115,34 @@ export function validateSchema(schema: DatasourceConfigSchema): ValidationError[
                 }
             }
         }
+    }
+
+    // Validate effect set keys reference known field IDs
+    if (schema.fields) {
+        const checkEffectRefs = (fields: ConfigField[], basePath: string) => {
+            for (let i = 0; i < fields.length; i++) {
+                const f = fields[i]
+                if (f.effects) {
+                    for (let j = 0; j < f.effects.length; j++) {
+                        if (f.effects[j].set) {
+                            for (const ref of Object.keys(f.effects[j].set)) {
+                                if (!fieldIDs.has(ref)) {
+                                    errors.push({
+                                        path: `${basePath}[${i}].effects[${j}].set`,
+                                        code: "unknown_ref",
+                                        message: `field "${f.id}" effect[${j}].set references unknown field id: "${ref}"`,
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+                if (f.item?.fields) {
+                    checkEffectRefs(f.item.fields, `${basePath}[${i}].item.fields`)
+                }
+            }
+        }
+        checkEffectRefs(schema.fields, "fields")
     }
 
     return errors
@@ -304,6 +333,13 @@ export function validateField(field: ConfigField, path = "field"): ValidationErr
     // Storage mapping
     if (field.storage) {
         errors.push(...validateStorageMapping(field.storage, `${path}.storage`))
+    }
+
+    // Effects
+    if (field.effects) {
+        for (let i = 0; i < field.effects.length; i++) {
+            errors.push(...validateFieldEffect(field.effects[i], `${path}.effects[${i}]`))
+        }
     }
 
     return errors
@@ -501,5 +537,22 @@ function validateMappingField(field: MappingField, path: string): ValidationErro
     if (!field.pattern) {
         errors.push({ path: `${path}.pattern`, code: "required", message: "pattern is required" })
     }
+    return errors
+}
+
+// ============================================================
+// Effect Validation
+// ============================================================
+
+function validateFieldEffect(effect: FieldEffect, path: string): ValidationError[] {
+    const errors: ValidationError[] = []
+
+    if (!effect.when) {
+        errors.push({ path: `${path}.when`, code: "required", message: "effect when is required" })
+    }
+    if (!effect.set || Object.keys(effect.set).length === 0) {
+        errors.push({ path: `${path}.set`, code: "required", message: "effect set must not be empty" })
+    }
+
     return errors
 }

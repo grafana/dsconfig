@@ -1700,3 +1700,158 @@ func TestExampleSchema_MySQL(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, ids, 8)
 }
+// ============================================================
+// FieldEffect.Validate
+// ============================================================
+
+// TestFieldEffect_Valid confirms that a well-formed effect passes.
+func TestFieldEffect_Valid(t *testing.T) {
+	e := schema.FieldEffect{When: "value == 'basic-auth'", Set: map[string]any{"auth.basicAuth": true}}
+	require.NoError(t, e.Validate())
+}
+
+// TestFieldEffect_EmptyWhen ensures an effect without a when is rejected.
+func TestFieldEffect_EmptyWhen(t *testing.T) {
+	e := schema.FieldEffect{Set: map[string]any{"a": true}}
+	assert.ErrorContains(t, e.Validate(), "effect when is required")
+}
+
+// TestFieldEffect_EmptySet ensures an effect with no set entries is rejected.
+func TestFieldEffect_EmptySet(t *testing.T) {
+	e := schema.FieldEffect{When: "value == 'x'", Set: map[string]any{}}
+	assert.ErrorContains(t, e.Validate(), "effect set must not be empty")
+}
+
+// TestFieldEffect_NilSet ensures an effect with nil set is rejected.
+func TestFieldEffect_NilSet(t *testing.T) {
+	e := schema.FieldEffect{When: "value == 'x'"}
+	assert.ErrorContains(t, e.Validate(), "effect set must not be empty")
+}
+
+// TestFieldValidate_PropagatesEffectError ensures that invalid effects
+// on a field bubble up through field validation.
+func TestFieldValidate_PropagatesEffectError(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.StringType, Kind: schema.VirtualField,
+		Effects: []schema.FieldEffect{{When: "", Set: map[string]any{"a": true}}},
+	}
+	assert.ErrorContains(t, f.Validate(), "invalid effect[0]")
+}
+
+// TestFieldValidate_ValidEffects confirms a field with well-formed effects passes.
+func TestFieldValidate_ValidEffects(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.StringType, Kind: schema.VirtualField,
+		Effects: []schema.FieldEffect{
+			{When: "value == 'a'", Set: map[string]any{"y": true}},
+			{When: "value == 'b'", Set: map[string]any{"y": false}},
+		},
+	}
+	require.NoError(t, f.Validate())
+}
+
+// TestValidateRefs_EffectSetRefsValid ensures effect set keys that
+// reference existing field IDs pass validation.
+func TestValidateRefs_EffectSetRefsValid(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1", PluginType: "test", PluginName: "Test",
+		Fields: []schema.ConfigField{
+			{
+				ID: "selector", Key: "selector", ValueType: schema.StringType,
+				Kind: schema.VirtualField,
+				Effects: []schema.FieldEffect{
+					{When: "value == 'on'", Set: map[string]any{"target": true}},
+				},
+			},
+			{ID: "target", Key: "target", ValueType: schema.BooleanType, Target: ptr(schema.JSONDataTarget)},
+		},
+	}
+	require.NoError(t, s.Validate())
+}
+
+// TestValidateRefs_EffectSetRefsUnknown ensures effect set keys that
+// reference non-existent field IDs are rejected.
+func TestValidateRefs_EffectSetRefsUnknown(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1", PluginType: "test", PluginName: "Test",
+		Fields: []schema.ConfigField{
+			{
+				ID: "selector", Key: "selector", ValueType: schema.StringType,
+				Kind: schema.VirtualField,
+				Effects: []schema.FieldEffect{
+					{When: "value == 'on'", Set: map[string]any{"ghost": true}},
+				},
+			},
+		},
+	}
+	assert.ErrorContains(t, s.Validate(), "effect[0].set references unknown field id: ghost")
+}
+
+// TestExampleSchema_AuthSelector validates the full auth-selector
+// pattern: virtual dropdown + effects + dependent storage fields.
+func TestExampleSchema_AuthSelector(t *testing.T) {
+	s := &schema.DatasourceConfigSchema{
+		SchemaVersion: "v1", PluginType: "test-auth", PluginName: "Auth Test",
+		Fields: []schema.ConfigField{
+			{
+				ID: "url", Key: "url", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget), Required: true,
+			},
+			{
+				ID: "auth.method", Key: "authMethod", Label: "Authentication method",
+				ValueType: schema.StringType, Kind: schema.VirtualField,
+				DefaultValue: "no-auth",
+				Validations: []schema.FieldValidationRule{
+					{Type: schema.AllowedValuesValidation, Values: []any{"no-auth", "basic-auth", "forward-oauth"}},
+				},
+				UI: &schema.FieldUI{
+					Component: schema.UISelect,
+					Options: []schema.FieldOption{
+						{Label: "No Authentication", Value: "no-auth"},
+						{Label: "Basic authentication", Value: "basic-auth"},
+						{Label: "Forward OAuth Identity", Value: "forward-oauth"},
+					},
+				},
+				Storage: &schema.StorageMapping{
+					Type: schema.ComputedMapping,
+					Read: "root.basicAuth == true ? 'basic-auth' : (jsonData.oauthPassThru == true ? 'forward-oauth' : 'no-auth')",
+				},
+				Effects: []schema.FieldEffect{
+					{When: "value == 'no-auth'", Set: map[string]any{"auth.basicAuth": false, "auth.oauthPassThru": false}},
+					{When: "value == 'basic-auth'", Set: map[string]any{"auth.basicAuth": true, "auth.oauthPassThru": false}},
+					{When: "value == 'forward-oauth'", Set: map[string]any{"auth.basicAuth": false, "auth.oauthPassThru": true}},
+				},
+			},
+			{
+				ID: "auth.basicAuth", Key: "basicAuth", ValueType: schema.BooleanType,
+				Target: ptr(schema.RootTarget), DefaultValue: false,
+			},
+			{
+				ID: "auth.oauthPassThru", Key: "oauthPassThru", ValueType: schema.BooleanType,
+				Target: ptr(schema.JSONDataTarget), DefaultValue: false,
+			},
+			{
+				ID: "auth.basicAuthUser", Key: "basicAuthUser", ValueType: schema.StringType,
+				Target: ptr(schema.RootTarget),
+				DependsOn: "auth.method == 'basic-auth'", RequiredWhen: "auth.method == 'basic-auth'",
+			},
+			{
+				ID: "auth.basicAuthPassword", Key: "basicAuthPassword", ValueType: schema.StringType,
+				Target: ptr(schema.SecureJSONTarget), SemanticType: schema.PasswordType,
+				DependsOn: "auth.method == 'basic-auth'",
+			},
+		},
+		Groups: []schema.ConfigGroup{
+			{ID: "connection", Title: "Connection", FieldRefs: []string{"url"}},
+			{ID: "auth", Title: "Authentication", FieldRefs: []string{"auth.method", "auth.basicAuthUser", "auth.basicAuthPassword"}},
+		},
+		Relationships: []schema.FieldRelationship{
+			{Type: schema.PairRelationship, Fields: []string{"auth.basicAuthUser", "auth.basicAuthPassword"}},
+		},
+	}
+	require.NoError(t, s.Validate())
+
+	ids, err := s.FieldIDs()
+	require.NoError(t, err)
+	assert.Len(t, ids, 6)
+}
