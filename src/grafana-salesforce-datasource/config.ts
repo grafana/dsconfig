@@ -28,4 +28,4 @@ export type salesforceConfig = {
 };
 
 export type SalesforceAuthType = "user" | "jwt";
-export type SalesforceTokenUrl = "https://login.salesforce.com" | "https://test.salesforce.com";
+export type SalesforceTokenUrl = "https:

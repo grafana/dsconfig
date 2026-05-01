@@ -6,8 +6,11 @@
         {
             "id": "jsonData.region",
             "key": "region",
+            "label": "Region",
+            "description": "New Relic data center region.",
             "valueType": "string",
             "target": "jsonData",
+            "defaultValue": "US",
             "validations": [
                 {
                     "type": "allowedValues",
@@ -16,64 +19,100 @@
                         "EU"
                     ]
                 }
-            ]
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "US",
+                        "value": "US"
+                    },
+                    {
+                        "label": "EU",
+                        "value": "EU"
+                    }
+                ]
+            }
         },
         {
             "id": "jsonData.timeoutInSeconds",
             "key": "timeoutInSeconds",
+            "label": "Timeout (seconds)",
+            "description": "API request timeout in seconds.",
             "valueType": "number",
             "target": "jsonData"
         },
         {
             "id": "jsonData.restBaseURL",
             "key": "restBaseURL",
+            "label": "REST API Base URL",
+            "description": "Override for New Relic REST API base URL.",
             "valueType": "string",
+            "semanticType": "url",
             "target": "jsonData"
         },
         {
             "id": "jsonData.infrastructureBaseURL",
             "key": "infrastructureBaseURL",
+            "label": "Infrastructure Base URL",
+            "description": "Override for New Relic Infrastructure API base URL.",
             "valueType": "string",
+            "semanticType": "url",
             "target": "jsonData"
         },
         {
             "id": "jsonData.nerdGraphBaseURL",
             "key": "nerdGraphBaseURL",
+            "label": "NerdGraph Base URL",
+            "description": "Override for New Relic NerdGraph API base URL.",
             "valueType": "string",
+            "semanticType": "url",
             "target": "jsonData"
         },
         {
             "id": "secureJsonData.accountId",
             "key": "accountId",
+            "label": "Account ID",
+            "description": "New Relic account ID.",
             "valueType": "string",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "required": true
         },
         {
             "id": "secureJsonData.personalApiKey",
             "key": "personalApiKey",
+            "label": "Personal API Key",
+            "description": "New Relic personal API key (User key).",
             "valueType": "string",
             "target": "secureJsonData",
+            "required": true,
             "semanticType": "token"
         }
     ],
     "groups": [
         {
-            "id": "settings",
-            "title": "Settings",
-            "fieldRefs": [
-                "jsonData.region",
-                "jsonData.timeoutInSeconds",
-                "jsonData.restBaseURL",
-                "jsonData.infrastructureBaseURL",
-                "jsonData.nerdGraphBaseURL"
-            ]
-        },
-        {
-            "id": "secrets",
-            "title": "Secrets",
+            "id": "auth",
+            "title": "Authentication",
             "fieldRefs": [
                 "secureJsonData.accountId",
                 "secureJsonData.personalApiKey"
+            ]
+        },
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "jsonData.region",
+                "jsonData.timeoutInSeconds"
+            ]
+        },
+        {
+            "id": "advanced",
+            "title": "Advanced URLs",
+            "fieldRefs": [
+                "jsonData.restBaseURL",
+                "jsonData.infrastructureBaseURL",
+                "jsonData.nerdGraphBaseURL"
             ]
         }
     ]

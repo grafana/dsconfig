@@ -4,22 +4,37 @@
     "pluginName": "CockroachDB",
     "fields": [
         {
-            "id": "root.url",
-            "key": "url",
+            "id": "jsonData.host",
+            "key": "host",
+            "label": "Host",
+            "description": "CockroachDB host address.",
             "valueType": "string",
-            "target": "root",
-            "required": true,
-            "semanticType": "url"
+            "target": "jsonData",
+            "required": true
         },
         {
-            "id": "root.user",
-            "key": "user",
-            "valueType": "string",
-            "target": "root"
+            "id": "jsonData.port",
+            "key": "port",
+            "label": "Port",
+            "description": "CockroachDB port.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 26257
         },
         {
             "id": "jsonData.database",
             "key": "database",
+            "label": "Database",
+            "description": "Database name.",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.user",
+            "key": "user",
+            "label": "User",
+            "description": "Database user.",
             "valueType": "string",
             "target": "jsonData",
             "required": true
@@ -27,8 +42,11 @@
         {
             "id": "jsonData.sslmode",
             "key": "sslmode",
+            "label": "SSL Mode",
+            "description": "SSL/TLS mode.",
             "valueType": "string",
             "target": "jsonData",
+            "defaultValue": "verify-full",
             "validations": [
                 {
                     "type": "allowedValues",
@@ -42,10 +60,95 @@
             ]
         },
         {
+            "id": "jsonData.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "label": "Max connection lifetime",
+            "description": "Maximum lifetime of a connection in seconds. 0 means unlimited.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 14400
+        },
+        {
+            "id": "jsonData.maxIdleConns",
+            "key": "maxIdleConns",
+            "label": "Max idle connections",
+            "description": "Maximum number of idle connections.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 100
+        },
+        {
+            "id": "jsonData.maxIdleConnsAuto",
+            "key": "maxIdleConnsAuto",
+            "label": "Auto idle connections",
+            "description": "Automatically set idle connections.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": true,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData.maxOpenConns",
+            "key": "maxOpenConns",
+            "label": "Max open connections",
+            "description": "Maximum number of open connections.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 100
+        },
+        {
+            "id": "jsonData.postgresVersion",
+            "key": "postgresVersion",
+            "label": "Version",
+            "description": "PostgreSQL compatibility version.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 903
+        },
+        {
+            "id": "jsonData.timescaledb",
+            "key": "timescaledb",
+            "label": "TimescaleDB",
+            "description": "Enable TimescaleDB time-bucket support.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "description": "Enable TLS client certificate authentication.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Provide a CA certificate.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
             "id": "jsonData.tlsConfigurationMethod",
             "key": "tlsConfigurationMethod",
+            "label": "TLS Configuration Method",
+            "description": "How to provide TLS certificates.",
             "valueType": "string",
             "target": "jsonData",
+            "defaultValue": "file-content",
             "validations": [
                 {
                     "type": "allowedValues",
@@ -59,100 +162,81 @@
         {
             "id": "jsonData.sslRootCertFile",
             "key": "sslRootCertFile",
+            "label": "SSL Root Cert File",
+            "description": "Path to the SSL root certificate.",
             "valueType": "string",
-            "target": "jsonData"
+            "semanticType": "filepath",
+            "target": "jsonData",
+            "dependsOn": "jsonData.tlsConfigurationMethod == 'file-path'"
         },
         {
             "id": "jsonData.sslCertFile",
             "key": "sslCertFile",
+            "label": "SSL Client Cert File",
+            "description": "Path to the SSL client certificate.",
             "valueType": "string",
-            "target": "jsonData"
+            "semanticType": "filepath",
+            "target": "jsonData",
+            "dependsOn": "jsonData.tlsConfigurationMethod == 'file-path'"
         },
         {
             "id": "jsonData.sslKeyFile",
             "key": "sslKeyFile",
+            "label": "SSL Client Key File",
+            "description": "Path to the SSL client key.",
             "valueType": "string",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.authType",
-            "key": "authType",
-            "valueType": "string",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.maxOpenConns",
-            "key": "maxOpenConns",
-            "valueType": "number",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.maxIdleConns",
-            "key": "maxIdleConns",
-            "valueType": "number",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.maxIdleConnsAuto",
-            "key": "maxIdleConnsAuto",
-            "valueType": "boolean",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.connMaxLifetime",
-            "key": "connMaxLifetime",
-            "valueType": "number",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.queryTimeout",
-            "key": "queryTimeout",
-            "valueType": "number",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.configFilePath",
-            "key": "configFilePath",
-            "valueType": "string",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.credentialCache",
-            "key": "credentialCache",
-            "valueType": "string",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.kerberosServerName",
-            "key": "kerberosServerName",
-            "valueType": "string",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.postgresVersion",
-            "key": "postgresVersion",
-            "valueType": "number",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.timescaledb",
-            "key": "timescaledb",
-            "valueType": "boolean",
-            "target": "jsonData"
-        },
-        {
-            "id": "jsonData.enableSecureSocksProxy",
-            "key": "enableSecureSocksProxy",
-            "valueType": "boolean",
-            "target": "jsonData"
+            "semanticType": "filepath",
+            "target": "jsonData",
+            "dependsOn": "jsonData.tlsConfigurationMethod == 'file-path'"
         },
         {
             "id": "secureJsonData.password",
             "key": "password",
+            "label": "Password",
+            "description": "Database password.",
+            "valueType": "string",
+            "semanticType": "password",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "description": "PEM-encoded CA certificate.",
             "valueType": "string",
             "target": "secureJsonData",
-            "required": true,
-            "semanticType": "password"
+            "dependsOn": "jsonData.tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "description": "PEM-encoded client certificate.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "PEM-encoded client private key.",
+            "valueType": "string",
+            "semanticType": "token",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         }
     ],
     "groups": [
@@ -160,38 +244,51 @@
             "id": "connection",
             "title": "Connection",
             "fieldRefs": [
-                "root.url"
+                "jsonData.host",
+                "jsonData.port",
+                "jsonData.database"
             ]
         },
         {
-            "id": "settings",
-            "title": "Settings",
+            "id": "auth",
+            "title": "Authentication",
             "fieldRefs": [
-                "jsonData.database",
+                "jsonData.user",
+                "secureJsonData.password"
+            ]
+        },
+        {
+            "id": "ssl",
+            "title": "SSL / TLS",
+            "fieldRefs": [
                 "jsonData.sslmode",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
                 "jsonData.tlsConfigurationMethod",
                 "jsonData.sslRootCertFile",
                 "jsonData.sslCertFile",
                 "jsonData.sslKeyFile",
-                "jsonData.authType",
-                "jsonData.maxOpenConns",
-                "jsonData.maxIdleConns",
-                "jsonData.maxIdleConnsAuto",
-                "jsonData.connMaxLifetime",
-                "jsonData.queryTimeout",
-                "jsonData.configFilePath",
-                "jsonData.credentialCache",
-                "jsonData.kerberosServerName",
-                "jsonData.postgresVersion",
-                "jsonData.timescaledb",
-                "jsonData.enableSecureSocksProxy"
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
             ]
         },
         {
-            "id": "secrets",
-            "title": "Secrets",
+            "id": "pool",
+            "title": "Connection Pool",
             "fieldRefs": [
-                "secureJsonData.password"
+                "jsonData.connMaxLifetime",
+                "jsonData.maxIdleConns",
+                "jsonData.maxIdleConnsAuto",
+                "jsonData.maxOpenConns"
+            ]
+        },
+        {
+            "id": "compat",
+            "title": "Compatibility",
+            "fieldRefs": [
+                "jsonData.postgresVersion",
+                "jsonData.timescaledb"
             ]
         }
     ]

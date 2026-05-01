@@ -2,17 +2,26 @@
     "schemaVersion": "v1",
     "pluginType": "grafana-clickhouse-datasource",
     "pluginName": "ClickHouse",
+    "docURL": "https://grafana.com/grafana/plugins/grafana-clickhouse-datasource/",
     "fields": [
         {
             "id": "jsonData.host",
             "key": "host",
+            "label": "Server address",
+            "description": "ClickHouse host address.",
             "valueType": "string",
             "target": "jsonData",
-            "required": true
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Server address"
+            }
         },
         {
             "id": "jsonData.port",
             "key": "port",
+            "label": "Server port",
+            "description": "ClickHouse server port. Default depends on protocol and TLS: Native 9000/9440, HTTP 8123/8443.",
             "valueType": "number",
             "target": "jsonData",
             "required": true
@@ -20,9 +29,12 @@
         {
             "id": "jsonData.protocol",
             "key": "protocol",
+            "label": "Protocol",
+            "description": "Native or HTTP for server protocol. Native uses ClickHouse's binary TCP interface for better performance.",
             "valueType": "string",
             "target": "jsonData",
             "required": true,
+            "defaultValue": "native",
             "validations": [
                 {
                     "type": "allowedValues",
@@ -31,181 +43,350 @@
                         "http"
                     ]
                 }
-            ]
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Native",
+                        "value": "native"
+                    },
+                    {
+                        "label": "HTTP",
+                        "value": "http"
+                    }
+                ]
+            }
         },
         {
             "id": "jsonData.username",
             "key": "username",
+            "label": "Username",
+            "description": "ClickHouse username. We recommend configuring a read-only user.",
             "valueType": "string",
             "target": "jsonData",
-            "required": true
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
         },
         {
             "id": "jsonData.version",
             "key": "version",
+            "label": "Plugin version",
+            "description": "Plugin version this config was saved with.",
             "valueType": "string",
             "target": "jsonData"
         },
         {
             "id": "jsonData.secure",
             "key": "secure",
+            "label": "Secure connection",
+            "description": "Enable when your ClickHouse server uses TLS. Update the port to a TLS-enabled port when enabled.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.path",
             "key": "path",
+            "label": "HTTP URL Path",
+            "description": "Additional URL path for HTTP requests. Default: /",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "dependsOn": "jsonData.protocol == 'http'",
+            "ui": {
+                "component": "input",
+                "placeholder": "additional-path"
+            }
         },
         {
             "id": "jsonData.tlsSkipVerify",
             "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "description": "Skip TLS certificate verification.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.tlsAuth",
             "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "description": "Enable TLS client certificate authentication.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.tlsAuthWithCACert",
             "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Provide a CA certificate for TLS verification.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.defaultDatabase",
             "key": "defaultDatabase",
+            "label": "Default database",
+            "description": "The default database used by the query builder.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
         },
         {
             "id": "jsonData.defaultTable",
             "key": "defaultTable",
+            "label": "Default table",
+            "description": "The default table used by the query builder.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "table"
+            }
         },
         {
             "id": "jsonData.connMaxLifetime",
             "key": "connMaxLifetime",
+            "label": "Connection Max Lifetime (minutes)",
+            "description": "Maximum lifetime of a connection in minutes.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "5"
+            }
         },
         {
             "id": "jsonData.dialTimeout",
             "key": "dialTimeout",
+            "label": "Dial Timeout (seconds)",
+            "description": "Timeout in seconds for establishing a connection. Default: 10.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "defaultValue": "10",
+            "ui": {
+                "component": "input",
+                "placeholder": "10"
+            }
         },
         {
             "id": "jsonData.maxIdleConns",
             "key": "maxIdleConns",
+            "label": "Max Idle Connections",
+            "description": "Maximum number of idle connections.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "25"
+            }
         },
         {
             "id": "jsonData.maxOpenConns",
             "key": "maxOpenConns",
+            "label": "Max Open Connections",
+            "description": "Maximum number of open connections.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "50"
+            }
         },
         {
             "id": "jsonData.queryTimeout",
             "key": "queryTimeout",
+            "label": "Query Timeout (seconds)",
+            "description": "Timeout in seconds for read queries. Default: 60.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "defaultValue": "60",
+            "ui": {
+                "component": "input",
+                "placeholder": "60"
+            }
         },
         {
             "id": "jsonData.validateSql",
             "key": "validateSql",
+            "label": "Validate SQL",
+            "description": "Validate SQL in the editor.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.forwardGrafanaHeaders",
             "key": "forwardGrafanaHeaders",
+            "label": "Forward Grafana HTTP Headers",
+            "description": "Forward Grafana HTTP Headers to datasource.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "dependsOn": "jsonData.protocol == 'http'",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.enableSecureSocksProxy",
             "key": "enableSecureSocksProxy",
+            "label": "Enable Secure Socks Proxy",
+            "description": "Enable proxying the datasource connection through the secure socks proxy to a different network.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.enableRowLimit",
             "key": "enableRowLimit",
+            "label": "Enable row limit",
+            "description": "Enable using the Grafana row limit setting to limit the number of rows returned from ClickHouse. Only supported for Grafana >= 11.0.0.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "secureJsonData.password",
             "key": "password",
+            "label": "Password",
+            "description": "ClickHouse user password.",
             "valueType": "string",
-            "target": "secureJsonData",
-            "semanticType": "password"
+            "semanticType": "password",
+            "target": "secureJsonData"
         },
         {
             "id": "secureJsonData.tlsCACert",
             "key": "tlsCACert",
+            "label": "CA Cert",
+            "description": "PEM-encoded CA certificate.",
             "valueType": "string",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         },
         {
             "id": "secureJsonData.tlsClientCert",
             "key": "tlsClientCert",
+            "label": "Client Cert",
+            "description": "PEM-encoded client certificate.",
             "valueType": "string",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         },
         {
             "id": "secureJsonData.tlsClientKey",
             "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "PEM-encoded client private key.",
             "valueType": "string",
+            "semanticType": "token",
             "target": "secureJsonData",
-            "semanticType": "token"
+            "dependsOn": "jsonData.tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         }
     ],
     "groups": [
         {
-            "id": "settings",
-            "title": "Settings",
+            "id": "server",
+            "title": "Server",
             "fieldRefs": [
                 "jsonData.host",
                 "jsonData.port",
                 "jsonData.protocol",
-                "jsonData.username",
-                "jsonData.version",
                 "jsonData.secure",
-                "jsonData.path",
-                "jsonData.tlsSkipVerify",
-                "jsonData.tlsAuth",
-                "jsonData.tlsAuthWithCACert",
-                "jsonData.defaultDatabase",
-                "jsonData.defaultTable",
-                "jsonData.connMaxLifetime",
-                "jsonData.dialTimeout",
-                "jsonData.maxIdleConns",
-                "jsonData.maxOpenConns",
-                "jsonData.queryTimeout",
-                "jsonData.validateSql",
-                "jsonData.forwardGrafanaHeaders",
-                "jsonData.enableSecureSocksProxy",
-                "jsonData.enableRowLimit"
+                "jsonData.path"
             ]
         },
         {
-            "id": "secrets",
-            "title": "Secrets",
+            "id": "credentials",
+            "title": "Credentials",
             "fieldRefs": [
-                "secureJsonData.password",
+                "jsonData.username",
+                "secureJsonData.password"
+            ]
+        },
+        {
+            "id": "tls",
+            "title": "TLS / SSL",
+            "fieldRefs": [
+                "jsonData.tlsSkipVerify",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
                 "secureJsonData.tlsCACert",
                 "secureJsonData.tlsClientCert",
                 "secureJsonData.tlsClientKey"
             ]
+        },
+        {
+            "id": "defaults",
+            "title": "Default DB and table",
+            "fieldRefs": [
+                "jsonData.defaultDatabase",
+                "jsonData.defaultTable"
+            ]
+        },
+        {
+            "id": "query-settings",
+            "title": "Query settings",
+            "fieldRefs": [
+                "jsonData.dialTimeout",
+                "jsonData.queryTimeout",
+                "jsonData.connMaxLifetime",
+                "jsonData.maxIdleConns",
+                "jsonData.maxOpenConns",
+                "jsonData.validateSql"
+            ]
+        },
+        {
+            "id": "additional",
+            "title": "Additional settings",
+            "fieldRefs": [
+                "jsonData.forwardGrafanaHeaders",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.enableRowLimit"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ],
+            "description": "TLS client certificate and key"
         }
     ]
 }

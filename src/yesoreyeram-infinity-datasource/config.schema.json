@@ -2,64 +2,100 @@
     "schemaVersion": "v1",
     "pluginType": "yesoreyeram-infinity-datasource",
     "pluginName": "Infinity",
+    "docURL": "https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource/",
     "fields": [
         {
             "id": "jsonData.auth_method",
             "key": "auth_method",
+            "label": "Authentication method",
+            "description": "Authentication method for requests (none, basicAuth, apiKey, bearerToken, oauthPassThru, digestAuth, oauth2).",
             "valueType": "string",
             "target": "jsonData"
         },
         {
             "id": "jsonData.apiKeyKey",
             "key": "apiKeyKey",
+            "label": "API Key name",
+            "description": "Name of the API key header or query parameter.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "dependsOn": "jsonData.auth_method == 'apiKey'"
         },
         {
             "id": "jsonData.apiKeyType",
             "key": "apiKeyType",
+            "label": "API Key type",
+            "description": "Where to send the API key: header or query.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "dependsOn": "jsonData.auth_method == 'apiKey'"
         },
         {
             "id": "jsonData.tlsSkipVerify",
             "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "description": "Skip TLS certificate verification.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.tlsAuth",
             "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "description": "Enable TLS client certificate authentication.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.serverName",
             "key": "serverName",
+            "label": "TLS Server Name",
+            "description": "Server name for TLS certificate verification.",
             "valueType": "string",
+            "semanticType": "hostname",
             "target": "jsonData"
         },
         {
             "id": "jsonData.tlsAuthWithCACert",
             "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Provide a CA certificate for TLS.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.timeoutInSeconds",
             "key": "timeoutInSeconds",
+            "label": "Timeout (seconds)",
+            "description": "HTTP request timeout in seconds.",
             "valueType": "number",
             "target": "jsonData"
         },
         {
             "id": "jsonData.oauthPassThru",
             "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the user's OAuth token.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.allowedHosts",
             "key": "allowedHosts",
+            "label": "Allowed hosts",
+            "description": "List of allowed hosts for outgoing requests. Leave empty to allow all.",
             "valueType": "array",
             "target": "jsonData",
             "item": {
@@ -69,30 +105,51 @@
         {
             "id": "jsonData.customHealthCheckEnabled",
             "key": "customHealthCheckEnabled",
+            "label": "Custom health check",
+            "description": "Enable custom health check URL.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.customHealthCheckUrl",
             "key": "customHealthCheckUrl",
+            "label": "Health check URL",
+            "description": "URL for custom health check.",
             "valueType": "string",
-            "target": "jsonData"
+            "semanticType": "url",
+            "target": "jsonData",
+            "dependsOn": "jsonData.customHealthCheckEnabled == true"
         },
         {
             "id": "jsonData.enableSecureSocksProxy",
             "key": "enableSecureSocksProxy",
+            "label": "Secure Socks Proxy",
+            "description": "Enable secure SOCKS proxy.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.pathEncodedUrlsEnabled",
             "key": "pathEncodedUrlsEnabled",
+            "label": "Path encoded URLs",
+            "description": "Allow path-encoded URLs.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "jsonData.keepCookies",
             "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Cookies to forward to the data source.",
             "valueType": "array",
             "target": "jsonData",
             "item": {
@@ -102,85 +159,138 @@
         {
             "id": "secureJsonData.basicAuthPassword",
             "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "Basic auth password.",
             "valueType": "string",
-            "target": "secureJsonData",
-            "semanticType": "password"
+            "semanticType": "password",
+            "target": "secureJsonData"
         },
         {
             "id": "secureJsonData.tlsCACert",
             "key": "tlsCACert",
+            "label": "CA Cert",
+            "description": "PEM-encoded CA certificate.",
             "valueType": "string",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         },
         {
             "id": "secureJsonData.tlsClientCert",
             "key": "tlsClientCert",
+            "label": "Client Cert",
+            "description": "PEM-encoded client certificate.",
             "valueType": "string",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         },
         {
             "id": "secureJsonData.tlsClientKey",
             "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "PEM-encoded client private key.",
             "valueType": "string",
+            "semanticType": "token",
             "target": "secureJsonData",
-            "semanticType": "token"
+            "dependsOn": "jsonData.tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
         },
         {
             "id": "secureJsonData.apiKeyValue",
             "key": "apiKeyValue",
+            "label": "API Key value",
+            "description": "API key value.",
             "valueType": "string",
+            "semanticType": "token",
             "target": "secureJsonData",
-            "semanticType": "token"
+            "dependsOn": "jsonData.auth_method == 'apiKey'"
         },
         {
             "id": "secureJsonData.bearerToken",
             "key": "bearerToken",
+            "label": "Bearer Token",
+            "description": "Bearer token for authentication.",
             "valueType": "string",
+            "semanticType": "token",
             "target": "secureJsonData",
-            "semanticType": "token"
+            "dependsOn": "jsonData.auth_method == 'bearerToken'"
         },
         {
             "id": "secureJsonData.oauth2ClientSecret",
             "key": "oauth2ClientSecret",
+            "label": "OAuth2 Client Secret",
+            "description": "OAuth2 client secret.",
             "valueType": "string",
-            "target": "secureJsonData",
-            "semanticType": "token"
+            "semanticType": "token",
+            "target": "secureJsonData"
         }
     ],
     "groups": [
         {
-            "id": "settings",
-            "title": "Settings",
+            "id": "auth",
+            "title": "Authentication",
             "fieldRefs": [
                 "jsonData.auth_method",
                 "jsonData.apiKeyKey",
                 "jsonData.apiKeyType",
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.apiKeyValue",
+                "secureJsonData.bearerToken",
+                "secureJsonData.oauth2ClientSecret",
+                "jsonData.oauthPassThru"
+            ]
+        },
+        {
+            "id": "tls",
+            "title": "TLS / SSL",
+            "fieldRefs": [
                 "jsonData.tlsSkipVerify",
                 "jsonData.tlsAuth",
                 "jsonData.serverName",
                 "jsonData.tlsAuthWithCACert",
-                "jsonData.timeoutInSeconds",
-                "jsonData.oauthPassThru",
-                "jsonData.allowedHosts",
-                "jsonData.customHealthCheckEnabled",
-                "jsonData.customHealthCheckUrl",
-                "jsonData.enableSecureSocksProxy",
-                "jsonData.pathEncodedUrlsEnabled",
-                "jsonData.keepCookies"
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
             ]
         },
         {
-            "id": "secrets",
-            "title": "Secrets",
+            "id": "network",
+            "title": "Network",
             "fieldRefs": [
-                "secureJsonData.basicAuthPassword",
-                "secureJsonData.tlsCACert",
-                "secureJsonData.tlsClientCert",
-                "secureJsonData.tlsClientKey",
-                "secureJsonData.apiKeyValue",
-                "secureJsonData.bearerToken",
-                "secureJsonData.oauth2ClientSecret"
+                "jsonData.timeoutInSeconds",
+                "jsonData.allowedHosts",
+                "jsonData.keepCookies",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.pathEncodedUrlsEnabled"
             ]
+        },
+        {
+            "id": "health",
+            "title": "Health check",
+            "fieldRefs": [
+                "jsonData.customHealthCheckEnabled",
+                "jsonData.customHealthCheckUrl"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ],
+            "description": "TLS client certificate and key"
         }
     ]
 }

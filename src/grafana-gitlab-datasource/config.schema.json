@@ -6,25 +6,40 @@
         {
             "id": "root.url",
             "key": "url",
+            "label": "URL",
+            "description": "GitLab instance URL. Leave blank for gitlab.com.",
             "valueType": "string",
+            "semanticType": "url",
             "target": "root",
-            "semanticType": "url"
+            "required": true,
+            "ui": {
+                "placeholder": "Default: https://gitlab.com"
+            }
         },
         {
             "id": "jsonData.pageLimit",
             "key": "pageLimit",
+            "label": "Page Limit",
+            "description": "Maximum number of pages to fetch per request.",
             "valueType": "number",
             "target": "jsonData"
         },
         {
             "id": "jsonData.enableSecureSocksProxy",
             "key": "enableSecureSocksProxy",
+            "label": "Secure Socks Proxy",
+            "description": "Enable secure SOCKS proxy.",
             "valueType": "boolean",
-            "target": "jsonData"
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         },
         {
             "id": "secureJsonData.accessToken",
             "key": "accessToken",
+            "label": "Personal Access Token",
+            "description": "GitLab personal access token with read_api scope.",
             "valueType": "string",
             "target": "secureJsonData",
             "required": true,
@@ -40,18 +55,18 @@
             ]
         },
         {
+            "id": "auth",
+            "title": "Authentication",
+            "fieldRefs": [
+                "secureJsonData.accessToken"
+            ]
+        },
+        {
             "id": "settings",
             "title": "Settings",
             "fieldRefs": [
                 "jsonData.pageLimit",
                 "jsonData.enableSecureSocksProxy"
-            ]
-        },
-        {
-            "id": "secrets",
-            "title": "Secrets",
-            "fieldRefs": [
-                "secureJsonData.accessToken"
             ]
         }
     ]
