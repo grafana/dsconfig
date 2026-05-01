@@ -118,8 +118,8 @@ __metadata:
     "@grafana/data": "npm:12.4.2"
     "@grafana/google-sdk": "npm:^0.5.0"
     "@grafana/schema": "npm:12.4.2"
-    markdownlint-cli2: "npm:^0.22.1"
-    typescript: "npm:^6.0.3"
+    markdownlint-cli2: "npm:0.22.1"
+    typescript: "npm:6.0.3"
   languageName: unknown
   linkType: soft
 
@@ -1011,7 +1011,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"markdownlint-cli2@npm:^0.22.1":
+"markdownlint-cli2@npm:0.22.1":
   version: 0.22.1
   resolution: "markdownlint-cli2@npm:0.22.1"
   dependencies:
@@ -1878,7 +1878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^6.0.3":
+"typescript@npm:6.0.3":
   version: 6.0.3
   resolution: "typescript@npm:6.0.3"
   bin:
@@ -1888,7 +1888,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^6.0.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A6.0.3#optional!builtin<compat/typescript>":
   version: 6.0.3
   resolution: "typescript@patch:typescript@npm%3A6.0.3#optional!builtin<compat/typescript>::version=6.0.3&hash=5786d5"
   bin:
