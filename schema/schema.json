@@ -236,7 +236,10 @@
                         "type": "object",
                         "properties": {
                             "valueType": {
-                                "enum": ["array", "map"]
+                                "enum": [
+                                    "array",
+                                    "map"
+                                ]
                             }
                         },
                         "required": [
@@ -487,8 +490,16 @@
                         "type"
                     ],
                     "anyOf": [
-                        { "required": ["min"] },
-                        { "required": ["max"] }
+                        {
+                            "required": [
+                                "min"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "max"
+                            ]
+                        }
                     ]
                 },
                 {
@@ -507,8 +518,16 @@
                         "type"
                     ],
                     "anyOf": [
-                        { "required": ["min"] },
-                        { "required": ["max"] }
+                        {
+                            "required": [
+                                "min"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "max"
+                            ]
+                        }
                     ]
                 },
                 {
@@ -527,8 +546,16 @@
                         "type"
                     ],
                     "anyOf": [
-                        { "required": ["min"] },
-                        { "required": ["max"] }
+                        {
+                            "required": [
+                                "min"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "max"
+                            ]
+                        }
                     ]
                 },
                 {

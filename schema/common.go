@@ -88,17 +88,17 @@ func CommonNetworkFields() []ConfigField {
 			ID: "network.keepCookies", Key: "keepCookies",
 			Label: "Allowed Cookies", Description: "Cookies to forward to the datasource",
 			ValueType: ArrayType, Target: ptr(JSONDataTarget),
-			Item:      &FieldItemSchema{ValueType: StringType},
+			Item: &FieldItemSchema{ValueType: StringType},
 		},
 		{
 			ID: "network.oauthPassThru", Key: "oauthPassThru",
-			Label: "Forward OAuth Identity",
+			Label:     "Forward OAuth Identity",
 			ValueType: BooleanType, Target: ptr(JSONDataTarget),
 			UI: &FieldUI{Component: UISwitch},
 		},
 		{
 			ID: "network.pdcInjected", Key: "pdcInjected",
-			Label: "Private Data Source Connect",
+			Label:     "Private Data Source Connect",
 			ValueType: BooleanType, Target: ptr(JSONDataTarget),
 		},
 	}
@@ -131,5 +131,5 @@ func HTTPHeaderFields() []ConfigField {
 	}
 }
 
-func ptr[T any](v T) *T { return &v }
+func ptr[T any](v T) *T       { return &v }
 func ptrF(v float64) *float64 { return &v }

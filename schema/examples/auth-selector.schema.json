@@ -27,15 +27,28 @@
             "validations": [
                 {
                     "type": "allowedValues",
-                    "values": ["no-auth", "basic-auth", "forward-oauth"]
+                    "values": [
+                        "no-auth",
+                        "basic-auth",
+                        "forward-oauth"
+                    ]
                 }
             ],
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "No Authentication", "value": "no-auth" },
-                    { "label": "Basic authentication", "value": "basic-auth" },
-                    { "label": "Forward OAuth Identity", "value": "forward-oauth" }
+                    {
+                        "label": "No Authentication",
+                        "value": "no-auth"
+                    },
+                    {
+                        "label": "Basic authentication",
+                        "value": "basic-auth"
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "forward-oauth"
+                    }
                 ]
             },
             "storage": {
@@ -73,7 +86,9 @@
             "valueType": "boolean",
             "target": "root",
             "defaultValue": false,
-            "tags": ["managed-by:auth.method"]
+            "tags": [
+                "managed-by:auth.method"
+            ]
         },
         {
             "id": "auth.oauthPassThru",
@@ -82,7 +97,9 @@
             "valueType": "boolean",
             "target": "jsonData",
             "defaultValue": false,
-            "tags": ["managed-by:auth.method"]
+            "tags": [
+                "managed-by:auth.method"
+            ]
         },
         {
             "id": "auth.basicAuthUser",
@@ -107,7 +124,9 @@
         {
             "id": "connection",
             "title": "Connection",
-            "fieldRefs": ["connection.url"]
+            "fieldRefs": [
+                "connection.url"
+            ]
         },
         {
             "id": "auth",
@@ -122,7 +141,10 @@
     "relationships": [
         {
             "type": "pair",
-            "fields": ["auth.basicAuthUser", "auth.basicAuthPassword"],
+            "fields": [
+                "auth.basicAuthUser",
+                "auth.basicAuthPassword"
+            ],
             "description": "Basic auth credentials"
         }
     ]

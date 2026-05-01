@@ -1700,6 +1700,7 @@ func TestExampleSchema_MySQL(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, ids, 8)
 }
+
 // ============================================================
 // FieldEffect.Validate
 // ============================================================
@@ -1832,7 +1833,7 @@ func TestExampleSchema_AuthSelector(t *testing.T) {
 			},
 			{
 				ID: "auth.basicAuthUser", Key: "basicAuthUser", ValueType: schema.StringType,
-				Target: ptr(schema.RootTarget),
+				Target:    ptr(schema.RootTarget),
 				DependsOn: "auth.method == 'basic-auth'", RequiredWhen: "auth.method == 'basic-auth'",
 			},
 			{

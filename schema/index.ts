@@ -21,6 +21,7 @@ export type {
     CustomValidationRule,
     BaseValidationRule,
     FieldOverride,
+    FieldEffect,
     StorageMapping,
     DirectMapping,
     IndexedPairMapping,
@@ -72,3 +73,16 @@ export type {
     FieldValue,
     LoadResult,
 } from "./runtime"
+
+// LLM prompt projection
+export {
+    toPromptSchema,
+    toPromptString,
+    toPromptText,
+    extractLiteralFromWhen,
+} from "./prompt"
+export type {
+    PromptSchema,
+    PromptField,
+    PromptOption,
+} from "./prompt"
