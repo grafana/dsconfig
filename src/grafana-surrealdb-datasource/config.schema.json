@@ -1,0 +1,64 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-surrealdb-datasource",
+    "pluginName": "SurrealDB",
+    "fields": [
+        {
+            "id": "jsonData.endpoint",
+            "key": "endpoint",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.namespace",
+            "key": "namespace",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.scope",
+            "key": "scope",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.endpoint",
+                "jsonData.database",
+                "jsonData.namespace",
+                "jsonData.scope",
+                "jsonData.username"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

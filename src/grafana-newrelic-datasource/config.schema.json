@@ -1,0 +1,80 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-newrelic-datasource",
+    "pluginName": "New Relic",
+    "fields": [
+        {
+            "id": "jsonData.region",
+            "key": "region",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "US",
+                        "EU"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.timeoutInSeconds",
+            "key": "timeoutInSeconds",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.restBaseURL",
+            "key": "restBaseURL",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.infrastructureBaseURL",
+            "key": "infrastructureBaseURL",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.nerdGraphBaseURL",
+            "key": "nerdGraphBaseURL",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accountId",
+            "key": "accountId",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.personalApiKey",
+            "key": "personalApiKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.region",
+                "jsonData.timeoutInSeconds",
+                "jsonData.restBaseURL",
+                "jsonData.infrastructureBaseURL",
+                "jsonData.nerdGraphBaseURL"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accountId",
+                "secureJsonData.personalApiKey"
+            ]
+        }
+    ]
+}

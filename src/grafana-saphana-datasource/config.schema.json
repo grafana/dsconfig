@@ -1,0 +1,131 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-saphana-datasource",
+    "pluginName": "SAP HANA®",
+    "fields": [
+        {
+            "id": "jsonData.server",
+            "key": "server",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.port",
+            "key": "port",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.instance",
+            "key": "instance",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.databaseName",
+            "key": "databaseName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultSchema",
+            "key": "defaultSchema",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.server",
+                "jsonData.username",
+                "jsonData.port",
+                "jsonData.instance",
+                "jsonData.databaseName",
+                "jsonData.defaultSchema",
+                "jsonData.tlsSkipVerify",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.timeout",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ]
+        }
+    ]
+}

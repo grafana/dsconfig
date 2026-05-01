@@ -1,0 +1,120 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "influxdb",
+    "pluginName": "InfluxDB",
+    "fields": [
+        {
+            "id": "jsonData.version",
+            "key": "version",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "InfluxQL",
+                        "Flux",
+                        "SQL"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.httpMode",
+            "key": "httpMode",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dbName",
+            "key": "dbName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.organization",
+            "key": "organization",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultBucket",
+            "key": "defaultBucket",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxSeries",
+            "key": "maxSeries",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.metadata",
+            "key": "metadata",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.insecureGrpc",
+            "key": "insecureGrpc",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.token",
+            "key": "token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.version",
+                "jsonData.timeInterval",
+                "jsonData.httpMode",
+                "jsonData.dbName",
+                "jsonData.oauthPassThru",
+                "jsonData.organization",
+                "jsonData.defaultBucket",
+                "jsonData.maxSeries",
+                "jsonData.metadata",
+                "jsonData.insecureGrpc"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.token",
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

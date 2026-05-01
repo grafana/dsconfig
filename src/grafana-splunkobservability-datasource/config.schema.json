@@ -1,0 +1,59 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-splunkobservability-datasource",
+    "pluginName": "grafana-splunkobservability-datasource",
+    "fields": [
+        {
+            "id": "jsonData.realmName",
+            "key": "realmName",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.url_metrics_metadata",
+            "key": "url_metrics_metadata",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.url_signalflow",
+            "key": "url_signalflow",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessToken",
+            "key": "accessToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.realmName",
+                "jsonData.url_metrics_metadata",
+                "jsonData.url_signalflow",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessToken"
+            ]
+        }
+    ]
+}

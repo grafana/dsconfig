@@ -1,0 +1,57 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "graphite",
+    "pluginName": "Graphite",
+    "fields": [
+        {
+            "id": "jsonData.graphiteVersion",
+            "key": "graphiteVersion",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.graphiteType",
+            "key": "graphiteType",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "metrictank"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.rollupIndicatorEnabled",
+            "key": "rollupIndicatorEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.importConfiguration",
+            "key": "importConfiguration",
+            "valueType": "map",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.graphiteVersion",
+                "jsonData.graphiteType",
+                "jsonData.rollupIndicatorEnabled",
+                "jsonData.importConfiguration"
+            ]
+        }
+    ]
+}

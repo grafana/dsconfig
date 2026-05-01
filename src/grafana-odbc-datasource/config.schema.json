@@ -1,0 +1,40 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-odbc-datasource",
+    "pluginName": "Sqlyze Datasource",
+    "fields": [
+        {
+            "id": "jsonData.driver",
+            "key": "driver",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.settings",
+            "key": "settings",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.driver",
+                "jsonData.timeout",
+                "jsonData.settings"
+            ]
+        }
+    ]
+}

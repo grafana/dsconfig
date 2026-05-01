@@ -1,0 +1,91 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-github-datasource",
+    "pluginName": "GitHub",
+    "fields": [
+        {
+            "id": "jsonData.selectedAuthType",
+            "key": "selectedAuthType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "personal-access-token",
+                        "github-app"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.githubPlan",
+            "key": "githubPlan",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "github-basic",
+                        "github-enterprise-cloud",
+                        "github-enterprise-server"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.githubUrl",
+            "key": "githubUrl",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.appId",
+            "key": "appId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.installationId",
+            "key": "installationId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessToken",
+            "key": "accessToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.privateKey",
+            "key": "privateKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.selectedAuthType",
+                "jsonData.githubPlan",
+                "jsonData.githubUrl",
+                "jsonData.appId",
+                "jsonData.installationId"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessToken",
+                "secureJsonData.privateKey"
+            ]
+        }
+    ]
+}

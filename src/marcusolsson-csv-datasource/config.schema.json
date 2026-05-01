@@ -1,0 +1,29 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "marcusolsson-csv-datasource",
+    "pluginName": "CSV",
+    "fields": [
+        {
+            "id": "jsonData.storage",
+            "key": "storage",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.queryParams",
+            "key": "queryParams",
+            "valueType": "string",
+            "target": "jsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.storage",
+                "jsonData.queryParams"
+            ]
+        }
+    ]
+}

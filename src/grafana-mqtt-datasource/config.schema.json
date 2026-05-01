@@ -1,0 +1,97 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-mqtt-datasource",
+    "pluginName": "MQTT",
+    "fields": [
+        {
+            "id": "jsonData.uri",
+            "key": "uri",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientID",
+            "key": "clientID",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.uri",
+                "jsonData.username",
+                "jsonData.clientID",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.tlsSkipVerify"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientKey",
+                "secureJsonData.tlsClientCert"
+            ]
+        }
+    ]
+}

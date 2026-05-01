@@ -1,0 +1,186 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "yesoreyeram-infinity-datasource",
+    "pluginName": "Infinity",
+    "fields": [
+        {
+            "id": "jsonData.auth_method",
+            "key": "auth_method",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.apiKeyKey",
+            "key": "apiKeyKey",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.apiKeyType",
+            "key": "apiKeyType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeoutInSeconds",
+            "key": "timeoutInSeconds",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.allowedHosts",
+            "key": "allowedHosts",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.customHealthCheckEnabled",
+            "key": "customHealthCheckEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.customHealthCheckUrl",
+            "key": "customHealthCheckUrl",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.pathEncodedUrlsEnabled",
+            "key": "pathEncodedUrlsEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.apiKeyValue",
+            "key": "apiKeyValue",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.bearerToken",
+            "key": "bearerToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.oauth2ClientSecret",
+            "key": "oauth2ClientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.auth_method",
+                "jsonData.apiKeyKey",
+                "jsonData.apiKeyType",
+                "jsonData.tlsSkipVerify",
+                "jsonData.tlsAuth",
+                "jsonData.serverName",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.timeoutInSeconds",
+                "jsonData.oauthPassThru",
+                "jsonData.allowedHosts",
+                "jsonData.customHealthCheckEnabled",
+                "jsonData.customHealthCheckUrl",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.pathEncodedUrlsEnabled",
+                "jsonData.keepCookies"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey",
+                "secureJsonData.apiKeyValue",
+                "secureJsonData.bearerToken",
+                "secureJsonData.oauth2ClientSecret"
+            ]
+        }
+    ]
+}

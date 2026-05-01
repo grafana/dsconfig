@@ -1,0 +1,105 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-dynatrace-datasource",
+    "pluginName": "Dynatrace",
+    "fields": [
+        {
+            "id": "jsonData.apiType",
+            "key": "apiType",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "saas",
+                        "managed",
+                        "url"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.environmentId",
+            "key": "environmentId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.domain",
+            "key": "domain",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.httpClientTimeout",
+            "key": "httpClientTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.apiToken",
+            "key": "apiToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.platformToken",
+            "key": "platformToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.apiType",
+                "jsonData.environmentId",
+                "jsonData.domain",
+                "jsonData.tlsSkipVerify",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.httpClientTimeout"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.apiToken",
+                "secureJsonData.platformToken",
+                "secureJsonData.tlsCACert"
+            ]
+        }
+    ]
+}

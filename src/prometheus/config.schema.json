@@ -1,0 +1,293 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "prometheus",
+    "pluginName": "Prometheus",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root",
+            "required": true
+        },
+        {
+            "id": "root.basicAuthUser",
+            "key": "basicAuthUser",
+            "valueType": "string",
+            "target": "root"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.queryTimeout",
+            "key": "queryTimeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.httpMethod",
+            "key": "httpMethod",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.customQueryParameters",
+            "key": "customQueryParameters",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.disableMetricsLookup",
+            "key": "disableMetricsLookup",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.exemplarTraceIdDestinations",
+            "key": "exemplarTraceIdDestinations",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.prometheusType",
+            "key": "prometheusType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Cortex",
+                        "Mimir",
+                        "Prometheus",
+                        "Thanos"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.prometheusVersion",
+            "key": "prometheusVersion",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.cacheLevel",
+            "key": "cacheLevel",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Low",
+                        "Medium",
+                        "High",
+                        "None"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.defaultEditor",
+            "key": "defaultEditor",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "code",
+                        "builder"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.incrementalQuerying",
+            "key": "incrementalQuerying",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.incrementalQueryOverlapWindow",
+            "key": "incrementalQueryOverlapWindow",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.disableRecordingRules",
+            "key": "disableRecordingRules",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.manageAlerts",
+            "key": "manageAlerts",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.allowAsRecordingRulesTarget",
+            "key": "allowAsRecordingRulesTarget",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.seriesEndpoint",
+            "key": "seriesEndpoint",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.seriesLimit",
+            "key": "seriesLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.pdcInjected",
+            "key": "pdcInjected",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url",
+                "root.basicAuth",
+                "root.basicAuthUser"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.timeInterval",
+                "jsonData.queryTimeout",
+                "jsonData.httpMethod",
+                "jsonData.customQueryParameters",
+                "jsonData.disableMetricsLookup",
+                "jsonData.exemplarTraceIdDestinations",
+                "jsonData.prometheusType",
+                "jsonData.prometheusVersion",
+                "jsonData.cacheLevel",
+                "jsonData.defaultEditor",
+                "jsonData.incrementalQuerying",
+                "jsonData.incrementalQueryOverlapWindow",
+                "jsonData.disableRecordingRules",
+                "jsonData.manageAlerts",
+                "jsonData.allowAsRecordingRulesTarget",
+                "jsonData.oauthPassThru",
+                "jsonData.seriesEndpoint",
+                "jsonData.seriesLimit",
+                "jsonData.timeout",
+                "jsonData.serverName",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.tlsSkipVerify",
+                "jsonData.keepCookies",
+                "jsonData.pdcInjected"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ]
+        }
+    ]
+}

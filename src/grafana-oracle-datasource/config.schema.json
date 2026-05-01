@@ -1,0 +1,129 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-oracle-datasource",
+    "pluginName": "Oracle Database",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timezone_name",
+            "key": "timezone_name",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.use_dst",
+            "key": "use_dst",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.useTNSNamesBasedConnection",
+            "key": "useTNSNamesBasedConnection",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tnsNamesEntry",
+            "key": "tnsNamesEntry",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.useKerberosAuthentication",
+            "key": "useKerberosAuthentication",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connectionPoolSize",
+            "key": "connectionPoolSize",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dataProxyTimeout",
+            "key": "dataProxyTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.prefetchRowsCount",
+            "key": "prefetchRowsCount",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.rowLimit",
+            "key": "rowLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.database",
+                "jsonData.timezone_name",
+                "jsonData.use_dst",
+                "jsonData.user",
+                "jsonData.useTNSNamesBasedConnection",
+                "jsonData.tnsNamesEntry",
+                "jsonData.useKerberosAuthentication",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.connectionPoolSize",
+                "jsonData.dataProxyTimeout",
+                "jsonData.prefetchRowsCount",
+                "jsonData.rowLimit"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

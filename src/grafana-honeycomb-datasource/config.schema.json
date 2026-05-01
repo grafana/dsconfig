@@ -1,0 +1,60 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-honeycomb-datasource",
+    "pluginName": "Honeycomb",
+    "fields": [
+        {
+            "id": "jsonData.hostname",
+            "key": "hostname",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.team",
+            "key": "team",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.environment",
+            "key": "environment",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.retentionLimit",
+            "key": "retentionLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.apiKey",
+            "key": "apiKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.hostname",
+                "jsonData.team",
+                "jsonData.environment",
+                "jsonData.retentionLimit"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.apiKey"
+            ]
+        }
+    ]
+}

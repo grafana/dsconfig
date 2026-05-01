@@ -1,0 +1,202 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azure-monitor-datasource",
+    "pluginName": "Azure Monitor",
+    "fields": [
+        {
+            "id": "jsonData.cloudName",
+            "key": "cloudName",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "azuremonitor",
+                        "chinaazuremonitor",
+                        "govazuremonitor",
+                        "customizedazuremonitor"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.azureAuthType",
+            "key": "azureAuthType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "clientsecret",
+                        "clientcertificate",
+                        "msi",
+                        "workloadidentity",
+                        "currentuser",
+                        "ad-password"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.azureCredentials",
+            "key": "azureCredentials",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tenantId",
+            "key": "tenantId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientId",
+            "key": "clientId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.subscriptionId",
+            "key": "subscriptionId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.basicLogsEnabled",
+            "key": "basicLogsEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.azureLogAnalyticsSameAs",
+            "key": "azureLogAnalyticsSameAs",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logAnalyticsTenantId",
+            "key": "logAnalyticsTenantId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logAnalyticsClientId",
+            "key": "logAnalyticsClientId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logAnalyticsSubscriptionId",
+            "key": "logAnalyticsSubscriptionId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logAnalyticsDefaultWorkspace",
+            "key": "logAnalyticsDefaultWorkspace",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.appInsightsAppId",
+            "key": "appInsightsAppId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.customizedRoutes",
+            "key": "customizedRoutes",
+            "valueType": "map",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.azureClientSecret",
+            "key": "azureClientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.appInsightsApiKey",
+            "key": "appInsightsApiKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.logAnalyticsClientSecret",
+            "key": "logAnalyticsClientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.cloudName",
+                "jsonData.azureAuthType",
+                "jsonData.azureCredentials",
+                "jsonData.tenantId",
+                "jsonData.clientId",
+                "jsonData.subscriptionId",
+                "jsonData.basicLogsEnabled",
+                "jsonData.azureLogAnalyticsSameAs",
+                "jsonData.logAnalyticsTenantId",
+                "jsonData.logAnalyticsClientId",
+                "jsonData.logAnalyticsSubscriptionId",
+                "jsonData.logAnalyticsDefaultWorkspace",
+                "jsonData.appInsightsAppId",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.timeout",
+                "jsonData.keepCookies",
+                "jsonData.customizedRoutes"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.clientSecret",
+                "secureJsonData.azureClientSecret",
+                "secureJsonData.appInsightsApiKey",
+                "secureJsonData.logAnalyticsClientSecret"
+            ]
+        }
+    ]
+}

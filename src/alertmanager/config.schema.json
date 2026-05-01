@@ -1,0 +1,39 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "alertmanager",
+    "pluginName": "Alertmanager",
+    "fields": [
+        {
+            "id": "jsonData.implementation",
+            "key": "implementation",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "cortex",
+                        "mimir",
+                        "prometheus"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.handleGrafanaManagedAlerts",
+            "key": "handleGrafanaManagedAlerts",
+            "valueType": "boolean",
+            "target": "jsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.implementation",
+                "jsonData.handleGrafanaManagedAlerts"
+            ]
+        }
+    ]
+}

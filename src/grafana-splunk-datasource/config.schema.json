@@ -1,0 +1,212 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-splunk-datasource",
+    "pluginName": "Splunk",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "jsonData.apiURL",
+            "key": "apiURL",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.pollSearchResult",
+            "key": "pollSearchResult",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.streamMode",
+            "key": "streamMode",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.previewMode",
+            "key": "previewMode",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.autoCancel",
+            "key": "autoCancel",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.statusBuckets",
+            "key": "statusBuckets",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultEarliestTime",
+            "key": "defaultEarliestTime",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.internalFieldsFiltration",
+            "key": "internalFieldsFiltration",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.internalFieldPattern",
+            "key": "internalFieldPattern",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.minPollInterval",
+            "key": "minPollInterval",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxPollInterval",
+            "key": "maxPollInterval",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tsField",
+            "key": "tsField",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.fieldSearchType",
+            "key": "fieldSearchType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.variableSearchLevel",
+            "key": "variableSearchLevel",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxResultCount",
+            "key": "maxResultCount",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeoutInSeconds",
+            "key": "timeoutInSeconds",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dataLinks",
+            "key": "dataLinks",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.authToken",
+            "key": "authToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.apiURL",
+                "jsonData.authType",
+                "jsonData.username",
+                "jsonData.oauthPassThru",
+                "jsonData.pollSearchResult",
+                "jsonData.streamMode",
+                "jsonData.previewMode",
+                "jsonData.autoCancel",
+                "jsonData.statusBuckets",
+                "jsonData.defaultEarliestTime",
+                "jsonData.internalFieldsFiltration",
+                "jsonData.internalFieldPattern",
+                "jsonData.minPollInterval",
+                "jsonData.maxPollInterval",
+                "jsonData.tsField",
+                "jsonData.fieldSearchType",
+                "jsonData.variableSearchLevel",
+                "jsonData.maxResultCount",
+                "jsonData.timeoutInSeconds",
+                "jsonData.dataLinks",
+                "jsonData.keepCookies",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.authToken"
+            ]
+        }
+    ]
+}

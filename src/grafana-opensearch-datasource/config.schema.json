@@ -1,0 +1,120 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-opensearch-datasource",
+    "pluginName": "OpenSearch",
+    "fields": [
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.timeField",
+            "key": "timeField",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.version",
+            "key": "version",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.flavor",
+            "key": "flavor",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "opensearch",
+                        "elasticsearch"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.interval",
+            "key": "interval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.maxConcurrentShardRequests",
+            "key": "maxConcurrentShardRequests",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logMessageField",
+            "key": "logMessageField",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logLevelField",
+            "key": "logLevelField",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.pplEnabled",
+            "key": "pplEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sigV4Auth",
+            "key": "sigV4Auth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverless",
+            "key": "serverless",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.database",
+                "jsonData.timeField",
+                "jsonData.version",
+                "jsonData.flavor",
+                "jsonData.interval",
+                "jsonData.timeInterval",
+                "jsonData.maxConcurrentShardRequests",
+                "jsonData.logMessageField",
+                "jsonData.logLevelField",
+                "jsonData.pplEnabled",
+                "jsonData.sigV4Auth",
+                "jsonData.serverless",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        }
+    ]
+}

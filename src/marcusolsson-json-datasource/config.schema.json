@@ -1,0 +1,22 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "marcusolsson-json-datasource",
+    "pluginName": "JSON API",
+    "fields": [
+        {
+            "id": "jsonData.queryParams",
+            "key": "queryParams",
+            "valueType": "string",
+            "target": "jsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.queryParams"
+            ]
+        }
+    ]
+}

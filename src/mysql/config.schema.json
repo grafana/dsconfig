@@ -1,0 +1,71 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "mysql",
+    "pluginName": "MySQL",
+    "fields": [
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxOpenConns",
+            "key": "maxOpenConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConns",
+            "key": "maxIdleConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.allowCleartextPasswords",
+            "key": "allowCleartextPasswords",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.database",
+                "jsonData.maxOpenConns",
+                "jsonData.maxIdleConns",
+                "jsonData.connMaxLifetime",
+                "jsonData.allowCleartextPasswords",
+                "jsonData.timeInterval"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

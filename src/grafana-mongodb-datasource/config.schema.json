@@ -1,0 +1,169 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-mongodb-datasource",
+    "pluginName": "MongoDB",
+    "fields": [
+        {
+            "id": "jsonData.connection",
+            "key": "connection",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "NoAuth",
+                        "BasicAuth",
+                        "custom-Kerberos"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.skipTLSValidation",
+            "key": "skipTLSValidation",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.responseRowsLimit",
+            "key": "responseRowsLimit",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.kerberosUser",
+            "key": "kerberosUser",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.ccacheLookupFile",
+            "key": "ccacheLookupFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keyTabFilePath",
+            "key": "keyTabFilePath",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.globalCcacheFilePath",
+            "key": "globalCcacheFilePath",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.validate",
+            "key": "validate",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.kerberosPassword",
+            "key": "kerberosPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCertificateKeyFilePassword",
+            "key": "tlsCertificateKeyFilePassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.connection",
+                "jsonData.authType",
+                "jsonData.user",
+                "jsonData.serverName",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.tlsSkipVerify",
+                "jsonData.skipTLSValidation",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.responseRowsLimit",
+                "jsonData.kerberosUser",
+                "jsonData.ccacheLookupFile",
+                "jsonData.keyTabFilePath",
+                "jsonData.globalCcacheFilePath",
+                "jsonData.validate"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.kerberosPassword",
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.tlsCertificateKeyFilePassword"
+            ]
+        }
+    ]
+}

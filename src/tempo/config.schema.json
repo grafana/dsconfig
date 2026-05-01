@@ -1,0 +1,288 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "tempo",
+    "pluginName": "Tempo",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root",
+            "required": true
+        },
+        {
+            "id": "root.basicAuthUser",
+            "key": "basicAuthUser",
+            "valueType": "string",
+            "target": "root"
+        },
+        {
+            "id": "jsonData.serviceMap.datasourceUid",
+            "key": "datasourceUid",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "serviceMap"
+        },
+        {
+            "id": "jsonData.search.hide",
+            "key": "hide",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "search"
+        },
+        {
+            "id": "jsonData.search.filters",
+            "key": "filters",
+            "valueType": "array",
+            "target": "jsonData",
+            "section": "search",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.nodeGraph",
+            "key": "nodeGraph",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.spanBar.tag",
+            "key": "tag",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "spanBar",
+            "required": true
+        },
+        {
+            "id": "jsonData.tagLimit",
+            "key": "tagLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.traceQuery.timeShiftEnabled",
+            "key": "timeShiftEnabled",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "traceQuery"
+        },
+        {
+            "id": "jsonData.traceQuery.spanStartTimeShift",
+            "key": "spanStartTimeShift",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "traceQuery"
+        },
+        {
+            "id": "jsonData.traceQuery.spanEndTimeShift",
+            "key": "spanEndTimeShift",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "traceQuery"
+        },
+        {
+            "id": "jsonData.streamingEnabled.search",
+            "key": "search",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "streamingEnabled"
+        },
+        {
+            "id": "jsonData.streamingEnabled.metrics",
+            "key": "metrics",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "streamingEnabled"
+        },
+        {
+            "id": "jsonData.timeRangeForTags",
+            "key": "timeRangeForTags",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tracesToMetrics",
+            "key": "tracesToMetrics",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tracesToLogs",
+            "key": "tracesToLogs",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tracesToLogsV2",
+            "key": "tracesToLogsV2",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tracesToProfiles",
+            "key": "tracesToProfiles",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.pdcInjected",
+            "key": "pdcInjected",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url",
+                "root.basicAuth",
+                "root.basicAuthUser"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.nodeGraph",
+                "jsonData.tagLimit",
+                "jsonData.timeRangeForTags",
+                "jsonData.tracesToMetrics",
+                "jsonData.tracesToLogs",
+                "jsonData.tracesToLogsV2",
+                "jsonData.tracesToProfiles",
+                "jsonData.timeout",
+                "jsonData.serverName",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.tlsSkipVerify",
+                "jsonData.keepCookies",
+                "jsonData.pdcInjected"
+            ]
+        },
+        {
+            "id": "serviceMap",
+            "title": "ServiceMap",
+            "fieldRefs": [
+                "jsonData.serviceMap.datasourceUid"
+            ]
+        },
+        {
+            "id": "search",
+            "title": "Search",
+            "fieldRefs": [
+                "jsonData.search.hide",
+                "jsonData.search.filters"
+            ]
+        },
+        {
+            "id": "spanBar",
+            "title": "SpanBar",
+            "fieldRefs": [
+                "jsonData.spanBar.tag"
+            ]
+        },
+        {
+            "id": "traceQuery",
+            "title": "TraceQuery",
+            "fieldRefs": [
+                "jsonData.traceQuery.timeShiftEnabled",
+                "jsonData.traceQuery.spanStartTimeShift",
+                "jsonData.traceQuery.spanEndTimeShift"
+            ]
+        },
+        {
+            "id": "streamingEnabled",
+            "title": "StreamingEnabled",
+            "fieldRefs": [
+                "jsonData.streamingEnabled.search",
+                "jsonData.streamingEnabled.metrics"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ]
+        }
+    ]
+}

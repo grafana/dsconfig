@@ -1,0 +1,52 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-wavefront-datasource",
+    "pluginName": "Wavefront",
+    "fields": [
+        {
+            "id": "jsonData.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.requestTimeout",
+            "key": "requestTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.token",
+            "key": "token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.url",
+                "jsonData.requestTimeout",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.token"
+            ]
+        }
+    ]
+}

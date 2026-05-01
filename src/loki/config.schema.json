@@ -1,0 +1,164 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "loki",
+    "pluginName": "Loki",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root",
+            "required": true
+        },
+        {
+            "id": "root.basicAuthUser",
+            "key": "basicAuthUser",
+            "valueType": "string",
+            "target": "root"
+        },
+        {
+            "id": "jsonData.manageAlerts",
+            "key": "manageAlerts",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxLines",
+            "key": "maxLines",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.derivedFields",
+            "key": "derivedFields",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.alertmanager",
+            "key": "alertmanager",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.pdcInjected",
+            "key": "pdcInjected",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url",
+                "root.basicAuth",
+                "root.basicAuthUser"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.manageAlerts",
+                "jsonData.maxLines",
+                "jsonData.derivedFields",
+                "jsonData.alertmanager",
+                "jsonData.timeout",
+                "jsonData.serverName",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.tlsSkipVerify",
+                "jsonData.keepCookies",
+                "jsonData.pdcInjected"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ]
+        }
+    ]
+}

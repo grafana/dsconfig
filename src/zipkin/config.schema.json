@@ -1,0 +1,23 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "zipkin",
+    "pluginName": "Zipkin",
+    "fields": [
+        {
+            "id": "jsonData.nodeGraph.enabled",
+            "key": "enabled",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "nodeGraph"
+        }
+    ],
+    "groups": [
+        {
+            "id": "nodeGraph",
+            "title": "NodeGraph",
+            "fieldRefs": [
+                "jsonData.nodeGraph.enabled"
+            ]
+        }
+    ]
+}

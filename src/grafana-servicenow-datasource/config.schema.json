@@ -1,0 +1,117 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-servicenow-datasource",
+    "pluginName": "ServiceNow",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root"
+        },
+        {
+            "id": "root.basicAuthUser",
+            "key": "basicAuthUser",
+            "valueType": "string",
+            "target": "root"
+        },
+        {
+            "id": "jsonData.authMethod",
+            "key": "authMethod",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basicAuth",
+                        "serviceNowOAuth"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthClientID",
+            "key": "oauthClientID",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthEnabled",
+            "key": "oauthEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.useSysTables",
+            "key": "useSysTables",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.queryTimeoutSeconds",
+            "key": "queryTimeoutSeconds",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.oauthClientSecret",
+            "key": "oauthClientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url",
+                "root.basicAuth",
+                "root.basicAuthUser"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authMethod",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.oauthClientID",
+                "jsonData.oauthEnabled",
+                "jsonData.useSysTables",
+                "jsonData.queryTimeoutSeconds"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.oauthClientSecret"
+            ]
+        }
+    ]
+}

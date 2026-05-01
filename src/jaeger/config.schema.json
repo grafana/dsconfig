@@ -1,0 +1,37 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "jaeger",
+    "pluginName": "Jaeger",
+    "fields": [
+        {
+            "id": "jsonData.nodeGraph.enabled",
+            "key": "enabled",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "nodeGraph"
+        },
+        {
+            "id": "jsonData.traceIdTimeParams.enabled",
+            "key": "enabled",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "section": "traceIdTimeParams"
+        }
+    ],
+    "groups": [
+        {
+            "id": "nodeGraph",
+            "title": "NodeGraph",
+            "fieldRefs": [
+                "jsonData.nodeGraph.enabled"
+            ]
+        },
+        {
+            "id": "traceIdTimeParams",
+            "title": "TraceIdTimeParams",
+            "fieldRefs": [
+                "jsonData.traceIdTimeParams.enabled"
+            ]
+        }
+    ]
+}

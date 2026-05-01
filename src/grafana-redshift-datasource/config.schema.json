@@ -1,0 +1,167 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-redshift-datasource",
+    "pluginName": "Amazon Redshift",
+    "fields": [
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultRegion",
+            "key": "defaultRegion",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.assumeRoleArn",
+            "key": "assumeRoleArn",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.externalId",
+            "key": "externalId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.profile",
+            "key": "profile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.endpoint",
+            "key": "endpoint",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.withEvent",
+            "key": "withEvent",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.useManagedSecret",
+            "key": "useManagedSecret",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.useServerless",
+            "key": "useServerless",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.workgroupName",
+            "key": "workgroupName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clusterIdentifier",
+            "key": "clusterIdentifier",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dbUser",
+            "key": "dbUser",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.managedSecret.name",
+            "key": "name",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "managedSecret",
+            "required": true
+        },
+        {
+            "id": "jsonData.managedSecret.arn",
+            "key": "arn",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "managedSecret",
+            "required": true
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessKey",
+            "key": "accessKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.secretKey",
+            "key": "secretKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authType",
+                "jsonData.defaultRegion",
+                "jsonData.assumeRoleArn",
+                "jsonData.externalId",
+                "jsonData.profile",
+                "jsonData.endpoint",
+                "jsonData.withEvent",
+                "jsonData.useManagedSecret",
+                "jsonData.useServerless",
+                "jsonData.workgroupName",
+                "jsonData.clusterIdentifier",
+                "jsonData.database",
+                "jsonData.dbUser",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "managedSecret",
+            "title": "ManagedSecret",
+            "fieldRefs": [
+                "jsonData.managedSecret.name",
+                "jsonData.managedSecret.arn"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessKey",
+                "secureJsonData.secretKey",
+                "secureJsonData.sessionToken"
+            ]
+        }
+    ]
+}

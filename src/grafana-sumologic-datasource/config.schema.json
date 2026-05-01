@@ -1,0 +1,67 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-sumologic-datasource",
+    "pluginName": "Sumo Logic",
+    "fields": [
+        {
+            "id": "jsonData.authMethod",
+            "key": "authMethod",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.apiUrl",
+            "key": "apiUrl",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.accessId",
+            "key": "accessId",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.interval",
+            "key": "interval",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessKey",
+            "key": "accessKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authMethod",
+                "jsonData.apiUrl",
+                "jsonData.accessId",
+                "jsonData.timeout",
+                "jsonData.interval"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessKey"
+            ]
+        }
+    ]
+}

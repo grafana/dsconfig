@@ -1,0 +1,87 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-x-ray-datasource",
+    "pluginName": "AWS Application Signals",
+    "fields": [
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultRegion",
+            "key": "defaultRegion",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.assumeRoleArn",
+            "key": "assumeRoleArn",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.externalId",
+            "key": "externalId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.profile",
+            "key": "profile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.endpoint",
+            "key": "endpoint",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessKey",
+            "key": "accessKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.secretKey",
+            "key": "secretKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authType",
+                "jsonData.defaultRegion",
+                "jsonData.assumeRoleArn",
+                "jsonData.externalId",
+                "jsonData.profile",
+                "jsonData.endpoint"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessKey",
+                "secureJsonData.secretKey",
+                "secureJsonData.sessionToken"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,198 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-cockroachdb-datasource",
+    "pluginName": "CockroachDB",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "root"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.sslmode",
+            "key": "sslmode",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "disable",
+                        "require",
+                        "verify-ca",
+                        "verify-full"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.tlsConfigurationMethod",
+            "key": "tlsConfigurationMethod",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "file-path",
+                        "file-content"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.sslRootCertFile",
+            "key": "sslRootCertFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sslCertFile",
+            "key": "sslCertFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sslKeyFile",
+            "key": "sslKeyFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxOpenConns",
+            "key": "maxOpenConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConns",
+            "key": "maxIdleConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConnsAuto",
+            "key": "maxIdleConnsAuto",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.queryTimeout",
+            "key": "queryTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.configFilePath",
+            "key": "configFilePath",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.credentialCache",
+            "key": "credentialCache",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.kerberosServerName",
+            "key": "kerberosServerName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.postgresVersion",
+            "key": "postgresVersion",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timescaledb",
+            "key": "timescaledb",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.database",
+                "jsonData.sslmode",
+                "jsonData.tlsConfigurationMethod",
+                "jsonData.sslRootCertFile",
+                "jsonData.sslCertFile",
+                "jsonData.sslKeyFile",
+                "jsonData.authType",
+                "jsonData.maxOpenConns",
+                "jsonData.maxIdleConns",
+                "jsonData.maxIdleConnsAuto",
+                "jsonData.connMaxLifetime",
+                "jsonData.queryTimeout",
+                "jsonData.configFilePath",
+                "jsonData.credentialCache",
+                "jsonData.kerberosServerName",
+                "jsonData.postgresVersion",
+                "jsonData.timescaledb",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

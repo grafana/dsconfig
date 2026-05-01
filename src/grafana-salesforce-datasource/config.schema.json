@@ -1,0 +1,123 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-salesforce-datasource",
+    "pluginName": "Salesforce",
+    "fields": [
+        {
+            "id": "jsonData.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "user",
+                        "jwt"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.sandbox",
+            "key": "sandbox",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tokenUrl",
+            "key": "tokenUrl",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "https://login.salesforce.com",
+                        "https://test.salesforce.com"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.securityToken",
+            "key": "securityToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.clientID",
+            "key": "clientID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.cert",
+            "key": "cert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.privateKey",
+            "key": "privateKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.user",
+                "jsonData.authType",
+                "jsonData.sandbox",
+                "jsonData.tokenUrl",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.securityToken",
+                "secureJsonData.clientID",
+                "secureJsonData.clientSecret",
+                "secureJsonData.cert",
+                "secureJsonData.privateKey"
+            ]
+        }
+    ]
+}

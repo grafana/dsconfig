@@ -1,0 +1,67 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azuredevops-datasource",
+    "pluginName": "Azure DevOps",
+    "fields": [
+        {
+            "id": "jsonData.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "object",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.projectsLimit",
+            "key": "projectsLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.patToken",
+            "key": "patToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.url",
+                "jsonData.authType",
+                "jsonData.projectsLimit",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.username"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.patToken"
+            ]
+        }
+    ]
+}

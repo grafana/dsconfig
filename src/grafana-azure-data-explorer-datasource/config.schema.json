@@ -1,0 +1,151 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azure-data-explorer-datasource",
+    "pluginName": "Azure Data Explorer Datasource",
+    "fields": [
+        {
+            "id": "jsonData.clusterUrl",
+            "key": "clusterUrl",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.defaultDatabase",
+            "key": "defaultDatabase",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.azureAuthType",
+            "key": "azureAuthType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.cloudName",
+            "key": "cloudName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tenantId",
+            "key": "tenantId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientId",
+            "key": "clientId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.minimalCache",
+            "key": "minimalCache",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultEditorMode",
+            "key": "defaultEditorMode",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.queryTimeout",
+            "key": "queryTimeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dataConsistency",
+            "key": "dataConsistency",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.cacheMaxAge",
+            "key": "cacheMaxAge",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dynamicCaching",
+            "key": "dynamicCaching",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.useSchemaMapping",
+            "key": "useSchemaMapping",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableUserTracking",
+            "key": "enableUserTracking",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.application",
+            "key": "application",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.OpenAIAPIKey",
+            "key": "OpenAIAPIKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.clusterUrl",
+                "jsonData.defaultDatabase",
+                "jsonData.azureAuthType",
+                "jsonData.cloudName",
+                "jsonData.tenantId",
+                "jsonData.clientId",
+                "jsonData.minimalCache",
+                "jsonData.defaultEditorMode",
+                "jsonData.queryTimeout",
+                "jsonData.dataConsistency",
+                "jsonData.cacheMaxAge",
+                "jsonData.dynamicCaching",
+                "jsonData.useSchemaMapping",
+                "jsonData.enableUserTracking",
+                "jsonData.application",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.clientSecret",
+                "secureJsonData.OpenAIAPIKey"
+            ]
+        }
+    ]
+}

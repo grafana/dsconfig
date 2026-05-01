@@ -327,6 +327,7 @@ func TestToPromptSchema_AuthSelectorExample(t *testing.T) {
 }
 
 func ptrF(v float64) *float64 { return &v }
+
 // ============================================================
 // ToPromptText — human-friendly output
 // ============================================================
@@ -442,7 +443,7 @@ func TestToPromptText_DependsOn(t *testing.T) {
 		Fields: []schema.ConfigField{
 			{
 				ID: "user", Key: "basicAuthUser", ValueType: schema.StringType,
-				Target: ptr(schema.RootTarget),
+				Target:    ptr(schema.RootTarget),
 				DependsOn: "auth.method == 'basic-auth'",
 			},
 		},
@@ -457,7 +458,7 @@ func TestToPromptText_RequiredWhen(t *testing.T) {
 		Fields: []schema.ConfigField{
 			{
 				ID: "user", Key: "basicAuthUser", ValueType: schema.StringType,
-				Target: ptr(schema.RootTarget),
+				Target:       ptr(schema.RootTarget),
 				RequiredWhen: "auth.method == 'basic-auth'",
 			},
 		},

@@ -1,0 +1,79 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-falconlogscale-datasource",
+    "pluginName": "Falcon LogScale",
+    "fields": [
+        {
+            "id": "jsonData.baseUrl",
+            "key": "baseUrl",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.authenticateWithToken",
+            "key": "authenticateWithToken",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.defaultRepository",
+            "key": "defaultRepository",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.incrementalQuerying",
+            "key": "incrementalQuerying",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.incrementalQueryOverlapWindow",
+            "key": "incrementalQueryOverlapWindow",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessToken",
+            "key": "accessToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.baseUrl",
+                "jsonData.oauthPassThru",
+                "jsonData.authenticateWithToken",
+                "jsonData.defaultRepository",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.incrementalQuerying",
+                "jsonData.incrementalQueryOverlapWindow"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessToken"
+            ]
+        }
+    ]
+}

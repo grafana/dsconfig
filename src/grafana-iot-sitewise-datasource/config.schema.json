@@ -1,0 +1,115 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-iot-sitewise-datasource",
+    "pluginName": "AWS IoT SiteWise",
+    "fields": [
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultRegion",
+            "key": "defaultRegion",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.assumeRoleArn",
+            "key": "assumeRoleArn",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.externalId",
+            "key": "externalId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.profile",
+            "key": "profile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.endpoint",
+            "key": "endpoint",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.edgeAuthMode",
+            "key": "edgeAuthMode",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.edgeAuthUser",
+            "key": "edgeAuthUser",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.accessKey",
+            "key": "accessKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.secretKey",
+            "key": "secretKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.edgeAuthPass",
+            "key": "edgeAuthPass",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.cert",
+            "key": "cert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authType",
+                "jsonData.defaultRegion",
+                "jsonData.assumeRoleArn",
+                "jsonData.externalId",
+                "jsonData.profile",
+                "jsonData.endpoint",
+                "jsonData.edgeAuthMode",
+                "jsonData.edgeAuthUser"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.accessKey",
+                "secureJsonData.secretKey",
+                "secureJsonData.sessionToken",
+                "secureJsonData.edgeAuthPass",
+                "secureJsonData.cert"
+            ]
+        }
+    ]
+}

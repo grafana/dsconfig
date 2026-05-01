@@ -1,0 +1,22 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-pyroscope-datasource",
+    "pluginName": "Grafana Pyroscope",
+    "fields": [
+        {
+            "id": "jsonData.minStep",
+            "key": "minStep",
+            "valueType": "string",
+            "target": "jsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.minStep"
+            ]
+        }
+    ]
+}

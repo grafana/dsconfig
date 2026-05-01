@@ -1,0 +1,165 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "mssql",
+    "pluginName": "Microsoft SQL Server",
+    "fields": [
+        {
+            "id": "jsonData.authenticationType",
+            "key": "authenticationType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "SQL Server Authentication",
+                        "Windows Authentication",
+                        "Azure AD Authentication",
+                        "Windows AD: Username + password",
+                        "Windows AD: Keytab",
+                        "Windows AD: Credential cache",
+                        "Windows AD: Credential cache file"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.encrypt",
+            "key": "encrypt",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "disable",
+                        "false",
+                        "true"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.sslRootCertFile",
+            "key": "sslRootCertFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connectionTimeout",
+            "key": "connectionTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxOpenConns",
+            "key": "maxOpenConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConns",
+            "key": "maxIdleConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.keytabFilePath",
+            "key": "keytabFilePath",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.credentialCache",
+            "key": "credentialCache",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.credentialCacheLookupFile",
+            "key": "credentialCacheLookupFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.configFilePath",
+            "key": "configFilePath",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.UDPConnectionLimit",
+            "key": "UDPConnectionLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableDNSLookupKDC",
+            "key": "enableDNSLookupKDC",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authenticationType",
+                "jsonData.encrypt",
+                "jsonData.sslRootCertFile",
+                "jsonData.serverName",
+                "jsonData.connectionTimeout",
+                "jsonData.database",
+                "jsonData.maxOpenConns",
+                "jsonData.maxIdleConns",
+                "jsonData.connMaxLifetime",
+                "jsonData.keytabFilePath",
+                "jsonData.credentialCache",
+                "jsonData.credentialCacheLookupFile",
+                "jsonData.configFilePath",
+                "jsonData.UDPConnectionLimit",
+                "jsonData.enableDNSLookupKDC",
+                "jsonData.timeInterval"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

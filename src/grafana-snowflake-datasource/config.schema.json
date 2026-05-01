@@ -1,0 +1,195 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-snowflake-datasource",
+    "pluginName": "Snowflake",
+    "fields": [
+        {
+            "id": "jsonData.account",
+            "key": "account",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "password",
+                        "keypair",
+                        "oauth",
+                        "pat"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.region",
+            "key": "region",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.role",
+            "key": "role",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.warehouse",
+            "key": "warehouse",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.schema",
+            "key": "schema",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultQuery",
+            "key": "defaultQuery",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultVariableQuery",
+            "key": "defaultVariableQuery",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultInterpolation",
+            "key": "defaultInterpolation",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.loginTimeout",
+            "key": "loginTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.requestTimeout",
+            "key": "requestTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.rowLimit",
+            "key": "rowLimit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.settings",
+            "key": "settings",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.privateKey",
+            "key": "privateKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.privateKeyPassphrase",
+            "key": "privateKeyPassphrase",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.patToken",
+            "key": "patToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.account",
+                "jsonData.username",
+                "jsonData.authType",
+                "jsonData.region",
+                "jsonData.role",
+                "jsonData.warehouse",
+                "jsonData.database",
+                "jsonData.schema",
+                "jsonData.defaultQuery",
+                "jsonData.defaultVariableQuery",
+                "jsonData.defaultInterpolation",
+                "jsonData.timeInterval",
+                "jsonData.loginTimeout",
+                "jsonData.requestTimeout",
+                "jsonData.oauthPassThru",
+                "jsonData.rowLimit",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.settings"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.privateKey",
+                "secureJsonData.privateKeyPassphrase",
+                "secureJsonData.patToken"
+            ]
+        }
+    ]
+}

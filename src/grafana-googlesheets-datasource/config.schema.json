@@ -1,0 +1,143 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-googlesheets-datasource",
+    "pluginName": "Google Sheets",
+    "fields": [
+        {
+            "id": "jsonData.authenticationType",
+            "key": "authenticationType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "jwt",
+                        "key",
+                        "gce",
+                        "workloadIdentityFederation"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "jwt",
+                        "key",
+                        "gce",
+                        "workloadIdentityFederation"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.defaultProject",
+            "key": "defaultProject",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientEmail",
+            "key": "clientEmail",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tokenUri",
+            "key": "tokenUri",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.privateKeyPath",
+            "key": "privateKeyPath",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.serviceAccountToImpersonate",
+            "key": "serviceAccountToImpersonate",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.usingImpersonation",
+            "key": "usingImpersonation",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.workloadIdentityPoolProvider",
+            "key": "workloadIdentityPoolProvider",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.wifServiceAccountEmail",
+            "key": "wifServiceAccountEmail",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultSheetID",
+            "key": "defaultSheetID",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.privateKey",
+            "key": "privateKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.apiKey",
+            "key": "apiKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.jwt",
+            "key": "jwt",
+            "valueType": "string",
+            "target": "secureJsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authenticationType",
+                "jsonData.authType",
+                "jsonData.defaultProject",
+                "jsonData.clientEmail",
+                "jsonData.tokenUri",
+                "jsonData.privateKeyPath",
+                "jsonData.serviceAccountToImpersonate",
+                "jsonData.usingImpersonation",
+                "jsonData.workloadIdentityPoolProvider",
+                "jsonData.wifServiceAccountEmail",
+                "jsonData.defaultSheetID"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.privateKey",
+                "secureJsonData.apiKey",
+                "secureJsonData.jwt"
+            ]
+        }
+    ]
+}

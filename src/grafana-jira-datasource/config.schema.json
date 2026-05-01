@@ -1,0 +1,104 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-jira-datasource",
+    "pluginName": "Jira",
+    "fields": [
+        {
+            "id": "jsonData.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.hosting",
+            "key": "hosting",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.scopedToken",
+            "key": "scopedToken",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.cloudId",
+            "key": "cloudId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.authMethod",
+            "key": "authMethod",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basicAuth",
+                        "oauth2"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.oauthClientID",
+            "key": "oauthClientID",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.token",
+            "key": "token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.oauthClientSecret",
+            "key": "oauthClientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.url",
+                "jsonData.user",
+                "jsonData.hosting",
+                "jsonData.scopedToken",
+                "jsonData.cloudId",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.authMethod",
+                "jsonData.oauthClientID"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.token",
+                "secureJsonData.oauthClientSecret"
+            ]
+        }
+    ]
+}

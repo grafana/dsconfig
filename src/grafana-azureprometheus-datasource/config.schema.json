@@ -1,0 +1,85 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azureprometheus-datasource",
+    "pluginName": "Azure Monitor Managed Service for Prometheus",
+    "fields": [
+        {
+            "id": "jsonData.azureAuthType",
+            "key": "azureAuthType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.cloudName",
+            "key": "cloudName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tenantId",
+            "key": "tenantId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientId",
+            "key": "clientId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.azureEndpointResourceId",
+            "key": "azureEndpointResourceId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.httpMethod",
+            "key": "httpMethod",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.customQueryParameters",
+            "key": "customQueryParameters",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.azureAuthType",
+                "jsonData.cloudName",
+                "jsonData.tenantId",
+                "jsonData.clientId",
+                "jsonData.azureEndpointResourceId",
+                "jsonData.timeInterval",
+                "jsonData.httpMethod",
+                "jsonData.customQueryParameters"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.clientSecret"
+            ]
+        }
+    ]
+}

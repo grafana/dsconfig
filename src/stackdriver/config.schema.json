@@ -1,0 +1,78 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "stackdriver",
+    "pluginName": "Google Cloud Monitoring",
+    "fields": [
+        {
+            "id": "jsonData.authenticationType",
+            "key": "authenticationType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultProject",
+            "key": "defaultProject",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.gceDefaultProject",
+            "key": "gceDefaultProject",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientEmail",
+            "key": "clientEmail",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tokenUri",
+            "key": "tokenUri",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.universeDomain",
+            "key": "universeDomain",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.privateKey",
+            "key": "privateKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.authenticationType",
+                "jsonData.defaultProject",
+                "jsonData.gceDefaultProject",
+                "jsonData.clientEmail",
+                "jsonData.tokenUri",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.universeDomain"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.privateKey"
+            ]
+        }
+    ]
+}

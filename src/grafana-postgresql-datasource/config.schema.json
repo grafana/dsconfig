@@ -1,0 +1,228 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-postgresql-datasource",
+    "pluginName": "PostgreSQL",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "root",
+            "required": true
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.sslmode",
+            "key": "sslmode",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsConfigurationMethod",
+            "key": "tlsConfigurationMethod",
+            "valueType": "object",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sslRootCertFile",
+            "key": "sslRootCertFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sslCertFile",
+            "key": "sslCertFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sslKeyFile",
+            "key": "sslKeyFile",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.postgresVersion",
+            "key": "postgresVersion",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timescaledb",
+            "key": "timescaledb",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxOpenConns",
+            "key": "maxOpenConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConns",
+            "key": "maxIdleConns",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConnsAuto",
+            "key": "maxIdleConnsAuto",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connectionTimeout",
+            "key": "connectionTimeout",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.timezone",
+            "key": "timezone",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.servername",
+            "key": "servername",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.encrypt",
+            "key": "encrypt",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.authenticationType",
+            "key": "authenticationType",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.allowCleartextPasswords",
+            "key": "allowCleartextPasswords",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.secureSocksProxyUsername",
+            "key": "secureSocksProxyUsername",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.database",
+                "jsonData.sslmode",
+                "jsonData.tlsConfigurationMethod",
+                "jsonData.sslRootCertFile",
+                "jsonData.sslCertFile",
+                "jsonData.sslKeyFile",
+                "jsonData.tlsSkipVerify",
+                "jsonData.postgresVersion",
+                "jsonData.timescaledb",
+                "jsonData.timeInterval",
+                "jsonData.maxOpenConns",
+                "jsonData.maxIdleConns",
+                "jsonData.maxIdleConnsAuto",
+                "jsonData.connMaxLifetime",
+                "jsonData.connectionTimeout",
+                "jsonData.timezone",
+                "jsonData.servername",
+                "jsonData.encrypt",
+                "jsonData.authenticationType",
+                "jsonData.allowCleartextPasswords",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.secureSocksProxyUsername"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ]
+        }
+    ]
+}

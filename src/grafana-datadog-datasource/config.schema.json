@@ -1,0 +1,105 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-datadog-datasource",
+    "pluginName": "Datadog",
+    "fields": [
+        {
+            "id": "jsonData.pluginMode",
+            "key": "pluginMode",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "hosted-metrics"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.logApiRateLimits",
+            "key": "logApiRateLimits",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.disableDataLinks",
+            "key": "disableDataLinks",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.rateLimitEnabled",
+            "key": "rateLimitEnabled",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.rateLimitMetrics",
+            "key": "rateLimitMetrics",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.size",
+            "key": "size",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.apiKey",
+            "key": "apiKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.appKey",
+            "key": "appKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.pluginMode",
+                "jsonData.url",
+                "jsonData.logApiRateLimits",
+                "jsonData.disableDataLinks",
+                "jsonData.rateLimitEnabled",
+                "jsonData.rateLimitMetrics",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.size"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.apiKey",
+                "secureJsonData.appKey"
+            ]
+        }
+    ]
+}

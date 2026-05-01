@@ -1,0 +1,52 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-strava-datasource",
+    "pluginName": "Strava",
+    "fields": [
+        {
+            "id": "jsonData.clientID",
+            "key": "clientID",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.cacheTTL",
+            "key": "cacheTTL",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.clientID",
+                "jsonData.cacheTTL",
+                "jsonData.oauthPassThru"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.clientSecret"
+            ]
+        }
+    ]
+}

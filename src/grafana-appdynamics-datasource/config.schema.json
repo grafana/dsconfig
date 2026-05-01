@@ -1,0 +1,109 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-appdynamics-datasource",
+    "pluginName": "grafana-appdynamics-datasource",
+    "fields": [
+        {
+            "id": "root.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "root",
+            "required": true,
+            "semanticType": "url"
+        },
+        {
+            "id": "root.basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root"
+        },
+        {
+            "id": "root.basicAuthUser",
+            "key": "basicAuthUser",
+            "valueType": "string",
+            "target": "root"
+        },
+        {
+            "id": "jsonData.clientName",
+            "key": "clientName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientDomain",
+            "key": "clientDomain",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.analyticsURL",
+            "key": "analyticsURL",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.globalAccountName",
+            "key": "globalAccountName",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.analyticsAPIKey",
+            "key": "analyticsAPIKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "fieldRefs": [
+                "root.url",
+                "root.basicAuth",
+                "root.basicAuthUser"
+            ]
+        },
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.clientName",
+                "jsonData.clientDomain",
+                "jsonData.analyticsURL",
+                "jsonData.globalAccountName",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.basicAuthPassword",
+                "secureJsonData.clientSecret",
+                "secureJsonData.analyticsAPIKey"
+            ]
+        }
+    ]
+}

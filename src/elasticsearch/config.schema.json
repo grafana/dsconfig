@@ -1,0 +1,136 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "elasticsearch",
+    "pluginName": "Elasticsearch",
+    "fields": [
+        {
+            "id": "jsonData.timeField",
+            "key": "timeField",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.interval",
+            "key": "interval",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Hourly",
+                        "Daily",
+                        "Weekly",
+                        "Monthly",
+                        "Yearly"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.timeInterval",
+            "key": "timeInterval",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxConcurrentShardRequests",
+            "key": "maxConcurrentShardRequests",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logMessageField",
+            "key": "logMessageField",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.logLevelField",
+            "key": "logLevelField",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dataLinks",
+            "key": "dataLinks",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.includeFrozen",
+            "key": "includeFrozen",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.index",
+            "key": "index",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.sigV4Auth",
+            "key": "sigV4Auth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultQueryMode",
+            "key": "defaultQueryMode",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.apiKeyAuth",
+            "key": "apiKeyAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.apiKey",
+            "key": "apiKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.timeField",
+                "jsonData.interval",
+                "jsonData.timeInterval",
+                "jsonData.maxConcurrentShardRequests",
+                "jsonData.logMessageField",
+                "jsonData.logLevelField",
+                "jsonData.dataLinks",
+                "jsonData.includeFrozen",
+                "jsonData.index",
+                "jsonData.sigV4Auth",
+                "jsonData.oauthPassThru",
+                "jsonData.defaultQueryMode",
+                "jsonData.apiKeyAuth"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.apiKey"
+            ]
+        }
+    ]
+}

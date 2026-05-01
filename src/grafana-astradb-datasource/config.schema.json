@@ -1,0 +1,91 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-astradb-datasource",
+    "pluginName": "AstraDB",
+    "fields": [
+        {
+            "id": "jsonData.uri",
+            "key": "uri",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authKind",
+            "key": "authKind",
+            "valueType": "number",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.user",
+            "key": "user",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.grpcEndpoint",
+            "key": "grpcEndpoint",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authEndpoint",
+            "key": "authEndpoint",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.secure",
+            "key": "secure",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.token",
+            "key": "token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.uri",
+                "jsonData.authKind",
+                "jsonData.user",
+                "jsonData.grpcEndpoint",
+                "jsonData.authEndpoint",
+                "jsonData.secure",
+                "jsonData.database"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.token",
+                "secureJsonData.password"
+            ]
+        }
+    ]
+}

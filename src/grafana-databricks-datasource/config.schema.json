@@ -1,0 +1,180 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-databricks-datasource",
+    "pluginName": "Databricks",
+    "fields": [
+        {
+            "id": "jsonData.host",
+            "key": "host",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.httpPath",
+            "key": "httpPath",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "",
+                        "Pat",
+                        "OauthM2M",
+                        "OauthPT",
+                        "OauthOBO",
+                        "AzureM2M"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.retries",
+            "key": "retries",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.pause",
+            "key": "pause",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.rows",
+            "key": "rows",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.retryTimeout",
+            "key": "retryTimeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.debug",
+            "key": "debug",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultQueryFormat",
+            "key": "defaultQueryFormat",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableUnitySupport",
+            "key": "enableUnitySupport",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.database",
+            "key": "database",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tenantId",
+            "key": "tenantId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.clientId",
+            "key": "clientId",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.azureCloud",
+            "key": "azureCloud",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.token",
+            "key": "token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.clientSecret",
+            "key": "clientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        },
+        {
+            "id": "secureJsonData.azureClientSecret",
+            "key": "azureClientSecret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.host",
+                "jsonData.httpPath",
+                "jsonData.authType",
+                "jsonData.timeout",
+                "jsonData.retries",
+                "jsonData.pause",
+                "jsonData.rows",
+                "jsonData.retryTimeout",
+                "jsonData.debug",
+                "jsonData.defaultQueryFormat",
+                "jsonData.enableUnitySupport",
+                "jsonData.database",
+                "jsonData.oauthPassThru",
+                "jsonData.tenantId",
+                "jsonData.clientId",
+                "jsonData.azureCloud",
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.token",
+                "secureJsonData.clientSecret",
+                "secureJsonData.azureClientSecret"
+            ]
+        }
+    ]
+}

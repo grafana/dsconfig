@@ -1,0 +1,39 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "opentsdb",
+    "pluginName": "OpenTSDB",
+    "fields": [
+        {
+            "id": "jsonData.tsdbVersion",
+            "key": "tsdbVersion",
+            "valueType": "number",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.tsdbResolution",
+            "key": "tsdbResolution",
+            "valueType": "number",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.lookupLimit",
+            "key": "lookupLimit",
+            "valueType": "number",
+            "target": "jsonData",
+            "required": true
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.tsdbVersion",
+                "jsonData.tsdbResolution",
+                "jsonData.lookupLimit"
+            ]
+        }
+    ]
+}

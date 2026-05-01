@@ -1,0 +1,211 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-clickhouse-datasource",
+    "pluginName": "ClickHouse",
+    "fields": [
+        {
+            "id": "jsonData.host",
+            "key": "host",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.port",
+            "key": "port",
+            "valueType": "number",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.protocol",
+            "key": "protocol",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "native",
+                        "http"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData.username",
+            "key": "username",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true
+        },
+        {
+            "id": "jsonData.version",
+            "key": "version",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.secure",
+            "key": "secure",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.path",
+            "key": "path",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultDatabase",
+            "key": "defaultDatabase",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.defaultTable",
+            "key": "defaultTable",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.dialTimeout",
+            "key": "dialTimeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxIdleConns",
+            "key": "maxIdleConns",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.maxOpenConns",
+            "key": "maxOpenConns",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.queryTimeout",
+            "key": "queryTimeout",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.validateSql",
+            "key": "validateSql",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.forwardGrafanaHeaders",
+            "key": "forwardGrafanaHeaders",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData.enableRowLimit",
+            "key": "enableRowLimit",
+            "valueType": "boolean",
+            "target": "jsonData"
+        },
+        {
+            "id": "secureJsonData.password",
+            "key": "password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "password"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "valueType": "string",
+            "target": "secureJsonData"
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "semanticType": "token"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.host",
+                "jsonData.port",
+                "jsonData.protocol",
+                "jsonData.username",
+                "jsonData.version",
+                "jsonData.secure",
+                "jsonData.path",
+                "jsonData.tlsSkipVerify",
+                "jsonData.tlsAuth",
+                "jsonData.tlsAuthWithCACert",
+                "jsonData.defaultDatabase",
+                "jsonData.defaultTable",
+                "jsonData.connMaxLifetime",
+                "jsonData.dialTimeout",
+                "jsonData.maxIdleConns",
+                "jsonData.maxOpenConns",
+                "jsonData.queryTimeout",
+                "jsonData.validateSql",
+                "jsonData.forwardGrafanaHeaders",
+                "jsonData.enableSecureSocksProxy",
+                "jsonData.enableRowLimit"
+            ]
+        },
+        {
+            "id": "secrets",
+            "title": "Secrets",
+            "fieldRefs": [
+                "secureJsonData.password",
+                "secureJsonData.tlsCACert",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey"
+            ]
+        }
+    ]
+}

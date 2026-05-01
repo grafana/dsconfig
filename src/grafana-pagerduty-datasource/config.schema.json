@@ -1,0 +1,63 @@
+{
+    "schemaVersion": "v1",
+    "pluginType": "grafana-pagerduty-datasource",
+    "pluginName": "PagerDuty",
+    "fields": [
+        {
+            "id": "jsonData.servers.url",
+            "key": "url",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "servers",
+            "required": true
+        },
+        {
+            "id": "jsonData.servers.variables",
+            "key": "variables",
+            "valueType": "map",
+            "target": "jsonData",
+            "section": "servers",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.auth.id",
+            "key": "id",
+            "valueType": "string",
+            "target": "jsonData",
+            "section": "auth",
+            "required": true
+        },
+        {
+            "id": "jsonData.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "valueType": "boolean",
+            "target": "jsonData"
+        }
+    ],
+    "groups": [
+        {
+            "id": "settings",
+            "title": "Settings",
+            "fieldRefs": [
+                "jsonData.enableSecureSocksProxy"
+            ]
+        },
+        {
+            "id": "servers",
+            "title": "Servers",
+            "fieldRefs": [
+                "jsonData.servers.url",
+                "jsonData.servers.variables"
+            ]
+        },
+        {
+            "id": "auth",
+            "title": "Auth",
+            "fieldRefs": [
+                "jsonData.auth.id"
+            ]
+        }
+    ]
+}
