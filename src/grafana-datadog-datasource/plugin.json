@@ -1,0 +1,74 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.11",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_datadog",
+  "id": "grafana-datadog-datasource",
+  "includes": [
+    {
+      "path": "dashboards/datadog-disk-io.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Docker",
+      "path": "dashboards/datadog-docker.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "System metrics",
+      "path": "dashboards/datadog-system-metrics.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Monitors explorer",
+      "path": "dashboards/datadog-monitors-explorer.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Datadog datasource plugin for Grafana. Grafana Data dog datasource plugin",
+    "keywords": [
+      "datadog",
+      "data dog"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-datadog-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/datadog_logo.png",
+      "small": "img/datadog_logo.png"
+    },
+    "updated": "2026-04-17",
+    "version": "3.17.1"
+  },
+  "logs": true,
+  "metrics": true,
+  "name": "Datadog",
+  "type": "datasource"
+}

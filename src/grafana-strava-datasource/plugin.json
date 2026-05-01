@@ -1,0 +1,77 @@
+{
+  "alerting": false,
+  "annotations": false,
+  "backend": true,
+  "dependencies": {
+    "grafanaDependency": ">=10.3.0",
+    "grafanaVersion": "10.3.0",
+    "plugins": []
+  },
+  "executable": "gpx_strava",
+  "iam": {
+    "permissions": [
+      {
+        "action": "datasources:write",
+        "scope": "datasources:uid:*"
+      },
+      {
+        "action": "datasources:read",
+        "scope": "datasources:uid:*"
+      }
+    ]
+  },
+  "id": "grafana-strava-datasource",
+  "includes": [
+    {
+      "name": "Strava Athlete Dashboard",
+      "path": "dashboards/strava_athlete_dashboard.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Strava Datasource",
+      "path": "dashboards/strava_datasource.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Strava Activity Analysis",
+      "path": "dashboards/strava_activity_analysis.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Strava Activity Overview",
+      "path": "dashboards/strava_activity_overview.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Strava Segment Overview",
+      "path": "dashboards/strava_segment_overview.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Strava datasource",
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://grafana.com/plugins/grafana-strava-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/plugins/grafana-strava-datasource/license"
+      }
+    ],
+    "logos": {
+      "large": "img/strava_logo.svg",
+      "small": "img/strava_logo.svg"
+    },
+    "updated": "2025-03-18",
+    "version": "1.7.2"
+  },
+  "metrics": true,
+  "name": "Strava",
+  "type": "datasource"
+}

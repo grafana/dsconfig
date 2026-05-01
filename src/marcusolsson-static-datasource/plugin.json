@@ -1,0 +1,50 @@
+{
+  "$schema": "https://github.com/grafana/grafana/raw/main/docs/sources/developers/plugins/plugin.schema.json",
+  "annotations": true,
+  "dependencies": {
+    "grafanaDependency": ">=11.6.0",
+    "plugins": []
+  },
+  "id": "marcusolsson-static-datasource",
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Simulates and manages data with JavaScript and LLM, offering flexible control",
+    "keywords": [
+      "input",
+      "test",
+      "development",
+      "mock",
+      "javascript"
+    ],
+    "links": [
+      {
+        "name": "Documentation",
+        "url": "https://grafana.com/docs/plugins/marcusolsson-static-datasource/"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com/grafana/business-input"
+      }
+    ],
+    "logos": {
+      "large": "img/logo.svg",
+      "small": "img/logo.svg"
+    },
+    "screenshots": [
+      {
+        "name": "Pie Chart",
+        "path": "img/dark.png"
+      }
+    ],
+    "updated": "2026-04-27",
+    "version": "6.1.1"
+  },
+  "logs": true,
+  "metrics": true,
+  "name": "Business Input",
+  "type": "datasource",
+  "buildMode": "production"
+}

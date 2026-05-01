@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.7",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_jira",
+  "id": "grafana-jira-datasource",
+  "includes": [
+    {
+      "path": "dashboards/JiraDemo.json",
+      "type": "dashboard"
+    },
+    {
+      "path": "dashboards/JiraJsonFields.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "Jira datasource plugin for Grafana",
+    "keywords": [
+      "datasource",
+      "jira"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-jira-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/jira_logo.png",
+      "small": "img/jira_logo.png"
+    },
+    "screenshots": [],
+    "updated": "2026-04-16",
+    "version": "2.6.1"
+  },
+  "metrics": true,
+  "name": "Jira",
+  "type": "datasource"
+}

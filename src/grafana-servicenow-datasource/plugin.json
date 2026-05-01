@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "alerting": true,
+  "annotations": true,
+  "backend": true,
+  "category": "enterprise",
+  "dependencies": {
+    "grafanaDependency": ">=11.6.11 <12 || >=12.0.10 <12.1 || >=12.1.7 <12.2 || >=12.2.5",
+    "grafanaVersion": "11.x.x",
+    "plugins": []
+  },
+  "executable": "gpx_snow",
+  "id": "grafana-servicenow-datasource",
+  "includes": [
+    {
+      "name": "Incident Overview",
+      "path": "dashboards/servicenow-incident-overview.json",
+      "type": "dashboard"
+    },
+    {
+      "name": "Change Overview",
+      "path": "dashboards/servicenow-change-overview.json",
+      "type": "dashboard"
+    }
+  ],
+  "info": {
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "description": "ServiceNow datasource plugin for Grafana",
+    "keywords": [
+      "servicenow",
+      "service now"
+    ],
+    "links": [
+      {
+        "name": "Docs",
+        "url": "https://grafana.com/docs/plugins/grafana-servicenow-datasource"
+      },
+      {
+        "name": "License",
+        "url": "https://grafana.com/legal/enterprise-plugins"
+      },
+      {
+        "name": "Repository",
+        "url": "https://github.com/grafana/grafana"
+      },
+      {
+        "name": "Raise issue",
+        "url": "https://grafana.com/profile/org#support"
+      }
+    ],
+    "logos": {
+      "large": "img/servicenow-header-logo.svg",
+      "small": "img/ServiceNow.svg"
+    },
+    "screenshots": [],
+    "updated": "2026-04-17",
+    "version": "2.14.3"
+  },
+  "metrics": true,
+  "name": "ServiceNow",
+  "type": "datasource"
+}
