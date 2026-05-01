@@ -181,8 +181,8 @@ func (f *ConfigField) Validate() error {
 		return fmt.Errorf("field %s: section is not allowed on virtual fields", f.ID)
 	}
 
-	if f.ValueType == ArrayType && f.Item == nil {
-		return fmt.Errorf("field %s: item is required for array fields", f.ID)
+	if (f.ValueType == ArrayType || f.ValueType == MapType) && f.Item == nil {
+		return fmt.Errorf("field %s: item is required for array and map fields", f.ID)
 	}
 
 	if f.Storage != nil {
@@ -304,7 +304,9 @@ func (f ConfigField) Path() string {
 // Array Item Schema
 // ============================================================
 
-// FieldItemSchema defines schema for array elements.
+// FieldItemSchema defines schema for array/map elements.
+// For arrays, it describes each element.
+// For maps, it describes each value (keys are always strings).
 type FieldItemSchema struct {
 	ValueType ValueType     `json:"valueType"`
 	Fields    []ConfigField `json:"fields,omitempty"`
@@ -322,11 +324,13 @@ const (
 	BooleanType ValueType = "boolean"
 	ArrayType   ValueType = "array"
 	ObjectType  ValueType = "object"
+	MapType     ValueType = "map"
+	AnyType     ValueType = "any"
 )
 
 func (v ValueType) IsValid() bool {
 	switch v {
-	case StringType, NumberType, BooleanType, ArrayType, ObjectType:
+	case StringType, NumberType, BooleanType, ArrayType, ObjectType, MapType, AnyType:
 		return true
 	default:
 		return false
@@ -672,7 +676,7 @@ func ValidateOptionValue(v any, vt ValueType) bool {
 		_, ok := v.(bool)
 		return ok
 	default:
-		// array/object options are not type-checked
+		// array/object/map/any options are not type-checked
 		return true
 	}
 }

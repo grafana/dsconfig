@@ -235,12 +235,12 @@ export function validateField(field: ConfigField, path = "field"): ValidationErr
         })
     }
 
-    // Array requires item
-    if (field.valueType === "array" && !field.item) {
+    // Array and map require item
+    if ((field.valueType === "array" || field.valueType === "map") && !field.item) {
         errors.push({
             path: `${path}.item`,
             code: "required",
-            message: "item is required for array fields",
+            message: "item is required for array and map fields",
         })
     }
 

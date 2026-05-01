@@ -27,7 +27,7 @@ import type {
 // Enum Guards
 // ============================================================
 
-const VALUE_TYPES: ReadonlySet<string> = new Set(["string", "number", "boolean", "array", "object"])
+const VALUE_TYPES: ReadonlySet<string> = new Set(["string", "number", "boolean", "array", "object", "map", "any"])
 
 /** Checks if a value is a valid ValueType */
 export function isValueType(value: unknown): value is ValueType {

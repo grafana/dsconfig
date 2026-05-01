@@ -215,11 +215,11 @@ func TestFieldValidate_InvalidValueType(t *testing.T) {
 func TestFieldValidate_AllValueTypes(t *testing.T) {
 	for _, vt := range []schema.ValueType{
 		schema.StringType, schema.NumberType, schema.BooleanType,
-		schema.ArrayType, schema.ObjectType,
+		schema.ArrayType, schema.ObjectType, schema.MapType, schema.AnyType,
 	} {
 		f := validStorageField("x", "x")
 		f.ValueType = vt
-		if vt == schema.ArrayType {
+		if vt == schema.ArrayType || vt == schema.MapType {
 			f.Item = &schema.FieldItemSchema{ValueType: schema.StringType}
 		}
 		assert.NoError(t, f.Validate(), "valueType %s should be valid", vt)
@@ -336,7 +336,59 @@ func TestFieldValidate_ArrayRequiresItem(t *testing.T) {
 	f := schema.ConfigField{
 		ID: "x", Key: "x", ValueType: schema.ArrayType, Target: ptr(schema.JSONDataTarget),
 	}
-	assert.ErrorContains(t, f.Validate(), "item is required for array fields")
+	assert.ErrorContains(t, f.Validate(), "item is required for array and map fields")
+}
+
+// TestFieldValidate_MapRequiresItem ensures that a map field
+// without an item schema is rejected.
+func TestFieldValidate_MapRequiresItem(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.MapType, Target: ptr(schema.JSONDataTarget),
+	}
+	assert.ErrorContains(t, f.Validate(), "item is required for array and map fields")
+}
+
+// TestFieldValidate_MapWithStringItem confirms that a map field
+// with a string item schema passes (Record<string, string>).
+func TestFieldValidate_MapWithStringItem(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.MapType, Target: ptr(schema.JSONDataTarget),
+		Item: &schema.FieldItemSchema{ValueType: schema.StringType},
+	}
+	require.NoError(t, f.Validate())
+}
+
+// TestFieldValidate_MapWithObjectItem confirms that a map field
+// with an object item schema passes (Record<string, SomeObj>).
+func TestFieldValidate_MapWithObjectItem(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "routes", Key: "routes", ValueType: schema.MapType, Target: ptr(schema.JSONDataTarget),
+		Item: &schema.FieldItemSchema{
+			ValueType: schema.ObjectType,
+			Fields: []schema.ConfigField{
+				{ID: "routes.item.url", Key: "url", ValueType: schema.StringType, IsItemField: ptr(true)},
+			},
+		},
+	}
+	require.NoError(t, f.Validate())
+}
+
+// TestFieldValidate_AnyFieldValid confirms that an any-typed field
+// passes validation without item.
+func TestFieldValidate_AnyFieldValid(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.AnyType, Target: ptr(schema.JSONDataTarget),
+	}
+	require.NoError(t, f.Validate())
+}
+
+// TestFieldValidate_AnyItemFieldValid confirms that any-typed item
+// fields pass validation.
+func TestFieldValidate_AnyItemFieldValid(t *testing.T) {
+	f := schema.ConfigField{
+		ID: "x", Key: "x", ValueType: schema.AnyType, IsItemField: ptr(true),
+	}
+	require.NoError(t, f.Validate())
 }
 
 // TestFieldValidate_ArrayWithItem confirms that an array field
@@ -533,7 +585,7 @@ func TestFieldPath_SecureTarget(t *testing.T) {
 func TestValueType_Valid(t *testing.T) {
 	for _, v := range []schema.ValueType{
 		schema.StringType, schema.NumberType, schema.BooleanType,
-		schema.ArrayType, schema.ObjectType,
+		schema.ArrayType, schema.ObjectType, schema.MapType, schema.AnyType,
 	} {
 		assert.True(t, v.IsValid(), "%s should be valid", v)
 	}
@@ -543,8 +595,8 @@ func TestValueType_Valid(t *testing.T) {
 // type names are rejected.
 func TestValueType_Invalid(t *testing.T) {
 	assert.False(t, schema.ValueType("").IsValid())
-	assert.False(t, schema.ValueType("map").IsValid())
 	assert.False(t, schema.ValueType("int").IsValid())
+	assert.False(t, schema.ValueType("union").IsValid())
 }
 
 // ============================================================

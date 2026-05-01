@@ -94,6 +94,57 @@ Tools, docs generators, provisioning, and LLM integrations should use `validatio
 | `allowedValues` | `values`           | Enumerated allowed values             |
 | `custom`        | `expression`       | CEL expression (evaluated at runtime) |
 
+## Map fields
+
+When `valueType` is `"map"`, the field represents a `Record<string, T>` — an object with dynamic string keys. Like arrays, maps require an `item` property that describes the value type:
+
+```json
+{
+  "id": "jsonData.labels",
+  "key": "labels",
+  "valueType": "map",
+  "target": "jsonData",
+  "item": { "valueType": "string" }
+}
+```
+
+For maps with structured values (`Record<string, SomeObject>`):
+
+```json
+{
+  "id": "jsonData.customizedRoutes",
+  "key": "customizedRoutes",
+  "valueType": "map",
+  "target": "jsonData",
+  "item": {
+    "valueType": "object",
+    "fields": [
+      { "id": "customizedRoutes.item.URL", "key": "URL", "valueType": "string", "isItemField": true },
+      { "id": "customizedRoutes.item.Scopes", "key": "Scopes", "valueType": "array", "isItemField": true,
+        "item": { "valueType": "string" } }
+    ]
+  }
+}
+```
+
+Map keys are always strings (JSON constraint). The `item` schema describes the **values**.
+
+## Any fields
+
+When `valueType` is `"any"`, the field accepts multiple runtime types (e.g. `string | string[]`). Use sparingly — only for genuinely polymorphic fields where a single type cannot describe the data:
+
+```json
+{
+  "id": "search.filters.item.value",
+  "key": "value",
+  "valueType": "any",
+  "isItemField": true,
+  "description": "Filter value. May be a single string or array of strings."
+}
+```
+
+Fields with `valueType: "any"` do not require an `item` property and skip type-level validation. Consumers should document the expected shapes in the `description`.
+
 ## Array item fields
 
 When `valueType` is `"array"`, the field must have an `item` property:
@@ -137,6 +188,53 @@ Virtual fields:
 - Do not require `target`
 - May have a `computed` storage mapping with `read`/`write` expressions
 - Are useful for UI state that doesn't map 1:1 to storage
+
+## Modeling patterns
+
+### Recursive types
+
+TypeScript types that reference themselves (e.g. `AzureCredentials.serviceCredentials?: AzureCredentials`) should be **flattened** using `section` with dotted paths. In practice, recursion is always bounded to a known depth:
+
+```json
+[
+  { "id": "auth.credentials.authType", "key": "authType", "target": "jsonData", "section": "azureCredentials", "valueType": "string" },
+  { "id": "auth.credentials.tenantId", "key": "tenantId", "target": "jsonData", "section": "azureCredentials", "valueType": "string" },
+  { "id": "auth.svcCreds.authType",    "key": "authType", "target": "jsonData", "section": "azureCredentials.serviceCredentials", "valueType": "string" },
+  { "id": "auth.svcCreds.tenantId",    "key": "tenantId", "target": "jsonData", "section": "azureCredentials.serviceCredentials", "valueType": "string" }
+]
+```
+
+### Per-item secure fields
+
+Some datasources have arrays where individual items may be secrets (e.g. Snowflake settings with a `secure: boolean` flag). Model the `secure` flag as a regular boolean item field and use a `computed` storage mapping to express the split:
+
+```json
+{
+  "id": "jsonData.settings", "key": "settings",
+  "valueType": "array", "target": "jsonData",
+  "item": {
+    "valueType": "object",
+    "fields": [
+      { "id": "settings.item.name",   "key": "name",   "valueType": "string",  "isItemField": true },
+      { "id": "settings.item.value",  "key": "value",  "valueType": "string",  "isItemField": true },
+      { "id": "settings.item.secure", "key": "secure", "valueType": "boolean", "isItemField": true }
+    ]
+  },
+  "storage": {
+    "type": "computed",
+    "write": "splitByField(settings, 'secure', jsonData.settings, secureJsonData.settings)"
+  }
+}
+```
+
+### Shared field sets
+
+Many datasources (~30+) share TLS, basic auth, timeout, and cookie-forwarding fields. Rather than schema-level `$ref` or includes, use **code-level helpers** that inject common field sets during schema construction:
+
+- **Go:** `schema.BasicAuthFields()`, `schema.TLSFields()`, `schema.CommonNetworkFields()`, `schema.HTTPHeaderFields()`
+- **TypeScript:** `basicAuthFields()`, `tlsFields()`, `commonNetworkFields()`, `httpHeaderFields()` from `schema/common.ts`
+
+Generated JSON files remain self-contained — no resolution step needed for consumers.
 
 ## Groups and relationships
 
@@ -201,3 +299,4 @@ See [`examples/`](./examples/) for copy-pasteable schema examples:
 - `indexed-headers.schema.json` — HTTP headers with indexedPair mapping
 - `virtual-auth.schema.json` — Basic auth with virtual computed field
 - `array-of-objects.schema.json` — Array of trace-to-metrics queries
+- `map-and-any.schema.json` — Map type (Record) and any type (union) fields

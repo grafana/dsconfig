@@ -65,6 +65,11 @@ func TestExampleFiles_GoValidation(t *testing.T) {
 			description: "Array of objects: trace-to-metrics queries with item fields and textarea UI",
 			fieldCount:  4, // url + tracesToMetrics + 2 item fields
 		},
+		{
+			file:        "map-and-any.schema.json",
+			description: "Map type (Record) and any type (union) fields",
+			fieldCount:  6, // url + customizedRoutes + 2 item fields + labels + filterValue
+		},
 	}
 
 	for _, tc := range examples {

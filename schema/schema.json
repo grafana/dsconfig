@@ -86,7 +86,9 @@
                         "number",
                         "boolean",
                         "array",
-                        "object"
+                        "object",
+                        "map",
+                        "any"
                     ]
                 },
                 "semanticType": {
@@ -227,7 +229,7 @@
                         "type": "object",
                         "properties": {
                             "valueType": {
-                                "const": "array"
+                                "enum": ["array", "map"]
                             }
                         },
                         "required": [
@@ -255,7 +257,9 @@
                         "number",
                         "boolean",
                         "array",
-                        "object"
+                        "object",
+                        "map",
+                        "any"
                     ]
                 },
                 "fields": {

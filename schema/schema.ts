@@ -159,8 +159,8 @@ export interface ConfigField {
     overrides?: FieldOverride[]
 
     /**
-     * Array item schema
-     * Required if valueType === "array"
+     * Item schema for array elements or map values.
+     * Required if valueType === "array" or "map".
      */
     item?: FieldItemSchema
 
@@ -190,7 +190,9 @@ export interface ConfigField {
 
 export interface FieldItemSchema {
     /**
-     * Type of array items
+     * Type of array items or map values.
+     * For arrays, describes each element.
+     * For maps, describes each value (keys are always strings).
      */
     valueType: ValueType
 
@@ -222,6 +224,8 @@ export type ValueType =
     | "boolean"
     | "array"
     | "object"
+    | "map"
+    | "any"
 
 
 // ============================================================
