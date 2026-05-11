@@ -99,13 +99,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grafana/data@npm:12.4.2":
-  version: 12.4.2
-  resolution: "@grafana/data@npm:12.4.2"
+"@grafana/data@npm:13.0.1":
+  version: 13.0.1
+  resolution: "@grafana/data@npm:13.0.1"
   dependencies:
     "@braintree/sanitize-url": "npm:7.0.1"
-    "@grafana/i18n": "npm:12.4.2"
-    "@grafana/schema": "npm:12.4.2"
+    "@grafana/i18n": "npm:13.0.1"
+    "@grafana/schema": "npm:13.0.1"
     "@leeoniya/ufuzzy": "npm:1.0.19"
     "@types/d3-interpolate": "npm:^3.0.0"
     "@types/string-hash": "npm:1.1.3"
@@ -113,7 +113,7 @@ __metadata:
     d3-interpolate: "npm:3.0.1"
     d3-scale-chromatic: "npm:3.1.0"
     date-fns: "npm:4.1.0"
-    dompurify: "npm:3.3.0"
+    dompurify: "npm:3.3.2"
     eventemitter3: "npm:5.0.1"
     fast_array_intersect: "npm:1.1.0"
     history: "npm:4.10.1"
@@ -135,7 +135,7 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: 10c0/783961bd253df95caca7ac53e0b11376e410bbda82c7be412cb3e700574769b4a170de2bf25f3d7ddf3d4fa819f9951199614795a94830de7f79f206ef5e202a
+  checksum: 10c0/08fc16c682a7049b47e9157ad737d72ba2774e4541e1019fadc0ca834612533ff6d97bbf5079a2abed04d18003a3461bcce8f8a40062f69818859bc3dbe2fedd
   languageName: node
   linkType: hard
 
@@ -143,19 +143,19 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@grafana/dsconfig@workspace:."
   dependencies:
-    "@grafana/data": "npm:12.4.2"
-    "@grafana/google-sdk": "npm:^0.5.0"
-    "@grafana/schema": "npm:12.4.2"
-    "@types/node": "npm:^25.6.0"
-    ajv: "npm:^8.20.0"
-    ajv-formats: "npm:^3.0.1"
-    markdownlint-cli2: "npm:^0.22.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
+    "@grafana/data": "npm:13.0.1"
+    "@grafana/google-sdk": "npm:0.5.0"
+    "@grafana/schema": "npm:13.0.1"
+    "@types/node": "npm:25.6.2"
+    ajv: "npm:8.20.0"
+    ajv-formats: "npm:3.0.1"
+    markdownlint-cli2: "npm:0.22.1"
+    typescript: "npm:6.0.3"
+    vitest: "npm:4.1.5"
   languageName: unknown
   linkType: soft
 
-"@grafana/google-sdk@npm:^0.5.0":
+"@grafana/google-sdk@npm:0.5.0":
   version: 0.5.0
   resolution: "@grafana/google-sdk@npm:0.5.0"
   peerDependencies:
@@ -167,9 +167,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grafana/i18n@npm:12.4.2":
-  version: 12.4.2
-  resolution: "@grafana/i18n@npm:12.4.2"
+"@grafana/i18n@npm:13.0.1":
+  version: 13.0.1
+  resolution: "@grafana/i18n@npm:13.0.1"
   dependencies:
     "@formatjs/intl-durationformat": "npm:^0.7.0"
     "@typescript-eslint/utils": "npm:^8.33.1"
@@ -181,16 +181,16 @@ __metadata:
     react-i18next: "npm:^15.0.0"
   peerDependencies:
     react: ">=18"
-  checksum: 10c0/1485c25fded7356f4051b70b74a5b39bb6261a998907ca765dd1e37902d381e204332604f64461b17dbd2bb8acde1cce0263a7ebbc90d68f0494698f12f7fe4f
+  checksum: 10c0/458923a99a21ab3039be53df7f50235eb336fa28510a11fdb89cc5888e46de0c2390007ccbf2d01b0997677b05cd921ed145fc6d63d07801331847c700636fc6
   languageName: node
   linkType: hard
 
-"@grafana/schema@npm:12.4.2":
-  version: 12.4.2
-  resolution: "@grafana/schema@npm:12.4.2"
+"@grafana/schema@npm:13.0.1":
+  version: 13.0.1
+  resolution: "@grafana/schema@npm:13.0.1"
   dependencies:
     tslib: "npm:2.8.1"
-  checksum: 10c0/e3f8e8353c66a958af047e15bd01f85c3bc4a294a58db6b1fde610e860fbbb9669a66695e0560d7ff8562e32571ab3cd51bc08b1e7d552cac1f7f60ddea2cdc0
+  checksum: 10c0/111aaafd868052adce542535068c7328aad19d6ebf6062d4680f73263389438d060d887fa034b908ddd76ce1b2b584895bd79bc6dacab5de9ab1c14e8372f265
   languageName: node
   linkType: hard
 
@@ -479,12 +479,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^25.6.0":
-  version: 25.6.0
-  resolution: "@types/node@npm:25.6.0"
+"@types/node@npm:25.6.2":
+  version: 25.6.2
+  resolution: "@types/node@npm:25.6.2"
   dependencies:
     undici-types: "npm:~7.19.0"
-  checksum: 10c0/d2d2015630ff098a201407f55f5077a20270ae4f465c739b40865cd9933b91b9c5d2b85568eadaf3db0801b91e267333ca7eb39f007428b173d1cdab4b339ac5
+  checksum: 10c0/7f540331aa3ab88c285aeaf2eb43e3992f54f0cdb7f3593d156af67b199d4eaf56590fa1c310a00aa58ff69dba668cb3915a157fe83cd6b40a73bb338a12f09a
   languageName: node
   linkType: hard
 
@@ -702,7 +702,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv-formats@npm:^3.0.1":
+"ajv-formats@npm:3.0.1":
   version: 3.0.1
   resolution: "ajv-formats@npm:3.0.1"
   dependencies:
@@ -716,7 +716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.20.0":
+"ajv@npm:8.20.0, ajv@npm:^8.0.0":
   version: 8.20.0
   resolution: "ajv@npm:8.20.0"
   dependencies:
@@ -956,15 +956,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:3.3.0":
-  version: 3.3.0
-  resolution: "dompurify@npm:3.3.0"
+"dompurify@npm:3.3.2":
+  version: 3.3.2
+  resolution: "dompurify@npm:3.3.2"
   dependencies:
     "@types/trusted-types": "npm:^2.0.7"
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: 10c0/66b1787b0bc8250d8f58e13284cf7f5f6bb400a0a55515e7a2a030316a4bb0d8306fdb669c17ed86ed58ff7e53c62b5da4488c2f261d11c58870fe01b8fcc486
+  checksum: 10c0/8989525f003dd062e829137982b5412143421342991b2732bd621a1efd98b2c3cdc4f37547601d0727d3bc20f1d0eb2a0ecca287d3688f168cdb54ced867ca8f
   languageName: node
   linkType: hard
 
@@ -1599,7 +1599,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"markdownlint-cli2@npm:^0.22.1":
+"markdownlint-cli2@npm:0.22.1":
   version: 0.22.1
   resolution: "markdownlint-cli2@npm:0.22.1"
   dependencies:
@@ -2688,7 +2688,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^6.0.3":
+"typescript@npm:6.0.3":
   version: 6.0.3
   resolution: "typescript@npm:6.0.3"
   bin:
@@ -2698,7 +2698,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^6.0.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A6.0.3#optional!builtin<compat/typescript>":
   version: 6.0.3
   resolution: "typescript@patch:typescript@npm%3A6.0.3#optional!builtin<compat/typescript>::version=6.0.3&hash=5786d5"
   bin:
@@ -2807,7 +2807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^4.1.5":
+"vitest@npm:4.1.5":
   version: 4.1.5
   resolution: "vitest@npm:4.1.5"
   dependencies:
