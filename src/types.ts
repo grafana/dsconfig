@@ -1,3 +1,6 @@
+// Re-export schema types for convenience
+export type { DatasourceConfigSchema, ConfigField, ConfigGroup } from "../schema/schema";
+
 // Core Grafana datasources
 export { prometheusConfig } from "./prometheus/config";
 export { lokiConfig } from "./loki/config";
@@ -74,3 +77,81 @@ export { splunkConfig } from "./grafana-splunk-datasource/config";
 export { splunkObservabilityConfig } from "./grafana-splunkobservability-datasource/config";
 export { sumoLogicConfig } from "./grafana-sumologic-datasource/config";
 export { wavefrontConfig } from "./grafana-wavefront-datasource/config";
+
+// ============================================================
+// Plugin type constants — all known datasource plugin IDs
+// ============================================================
+
+export const DATASOURCE_PLUGIN_TYPES = [
+    // Core (grafana/grafana)
+    "prometheus",
+    "loki",
+    "tempo",
+    "cloudwatch",
+    "grafana-azure-monitor-datasource",
+    "alertmanager",
+    "elasticsearch",
+    "graphite",
+    "influxdb",
+    "jaeger",
+    "mssql",
+    "mysql",
+    "opentsdb",
+    "grafana-pyroscope-datasource",
+    "zipkin",
+    "grafana-postgresql-datasource",
+    "stackdriver",
+    // AWS
+    "grafana-athena-datasource",
+    "grafana-redshift-datasource",
+    "grafana-timestream-datasource",
+    "grafana-x-ray-datasource",
+    "grafana-iot-sitewise-datasource",
+    "grafana-amazonprometheus-datasource",
+    // Azure
+    "grafana-azure-data-explorer-datasource",
+    "grafana-azureprometheus-datasource",
+    "grafana-azuredevops-datasource",
+    // Google
+    "grafana-bigquery-datasource",
+    "grafana-googlesheets-datasource",
+    // Community / Grafana-owned
+    "grafana-clickhouse-datasource",
+    "grafana-opensearch-datasource",
+    "yesoreyeram-infinity-datasource",
+    "grafana-falconlogscale-datasource",
+    "grafana-mqtt-datasource",
+    "grafana-surrealdb-datasource",
+    "marcusolsson-csv-datasource",
+    "marcusolsson-json-datasource",
+    "grafana-github-datasource",
+    "grafana-strava-datasource",
+    "grafana-astradb-datasource",
+    "grafana-yugabyte-datasource",
+    "grafana-sentry-datasource",
+    // Enterprise
+    "grafana-appdynamics-datasource",
+    "grafana-cockroachdb-datasource",
+    "grafana-databricks-datasource",
+    "grafana-datadog-datasource",
+    "grafana-dynatrace-datasource",
+    "grafana-gitlab-datasource",
+    "grafana-honeycomb-datasource",
+    "grafana-jira-datasource",
+    "grafana-looker-datasource",
+    "grafana-mongodb-datasource",
+    "grafana-newrelic-datasource",
+    "grafana-odbc-datasource",
+    "grafana-oracle-datasource",
+    "grafana-pagerduty-datasource",
+    "grafana-salesforce-datasource",
+    "grafana-saphana-datasource",
+    "grafana-servicenow-datasource",
+    "grafana-snowflake-datasource",
+    "grafana-splunk-datasource",
+    "grafana-splunkobservability-datasource",
+    "grafana-sumologic-datasource",
+    "grafana-wavefront-datasource",
+] as const;
+
+export type DatasourcePluginType = (typeof DATASOURCE_PLUGIN_TYPES)[number];

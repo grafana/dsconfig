@@ -1,0 +1,37 @@
+{
+    "spec": {
+        "type": "object",
+        "required": [
+            "url"
+        ],
+        "properties": {
+            "url": {
+                "description": "API endpoint URL",
+                "type": "string",
+                "format": "uri"
+            },
+            "jsonData": {
+                "type": "object",
+                "properties": {
+                    "authMethod": {
+                        "description": "Authentication method to use",
+                        "type": "string",
+                        "default": "no-auth",
+                        "enum": [
+                            "no-auth",
+                            "bearer-token"
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "secureValues": [
+        {
+            "key": "bearerToken",
+            "description": "Token used for Bearer authentication",
+            "x-dsconfig-depends-on": "auth.method == 'bearer-token'",
+            "x-dsconfig-required-when": "auth.method == 'bearer-token'"
+        }
+    ]
+}
