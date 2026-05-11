@@ -661,6 +661,9 @@
                         "type": "null"
                     },
                     "description": "Option value. Must not be null. Must match parent field valueType."
+                },
+                "description": {
+                    "type": "string"
                 }
             }
         },
@@ -683,6 +686,9 @@
                 },
                 "order": {
                     "type": "number"
+                },
+                "optional": {
+                    "type": "boolean"
                 },
                 "fieldRefs": {
                     "type": "array",

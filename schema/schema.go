@@ -720,8 +720,9 @@ func (m MappingField) Validate() error {
 // ============================================================
 
 type FieldOption struct {
-	Label string `json:"label"`
-	Value any    `json:"value"`
+	Label       string `json:"label"`
+	Value       any    `json:"value"`
+	Description string `json:"description,omitempty"`
 }
 
 // ValidateOptionValue checks that an option value is non-nil and
@@ -759,6 +760,7 @@ type ConfigGroup struct {
 	Title       string   `json:"title"`
 	Description string   `json:"description,omitempty"`
 	Order       *int     `json:"order,omitempty"`
+	Optional    bool     `json:"optional,omitempty"`
 	FieldRefs   []string `json:"fieldRefs"`
 }
 

@@ -119,9 +119,19 @@ For maps with structured values (`Record<string, SomeObject>`):
   "item": {
     "valueType": "object",
     "fields": [
-      { "id": "customizedRoutes.item.URL", "key": "URL", "valueType": "string", "isItemField": true },
-      { "id": "customizedRoutes.item.Scopes", "key": "Scopes", "valueType": "array", "isItemField": true,
-        "item": { "valueType": "string" } }
+      {
+        "id": "customizedRoutes.item.URL",
+        "key": "URL",
+        "valueType": "string",
+        "isItemField": true
+      },
+      {
+        "id": "customizedRoutes.item.Scopes",
+        "key": "Scopes",
+        "valueType": "array",
+        "isItemField": true,
+        "item": { "valueType": "string" }
+      }
     ]
   }
 }
@@ -198,7 +208,12 @@ Many datasources have a **selector dropdown** (e.g. "Authentication method") tha
   "id": "auth.method",
   "kind": "virtual",
   "defaultValue": "no-auth",
-  "validations": [{ "type": "allowedValues", "values": ["no-auth", "basic-auth", "forward-oauth"] }],
+  "validations": [
+    {
+      "type": "allowedValues",
+      "values": ["no-auth", "basic-auth", "forward-oauth"]
+    }
+  ],
   "ui": {
     "component": "select",
     "options": [
@@ -212,19 +227,28 @@ Many datasources have a **selector dropdown** (e.g. "Authentication method") tha
     "read": "root.basicAuth == true ? 'basic-auth' : (jsonData.oauthPassThru == true ? 'forward-oauth' : 'no-auth')"
   },
   "effects": [
-    { "when": "value == 'no-auth'",       "set": { "auth.basicAuth": false, "auth.oauthPassThru": false } },
-    { "when": "value == 'basic-auth'",    "set": { "auth.basicAuth": true,  "auth.oauthPassThru": false } },
-    { "when": "value == 'forward-oauth'", "set": { "auth.basicAuth": false, "auth.oauthPassThru": true  } }
+    {
+      "when": "value == 'no-auth'",
+      "set": { "auth.basicAuth": false, "auth.oauthPassThru": false }
+    },
+    {
+      "when": "value == 'basic-auth'",
+      "set": { "auth.basicAuth": true, "auth.oauthPassThru": false }
+    },
+    {
+      "when": "value == 'forward-oauth'",
+      "set": { "auth.basicAuth": false, "auth.oauthPassThru": true }
+    }
   ]
 }
 ```
 
 ### Effect rules
 
-| Property | Type | Required | Description |
-|---|---|---|---|
-| `when` | string (CEL) | Yes | Condition. Use `value` to refer to the field's current value. |
-| `set` | `Record<fieldId, value>` | Yes | Maps field IDs to the values they should be set to. Must not be empty. |
+| Property | Type                     | Required | Description                                                            |
+| -------- | ------------------------ | -------- | ---------------------------------------------------------------------- |
+| `when`   | string (CEL)             | Yes      | Condition. Use `value` to refer to the field's current value.          |
+| `set`    | `Record<fieldId, value>` | Yes      | Maps field IDs to the values they should be set to. Must not be empty. |
 
 ### How effects work with other primitives
 
@@ -244,10 +268,34 @@ TypeScript types that reference themselves (e.g. `AzureCredentials.serviceCreden
 
 ```json
 [
-  { "id": "auth.credentials.authType", "key": "authType", "target": "jsonData", "section": "azureCredentials", "valueType": "string" },
-  { "id": "auth.credentials.tenantId", "key": "tenantId", "target": "jsonData", "section": "azureCredentials", "valueType": "string" },
-  { "id": "auth.svcCreds.authType",    "key": "authType", "target": "jsonData", "section": "azureCredentials.serviceCredentials", "valueType": "string" },
-  { "id": "auth.svcCreds.tenantId",    "key": "tenantId", "target": "jsonData", "section": "azureCredentials.serviceCredentials", "valueType": "string" }
+  {
+    "id": "auth.credentials.authType",
+    "key": "authType",
+    "target": "jsonData",
+    "section": "azureCredentials",
+    "valueType": "string"
+  },
+  {
+    "id": "auth.credentials.tenantId",
+    "key": "tenantId",
+    "target": "jsonData",
+    "section": "azureCredentials",
+    "valueType": "string"
+  },
+  {
+    "id": "auth.svcCreds.authType",
+    "key": "authType",
+    "target": "jsonData",
+    "section": "azureCredentials.serviceCredentials",
+    "valueType": "string"
+  },
+  {
+    "id": "auth.svcCreds.tenantId",
+    "key": "tenantId",
+    "target": "jsonData",
+    "section": "azureCredentials.serviceCredentials",
+    "valueType": "string"
+  }
 ]
 ```
 
@@ -257,14 +305,31 @@ Some datasources have arrays where individual items may be secrets (e.g. Snowfla
 
 ```json
 {
-  "id": "jsonData.settings", "key": "settings",
-  "valueType": "array", "target": "jsonData",
+  "id": "jsonData.settings",
+  "key": "settings",
+  "valueType": "array",
+  "target": "jsonData",
   "item": {
     "valueType": "object",
     "fields": [
-      { "id": "settings.item.name",   "key": "name",   "valueType": "string",  "isItemField": true },
-      { "id": "settings.item.value",  "key": "value",  "valueType": "string",  "isItemField": true },
-      { "id": "settings.item.secure", "key": "secure", "valueType": "boolean", "isItemField": true }
+      {
+        "id": "settings.item.name",
+        "key": "name",
+        "valueType": "string",
+        "isItemField": true
+      },
+      {
+        "id": "settings.item.value",
+        "key": "value",
+        "valueType": "string",
+        "isItemField": true
+      },
+      {
+        "id": "settings.item.secure",
+        "key": "secure",
+        "valueType": "boolean",
+        "isItemField": true
+      }
     ]
   },
   "storage": {
@@ -285,7 +350,8 @@ Generated JSON files remain self-contained — no resolution step needed for con
 
 ## Groups and relationships
 
-**Groups** define UI layout sections. They reference fields by `id`:
+**Groups** define UI layout sections. They reference fields by `id`.
+Set `"optional": true` on groups that can be collapsed or hidden by default (e.g. advanced sections):
 
 ```json
 {

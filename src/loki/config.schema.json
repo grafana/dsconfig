@@ -290,7 +290,8 @@
             "description": "Controls the server name used for certificate common name/subject alternative name verification. Defaults to using the data source URL.",
             "valueType": "string",
             "semanticType": "hostname",
-            "target": "jsonData"
+            "target": "jsonData",
+            "dependsOn": "jsonData.tlsAuth == true"
         },
         {
             "id": "jsonData.tlsAuth",
@@ -347,6 +348,61 @@
             "description": "When enabled, connection is made via Grafana's Private Data Source Connect (PDC).",
             "valueType": "boolean",
             "target": "jsonData"
+        },
+        {
+            "id": "httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional headers sent with every request to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header Name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Must be a valid HTTP header name"
+                            }
+                        ],
+                        "description": "HTTP header name."
+                    },
+                    {
+                        "id": "httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Header Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "description": "HTTP header value."
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            },
+            "validations": [
+                {
+                    "type": "itemCount",
+                    "max": 10,
+                    "message": "Maximum 10 custom headers"
+                }
+            ]
         },
         {
             "id": "secureJsonData.basicAuthPassword",
@@ -420,6 +476,23 @@
             ]
         },
         {
+            "id": "http-network",
+            "title": "HTTP / Network Settings",
+            "fieldRefs": [
+                "jsonData.tlsAuthWithCACert",
+                "secureJsonData.tlsCACert",
+                "jsonData.tlsAuth",
+                "jsonData.serverName",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey",
+                "jsonData.tlsSkipVerify",
+                "httpHeaders",
+                "jsonData.keepCookies",
+                "jsonData.timeout",
+                "jsonData.pdcInjected"
+            ]
+        },
+        {
             "id": "alerting",
             "title": "Alerting",
             "fieldRefs": [
@@ -438,28 +511,6 @@
             "title": "Derived fields",
             "fieldRefs": [
                 "jsonData.derivedFields"
-            ]
-        },
-        {
-            "id": "tls",
-            "title": "TLS / SSL",
-            "fieldRefs": [
-                "jsonData.tlsAuth",
-                "jsonData.tlsAuthWithCACert",
-                "jsonData.tlsSkipVerify",
-                "jsonData.serverName",
-                "secureJsonData.tlsCACert",
-                "secureJsonData.tlsClientCert",
-                "secureJsonData.tlsClientKey"
-            ]
-        },
-        {
-            "id": "network",
-            "title": "Network",
-            "fieldRefs": [
-                "jsonData.timeout",
-                "jsonData.keepCookies",
-                "jsonData.pdcInjected"
             ]
         }
     ],

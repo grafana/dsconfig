@@ -489,6 +489,11 @@ export interface FieldOption {
      * Must match parent field valueType
      */
     value: unknown
+
+    /**
+     * Optional human-readable description of the option.
+     */
+    description?: string
 }
 
 
@@ -501,6 +506,11 @@ export interface ConfigGroup {
     title: string
     description?: string
     order?: number
+
+    /**
+     * When true, the group is optional and can be collapsed/hidden by default.
+     */
+    optional?: boolean
 
     /**
      * References field IDs (not keys)

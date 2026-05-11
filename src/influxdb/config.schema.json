@@ -15,8 +15,15 @@
             "required": true,
             "ui": {
                 "component": "input",
-                "placeholder": "example: http://localhost:8086/"
-            }
+                "placeholder": "http://localhost:8086"
+            },
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^https?://",
+                    "message": "Must be a valid HTTP or HTTPS URL"
+                }
+            ]
         },
         {
             "id": "jsonData.product",
@@ -219,7 +226,7 @@
             "id": "jsonData.timeInterval",
             "key": "timeInterval",
             "label": "Min time interval",
-            "description": "A lower limit for the auto group-by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "description": "A lower limit for the auto group-by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute. Available for InfluxQL and Flux.",
             "valueType": "string",
             "semanticType": "duration",
             "target": "jsonData",
@@ -230,12 +237,27 @@
             }
         },
         {
+            "id": "jsonData.showTagTime",
+            "key": "showTagTime",
+            "label": "Autocomplete range",
+            "description": "Time range for the query editor autocomplete to reduce tag filter query execution time. Tags not present within this range are filtered out. Recommended for large databases.",
+            "valueType": "string",
+            "semanticType": "duration",
+            "target": "jsonData",
+            "dependsOn": "jsonData.version == 'InfluxQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "12h"
+            }
+        },
+        {
             "id": "jsonData.httpMode",
             "key": "httpMode",
             "label": "HTTP Method",
             "description": "You can use either GET or POST HTTP method to query your InfluxDB database. The POST method allows you to perform heavy requests while the GET method will restrict you and return an error if the query is too large.",
             "valueType": "string",
             "target": "jsonData",
+            "defaultValue": "GET",
             "dependsOn": "jsonData.version == 'InfluxQL'",
             "validations": [
                 {
@@ -264,21 +286,137 @@
             "id": "jsonData.dbName",
             "key": "dbName",
             "label": "Database",
-            "description": "InfluxDB database name.",
+            "description": "InfluxDB database name. Used by InfluxQL and SQL query languages.",
             "valueType": "string",
             "target": "jsonData",
-            "dependsOn": "jsonData.version == 'InfluxQL'"
+            "ui": {
+                "component": "input",
+                "placeholder": "mydb"
+            }
+        },
+        {
+            "id": "root.user",
+            "key": "user",
+            "label": "User",
+            "description": "Username for InfluxQL authentication.",
+            "valueType": "string",
+            "target": "root",
+            "dependsOn": "jsonData.version == 'InfluxQL'",
+            "requiredWhen": "jsonData.version == 'InfluxQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "myuser"
+            }
         },
         {
             "id": "jsonData.oauthPassThru",
             "key": "oauthPassThru",
             "label": "Forward OAuth Identity",
-            "description": "Forward the user's OAuth token to InfluxDB.",
+            "description": "Forward the user's upstream OAuth identity to InfluxDB.",
             "valueType": "boolean",
             "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:auth.method"
+            ]
+        },
+        {
+            "id": "root.basicAuth",
+            "key": "basicAuth",
+            "label": "Basic Auth",
+            "description": "Enable basic authentication.",
+            "valueType": "boolean",
+            "target": "root",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:auth.method"
+            ]
+        },
+        {
+            "id": "auth.method",
+            "key": "authMethod",
+            "label": "Authentication method",
+            "description": "Choose an authentication method to access the data source.",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "no-auth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "no-auth",
+                        "basic-auth",
+                        "forward-oauth"
+                    ]
+                }
+            ],
             "ui": {
-                "component": "switch"
-            }
+                "component": "select",
+                "options": [
+                    {
+                        "label": "No Authentication",
+                        "value": "no-auth",
+                        "description": "Data source is available without authentication"
+                    },
+                    {
+                        "label": "Basic authentication",
+                        "value": "basic-auth",
+                        "description": "Authenticate with your data source username and password"
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "forward-oauth",
+                        "description": "Forward the OAuth access token of the user querying the data source"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "root.basicAuth == true ? 'basic-auth' : (jsonData.oauthPassThru == true ? 'forward-oauth' : 'no-auth')"
+            },
+            "effects": [
+                {
+                    "when": "value == 'no-auth'",
+                    "set": {
+                        "root.basicAuth": false,
+                        "jsonData.oauthPassThru": false
+                    }
+                },
+                {
+                    "when": "value == 'basic-auth'",
+                    "set": {
+                        "root.basicAuth": true,
+                        "jsonData.oauthPassThru": false
+                    }
+                },
+                {
+                    "when": "value == 'forward-oauth'",
+                    "set": {
+                        "root.basicAuth": false,
+                        "jsonData.oauthPassThru": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "root.basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "Username",
+            "description": "Username for basic HTTP authentication.",
+            "valueType": "string",
+            "target": "root",
+            "dependsOn": "auth.method == 'basic-auth'",
+            "requiredWhen": "auth.method == 'basic-auth'"
+        },
+        {
+            "id": "secureJsonData.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "Password for basic HTTP authentication.",
+            "valueType": "string",
+            "semanticType": "password",
+            "target": "secureJsonData",
+            "dependsOn": "auth.method == 'basic-auth'"
         },
         {
             "id": "jsonData.organization",
@@ -287,7 +425,8 @@
             "description": "InfluxDB organization ID.",
             "valueType": "string",
             "target": "jsonData",
-            "dependsOn": "jsonData.version == 'Flux'"
+            "dependsOn": "jsonData.version == 'Flux'",
+            "requiredWhen": "jsonData.version == 'Flux'"
         },
         {
             "id": "jsonData.defaultBucket",
@@ -297,9 +436,10 @@
             "valueType": "string",
             "target": "jsonData",
             "dependsOn": "jsonData.version == 'Flux'",
+            "requiredWhen": "jsonData.version == 'Flux'",
             "ui": {
                 "component": "input",
-                "placeholder": "default bucket"
+                "placeholder": "mybucket"
             }
         },
         {
@@ -346,7 +486,7 @@
             "id": "secureJsonData.token",
             "key": "token",
             "label": "Token",
-            "description": "Authentication token for Flux and SQL queries.",
+            "description": "Authentication token. Required for Flux and SQL query languages.",
             "valueType": "string",
             "semanticType": "token",
             "target": "secureJsonData"
@@ -355,43 +495,197 @@
             "id": "secureJsonData.password",
             "key": "password",
             "label": "Password",
-            "description": "Password for InfluxQL basic auth.",
+            "description": "Password for InfluxQL authentication.",
             "valueType": "string",
             "semanticType": "password",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.version == 'InfluxQL'",
+            "requiredWhen": "jsonData.version == 'InfluxQL'"
+        },
+        {
+            "id": "jsonData.tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "description": "Enable TLS client certificate authentication.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Provide a CA certificate for TLS verification.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData.serverName",
+            "key": "serverName",
+            "label": "Server name",
+            "description": "Server name for SNI in TLS handshake.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData.tlsAuth == true"
+        },
+        {
+            "id": "secureJsonData.tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "description": "PEM-encoded CA certificate.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
+        },
+        {
+            "id": "secureJsonData.tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "description": "PEM-encoded client certificate.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
+        },
+        {
+            "id": "secureJsonData.tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "PEM-encoded client private key.",
+            "valueType": "string",
+            "semanticType": "token",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "rows": 7
+            }
+        },
+        {
+            "id": "jsonData.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "description": "Skip server certificate verification.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData.keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            }
+        },
+        {
+            "id": "jsonData.timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Custom HTTP headers sent with every request to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "pattern": "httpHeaderName{index}",
+                    "target": "jsonData"
+                },
+                "value": {
+                    "pattern": "httpHeaderValue{index}",
+                    "target": "secureJsonData"
+                },
+                "startIndex": 1
+            },
+            "item": {
+                "valueType": "object"
+            }
+        },
+        {
+            "id": "jsonData.pdcInjected",
+            "key": "pdcInjected",
+            "label": "Private data source connect",
+            "description": "Connect to data sources in private networks using Grafana Cloud's Private Data Source Connect.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
         }
     ],
     "groups": [
         {
             "id": "url-and-auth",
             "title": "URL and authentication",
+            "description": "Enter the URL, select your product and query language, then configure authentication and HTTP settings.",
             "fieldRefs": [
                 "root.url",
                 "jsonData.product",
-                "jsonData.version"
+                "jsonData.version",
+                "jsonData.keepCookies",
+                "jsonData.timeout",
+                "httpHeaders",
+                "auth.method",
+                "root.basicAuth",
+                "root.basicAuthUser",
+                "secureJsonData.basicAuthPassword",
+                "jsonData.oauthPassThru",
+                "jsonData.tlsAuth",
+                "jsonData.serverName",
+                "secureJsonData.tlsClientCert",
+                "secureJsonData.tlsClientKey",
+                "jsonData.tlsAuthWithCACert",
+                "secureJsonData.tlsCACert",
+                "jsonData.tlsSkipVerify",
+                "jsonData.pdcInjected"
             ]
         },
         {
             "id": "database-settings",
             "title": "Database settings",
+            "description": "Provide database connection details based on your selected product and query language.",
             "fieldRefs": [
                 "jsonData.dbName",
+                "root.user",
+                "secureJsonData.password",
+                "secureJsonData.token",
                 "jsonData.organization",
                 "jsonData.defaultBucket",
                 "jsonData.httpMode",
                 "jsonData.timeInterval",
+                "jsonData.showTagTime",
                 "jsonData.maxSeries",
                 "jsonData.insecureGrpc",
                 "jsonData.metadata"
-            ]
-        },
-        {
-            "id": "auth",
-            "title": "Authentication",
-            "fieldRefs": [
-                "jsonData.oauthPassThru",
-                "secureJsonData.token",
-                "secureJsonData.password"
             ]
         }
     ]
