@@ -19,7 +19,7 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "packageManager": "yarn@4.14.1",
+  "packageManager": "yarn@4.16.0",
   "dependencies": {
     "@grafana/data": "13.0.1",
     "@grafana/google-sdk": "0.5.0",
