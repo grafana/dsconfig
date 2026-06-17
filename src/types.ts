@@ -5,7 +5,7 @@ export type { DatasourceConfigSchema, ConfigField, ConfigGroup } from "../schema
 export { prometheusConfig } from "./prometheus/config";
 export { lokiConfig } from "./loki/config";
 export { tempoConfig } from "./tempo/config";
-export { cloudWatchConfig } from "./cloudwatch/config";
+export { cloudWatchConfig, AWSAuthType } from "./cloudwatch/config";
 export { azureMonitorConfig } from "./grafana-azure-monitor-datasource/config";
 export { alertmanagerConfig } from "./alertmanager/config";
 export { elasticsearchConfig } from "./elasticsearch/config";

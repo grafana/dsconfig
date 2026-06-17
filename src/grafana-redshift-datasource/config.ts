@@ -1,7 +1,9 @@
+import type { AWSAuthType } from "../cloudwatch/config";
+
 export type grafanaRedshiftDatasourceConfig = {
   jsonData: {
     
-    authType?: string;
+    authType?: AWSAuthType;
     
     defaultRegion?: string;
     

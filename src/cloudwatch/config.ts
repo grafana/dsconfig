@@ -1,7 +1,7 @@
 export type cloudWatchConfig = {
   jsonData: {
     
-    authType?: CloudWatchAuthType;
+    authType?: AWSAuthType;
 
     
     defaultRegion?: string;
@@ -67,7 +67,7 @@ export type cloudWatchConfig = {
   };
 };
 
-export type CloudWatchAuthType =
+export type AWSAuthType =
   | "default"
   | "credentials"
   | "keys"
