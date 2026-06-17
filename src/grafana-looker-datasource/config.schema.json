@@ -29,7 +29,8 @@
                         "client_credentials"
                     ]
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.client_id",

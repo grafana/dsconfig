@@ -31,7 +31,8 @@
                         "accessKey"
                     ]
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.accessId",

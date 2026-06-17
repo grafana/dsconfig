@@ -396,7 +396,8 @@
                         "jsonData.oauthPassThru": true
                     }
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "root.basicAuthUser",

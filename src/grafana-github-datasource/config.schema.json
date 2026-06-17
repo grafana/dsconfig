@@ -32,7 +32,8 @@
                         "value": "github-app"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.githubPlan",

@@ -15,17 +15,18 @@
                 {
                     "type": "allowedValues",
                     "values": [
-                      "currentuser",
-                      "msi",
-                      "workloadidentity",
-                      "clientsecret",
-                      "clientsecret-obo",
-                      "currentuser",
-                      "ad-password",
-                      "clientcertificate"
+                        "currentuser",
+                        "msi",
+                        "workloadidentity",
+                        "clientsecret",
+                        "clientsecret-obo",
+                        "currentuser",
+                        "ad-password",
+                        "clientcertificate"
                     ]
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.cloudName",

@@ -73,7 +73,8 @@
                         "value": "oauth2"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.user",

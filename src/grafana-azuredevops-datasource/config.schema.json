@@ -29,7 +29,8 @@
                         "patToken"
                     ]
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.projectsLimit",

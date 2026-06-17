@@ -53,7 +53,8 @@
                         "value": "arn"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.defaultRegion",

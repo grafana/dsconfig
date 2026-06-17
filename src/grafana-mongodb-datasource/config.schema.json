@@ -46,7 +46,8 @@
                         "value": "custom-Kerberos"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.user",

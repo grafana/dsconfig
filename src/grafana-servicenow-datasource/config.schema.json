@@ -42,7 +42,8 @@
                         "value": "serviceNowOAuth"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "root.basicAuth",

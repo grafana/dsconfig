@@ -28,7 +28,8 @@
             ],
             "ui": {
                 "component": "select"
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.encrypt",

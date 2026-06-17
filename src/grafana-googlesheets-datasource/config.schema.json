@@ -44,7 +44,8 @@
                         "value": "workloadIdentityFederation"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.authType",

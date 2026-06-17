@@ -75,7 +75,8 @@
                         "value": "AzureM2M"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.catalog",

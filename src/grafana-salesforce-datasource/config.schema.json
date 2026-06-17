@@ -33,7 +33,8 @@
                         "value": "jwt"
                     }
                 ]
-            }
+            },
+            "isAuthField": true
         },
         {
             "id": "jsonData.user",

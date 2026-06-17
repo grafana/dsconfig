@@ -28,7 +28,8 @@
                         1
                     ]
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.user",

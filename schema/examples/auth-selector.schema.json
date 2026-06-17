@@ -23,6 +23,7 @@
             "description": "Choose an authentication method to access the data source",
             "valueType": "string",
             "kind": "virtual",
+            "isAuthField": true,
             "defaultValue": "no-auth",
             "validations": [
                 {

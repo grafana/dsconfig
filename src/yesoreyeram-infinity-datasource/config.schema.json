@@ -82,7 +82,8 @@
                         "jsonData.oauthPassThru": false
                     }
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.apiKeyKey",

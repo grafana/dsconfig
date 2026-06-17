@@ -22,7 +22,8 @@
                         "forwardOAuthIdentity"
                     ]
                 }
-            ]
+            ],
+            "isAuthField": true
         },
         {
             "id": "jsonData.defaultProject",
