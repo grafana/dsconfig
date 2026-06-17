@@ -16,10 +16,19 @@
             "id": "jsonData.authKind",
             "key": "authKind",
             "label": "Auth Kind",
-            "description": "Authentication type identifier.",
+            "description": "Authentication method: token (0) or credentials (1).",
             "valueType": "number",
             "target": "jsonData",
-            "required": true
+            "required": true,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        0,
+                        1
+                    ]
+                }
+            ]
         },
         {
             "id": "jsonData.user",
@@ -75,7 +84,8 @@
             "description": "Astra DB application token.",
             "valueType": "string",
             "semanticType": "token",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.authKind == 0"
         },
         {
             "id": "secureJsonData.password",
@@ -84,7 +94,8 @@
             "description": "Astra DB password.",
             "valueType": "string",
             "semanticType": "password",
-            "target": "secureJsonData"
+            "target": "secureJsonData",
+            "dependsOn": "jsonData.authKind == 1"
         }
     ],
     "groups": [

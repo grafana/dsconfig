@@ -1,9 +1,11 @@
+export type AstraDbAuthKind = 0 | 1; // 0: token, 1: credentials
+
 export type grafanaAstradbDatasourceConfig = {
   jsonData: {
     
     uri: string;
     
-    authKind: number;
+    authKind: AstraDbAuthKind;
     
     user: string;
     
