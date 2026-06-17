@@ -23,7 +23,15 @@
             "description": "Sumo Logic authentication method.",
             "valueType": "string",
             "target": "jsonData",
-            "defaultValue": "accessKey"
+            "defaultValue": "accessKey",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "accessKey"
+                    ]
+                }
+            ]
         },
         {
             "id": "jsonData.accessId",
