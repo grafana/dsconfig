@@ -257,6 +257,7 @@ Many datasources have a **selector dropdown** (e.g. "Authentication method") tha
 - **`dependsOn`**: On target storage fields, controls visibility (e.g. show username only when `auth.method == 'basic-auth'`).
 - **`requiredWhen`**: On target storage fields, conditional validation.
 - **`tags: ["managed-by:auth.method"]`**: Convention for tagging fields that are driven by a selector.
+- **`isAuthField: true`**: Marks the canonical auth method selector for agents and tooling. At most one field per schema.
 
 Effects keys (`set`) reference field **IDs**, consistent with groups and relationships. They are validated against the schema's field ID set.
 

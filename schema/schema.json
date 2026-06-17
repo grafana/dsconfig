@@ -128,6 +128,10 @@
                     "type": "boolean",
                     "description": "Must be true for fields inside array item schemas"
                 },
+                "isAuthField": {
+                    "type": "boolean",
+                    "description": "True when this field is the canonical auth method selector for agents and tooling. At most one field per schema may set this."
+                },
                 "lifecycle": {
                     "type": "string",
                     "enum": [

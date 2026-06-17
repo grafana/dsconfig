@@ -121,6 +121,28 @@ describe("validateSchema — field IDs", () => {
     })
 })
 
+describe("validateSchema — auth field", () => {
+    it("rejects more than one isAuthField", () => {
+        const s = minimalSchema(
+            { ...validStorageField("auth.a", "a"), isAuthField: true },
+            { ...validStorageField("auth.b", "b"), isAuthField: true },
+        )
+        const errors = validateSchema(s)
+        expect(errors.some((e) => e.code === "multiple_auth_fields")).toBe(true)
+    })
+
+    it("rejects isAuthField on item fields", () => {
+        const errors = validateField({
+            id: "headers.item.auth",
+            key: "auth",
+            valueType: "string",
+            isItemField: true,
+            isAuthField: true,
+        })
+        expect(errors.some((e) => e.code === "invalid_auth_field")).toBe(true)
+    })
+})
+
 // ============================================================
 // Group and relationship ref validation
 // ============================================================

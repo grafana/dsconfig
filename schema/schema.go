@@ -60,6 +60,16 @@ func (s *DatasourceConfigSchema) Validate() error {
 		return err
 	}
 
+	authFieldCount := 0
+	for _, f := range s.Fields {
+		if f.IsAuthField != nil && *f.IsAuthField {
+			authFieldCount++
+		}
+	}
+	if authFieldCount > 1 {
+		return fmt.Errorf("at most one field may have isAuthField=true, found %d", authFieldCount)
+	}
+
 	return nil
 }
 
@@ -145,6 +155,10 @@ type ConfigField struct {
 	// True if part of array item schema
 	IsItemField *bool `json:"isItemField,omitempty"`
 
+	// True when this field is the canonical auth method selector for agents
+	// and tooling. At most one field per schema may set this.
+	IsAuthField *bool `json:"isAuthField,omitempty"`
+
 	// Lifecycle: stable / deprecated / experimental
 	Lifecycle Lifecycle `json:"lifecycle,omitempty"`
 
@@ -209,6 +223,10 @@ func (f *ConfigField) Validate() error {
 	}
 	if f.Section != "" && isVirtual {
 		return fmt.Errorf("field %s: section is not allowed on virtual fields", f.ID)
+	}
+
+	if isItem && f.IsAuthField != nil && *f.IsAuthField {
+		return fmt.Errorf("field %s: isAuthField is not allowed on item fields", f.ID)
 	}
 
 	if (f.ValueType == ArrayType || f.ValueType == MapType) && f.Item == nil {

@@ -34,6 +34,15 @@ func TestSchemaValidate_PropagatesFieldError(t *testing.T) {
 	assert.ErrorContains(t, s.Validate(), "field id is required")
 }
 
+func TestSchemaValidate_AtMostOneAuthField(t *testing.T) {
+	authTrue := true
+	s := minimalSchema(
+		schema.ConfigField{ID: "auth.a", Key: "a", ValueType: schema.StringType, Target: ptr(schema.JSONDataTarget), IsAuthField: &authTrue},
+		schema.ConfigField{ID: "auth.b", Key: "b", ValueType: schema.StringType, Target: ptr(schema.JSONDataTarget), IsAuthField: &authTrue},
+	)
+	assert.ErrorContains(t, s.Validate(), "at most one field may have isAuthField=true")
+}
+
 // ============================================================
 // DatasourceConfigSchema.FieldIDs
 // ============================================================

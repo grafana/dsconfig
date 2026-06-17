@@ -119,6 +119,12 @@ export interface ConfigField {
     isItemField?: boolean
 
     /**
+     * True when this field is the canonical auth method selector for agents
+     * and tooling. At most one field per schema may set this.
+     */
+    isAuthField?: boolean
+
+    /**
      * Lifecycle state
      */
     lifecycle?: Lifecycle

@@ -145,6 +145,23 @@ export function validateSchema(schema: DatasourceConfigSchema): ValidationError[
         checkEffectRefs(schema.fields, "fields")
     }
 
+    // At most one canonical auth selector per schema (top-level fields only)
+    if (schema.fields) {
+        let authFieldCount = 0
+        for (const field of schema.fields) {
+            if (field.isAuthField === true) {
+                authFieldCount++
+            }
+        }
+        if (authFieldCount > 1) {
+            errors.push({
+                path: "fields",
+                code: "multiple_auth_fields",
+                message: `at most one field may have isAuthField=true, found ${authFieldCount}`,
+            })
+        }
+    }
+
     return errors
 }
 
@@ -226,6 +243,14 @@ export function validateField(field: ConfigField, path = "field"): ValidationErr
             path: `${path}.section`,
             code: "invalid_section",
             message: "section is not allowed on virtual fields",
+        })
+    }
+
+    if (isItem && field.isAuthField === true) {
+        errors.push({
+            path: `${path}.isAuthField`,
+            code: "invalid_auth_field",
+            message: "isAuthField is not allowed on item fields",
         })
     }
 
