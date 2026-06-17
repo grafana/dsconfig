@@ -1,7 +1,9 @@
+import type { AzureMonitorAuthType } from "../grafana-azure-monitor-datasource/config";
+
 export type grafanaAzurepromethousDatasourceConfig = {
   jsonData: {
     
-    azureAuthType?: string;
+    azureAuthType?: AzureMonitorAuthType;
     
     cloudName?: string;
     

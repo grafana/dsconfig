@@ -1,3 +1,5 @@
+import type { AzureMonitorAuthType } from "../grafana-azure-monitor-datasource/config";
+
 export type grafanaAzureDataExplorerDatasourceConfig = {
   jsonData: {
     
@@ -5,7 +7,7 @@ export type grafanaAzureDataExplorerDatasourceConfig = {
     
     defaultDatabase: string;
     
-    azureAuthType?: string;
+    azureAuthType?: AzureMonitorAuthType;
     
     cloudName?: string;
     

@@ -74,12 +74,14 @@ export type AzureMonitorCloudName =
   | "customizedazuremonitor";
 
 export type AzureMonitorAuthType =
-  | "clientsecret"
-  | "clientcertificate"
+  | "currentuser"
   | "msi"
   | "workloadidentity"
+  | "clientsecret"
+  | "clientsecret-obo"
   | "currentuser"
-  | "ad-password";
+  | "ad-password"
+  | "clientcertificate";
 
 export type AzureCredentials = {
   authType: AzureMonitorAuthType;

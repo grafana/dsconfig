@@ -31,9 +31,25 @@
             "id": "jsonData.azureAuthType",
             "key": "azureAuthType",
             "label": "Authentication",
-            "description": "Azure authentication type (clientsecret, msi, currentuser).",
+            "description": "Azure AD authentication type.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "defaultValue": "msi",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "currentuser",
+                        "msi",
+                        "workloadidentity",
+                        "clientsecret",
+                        "clientsecret-obo",
+                        "currentuser",
+                        "ad-password",
+                        "clientcertificate"
+                    ]
+                }
+            ]
         },
         {
             "id": "jsonData.cloudName",
