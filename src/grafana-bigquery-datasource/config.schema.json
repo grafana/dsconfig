@@ -8,9 +8,21 @@
             "id": "jsonData.authenticationType",
             "key": "authenticationType",
             "label": "Authentication type",
-            "description": "Google Cloud authentication mechanism (jwt, gce, or workloadIdentityFederation).",
+            "description": "Google Cloud authentication mechanism.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "defaultValue": "jwt",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "jwt",
+                        "gce",
+                        "workloadIdentityFederation",
+                        "forwardOAuthIdentity"
+                    ]
+                }
+            ]
         },
         {
             "id": "jsonData.defaultProject",
@@ -26,7 +38,8 @@
             "label": "Client Email",
             "description": "Service account email address for JWT authentication.",
             "valueType": "string",
-            "target": "jsonData"
+            "target": "jsonData",
+            "dependsOn": "jsonData.authenticationType == 'jwt'"
         },
         {
             "id": "jsonData.tokenUri",
@@ -35,7 +48,8 @@
             "description": "OAuth2 token endpoint URI.",
             "valueType": "string",
             "target": "jsonData",
-            "defaultValue": "https://oauth2.googleapis.com/token"
+            "defaultValue": "https://oauth2.googleapis.com/token",
+            "dependsOn": "jsonData.authenticationType == 'jwt'"
         },
         {
             "id": "jsonData.flatRateProject",
@@ -107,6 +121,7 @@
             "valueType": "string",
             "semanticType": "token",
             "target": "secureJsonData",
+            "dependsOn": "jsonData.authenticationType == 'jwt'",
             "ui": {
                 "component": "textarea",
                 "rows": 7

@@ -1,7 +1,13 @@
+export type BigQueryAuthType =
+  | "jwt"
+  | "gce"
+  | "workloadIdentityFederation"
+  | "forwardOAuthIdentity";
+
 export type grafanaBigqueryDatasourceConfig = {
   jsonData: {
     
-    authenticationType?: string;
+    authenticationType?: BigQueryAuthType;
     
     defaultProject?: string;
     
