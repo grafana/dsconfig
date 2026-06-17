@@ -1,7 +1,9 @@
+import type { AWSAuthType } from "../cloudwatch/config";
+
 export type grafanaXRayDatasourceConfig = {
   jsonData: {
     
-    authType?: string;
+    authType?: AWSAuthType;
     
     defaultRegion?: string;
     

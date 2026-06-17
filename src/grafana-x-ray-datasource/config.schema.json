@@ -8,10 +8,23 @@
             "id": "jsonData.authType",
             "key": "authType",
             "label": "Authentication Provider",
-            "description": "AWS authentication method.",
+            "description": "AWS authentication method. The default SDK provider extracts credentials from environment variables or IAM roles.",
             "valueType": "string",
             "target": "jsonData",
-            "defaultValue": "default"
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "credentials",
+                        "keys",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ]
         },
         {
             "id": "jsonData.defaultRegion",
