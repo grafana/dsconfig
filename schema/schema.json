@@ -10,6 +10,7 @@
         "pluginName",
         "fields"
     ],
+    "additionalProperties": false,
     "properties": {
         "schemaVersion": {
             "type": "string",
@@ -59,6 +60,7 @@
                 "key",
                 "valueType"
             ],
+            "additionalProperties": false,
             "properties": {
                 "id": {
                     "type": "string",
@@ -238,6 +240,7 @@
             "required": [
                 "valueType"
             ],
+            "additionalProperties": false,
             "properties": {
                 "valueType": {
                     "type": "string",
@@ -292,6 +295,7 @@
             "required": [
                 "type"
             ],
+            "additionalProperties": false,
             "properties": {
                 "type": {
                     "const": "direct"
@@ -305,6 +309,7 @@
                 "key",
                 "value"
             ],
+            "additionalProperties": false,
             "properties": {
                 "type": {
                     "const": "indexedPair"
@@ -325,6 +330,7 @@
             "required": [
                 "type"
             ],
+            "additionalProperties": false,
             "properties": {
                 "type": {
                     "const": "computed"
@@ -355,6 +361,7 @@
                 "target",
                 "pattern"
             ],
+            "additionalProperties": false,
             "properties": {
                 "target": {
                     "type": "string",
@@ -374,6 +381,7 @@
             "required": [
                 "component"
             ],
+            "additionalProperties": false,
             "properties": {
                 "component": {
                     "type": "string",
@@ -428,6 +436,7 @@
             "required": [
                 "type"
             ],
+            "additionalProperties": false,
             "properties": {
                 "id": {
                     "type": "string",
@@ -573,6 +582,7 @@
             "required": [
                 "when"
             ],
+            "additionalProperties": false,
             "properties": {
                 "when": {
                     "type": "string"
@@ -612,6 +622,7 @@
                 "when",
                 "set"
             ],
+            "additionalProperties": false,
             "properties": {
                 "when": {
                     "type": "string",
@@ -631,6 +642,7 @@
                 "label",
                 "value"
             ],
+            "additionalProperties": false,
             "properties": {
                 "label": {
                     "type": "string"
@@ -653,6 +665,7 @@
                 "title",
                 "fieldRefs"
             ],
+            "additionalProperties": false,
             "properties": {
                 "id": {
                     "type": "string"
@@ -683,6 +696,7 @@
                 "type",
                 "fields"
             ],
+            "additionalProperties": false,
             "properties": {
                 "type": {
                     "type": "string",
