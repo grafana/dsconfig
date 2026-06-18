@@ -27,6 +27,9 @@ type DatasourceConfigSchema struct {
 	// Optional UI grouping
 	Groups []ConfigGroup `json:"groups,omitempty"`
 
+	// Optional Instruction
+	Instructions []string `json:"instructions,omitempty"`
+
 	// Relationships between fields
 	Relationships []FieldRelationship `json:"relationships,omitempty"`
 }
