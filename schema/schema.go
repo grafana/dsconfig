@@ -128,8 +128,7 @@ type ConfigField struct {
 	DocURL      string `json:"docURL,omitempty"`
 
 	// Core typing
-	ValueType    ValueType    `json:"valueType"`
-	SemanticType SemanticType `json:"semanticType,omitempty"`
+	ValueType ValueType `json:"valueType"`
 
 	// Storage location (required for storage fields)
 	Target *TargetLocation `json:"target,omitempty"`
@@ -144,9 +143,6 @@ type ConfigField struct {
 
 	// True if part of array item schema
 	IsItemField *bool `json:"isItemField,omitempty"`
-
-	// Lifecycle: stable / deprecated / experimental
-	Lifecycle Lifecycle `json:"lifecycle,omitempty"`
 
 	// UI hints
 	UI *FieldUI `json:"ui,omitempty"`
@@ -223,14 +219,6 @@ func (f *ConfigField) Validate() error {
 
 	if f.Kind != "" && !f.Kind.IsValid() {
 		return fmt.Errorf("field %s: invalid kind %q", f.ID, f.Kind)
-	}
-
-	if f.SemanticType != "" && !f.SemanticType.IsValid() {
-		return fmt.Errorf("field %s: invalid semanticType %q", f.ID, f.SemanticType)
-	}
-
-	if f.Lifecycle != "" && !f.Lifecycle.IsValid() {
-		return fmt.Errorf("field %s: invalid lifecycle %q", f.ID, f.Lifecycle)
 	}
 
 	if f.UI != nil {
@@ -374,32 +362,6 @@ func (v ValueType) IsValid() bool {
 }
 
 // ============================================================
-// Semantic Types
-// ============================================================
-
-type SemanticType string
-
-const (
-	URLType           SemanticType = "url"
-	PasswordType      SemanticType = "password"
-	TokenType         SemanticType = "token"
-	HostnameType      SemanticType = "hostname"
-	DurationType      SemanticType = "duration"
-	DatasourceUIDType SemanticType = "datasourceUid"
-	QueryType         SemanticType = "query"
-)
-
-func (s SemanticType) IsValid() bool {
-	switch s {
-	case URLType, PasswordType, TokenType, HostnameType, DurationType,
-		DatasourceUIDType, QueryType:
-		return true
-	default:
-		return false
-	}
-}
-
-// ============================================================
 // Field Kind
 // ============================================================
 
@@ -413,27 +375,6 @@ const (
 func (k FieldKind) IsValid() bool {
 	switch k {
 	case StorageField, VirtualField:
-		return true
-	default:
-		return false
-	}
-}
-
-// ============================================================
-// Lifecycle
-// ============================================================
-
-type Lifecycle string
-
-const (
-	StableLifecycle       Lifecycle = "stable"
-	DeprecatedLifecycle   Lifecycle = "deprecated"
-	ExperimentalLifecycle Lifecycle = "experimental"
-)
-
-func (l Lifecycle) IsValid() bool {
-	switch l {
-	case StableLifecycle, DeprecatedLifecycle, ExperimentalLifecycle:
 		return true
 	default:
 		return false

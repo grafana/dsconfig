@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://grafana.com/schemas/datasource-config-schema.json",
+    "$id": "https://github.com/grafana/ds/blob/main/dsconfig/schema.json",
     "title": "Datasource Configuration Schema",
     "description": "Declarative schema for Grafana datasource configuration including UI, validation, behavior, relationships, and storage mapping.",
     "type": "object",
@@ -14,9 +14,8 @@
         "schemaVersion": {
             "type": "string",
             "description": "Version of this schema specification",
-            "examples": [
-                "v1",
-                "v2"
+            "enum": [
+                "v1"
             ]
         },
         "pluginType": {
@@ -91,18 +90,6 @@
                         "any"
                     ]
                 },
-                "semanticType": {
-                    "type": "string",
-                    "enum": [
-                        "url",
-                        "password",
-                        "token",
-                        "hostname",
-                        "duration",
-                        "datasourceUid",
-                        "query"
-                    ]
-                },
                 "target": {
                     "type": "string",
                     "enum": [
@@ -127,14 +114,6 @@
                 "isItemField": {
                     "type": "boolean",
                     "description": "Must be true for fields inside array item schemas"
-                },
-                "lifecycle": {
-                    "type": "string",
-                    "enum": [
-                        "stable",
-                        "deprecated",
-                        "experimental"
-                    ]
                 },
                 "ui": {
                     "$ref": "#/definitions/FieldUI"

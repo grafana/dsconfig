@@ -1,3 +1,0 @@
-# markdownlint configuration
-# Disable line-length - URLs, tables, and source links make 80 chars impractical
-MD013: false

@@ -2,27 +2,19 @@
 
 ## Overview
 
-`dsconfig/schema` defines a declarative schema for Grafana datasource configuration. It describes every configurable field — its type, storage location, validation rules, UI hints, and relationships — in a single, language-neutral model.
+`dsconfig` defines a declarative schema for Grafana datasources configuration. It describes every configurable field, its type, storage location, validation rules, UI hints, and relationships — in a single, language-neutral model.
 
-The schema acts as a shared contract consumed by:
+The `dsconfig` acts as a shared contract consumed by:
 
-- **Config editors** — generate forms from schema instead of hand-writing React components
-- **Validation** — enforce data contracts at provisioning time and in the UI
-- **Documentation** — auto-generate field reference docs from schema definitions
 - **LLM / automation tooling** — provide structured field metadata for AI-assisted configuration
-- **Provisioning** — describe the exact shape of `jsonData`, `secureJsonData`, and root fields
+- **Config editors** — generate forms from schema instead of hand-writing React components
+- **Documentation** — auto-generate field reference docs from schema definitions
+- **Provisioning** — describe the exact shape of `jsonData`, `secureJsonData`, and `root` fields
+- **Validation** — enforce data contracts at provisioning time and in the UI
 
-The schema does **not** change Grafana's existing datasource config model. Fields still live in `root`, `jsonData`, and `secureJsonData` — the schema is a declarative layer on top of that structure.
+The `dsconfig` schema does **not** change Grafana's existing datasource config model. Fields still live in `root`, `jsonData`, and `secureJsonData` — the dsconfig schema is a semantic layer on top of the existing data source config structure.
 
-Three implementations describe the same model:
-
-| Language    | File                                    | Purpose                           |
-| ----------- | --------------------------------------- | --------------------------------- |
-| Go          | `schema.go`                             | Types, validation, SDK conversion |
-| TypeScript  | `schema.ts`, `guards.ts`, `validate.ts` | Types, runtime guards, validation |
-| JSON Schema | `schema.json`                           | External tooling, CI validation   |
-
-See [`schema.md`](./schema.md) for the full design document including field reference tables, storage mapping details, and contract decisions.
+See [`schema.md`](./schema.md) for the full design document.
 
 ---
 
@@ -46,38 +38,17 @@ Every schema requires `schemaVersion`, `pluginType`, `pluginName`, and at least 
 }
 ```
 
-**Validate in Go:**
-
-```go
-var s schema.DatasourceConfigSchema
-json.Unmarshal(data, &s)
-if err := s.Validate(); err != nil { /* ... */ }
-```
-
-**Validate in TypeScript:**
-
-```ts
-import { validateSchema } from "@grafana/dsconfig/schema";
-const errors = validateSchema(JSON.parse(data));
-```
-
-**Validate against JSON Schema:**
-
-```bash
-npx ajv validate -s schema/schema.json -d my-datasource.schema.json
-```
-
 ---
 
-## How the Three Views Relate
+## DSConfig Schema Topology
 
-Every example below shows three representations of the same datasource config:
+Every example below shows three representations of the datasource config / schema:
 
 1. **Schema** — the `dsconfig` schema definition (source of truth)
 2. **Grafana Storage** — what gets persisted in Grafana's datasource config model
 3. **SDK PluginSettings** — the OpenAPI spec produced by `ToPluginSettings()` for `grafana-plugin-sdk-go`
 
-```
+```sh
 ┌───────────-───┐     ToPluginSettings()     ┌───────────-----───────┐
 │   dsconfig    │ ─────────────────────────► │  SDK PluginSettings   │
 │   schema      │                            │  (spec + secureValues)│
@@ -98,22 +69,21 @@ Every example below shows three representations of the same datasource config:
 
 ### 1. Root-level field
 
-The simplest case: a single field stored at the top level of the datasource config.
+**The simplest case**: A single field stored at the top level of the datasource config.
 
 **Schema:**
 
 ```json
 {
   "schemaVersion": "v1",
-  "pluginType": "example-simple",
-  "pluginName": "Simple URL Datasource",
+  "pluginType": "grafana-example-datasource",
+  "pluginName": "Example Datasource",
   "fields": [
     {
       "id": "connection.url",
       "key": "url",
       "description": "Base URL of the datasource",
       "valueType": "string",
-      "semanticType": "url",
       "target": "root",
       "required": true,
       "validations": [
@@ -133,8 +103,8 @@ The simplest case: a single field stored at the top level of the datasource conf
 
 ```json
 {
-  "name": "My Simple DS",
-  "type": "example-simple",
+  "name": "example ds - dev",
+  "type": "grafana-example-datasource",
   "url": "https://example.com/api",
   "jsonData": {},
   "secureJsonData": {}
@@ -160,32 +130,24 @@ The simplest case: a single field stored at the top level of the datasource conf
 }
 ```
 
-Key points:
-
-- `target: "root"` → the field sits at the top level in Grafana storage
-- `semanticType: "url"` → becomes `"format": "uri"` in the SDK spec
-- `validations[].pattern` → becomes `"pattern"` in JSON Schema
-- No `secureValues` since nothing targets `secureJsonData`
-
 ---
 
-### 2. Fields across all three targets
+### 2. Fields across all three storage targets
 
-A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings), and `secureJsonData` (secrets).
+A typical datasource has fields/configuration spread across `root` (url, basicAuth), `jsonData` (settings), and `secureJsonData` (secrets).
 
-**Schema** (abbreviated — full version in [`testdata/convert/root-jsondata-secure-mix/`](./testdata/convert/root-jsondata-secure-mix/)):
+**Schema**:
 
 ```json
 {
   "schemaVersion": "v1",
-  "pluginType": "example-mix",
-  "pluginName": "Mixed Targets Datasource",
+  "pluginType": "grafana-example-datasource",
+  "pluginName": "Example Datasource",
   "fields": [
     {
       "id": "connection.url",
       "key": "url",
       "valueType": "string",
-      "semanticType": "url",
       "target": "root",
       "required": true
     },
@@ -194,6 +156,18 @@ A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings
       "key": "basicAuth",
       "valueType": "boolean",
       "target": "root"
+    },
+    {
+      "id": "connection.basicAuthUser",
+      "key": "basicAuthUser",
+      "valueType": "string",
+      "target": "root"
+    },
+    {
+      "id": "jsonData.tlsSkipVerify",
+      "key": "tlsSkipVerify",
+      "valueType": "boolean",
+      "target": "jsonData"
     },
     {
       "id": "jsonData.timeout",
@@ -208,16 +182,15 @@ A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings
       "id": "jsonData.serverName",
       "key": "serverName",
       "valueType": "string",
-      "semanticType": "hostname",
       "target": "jsonData"
     },
     {
       "id": "secure.basicAuthPassword",
       "key": "basicAuthPassword",
       "valueType": "string",
-      "semanticType": "password",
       "target": "secureJsonData",
-      "dependsOn": "connection.basicAuth == true"
+      "dependsOn": "connection.basicAuth == true",
+      "requiredWhen": "connection.basicAuth == true"
     },
     {
       "id": "secure.tlsCACert",
@@ -233,9 +206,9 @@ A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings
 
 ```json
 {
-  "name": "My Mixed DS",
-  "type": "example-mix",
-  "url": "https://api.example.com",
+  "name": "example ds - dev",
+  "type": "grafana-example-datasource",
+  "url": "https://example.com/api",
   "basicAuth": true,
   "basicAuthUser": "your_username",
   "jsonData": {
@@ -266,9 +239,15 @@ A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings
       "basicAuth": {
         "type": "boolean"
       },
+      "basicAuthUser": {
+        "type": "string"
+      },
       "jsonData": {
         "type": "object",
         "properties": {
+          "tlsSkipVerify": {
+            "type": "boolean"
+          },
           "timeout": {
             "type": "number",
             "default": 30,
@@ -293,33 +272,24 @@ A typical datasource has fields in `root` (url, basicAuth), `jsonData` (settings
 }
 ```
 
-Key points:
-
-- `target: "root"` fields become top-level properties in the SDK spec
-- `target: "jsonData"` fields are nested under a `jsonData` object
-- `target: "secureJsonData"` fields become `secureValues` entries — values are **write-only** and never returned in the spec
-- `dependsOn` expressions become `x-dsconfig-depends-on` vendor extensions
-- `validations[].range` maps to `minimum`/`maximum` in JSON Schema
-
 ---
 
 ### 3. Conditional auth with secrets
 
 Auth methods often involve a selector that conditionally shows/requires a secret field.
 
-**Schema** (full version in [`testdata/convert/bearer-token-auth/`](./testdata/convert/bearer-token-auth/)):
+**Schema**:
 
 ```json
 {
   "schemaVersion": "v1",
-  "pluginType": "example-bearer",
-  "pluginName": "Bearer Token Datasource",
+  "pluginType": "grafana-example-datasource",
+  "pluginName": "Example Datasource",
   "fields": [
     {
       "id": "connection.url",
       "key": "url",
       "valueType": "string",
-      "semanticType": "url",
       "target": "root",
       "required": true
     },
@@ -344,7 +314,6 @@ Auth methods often involve a selector that conditionally shows/requires a secret
       "id": "auth.bearerToken",
       "key": "bearerToken",
       "valueType": "string",
-      "semanticType": "token",
       "target": "secureJsonData",
       "dependsOn": "auth.method == 'bearer-token'",
       "requiredWhen": "auth.method == 'bearer-token'"
@@ -357,8 +326,8 @@ Auth methods often involve a selector that conditionally shows/requires a secret
 
 ```json
 {
-  "name": "My Bearer DS",
-  "type": "example-bearer",
+  "name": "example ds - dev",
+  "type": "grafana-example-datasource",
   "url": "https://api.example.com",
   "jsonData": {
     "authMethod": "bearer-token"
@@ -400,19 +369,13 @@ Auth methods often involve a selector that conditionally shows/requires a secret
 }
 ```
 
-Key points:
-
-- `allowedValues` validation → `enum` in JSON Schema
-- `ui.options` is for **presentation** (labels); `validations[].values` is the **data contract**
-- `dependsOn` / `requiredWhen` are CEL expressions — stored as opaque strings, not evaluated by the schema validator
-
 ---
 
 ### 4. Repeatable indexed pairs (HTTP headers)
 
 Grafana's legacy storage for HTTP headers uses indexed key/value pairs (`httpHeaderName1`, `httpHeaderValue1`, etc.). The schema models this as an array with an `indexedPair` storage mapping.
 
-**Schema** (full version in [`testdata/convert/indexed-headers-storage/`](./testdata/convert/indexed-headers-storage/)):
+**Schema**:
 
 ```json
 {
@@ -424,7 +387,6 @@ Grafana's legacy storage for HTTP headers uses indexed key/value pairs (`httpHea
       "id": "connection.url",
       "key": "url",
       "valueType": "string",
-      "semanticType": "url",
       "target": "root",
       "required": true
     },
@@ -476,7 +438,7 @@ Grafana's legacy storage for HTTP headers uses indexed key/value pairs (`httpHea
 }
 ```
 
-**Grafana Storage** (the legacy indexed format):
+**Grafana Storage**:
 
 ```json
 {
@@ -528,22 +490,13 @@ Grafana's legacy storage for HTTP headers uses indexed key/value pairs (`httpHea
 }
 ```
 
-Key points:
-
-- The schema models headers as a clean `array` of objects
-- `storage.type: "indexedPair"` describes how the array maps to Grafana's `httpHeaderName{index}` / `httpHeaderValue{index}` legacy pattern
-- Header names go to `jsonData`, values go to `secureJsonData` — split across targets
-- `isItemField: true` is required on all fields inside `item.fields` — they don't need their own `target`
-- `itemCount` validation limits the array size
-- The SDK spec sees a clean array; the storage mapping is a separate concern
-
 ---
 
 ### 5. Array of objects (no legacy mapping)
 
 When the storage format is already a JSON array (e.g. Loki derived fields), no `storage` mapping is needed.
 
-**Schema** (full version in [`testdata/convert/nested-object-jsondata/`](./testdata/convert/nested-object-jsondata/)):
+**Schema**:
 
 ```json
 {
@@ -584,7 +537,6 @@ When the storage format is already a JSON array (e.g. Loki derived fields), no `
             "id": "derivedFields.item.url",
             "key": "url",
             "valueType": "string",
-            "semanticType": "url",
             "isItemField": true
           },
           {
@@ -600,7 +552,7 @@ When the storage format is already a JSON array (e.g. Loki derived fields), no `
 }
 ```
 
-**Grafana Storage** (stored as-is in jsonData):
+**Grafana Storage**:
 
 ```json
 {
@@ -656,19 +608,13 @@ When the storage format is already a JSON array (e.g. Loki derived fields), no `
 }
 ```
 
-Key points:
-
-- No `storage` mapping needed — the array is stored directly in `jsonData.derivedFields`
-- Contrast with the indexed headers example where `storage: { type: "indexedPair" }` is required for the legacy format
-- Item fields with `required: true` become `required` in the SDK spec's `items` schema
-
 ---
 
 ### 6. Virtual (computed) fields
 
 Virtual fields are not stored. They derive a value from other fields for UI logic or tooling.
 
-**Schema** (full version in [`testdata/convert/virtual-fields-skipped/`](./testdata/convert/virtual-fields-skipped/)):
+**Schema**:
 
 ```json
 {
@@ -677,7 +623,6 @@ Virtual fields are not stored. They derive a value from other fields for UI logi
   "description": "True when basic auth user and password are both set",
   "valueType": "boolean",
   "kind": "virtual",
-  "lifecycle": "experimental",
   "storage": {
     "type": "computed",
     "read": "auth.basicAuth == true && auth.basicAuthUser != ''"
@@ -689,55 +634,18 @@ Virtual fields are not stored. They derive a value from other fields for UI logi
 
 **SDK PluginSettings:** _Not present._ `ToPluginSettings()` skips virtual fields entirely.
 
-Key points:
-
-- `kind: "virtual"` means no `target` is needed
-- The `computed` storage mapping's `read` expression defines how to derive the value
-- Virtual fields are useful for UI toggles ("show advanced"), computed summaries, or conditional logic anchors
-
 ---
 
 ## Field Requirements Summary
 
 | Property      | Required?                   | Notes                                                                                |
 | ------------- | --------------------------- | ------------------------------------------------------------------------------------ |
-| `id`          | Always                      | Globally unique (e.g. `"auth.password"`)                                             |
-| `key`         | Always                      | Local storage key (e.g. `"password"`)                                                |
-| `valueType`   | Always                      | `string`, `number`, `boolean`, `array`, `object`                                     |
+| `id`          | yes                         | Globally unique (e.g. `"auth.password"`)                                             |
+| `key`         | yes                         | Local storage key (e.g. `"password"`)                                                |
+| `valueType`   | yes                         | `string`, `number`, `boolean`, `array`, `object`                                     |
 | `target`      | For storage fields          | `root`, `jsonData`, or `secureJsonData`. Omit for `virtual` and `isItemField` fields |
 | `item`        | When `valueType` is `array` | Defines the array element schema                                                     |
 | `isItemField` | Inside `item.fields`        | Must be `true` for all nested item fields                                            |
-
----
-
-## Examples
-
-See [`examples/`](./examples/) for complete, validated schema files:
-
-| File                           | Pattern                                     |
-| ------------------------------ | ------------------------------------------- |
-| `simple-url.schema.json`       | Minimal — single URL field                  |
-| `bearer-token.schema.json`     | Conditional auth select + secret            |
-| `indexed-headers.schema.json`  | Array with `indexedPair` storage mapping    |
-| `virtual-auth.schema.json`     | Basic auth with virtual computed field      |
-| `array-of-objects.schema.json` | Array of objects (trace-to-metrics queries) |
-
-See [`testdata/convert/`](./testdata/convert/) for input→output pairs showing the full schema-to-SDK-to-storage relationship for 18 scenarios including real datasource schemas (Prometheus, Loki, Tempo).
-
----
-
-## Testing
-
-```bash
-# Go — schema validation, converter, round-trip
-go test ./schema/ -count=1
-
-# TypeScript — validation, guards, JSON Schema, examples
-yarn test
-
-# Both test suites validate the same example files,
-# ensuring Go and TypeScript agree on what's valid.
-```
 
 ---
 
@@ -745,13 +653,12 @@ yarn test
 
 ### Gaps (defined in schema, not yet implemented)
 
-| #   | Gap                                                | Detail                                                                                                                                                                                                                               |
-| --- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | **CEL expressions are opaque strings**             | `dependsOn`, `requiredWhen`, `disabledWhen`, `overrides[].when`, `storage.computed.read/write`, and `custom` validation `expression` are stored but never parsed or evaluated. A typo won't be caught until a runtime engine exists. |
-| 2   | **Storage mapping is metadata-only**               | `storage` (`direct`, `indexedPair`, `computed`) is validated structurally but has no runtime engine. No code reads an `indexedPair` mapping and expands `httpHeaderName{index}` into real keys.                                      |
-| 3   | **No runtime value validation**                    | The schema defines validation rules (pattern, range, allowedValues, etc.) but there's no function that takes a schema + a config payload and returns validation errors against real data.                                            |
-| 4   | **No React UI renderer**                           | `ui` hints (component, options, placeholder, width) are defined but nothing consumes them to generate a form.                                                                                                                        |
-| 5   | **`FormState` / `SecureFieldState` are type-only** | These TypeScript types exist in `schema.ts` but nothing constructs, manages, or serializes them.                                                                                                                                     |
+| #   | Gap                                    | Detail                                                                                                                                                                                                                               |
+| --- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **CEL expressions are opaque strings** | `dependsOn`, `requiredWhen`, `disabledWhen`, `overrides[].when`, `storage.computed.read/write`, and `custom` validation `expression` are stored but never parsed or evaluated. A typo won't be caught until a runtime engine exists. |
+| 2   | **Storage mapping is metadata-only**   | `storage` (`direct`, `indexedPair`, `computed`) is validated structurally but has no runtime engine. No code reads an `indexedPair` mapping and expands `httpHeaderName{index}` into real keys.                                      |
+| 3   | **No runtime value validation**        | The schema defines validation rules (pattern, range, allowedValues, etc.) but there's no function that takes a schema + a config payload and returns validation errors against real data.                                            |
+| 4   | **No React UI renderer**               | `ui` hints (component, options, placeholder, width) are defined but nothing consumes them to generate a form.                                                                                                                        |
 
 ### Limitations (known constraints in the current design)
 
@@ -789,4 +696,3 @@ yarn test
 | 5   | How should `secureJsonFields` (read-side boolean map) be modeled in the schema or SDK output?                              |
 | 6   | Should validation rule evaluation order, short-circuit behavior, or severity levels be defined?                            |
 | 7   | Should groups enforce completeness? (every field must belong to at least one group)                                        |
-| 8   | Should the TypeScript package be published as a standalone npm package?                                                    |

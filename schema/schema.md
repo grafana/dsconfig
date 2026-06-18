@@ -2,19 +2,6 @@
 
 Declarative schema for Grafana datasource configuration.
 
-## Goals
-
-- Single source of truth for datasource config: UI, validation, storage mapping, docs, and LLM tooling
-- Language-neutral contract: Go, TypeScript, and JSON Schema all describe the same model
-- Support the existing Grafana datasource config shape without changing it
-
-## Non-goals (this PR)
-
-- Runtime config value validation (follow-up)
-- CEL expression evaluation (follow-up)
-- React UI rendering (follow-up)
-- Storage mapping engine (follow-up)
-
 ## Root schema
 
 | name          | type                | required  | description                                   |
@@ -96,7 +83,7 @@ Tools, docs generators, provisioning, and LLM integrations should use `validatio
 
 ## Map fields
 
-When `valueType` is `"map"`, the field represents a `Record<string, T>` — an object with dynamic string keys. Like arrays, maps require an `item` property that describes the value type:
+When `valueType` is `"map"` it represents an object with dynamic string keys. Like arrays, maps require an `item` property that describes the value type:
 
 ```json
 {
@@ -108,7 +95,7 @@ When `valueType` is `"map"`, the field represents a `Record<string, T>` — an o
 }
 ```
 
-For maps with structured values (`Record<string, SomeObject>`):
+For maps with structured values :
 
 ```json
 {
@@ -373,16 +360,6 @@ Set `"optional": true` on groups that can be collapsed or hidden by default (e.g
 
 Groups and relationships are metadata — they do not affect storage or validation.
 
-## Lifecycle
-
-Fields can be marked with a lifecycle stage:
-
-| Value          | Meaning                             |
-| -------------- | ----------------------------------- |
-| `stable`       | Production-ready                    |
-| `deprecated`   | Will be removed in a future version |
-| `experimental` | Subject to change                   |
-
 ## Expression language
 
 Expression fields (`dependsOn`, `requiredWhen`, `disabledWhen`, `overrides[].when`, `storage.computed.read/write`, `custom` validation `expression`) are **opaque strings** in v1. The intended language is CEL. This PR stores expressions but **does not evaluate them**. Runtime evaluation is follow-up work.
@@ -402,15 +379,3 @@ Expression fields (`dependsOn`, `requiredWhen`, `disabledWhen`, `overrides[].whe
 | Expressions                   | Stored as strings, evaluated later   |
 | Groups                        | Layout metadata, not source of truth |
 | Relationships                 | Semantic metadata, not storage       |
-
-## Examples
-
-See [`examples/`](./examples/) for copy-pasteable schema examples:
-
-- `simple-url.schema.json` — Minimal URL field
-- `bearer-token.schema.json` — Auth method select + secure token
-- `indexed-headers.schema.json` — HTTP headers with indexedPair mapping
-- `virtual-auth.schema.json` — Basic auth with virtual computed field
-- `array-of-objects.schema.json` — Array of trace-to-metrics queries
-- `map-and-any.schema.json` — Map type (Record) and any type (union) fields
-- `auth-selector.schema.json` — Virtual auth method selector with multi-field effects
