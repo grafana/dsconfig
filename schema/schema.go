@@ -28,7 +28,7 @@ type DatasourceConfigSchema struct {
 	Groups []ConfigGroup `json:"groups,omitempty"`
 
 	// Optional Instruction
-	Instructions []string `json:"instructions,omitempty"`
+	Instructions []Instruction `json:"instructions,omitempty"`
 
 	// Relationships between fields
 	Relationships []FieldRelationship `json:"relationships,omitempty"`
@@ -64,6 +64,11 @@ func (s *DatasourceConfigSchema) Validate() error {
 	}
 
 	return nil
+}
+
+type Instruction struct {
+	Message string   `json:"msg"`
+	Tags    []string `json:"tags,omitempty"`
 }
 
 // ValidateRefs checks that all group and relationship field references

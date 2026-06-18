@@ -47,7 +47,21 @@
         "instructions": {
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "object",
+                "required": [
+                    "msg"
+                ],
+                "properties": {
+                    "msg": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "relationships": {

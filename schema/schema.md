@@ -12,7 +12,7 @@ Declarative schema for Grafana datasource configuration.
 | docURL        | string              | Optional  | documentation URL.                            |
 | fields        | ConfigField[]       | Required. | Source of truth for all config fields.        |
 | groups        | ConfigGroup[]       | Optional  | UI layout grouping.                           |
-| instructions  | string[]            | Optional  | Instructions for LLMs and other consumers.    |
+| instructions  | Instruction[]       | Optional  | Instructions for LLMs and other consumers.    |
 | relationships | FieldRelationship[] | Optional  | semantic relationships between fields.        |
 
 ## Field identity: `id` vs `key`
