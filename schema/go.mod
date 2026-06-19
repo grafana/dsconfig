@@ -3,6 +3,7 @@ module github.com/grafana/dsconfig/schema
 go 1.26.4
 
 require (
+	github.com/grafana/dsconfig/dsconfig v0.0.1
 	github.com/grafana/grafana-plugin-sdk-go v0.292.1
 	github.com/stretchr/testify v1.11.1
 )
