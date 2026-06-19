@@ -1,3 +1,6 @@
 go 1.26.4
 
-use ./schema
+use (
+	./schema
+	./dsconfig
+)
