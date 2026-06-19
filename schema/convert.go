@@ -107,6 +107,27 @@ func MarshalPluginSchema(schema *sdkschema.PluginSchema) ([]byte, error) {
 	return append(out, '\n'), nil
 }
 
+// MarshalSettings renders an SDK Settings object to the canonical JSON encoding,
+// matching the SDK's composite-provider settings.json file layout.
+func MarshalSettings(settings *sdkschema.Settings) ([]byte, error) {
+	out, err := json.MarshalIndent(settings, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("marshal settings: %w", err)
+	}
+	return append(out, '\n'), nil
+}
+
+// MarshalSettingsExamples renders an SDK SettingsExamples object to the canonical
+// JSON encoding, matching the SDK's composite-provider settings.examples.json
+// file layout.
+func MarshalSettingsExamples(examples *sdkschema.SettingsExamples) ([]byte, error) {
+	out, err := json.MarshalIndent(examples, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("marshal settings examples: %w", err)
+	}
+	return append(out, '\n'), nil
+}
+
 // placeInSection places a field into the correct section sub-object within props.
 // If the field has no Section, it is placed directly. If it has a Section, the
 // field is nested under an object property path. Dotted sections (e.g.
