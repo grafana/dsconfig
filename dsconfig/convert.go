@@ -1,19 +1,18 @@
-package schema
+package dsconfig
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
-	sdkschema "github.com/grafana/grafana-plugin-sdk-go/experimental/pluginschema"
+	"github.com/grafana/grafana-plugin-sdk-go/experimental/pluginschema"
 	"k8s.io/kube-openapi/pkg/validation/spec"
 )
 
-// ToSettings converts the declarative schema into the SDK pluginschema.Settings
+// ToPluginSchemaSettings converts the declarative schema into the SDK pluginschema.Settings
 // shape: Spec describes the whole instance-settings object (root fields plus a
 // nested jsonData object), and secureJsonData fields become SecureValues. Virtual
 // fields are skipped.
-func (s *DatasourceConfigSchema) ToSettings() (*sdkschema.Settings, error) {
+func (s *Schema) ToPluginSchemaSettings() (*pluginschema.Settings, error) {
 	if err := s.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
 	}
@@ -24,7 +23,7 @@ func (s *DatasourceConfigSchema) ToSettings() (*sdkschema.Settings, error) {
 	jsonDataProps := make(map[string]spec.Schema)
 	var jsonDataRequired []string
 
-	var secureValues []sdkschema.SecureValueInfo
+	var secureValues []pluginschema.SecureValueInfo
 
 	for _, f := range s.Fields {
 		if f.Kind == VirtualField {
@@ -32,7 +31,7 @@ func (s *DatasourceConfigSchema) ToSettings() (*sdkschema.Settings, error) {
 		}
 
 		if f.Target != nil && *f.Target == SecureJSONTarget {
-			secureValues = append(secureValues, sdkschema.SecureValueInfo{
+			secureValues = append(secureValues, pluginschema.SecureValueInfo{
 				Key:         f.Key,
 				Description: f.Description,
 				Required:    f.Required,
@@ -76,56 +75,10 @@ func (s *DatasourceConfigSchema) ToSettings() (*sdkschema.Settings, error) {
 		specSchema.Required = rootRequired
 	}
 
-	return &sdkschema.Settings{
+	return &pluginschema.Settings{
 		Spec:         specSchema,
 		SecureValues: secureValues,
 	}, nil
-}
-
-// NewPluginSchema assembles a full SDK PluginSchema from the declarative single
-// source of truth, for the given API version and optional settings examples.
-func (s *DatasourceConfigSchema) NewPluginSchema(apiVersion string, examples *sdkschema.SettingsExamples) (*sdkschema.PluginSchema, error) {
-	settings, err := s.ToSettings()
-	if err != nil {
-		return nil, err
-	}
-	return &sdkschema.PluginSchema{
-		TargetAPIVersion: apiVersion,
-		SettingsSchema:   settings,
-		SettingsExamples: examples,
-	}, nil
-}
-
-// MarshalPluginSchema renders a PluginSchema to the canonical JSON encoding used
-// for both artifact generation and drift detection, so generators and tests never
-// disagree on formatting.
-func MarshalPluginSchema(schema *sdkschema.PluginSchema) ([]byte, error) {
-	out, err := json.MarshalIndent(schema, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("marshal plugin schema: %w", err)
-	}
-	return append(out, '\n'), nil
-}
-
-// MarshalSettings renders an SDK Settings object to the canonical JSON encoding,
-// matching the SDK's composite-provider settings.json file layout.
-func MarshalSettings(settings *sdkschema.Settings) ([]byte, error) {
-	out, err := json.MarshalIndent(settings, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("marshal settings: %w", err)
-	}
-	return append(out, '\n'), nil
-}
-
-// MarshalSettingsExamples renders an SDK SettingsExamples object to the canonical
-// JSON encoding, matching the SDK's composite-provider settings.examples.json
-// file layout.
-func MarshalSettingsExamples(examples *sdkschema.SettingsExamples) ([]byte, error) {
-	out, err := json.MarshalIndent(examples, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("marshal settings examples: %w", err)
-	}
-	return append(out, '\n'), nil
 }
 
 // placeInSection places a field into the correct section sub-object within props.
