@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -12,6 +13,10 @@ import (
 	sdkSchema "github.com/grafana/grafana-plugin-sdk-go/experimental/pluginschema"
 	"github.com/stretchr/testify/require"
 )
+
+// jsonMarshalerType is used to detect fields that customize their JSON encoding
+// via a MarshalJSON method, so the kind-based type check can skip them.
+var jsonMarshalerType = reflect.TypeOf((*json.Marshaler)(nil)).Elem()
 
 // Params describes the plugin-specific inputs the conformance tests need. Every
 // field is required unless documented otherwise.
@@ -158,17 +163,23 @@ func JSONDataTypesMatchStruct(t *testing.T, p Params) {
 		}
 	}
 
-	structTypes := jsonTagKinds(reflect.TypeOf(p.SettingsJSONModel))
+	structFields := jsonTagFields(reflect.TypeOf(p.SettingsJSONModel))
 
 	for key, vt := range schemaTypes {
-		kind, ok := structTypes[key]
+		info, ok := structFields[key]
 		if !ok {
 			continue // key-set drift is reported by JSONDataMatchesStruct
 		}
-		want := valueTypesForKind(kind)
+		if info.customJSON {
+			// The field defines its own MarshalJSON, so its Go kind does not
+			// determine the JSON type (for example an int enum that marshals
+			// to a string). The kind-based check cannot reason about it.
+			continue
+		}
+		want := valueTypesForKind(info.kind)
 		require.Contains(t, want, vt,
 			"jsonData field %q is declared as %q in the schema but the struct field has Go kind %q",
-			key, vt, kind)
+			key, vt, info.kind)
 	}
 }
 
@@ -190,29 +201,59 @@ func SecureValuesMatchLoadSettings(t *testing.T, p Params) {
 		"secureJsonData fields in the schema are out of sync with the secrets the plugin reads")
 }
 
-// jsonTagKeys returns the JSON field names declared on a struct, skipping fields
-// without a json tag or tagged "-".
+// fieldInfo captures the JSON-relevant facts about a settings struct field: the
+// Go kind of the field and whether its type customizes JSON encoding via a
+// MarshalJSON method (in which case the Go kind does not determine the JSON
+// type).
+type fieldInfo struct {
+	kind       reflect.Kind
+	customJSON bool
+}
+
+// jsonTagKeys returns the JSON field names produced by encoding/json for a
+// struct, skipping fields without a json tag or tagged "-". Fields promoted from
+// anonymous embedded structs (for example awsds.AWSDatasourceSettings) are
+// included, mirroring how encoding/json marshals embedded fields.
 func jsonTagKeys(t reflect.Type) []string {
-	keys := make([]string, 0, t.NumField())
-	for i := 0; i < t.NumField(); i++ {
-		tag := t.Field(i).Tag.Get("json")
-		if tag == "" || tag == "-" {
-			continue
-		}
-		if name := strings.Split(tag, ",")[0]; name != "" {
-			keys = append(keys, name)
-		}
+	fields := jsonTagFields(t)
+	keys := make([]string, 0, len(fields))
+	for name := range fields {
+		keys = append(keys, name)
 	}
 	return keys
 }
 
-// jsonTagKinds maps each JSON field name to the reflect.Kind of its struct
-// field, skipping fields without a json tag or tagged "-".
-func jsonTagKinds(t reflect.Type) map[string]reflect.Kind {
-	kinds := make(map[string]reflect.Kind, t.NumField())
+// jsonTagFields maps each JSON field name to information about its struct field,
+// skipping fields without a json tag or tagged "-". Fields promoted from
+// anonymous embedded structs are flattened in, mirroring encoding/json. Fields
+// declared on the outer struct take precedence over promoted ones of the same
+// name, matching encoding/json's shallowest-wins rule.
+func jsonTagFields(t reflect.Type) map[string]fieldInfo {
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	fields := make(map[string]fieldInfo, t.NumField())
+	promoted := make(map[string]fieldInfo)
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		tag := field.Tag.Get("json")
+
+		// An anonymous embedded struct without a json tag has its fields
+		// promoted by encoding/json, so recurse into it. A type with a custom
+		// MarshalJSON is treated as a single value, not flattened.
+		if field.Anonymous && tag == "" && !implementsJSONMarshaler(field.Type) {
+			ft := field.Type
+			for ft.Kind() == reflect.Ptr {
+				ft = ft.Elem()
+			}
+			if ft.Kind() == reflect.Struct {
+				for name, info := range jsonTagFields(ft) {
+					promoted[name] = info
+				}
+				continue
+			}
+		}
+
 		if tag == "" || tag == "-" {
 			continue
 		}
@@ -220,9 +261,31 @@ func jsonTagKinds(t reflect.Type) map[string]reflect.Kind {
 		if name == "" {
 			continue
 		}
-		kinds[name] = field.Type.Kind()
+		fields[name] = fieldInfo{
+			kind:       field.Type.Kind(),
+			customJSON: implementsJSONMarshaler(field.Type),
+		}
 	}
-	return kinds
+
+	// Outer fields win over promoted ones of the same name.
+	for name, info := range promoted {
+		if _, ok := fields[name]; !ok {
+			fields[name] = info
+		}
+	}
+	return fields
+}
+
+// implementsJSONMarshaler reports whether t (or a pointer to t) implements
+// json.Marshaler, i.e. the field controls its own JSON representation.
+func implementsJSONMarshaler(t reflect.Type) bool {
+	if t.Implements(jsonMarshalerType) {
+		return true
+	}
+	if t.Kind() != reflect.Ptr {
+		return reflect.PtrTo(t).Implements(jsonMarshalerType)
+	}
+	return false
 }
 
 // valueTypesForKind returns the dsconfig ValueTypes compatible with a given Go
