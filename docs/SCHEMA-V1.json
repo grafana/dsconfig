@@ -1,0 +1,581 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://grafana.com/dsconfig/dsconfig/v1/SCHEMA-V1.json",
+    "title": "dsconfig Schema",
+    "description": "Formal JSON Schema describing the wire format of a dsconfig Schema document. This document is the structural contract that SCHEMA-V1.go (Go) and SCHEMA-V1.ts (TypeScript) both implement; all three files describe one shape and must be kept in agreement. A dsconfig Schema document describes one Grafana datasource plugin's configuration surface (root, jsonData, secureJsonData fields) without changing how Grafana stores that configuration. See dsconfig-rfc.md for the full design rationale, including the role this document plays as the structural schema input to Grafana App Platform's Kubernetes-style datasource resource API.",
+    "type": "object",
+    "$defs": {
+        "fieldIdSegment": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+            "description": "One dot-separated segment of a ConfigField id. Restricted to ASCII letters, digits, and underscore, not starting with a digit — the same character class a CEL-style identifier accepts. This exists so that an id is always safe to reference, by dotted path, from inside a future evaluator of dependsOn/requiredWhen/disabledWhen/effects[].when, none of which is evaluated by this schema version (see the 'Known limitations' note on validations and effects). This pattern is enforced by both reference implementations' structural validation (SCHEMA-V1.go's ValidateFieldIDFormat, SCHEMA-V1.ts's validateFieldIdFormat); a JSON Schema validator checking a document against this file alone enforces the same per-segment character constraint, but cannot by itself check the companion no-prefix-collision rule (no field id may be a strict dotted-path prefix of another field id in the same document), since that rule is a property of the whole document's id set, not of any single field in isolation — use one of the reference implementations for that check."
+        },
+        "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$",
+            "description": "A ConfigField id: one or more dot-separated segments, each matching fieldIdSegment. This pattern is the single-field-in-isolation half of id format validation; see fieldIdSegment's description for what this does and does not guarantee, and the 'Known limitations' note on id format for the no-prefix-collision rule this $def cannot express."
+        },
+        "valueType": {
+            "type": "string",
+            "enum": [
+                "string",
+                "number",
+                "boolean",
+                "array",
+                "object",
+                "map",
+                "any"
+            ],
+            "description": "Primitive or structural type of a field's value. 'map' is an object with dynamic string keys whose values share one schema (see fieldItemSchema). 'any' opts out of type-level validation for genuinely polymorphic fields; use sparingly."
+        },
+        "fieldKind": {
+            "type": "string",
+            "enum": [
+                "storage",
+                "virtual"
+            ],
+            "description": "'storage' (default) fields are persisted in root, jsonData, or secureJsonData. 'virtual' fields are computed or UI-only and are never persisted; they have no target and typically drive other fields via effects."
+        },
+        "targetLocation": {
+            "type": "string",
+            "enum": [
+                "root",
+                "jsonData",
+                "secureJsonData"
+            ],
+            "description": "The one of Grafana's three existing storage locations a storage field's value lives in. 'secureJsonData' fields are write-only: a value targeting secureJsonData describes what may be written, not a value retrievable through this schema or Grafana's existing API once saved."
+        },
+        "uiComponent": {
+            "type": "string",
+            "enum": [
+                "input",
+                "textarea",
+                "select",
+                "multiselect",
+                "radio",
+                "checkbox",
+                "switch",
+                "code",
+                "keyvalue",
+                "list"
+            ],
+            "description": "Form control type a config editor renderer may use to present this field. A closed set: an unrecognized value is a schema-authoring error, not a hint a renderer may ignore."
+        },
+        "uiWidth": {
+            "type": "string",
+            "enum": [
+                "full",
+                "half"
+            ],
+            "description": "Layout width hint for a generated config editor."
+        },
+        "validationRuleType": {
+            "type": "string",
+            "enum": [
+                "pattern",
+                "range",
+                "length",
+                "itemCount",
+                "allowedValues",
+                "custom"
+            ],
+            "description": "The kind of validation rule. This is the schema's data contract (authoritative over any allowed-values list also present in ui.options for display purposes)."
+        },
+        "storageMappingType": {
+            "type": "string",
+            "enum": [
+                "direct",
+                "indexedPair",
+                "computed"
+            ],
+            "description": "'direct' (default): target+key map onto a single stored property. 'indexedPair': describes Grafana's existing legacy numbered key/value pair convention (e.g. httpHeaderName1/httpHeaderValue1), optionally split across two targets. 'computed': the field's stored representation is derived from, or split across, other fields via read/write expressions."
+        },
+        "relationshipType": {
+            "type": "string",
+            "enum": [
+                "pair",
+                "group",
+                "datasourceReference"
+            ],
+            "description": "'pair': two fields forming one logical unit (e.g. username/password). 'group': an arbitrary related set. 'datasourceReference': one or more fields hold a UID reference to another Grafana datasource."
+        },
+        "fieldOption": {
+            "type": "object",
+            "description": "One selectable choice for a select/radio/multiselect UI component, or one entry in an allowedValues validation rule's values list.",
+            "required": [
+                "label",
+                "value"
+            ],
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {},
+                "description": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldUI": {
+            "type": "object",
+            "description": "UI rendering hints. Presentation metadata only; has no effect on validation or on the OpenAPI settings produced from this schema, with one documented exception: an enum may be derived from options when no explicit allowedValues validation rule is present.",
+            "required": [
+                "component"
+            ],
+            "properties": {
+                "component": {
+                    "$ref": "#/$defs/uiComponent"
+                },
+                "multiline": {
+                    "type": "boolean"
+                },
+                "rows": {
+                    "type": "integer"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/fieldOption"
+                    }
+                },
+                "allowCustom": {
+                    "type": "boolean"
+                },
+                "width": {
+                    "$ref": "#/$defs/uiWidth"
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string",
+                    "description": "Language hint for code editor components. Example: 'promql', 'logql', 'traceql', 'sql', 'json'."
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldValidationRule": {
+            "type": "object",
+            "description": "A discriminated union of validation rules. Exactly one type-specific property group is meaningful for a given rule, selected by 'type'.",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "$ref": "#/$defs/validationRuleType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "pattern": {
+                    "type": "string",
+                    "description": "Required when type is 'pattern'."
+                },
+                "min": {
+                    "type": "number",
+                    "description": "Used when type is 'range', 'length', or 'itemCount'. At least one of min/max is required for those types."
+                },
+                "max": {
+                    "type": "number",
+                    "description": "Used when type is 'range', 'length', or 'itemCount'. At least one of min/max is required for those types."
+                },
+                "values": {
+                    "type": "array",
+                    "description": "Required, non-empty, when type is 'allowedValues'.",
+                    "items": {}
+                },
+                "expression": {
+                    "type": "string",
+                    "description": "Required when type is 'custom'. A CEL-like expression string. NOTE: as of this schema version, this expression is stored but not evaluated by any reference implementation; see dsconfig-rfc.md, Known Limitations."
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldOverride": {
+            "type": "object",
+            "description": "Describes how a field's presentation or validation should change under a stated condition, without duplicating the entire field definition.",
+            "required": [
+                "when"
+            ],
+            "properties": {
+                "when": {
+                    "type": "string",
+                    "description": "CEL-like condition string. NOTE: not evaluated by any reference implementation as of this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "defaultValue": {},
+                "description": {
+                    "type": "string"
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "tooltip": {
+                    "type": "string"
+                },
+                "validations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/fieldValidationRule"
+                    }
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/fieldOption"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldEffect": {
+            "type": "object",
+            "description": "Declares that when this field's value matches a condition, the listed target fields (by id) should be set to specified values. A structured, validated alternative to an opaque computed write expression; typically used on virtual selector fields (e.g. an auth-method dropdown).",
+            "required": [
+                "when",
+                "set"
+            ],
+            "properties": {
+                "when": {
+                    "type": "string",
+                    "description": "CEL-like condition evaluated against the field's own current value. Convention: use 'value' to refer to it. Example: \"value == 'basic-auth'\". NOTE: not evaluated by any reference implementation as of this schema version; only validated for presence."
+                },
+                "set": {
+                    "type": "object",
+                    "description": "Maps field id -> value to set when the condition matches. Must be non-empty. Every key must resolve to a real field id declared elsewhere in this document (checked by schema-level reference validation, not expressible in JSON Schema alone).",
+                    "minProperties": 1,
+                    "additionalProperties": {}
+                }
+            },
+            "additionalProperties": false
+        },
+        "mappingField": {
+            "type": "object",
+            "description": "Describes one half (key or value) of an indexedPair storage mapping: which storage target it lives in, and the naming pattern used to generate each numbered property name (e.g. 'httpHeaderName{index}').",
+            "required": [
+                "target",
+                "pattern"
+            ],
+            "properties": {
+                "target": {
+                    "$ref": "#/$defs/targetLocation"
+                },
+                "pattern": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "storageMapping": {
+            "type": "object",
+            "description": "Maps a logical field onto Grafana's existing storage representation when that mapping is not a simple one-to-one property. NOTE: as of this schema version this is descriptive metadata only; no reference implementation executes an indexedPair or computed mapping against real stored data. See dsconfig-rfc.md, Known Limitations.",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "$ref": "#/$defs/storageMappingType"
+                },
+                "key": {
+                    "$ref": "#/$defs/mappingField",
+                    "description": "Required, together with value, when type is 'indexedPair'. Must not be present when type is 'direct' or 'computed'."
+                },
+                "value": {
+                    "$ref": "#/$defs/mappingField",
+                    "description": "Required, together with key, when type is 'indexedPair'. Must not be present when type is 'direct' or 'computed'."
+                },
+                "startIndex": {
+                    "type": "integer",
+                    "description": "Starting index for indexedPair numbering. Must not be present when type is 'direct' or 'computed'."
+                },
+                "read": {
+                    "type": "string",
+                    "description": "CEL-like read expression. Used only when type is 'computed'; at least one of read/write is required for 'computed'. NOTE: not evaluated by any reference implementation as of this schema version."
+                },
+                "write": {
+                    "type": "string",
+                    "description": "CEL-like write expression. Used only when type is 'computed'; at least one of read/write is required for 'computed'. NOTE: not evaluated by any reference implementation as of this schema version."
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldItemSchema": {
+            "type": "object",
+            "description": "Describes the shape of each element of an array field, or each value of a map field (map keys are always strings). When valueType is 'object', fields describes the element's own properties; every entry in fields must have isItemField set to true.",
+            "required": [
+                "valueType"
+            ],
+            "properties": {
+                "valueType": {
+                    "$ref": "#/$defs/valueType"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/configField"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "configField": {
+            "type": "object",
+            "description": "A single configuration field: either a value stored in root, jsonData, or secureJsonData, or a virtual (unstored) field. See dsconfig-rfc.md for the full discussion of id-versus-key, storage target semantics, and the storage-versus-virtual distinction.",
+            "required": [
+                "id",
+                "key",
+                "valueType"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/fieldId",
+                    "description": "Globally unique within the schema document. Used by every cross-reference in this schema (group fieldRefs, relationship fields, effect set keys). A dot-separated hierarchical path (e.g. 'auth.basicAuthPassword') is the recommended convention, and is now also a structurally enforced format (see fieldId) — though uniqueness-as-document-property and the no-prefix-collision rule still require whole-document validation beyond what this $ref alone expresses; see the reference implementations' Validate/validateSchema."
+                },
+                "key": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The local property name within whatever this field is actually stored in (root, jsonData, secureJsonData, or an item object). Matches what Grafana's existing storage model and plugin backend code already expect. Unique only within its immediate storage context, not globally."
+                },
+                "label": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "docURL": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "valueType": {
+                    "$ref": "#/$defs/valueType"
+                },
+                "target": {
+                    "$ref": "#/$defs/targetLocation",
+                    "description": "Required for storage fields (fields that are neither virtual nor item fields). Must be absent for virtual fields and for item fields, both of which derive their effective storage context elsewhere."
+                },
+                "section": {
+                    "type": "string",
+                    "description": "Dotted path prefix within target for nested objects. Example: for jsonData.tracesToLogs.datasourceUid, target='jsonData', section='tracesToLogs', key='datasourceUid'. Must not be set on item fields or virtual fields. Supports exactly one level of nesting in this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "kind": {
+                    "$ref": "#/$defs/fieldKind",
+                    "description": "Defaults to 'storage' when absent."
+                },
+                "isItemField": {
+                    "type": "boolean",
+                    "description": "Must be true for every field declared inside an enclosing field's item.fields. Such fields inherit their storage location from the parent collection rather than declaring target independently."
+                },
+                "ui": {
+                    "$ref": "#/$defs/fieldUI"
+                },
+                "validations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/fieldValidationRule"
+                    }
+                },
+                "dependsOn": {
+                    "type": "string",
+                    "description": "CEL-like visibility condition string. NOTE: not evaluated by any reference implementation as of this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "required": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "requiredWhen": {
+                    "type": "string",
+                    "description": "CEL-like conditional-requiredness string. NOTE: not evaluated by any reference implementation as of this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "disabledWhen": {
+                    "type": "string",
+                    "description": "CEL-like conditional-disabled string. NOTE: not evaluated by any reference implementation as of this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "overrides": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/fieldOverride"
+                    }
+                },
+                "effects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/fieldEffect"
+                    },
+                    "description": "Typically used on virtual selector fields to drive multiple storage fields from one selection, without an opaque computed write expression."
+                },
+                "item": {
+                    "$ref": "#/$defs/fieldItemSchema",
+                    "description": "Required when valueType is 'array' or 'map'."
+                },
+                "repeatable": {
+                    "type": "boolean",
+                    "description": "Reserved for legacy indexed-field conventions. NOTE: not read by any reference implementation as of this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "pattern": {
+                    "type": "string",
+                    "description": "Reserved for legacy indexed-field conventions. Distinct from validationRuleType 'pattern' and from mappingField.pattern. NOTE: not read by any reference implementation as of this schema version; see dsconfig-rfc.md, Known Limitations."
+                },
+                "storage": {
+                    "$ref": "#/$defs/storageMapping"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Free-text, unvalidated metadata. Not consumed by any reference implementation as of this schema version; not intended to gate behavior. See dsconfig-rfc.md, Known Limitations."
+                },
+                "examples": {
+                    "type": "array",
+                    "items": {},
+                    "description": "Representative valid values for documentation and assisted-configuration use. Not consumed by any reference implementation as of this schema version."
+                },
+                "defaultValue": {
+                    "description": "Propagated into the generated OpenAPI schema's default value."
+                }
+            },
+            "additionalProperties": false
+        },
+        "configGroup": {
+            "type": "object",
+            "description": "A presentational grouping of fields (e.g. a collapsible 'Advanced' section). Pure UI layout metadata; has no effect on storage, validation, or generated OpenAPI settings.",
+            "required": [
+                "id",
+                "title",
+                "fieldRefs"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "optional": {
+                    "type": "boolean",
+                    "description": "Set true for groups that can be collapsed or hidden by default (e.g. advanced sections)."
+                },
+                "fieldRefs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Field ids belonging to this group. Every entry must resolve to a real field id declared elsewhere in this document."
+                }
+            },
+            "additionalProperties": false
+        },
+        "fieldRelationship": {
+            "type": "object",
+            "description": "A semantic, non-structural connection between two or more fields. Has no effect on storage or generated OpenAPI settings.",
+            "required": [
+                "type",
+                "fields"
+            ],
+            "properties": {
+                "type": {
+                    "$ref": "#/$defs/relationshipType"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Field ids participating in this relationship. Every entry must resolve to a real field id declared elsewhere in this document."
+                },
+                "description": {
+                    "type": "string"
+                },
+                "targetPluginType": {
+                    "type": "string",
+                    "description": "Constrains the referenced datasource UID to a specific plugin type. Only applicable when type is 'datasourceReference'."
+                }
+            },
+            "additionalProperties": false
+        },
+        "instruction": {
+            "type": "object",
+            "description": "Structured, free-form guidance intended primarily for non-human or semi-autonomous consumers of the schema, most directly a chat-driven configuration assistant (e.g. Grafana Assistant) that needs plugin-specific guidance not otherwise captured by individual field definitions. Has no effect on storage or validation.",
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "schemaVersion",
+        "pluginType",
+        "pluginName",
+        "fields"
+    ],
+    "properties": {
+        "schemaVersion": {
+            "type": "string",
+            "description": "Version of the dsconfig schema format itself (the shape described by this document), not the plugin's own config version. Example: 'v1'."
+        },
+        "pluginType": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique plugin identifier, matching the plugin's own type identifier in Grafana's plugin system and the datasource's 'type' property. The join key between this schema document and a real plugin instance, and the key an App Platform resource's apiVersion/kind references to locate this structural schema."
+        },
+        "pluginName": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable plugin name. Display-only; not used as a reference key."
+        },
+        "docURL": {
+            "type": "string",
+            "format": "uri",
+            "description": "Documentation URL for the plugin as a whole."
+        },
+        "fields": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/configField"
+            },
+            "description": "The source of truth for this plugin's configuration surface. Every other top-level property (groups, instructions, relationships) is descriptive metadata validated against the field ids declared here."
+        },
+        "groups": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/configGroup"
+            }
+        },
+        "instructions": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/instruction"
+            }
+        },
+        "relationships": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/fieldRelationship"
+            }
+        }
+    },
+    "additionalProperties": false
+}

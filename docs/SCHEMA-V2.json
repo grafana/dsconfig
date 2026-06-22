@@ -1,0 +1,115 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://grafana.com/schemas/dsconfig/v2/SCHEMA-V2.json",
+    "title": "dsconfig v2 Extensions",
+    "description": "Formal JSON Schema describing the wire format of a SchemaV2Extensions side-table document, as implemented by SCHEMA-V2.go and SCHEMA-V2.ts. IMPLEMENTATION NOTE: this document describes v2's new capabilities (scopes, role, roleConflicts, pairRole) as a SEPARATE document, keyed by field id, that is paired with — but does not modify the shape of — a v1 dsconfig Schema document validated against https://grafana.com/schemas/dsconfig/v1/SCHEMA-V1.json. This separation exists only because this reference implementation was produced under a constraint of not modifying the v1 SCHEMA-V1.go/SCHEMA-V1.ts/SCHEMA-V1.json files. The proposed upstream target shape, described in full in GRF-RFC-0043, is for these same properties (scopes, role, roleConflicts, pairRole) to instead become four new, optional properties directly on a v1 configField object — at which point this entire file would be deleted and its $defs merged directly into SCHEMA-V1.json's existing configField definition. Treat this file as a faithful, behavior-preserving stand-in for that target shape, not as the final proposed format.",
+    "type": "object",
+    "$defs": {
+        "scopeDef": {
+            "type": "object",
+            "description": "Declares one named scope a multi-connection plugin's fields may belong to — for example, a plugin with a 'controller' API and a separate 'eum' API declares two scopeDefs, one per connection.",
+            "required": [
+                "id",
+                "label"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "This scope's unique identifier within the schema document. Referenced by fieldExtensionV2.scopes."
+                },
+                "label": {
+                    "type": "string",
+                    "description": "Human-readable name for this scope, for UI and documentation purposes (e.g. 'Controller API')."
+                }
+            },
+            "additionalProperties": false
+        },
+        "role": {
+            "type": "string",
+            "description": "A field's semantic meaning, independent of its key or id, drawn from a fixed, versioned vocabulary. A role outside this enum is rejected by both reference implementations' v2 validation (SCHEMA-V2.go's ValidateV2, SCHEMA-V2.ts's validateV2); a JSON-Schema-only validator checking a fieldExtensionV2 against this $def enforces the same closed vocabulary.",
+            "enum": [
+                "endpoint.baseUrl",
+                "transport.timeoutSeconds",
+                "transport.tlsSkipVerify",
+                "tls.clientCert",
+                "tls.clientKey",
+                "tls.caCert",
+                "tls.serverName",
+                "auth.discriminator",
+                "auth.basic.enabled",
+                "auth.basic.username",
+                "auth.basic.password",
+                "auth.oauth2.clientId",
+                "auth.oauth2.clientSecret",
+                "auth.jwt.signingKey",
+                "auth.awsSigV4.enabled",
+                "auth.awsSigV4.accessKey",
+                "auth.awsSigV4.secretKey",
+                "identity.forwardOAuthToken",
+                "http.header.name",
+                "http.header.value"
+            ]
+        },
+        "pairRole": {
+            "type": "string",
+            "description": "For an item field used inside an indexedPair-mapped field's item.fields, declares whether that item field is the pair's 'key' (name) half or its 'value' half. Absence (this property not set on a fieldExtensionV2) means positional inference applies, exactly as under v1 — the first declared item field is treated as the name, the second as the value.",
+            "enum": [
+                "key",
+                "value"
+            ]
+        },
+        "fieldExtensionV2": {
+            "type": "object",
+            "description": "One field's v2-only metadata, keyed by that field's id in the companion schemaV2Extensions.fields map. Every property is optional; an entry with every property absent is equivalent to having no entry at all.",
+            "properties": {
+                "scopes": {
+                    "type": "array",
+                    "description": "This field's scope membership. Empty/absent means the field is shared across every scope declared in the owning schemaV2Extensions.scopeDefs, including any scope declared later in a future revision of the same schema. A non-empty array must list fewer than every currently-declared scope id — listing all of them is rejected by both reference implementations' validation, specifically because it would NOT extend to a scope added later the way omission does, and allowing both spellings of 'all scopes' to coexist invites silent divergence between them.",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "role": {
+                    "$ref": "#/$defs/role"
+                },
+                "roleConflicts": {
+                    "type": "array",
+                    "description": "Roles that must not be simultaneously active alongside this field's own role. Each entry must be a known role value; a field must not list its own role as a conflict. This is checked structurally (every named role exists, and no two fields in the same effective scope carry conflicting roles as a static fact about the schema) but is not evaluated against any real configuration payload — see GRF-RFC-0043's known limitations for what this does and does not guarantee.",
+                    "items": {
+                        "$ref": "#/$defs/role"
+                    },
+                    "uniqueItems": true
+                },
+                "pairRole": {
+                    "$ref": "#/$defs/pairRole"
+                }
+            },
+            "additionalProperties": false
+        },
+        "schemaV2Extensions": {
+            "type": "object",
+            "description": "The complete v2 extension document for one dsconfig Schema document, keyed by that schema's field ids. A schemaV2Extensions document with both scopeDefs and fields absent or empty describes no v2 capability at all and is equivalent, in effect, to a plugin having no v2 extensions whatsoever — the companion v1 schema document behaves exactly as it always has.",
+            "properties": {
+                "scopeDefs": {
+                    "type": "array",
+                    "description": "Every named scope this plugin's fields may belong to. Absent or empty means this plugin has no multi-connection needs; every field is then implicitly shared across the document's single, implicit scope, exactly as in v1. Every id in this array must be unique.",
+                    "items": {
+                        "$ref": "#/$defs/scopeDef"
+                    }
+                },
+                "fields": {
+                    "type": "object",
+                    "description": "Maps a field's id (matching a configField.id in the companion v1 Schema document) to that field's fieldExtensionV2. A field id with no entry here has no scopes, no role, no roleConflicts, and (if it is an item field) no pairRole.",
+                    "additionalProperties": {
+                        "$ref": "#/$defs/fieldExtensionV2"
+                    }
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "$ref": "#/$defs/schemaV2Extensions"
+}
