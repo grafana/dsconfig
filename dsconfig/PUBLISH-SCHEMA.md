@@ -12,7 +12,17 @@ add the `dsconfig.json` file to the specified location. ( either manually author
 }
 ```
 
-### Change 2 : Add `pkg/schema/dsconfig_test.go`
+#### Change 2: Install dependencies
+If you have not already, run:
+```
+go get github.com/grafana/dsconfig/schema
+```
+
+#### Change 3: IF one does not exist yet, create a `pkg/schema/models/settings.go`
+
+Use this file to define the go representation of your given datasource settings.
+
+#### Change 4 : Add `pkg/schema/dsconfig_test.go`
 
 ```go
 package schema_test
@@ -39,7 +49,7 @@ func TestPlugin(t *testing.T) {
 }
 ```
 
-### Change 3 : Add / Update `webpack.config.ts` in the root folder
+### Change 5 : Add / Update `webpack.config.ts` in the root folder
 
 Add/Update the `webpack.config.ts` in the root folder
 
@@ -84,7 +94,7 @@ const config = async (env: Env): Promise<Configuration> => {
 export default config;
 ```
 
-### Change 4 : Update the package.json script
+### Change 6 : Update the package.json script
 
 ```diff
 -    "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
