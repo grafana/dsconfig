@@ -151,6 +151,7 @@
                         "endpoint.port",
                         "transport.timeoutSeconds",
                         "transport.tlsSkipVerify",
+                        "request.interval",
                         "tls.clientCert",
                         "tls.clientKey",
                         "tls.caCert",

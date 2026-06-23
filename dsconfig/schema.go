@@ -519,6 +519,8 @@ const (
 	RoleTransportTimeoutSeconds Role = "transport.timeoutSeconds"
 	RoleTransportTLSSkipVerify  Role = "transport.tlsSkipVerify"
 
+	RoleRequestInterval Role = "request.interval"
+
 	RoleTLSClientCert Role = "tls.clientCert"
 	RoleTLSClientKey  Role = "tls.clientKey"
 	RoleTLSCACert     Role = "tls.caCert"
@@ -549,6 +551,7 @@ func (r Role) IsValid() bool {
 	switch r {
 	case RoleEndpointBaseURL, RoleEndpointScheme, RoleEndpointDomain, RoleEndpointPort,
 		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
+		RoleRequestInterval,
 		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
 		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
 		RoleAuthBearerToken,
