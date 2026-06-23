@@ -339,15 +339,37 @@ Generated JSON files remain self-contained — no resolution step needed for con
 ## Groups and relationships
 
 **Groups** define UI layout sections. They reference fields by `id`.
-Set `"optional": true` on groups that can be collapsed or hidden by default (e.g. advanced sections):
+Set `"optional": true` on groups that can be collapsed or hidden by default (e.g. advanced sections).
+The optional `ui` object holds presentation hints. Its `icon` is a **Grafana** icon name (a Grafana
+`IconName` such as `plug`, `lock`, or `shield`) that a Grafana editor may render next to the group in
+a settings sidebar. It is a Grafana-specific hint only — non-Grafana consumers should ignore it, so
+it is always safe to omit or leave unhandled:
 
 ```json
 {
   "id": "auth",
   "title": "Authentication",
+  "description": "How to prove who you are to the API.",
+  "ui": { "icon": "lock" },
   "fieldRefs": ["auth.user", "auth.password"]
 }
 ```
+
+| Property      | Type     | Required | Description                                 |
+| ------------- | -------- | -------- | ------------------------------------------- |
+| `id`          | string   | Required | Unique group identifier.                    |
+| `title`       | string   | Required | Human-readable section title.               |
+| `fieldRefs`   | string[] | Required | Field `id`s shown in this group.            |
+| `description` | string   | Optional | One-line section description.               |
+| `ui`          | GroupUI  | Optional | Presentation hints (see below).             |
+| `order`       | number   | Optional | Explicit ordering hint.                     |
+| `optional`    | boolean  | Optional | Group can be collapsed/hidden by default.   |
+
+**GroupUI**
+
+| Property | Type   | Required | Description                                                                  |
+| -------- | ------ | -------- | --------------------------------------------------------------------------- |
+| `icon`   | string | Optional | Grafana `IconName` for a Grafana editor; non-Grafana consumers ignore it.   |
 
 **Relationships** define semantic connections between fields:
 

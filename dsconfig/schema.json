@@ -678,6 +678,16 @@
                 }
             }
         },
+        "GroupUI": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "icon": {
+                    "type": "string",
+                    "description": "Optional Grafana icon name (a Grafana IconName such as 'plug', 'lock', or 'shield') that a Grafana editor may render next to the group in a settings sidebar. This is a Grafana-specific presentation hint only; non-Grafana consumers should ignore it, so it is always safe to omit or leave unhandled."
+                }
+            }
+        },
         "ConfigGroup": {
             "type": "object",
             "required": [
@@ -695,6 +705,9 @@
                 },
                 "description": {
                     "type": "string"
+                },
+                "ui": {
+                    "$ref": "#/definitions/GroupUI"
                 },
                 "order": {
                     "type": "number"

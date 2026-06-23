@@ -703,9 +703,14 @@ type ConfigGroup struct {
 	ID          string   `json:"id"`
 	Title       string   `json:"title"`
 	Description string   `json:"description,omitempty"`
+	UI          *GroupUI `json:"ui,omitempty"`
 	Order       *int     `json:"order,omitempty"`
 	Optional    bool     `json:"optional,omitempty"`
 	FieldRefs   []string `json:"fieldRefs"`
+}
+
+type GroupUI struct {
+	Icon string `json:"icon,omitempty"`
 }
 
 // ============================================================
