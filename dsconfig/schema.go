@@ -126,9 +126,10 @@ type ConfigField struct {
 	// Key is the local key (used in storage or object structures)
 	Key string `json:"key"`
 
-	Label       string `json:"label,omitempty"`
-	Description string `json:"description,omitempty"`
-	DocURL      string `json:"docURL,omitempty"`
+	Label       string     `json:"label,omitempty"`
+	Description string     `json:"description,omitempty"`
+	DocURL      string     `json:"docURL,omitempty"`
+	Help        *FieldHelp `json:"help,omitempty"`
 
 	// Core typing
 	ValueType ValueType `json:"valueType"`
@@ -277,6 +278,12 @@ func (f *ConfigField) Validate() error {
 	for i := range f.Effects {
 		if err := f.Effects[i].Validate(); err != nil {
 			return fmt.Errorf("field %s: invalid effect[%d]: %w", f.ID, i, err)
+		}
+	}
+
+	if f.Help != nil {
+		if err := f.Help.Validate(); err != nil {
+			return fmt.Errorf("field %s: invalid help: %w", f.ID, err)
 		}
 	}
 
@@ -468,6 +475,24 @@ func (w UIWidth) IsValid() bool {
 	default:
 		return false
 	}
+}
+
+// ============================================================
+// Help
+// ============================================================
+
+type FieldHelp struct {
+	Title    string `json:"title,omitempty"`
+	Subtitle string `json:"subtitle,omitempty"`
+	Markdown string `json:"markdown"`
+	DocURL   string `json:"docURL,omitempty"`
+}
+
+func (h *FieldHelp) Validate() error {
+	if h.Markdown == "" {
+		return fmt.Errorf("help requires markdown content")
+	}
+	return nil
 }
 
 // ============================================================

@@ -82,6 +82,48 @@ Tools, docs generators, provisioning, and LLM integrations should use `validatio
 | `allowedValues` | `values`           | Enumerated allowed values             |
 | `custom`        | `expression`       | CEL expression (evaluated at runtime) |
 
+## Field help
+
+Help uses the same language — Markdown — at two intensities, so there is no duplication:
+
+| Source           | Markdown    | Scope                                 | Editor surface |
+| ---------------- | ----------- | ------------------------------------- | -------------- |
+| `description`    | inline only | docs, provisioning, LLM, **tooltip**  | tooltip        |
+| `help.markdown`  | block       | editor-only rich help                 | drawer         |
+
+For **short help**, use the field's `description` — a one-liner in inline Markdown (emphasis, links,
+code spans). Editors surface it as an accessible tooltip on the label. No extra schema is needed.
+Plain text is valid Markdown, so existing descriptions keep working.
+
+For **rich, custom help** that is too involved for a tooltip (multi-step instructions, links, or
+code), add an optional `help` object whose `markdown` is block Markdown. Editors render it as a
+drawer/side panel opened from the label. The presence of `help` is the signal to render a drawer;
+don't restate the `description` here.
+
+```json
+{
+  "id": "secure.bearerToken",
+  "key": "bearerToken",
+  "label": "Bearer token",
+  "description": "Bearer token sent in the Authorization header.",
+  "valueType": "string",
+  "target": "secureJsonData",
+  "help": {
+    "title": "How to get a bearer token",
+    "subtitle": "Generate a token from the Example developer console",
+    "markdown": "1. Sign in to the developer console.\n2. Open **Settings → API access**.\n3. Select **Create token** and copy it.",
+    "docURL": "https://example.com/docs/authentication"
+  }
+}
+```
+
+| Property   | Type   | Required | Description                                                    |
+| ---------- | ------ | -------- | ------------------------------------------------------------- |
+| `title`    | string | Optional | Drawer heading; also the trigger label that opens the drawer. |
+| `subtitle` | string | Optional | Secondary drawer heading.                                     |
+| `markdown` | string | Required | Help body in Markdown (multi-step instructions, links, code). |
+| `docURL`   | string | Optional | Documentation link surfaced in the drawer.                    |
+
 ## Map fields
 
 When `valueType` is `"map"` it represents an object with dynamic string keys. Like arrays, maps require an `item` property that describes the value type:

@@ -94,11 +94,15 @@
                     "type": "string"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Short, one-line field summary in inline Markdown (emphasis, links, code spans). Shared by docs, provisioning, and LLM consumers; editors also surface it as the field's tooltip. For rich, multi-step help use 'help' instead."
                 },
                 "docURL": {
                     "type": "string",
                     "format": "uri"
+                },
+                "help": {
+                    "$ref": "#/definitions/FieldHelp"
                 },
                 "valueType": {
                     "type": "string",
@@ -446,6 +450,33 @@
                 "language": {
                     "type": "string",
                     "description": "Language hint for code editor components. Example: promql, logql, traceql, sql, json."
+                }
+            }
+        },
+        "FieldHelp": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "markdown"
+            ],
+            "description": "Optional rich, custom help for a field, rendered as a drawer/side panel for content too involved for a tooltip (multi-step instructions, links, code). For short help, use the field's 'description', which editors surface as a tooltip; do not duplicate it here.",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "Drawer heading; also used as the trigger label that opens the drawer."
+                },
+                "subtitle": {
+                    "type": "string",
+                    "description": "Optional secondary drawer heading."
+                },
+                "markdown": {
+                    "type": "string",
+                    "description": "Help body in block Markdown: multi-step instructions, links, and code blocks. For short, one-line help use the field's 'description' instead."
+                },
+                "docURL": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Optional documentation link surfaced in the drawer."
                 }
             }
         },
