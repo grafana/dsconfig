@@ -5,6 +5,7 @@
     "description": "Declarative schema for Grafana datasource configuration including UI, validation, behavior, relationships, and storage mapping.",
     "type": "object",
     "required": [
+        "$schema",
         "schemaVersion",
         "pluginType",
         "pluginName",
@@ -12,6 +13,9 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "$schema": {
+            "const": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json"
+        },
         "schemaVersion": {
             "type": "string",
             "description": "Version of this schema specification",
@@ -44,6 +48,12 @@
                 "$ref": "#/definitions/ConfigGroup"
             }
         },
+        "relationships": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/FieldRelationship"
+            }
+        },
         "instructions": {
             "type": "array",
             "items": {
@@ -62,12 +72,6 @@
                         }
                     }
                 }
-            }
-        },
-        "relationships": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/FieldRelationship"
             }
         }
     },
@@ -519,7 +523,7 @@
             "required": [
                 "type"
             ],
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "id": {
                     "type": "string",
@@ -528,6 +532,16 @@
                 "message": {
                     "type": "string",
                     "description": "Human-readable validation error message."
+                },
+                "type": {
+                    "enum": [
+                        "pattern",
+                        "range",
+                        "length",
+                        "itemCount",
+                        "allowedValues",
+                        "custom"
+                    ]
                 }
             },
             "oneOf": [
