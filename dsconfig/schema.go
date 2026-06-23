@@ -528,6 +528,7 @@ const (
 	RoleAuthBasicEnabled             Role = "auth.basic.enabled"
 	RoleAuthBasicUsername            Role = "auth.basic.username"
 	RoleAuthBasicPassword            Role = "auth.basic.password"
+	RoleAuthBearerToken              Role = "auth.bearer.token"
 	RoleAuthOAuth2ClientID           Role = "auth.oauth2.clientId"
 	RoleAuthOAuth2ClientSecret       Role = "auth.oauth2.clientSecret"
 	RoleAuthOAuth2TokenURL           Role = "auth.oauth2.tokenUrl"
@@ -550,7 +551,9 @@ func (r Role) IsValid() bool {
 		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
 		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
 		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
-		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL, RoleAuthJWTSigningKey,
+		RoleAuthBearerToken,
+		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL,
+		RoleAuthJWTSigningKey,
 		RoleAuthAWSSigV4Enabled,
 		RoleAuthForwardOAuthTokenEnabled,
 		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
