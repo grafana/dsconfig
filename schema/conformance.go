@@ -309,3 +309,13 @@ func valueTypesForKind(kind reflect.Kind) []dsconfig.ValueType {
 		return nil
 	}
 }
+
+// MustNewSDKSchema assembles this plugin's SDK PluginSchema from the embedded
+// dsconfig.json, failing the test if construction fails. Test-only helper that
+// wraps dsconfig.NewSDKSchema.
+func MustNewSDKSchema(t *testing.T, data []byte, examples *sdkSchema.SettingsExamples) *sdkSchema.PluginSchema {
+	t.Helper()
+	s, err := dsconfig.NewSDKSchema(data, examples)
+	require.NoError(t, err)
+	return s
+}

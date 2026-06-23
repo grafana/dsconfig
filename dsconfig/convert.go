@@ -8,6 +8,35 @@ import (
 	"k8s.io/kube-openapi/pkg/validation/spec"
 )
 
+// TargetAPIVersion is the default API version used when assembling a plugin schema.
+const TargetAPIVersion = "v0alpha1"
+
+// NewPluginSchema wraps the given settings and examples in an SDK PluginSchema
+// stamped with the default TargetAPIVersion. Nil arguments are tolerated.
+func NewPluginSchema(settings *pluginschema.Settings, examples *pluginschema.SettingsExamples) *pluginschema.PluginSchema {
+	return &pluginschema.PluginSchema{
+		TargetAPIVersion: TargetAPIVersion,
+		SettingsSchema:   settings,
+		SettingsExamples: examples,
+	}
+}
+
+// NewSDKSchema is the one-call entry point for plugins: it parses the embedded
+// dsconfig JSON, converts it to SDK settings, and returns a full PluginSchema
+// stamped with TargetAPIVersion. Pass examples to populate SettingsExamples, or
+// nil to omit them.
+func NewSDKSchema(data []byte, examples *pluginschema.SettingsExamples) (*pluginschema.PluginSchema, error) {
+	cfg, err := ParseSchemaJSON(data)
+	if err != nil {
+		return nil, err
+	}
+	settings, err := cfg.ToPluginSchemaSettings()
+	if err != nil {
+		return nil, err
+	}
+	return NewPluginSchema(settings, examples), nil
+}
+
 // ToPluginSchemaSettings converts the declarative schema into the SDK pluginschema.Settings
 // shape: Spec describes the whole instance-settings object (root fields plus a
 // nested jsonData object), and secureJsonData fields become SecureValues. Virtual

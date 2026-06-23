@@ -1,6 +1,9 @@
 package dsconfig
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // ============================================================
 // Root Schema
@@ -835,4 +838,15 @@ type FieldRelationship struct {
 type Instruction struct {
 	Message string   `json:"msg"`
 	Tags    []string `json:"tags,omitempty"`
+}
+
+// ParseSchemaJSON unmarshals dsconfig JSON data into a Schema.
+// This is a convenience function for plugins that embed their dsconfig.json
+// and need to parse it at runtime.
+func ParseSchemaJSON(data []byte) (*Schema, error) {
+	var s Schema
+	if err := json.Unmarshal(data, &s); err != nil {
+		return nil, fmt.Errorf("parse dsconfig.json: %w", err)
+	}
+	return &s, nil
 }
