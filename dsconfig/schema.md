@@ -82,6 +82,121 @@ Tools, docs generators, provisioning, and LLM integrations should use `validatio
 | `allowedValues` | `values`           | Enumerated allowed values             |
 | `custom`        | `expression`       | CEL expression (evaluated at runtime) |
 
+## Field help
+
+Help uses the same language — Markdown — at two intensities, so there is no duplication:
+
+| Source           | Markdown    | Scope                                 | Editor surface |
+| ---------------- | ----------- | ------------------------------------- | -------------- |
+| `description`    | inline only | docs, provisioning, LLM, **tooltip**  | tooltip        |
+| `help.markdown`  | block       | editor-only rich help                 | drawer         |
+
+For **short help**, use the field's `description` — a one-liner in inline Markdown (emphasis, links,
+code spans). Editors surface it as an accessible tooltip on the label. No extra schema is needed.
+Plain text is valid Markdown, so existing descriptions keep working.
+
+For **rich, custom help** that is too involved for a tooltip (multi-step instructions, links, or
+code), add an optional `help` object whose `markdown` is block Markdown. Editors render it as a
+drawer/side panel opened from the label. The presence of `help` is the signal to render a drawer;
+don't restate the `description` here.
+
+```json
+{
+  "id": "secure.bearerToken",
+  "key": "bearerToken",
+  "label": "Bearer token",
+  "description": "Bearer token sent in the Authorization header.",
+  "valueType": "string",
+  "target": "secureJsonData",
+  "help": {
+    "title": "How to get a bearer token",
+    "subtitle": "Generate a token from the Example developer console",
+    "markdown": "1. Sign in to the developer console.\n2. Open **Settings → API access**.\n3. Select **Create token** and copy it.",
+    "docURL": "https://example.com/docs/authentication"
+  }
+}
+```
+
+| Property   | Type   | Required | Description                                                    |
+| ---------- | ------ | -------- | ------------------------------------------------------------- |
+| `title`    | string | Optional | Drawer heading; also the trigger label that opens the drawer. |
+| `subtitle` | string | Optional | Secondary drawer heading.                                     |
+| `markdown` | string | Required | Help body in Markdown (multi-step instructions, links, code). |
+| `docURL`   | string | Optional | Documentation link surfaced in the drawer.                    |
+
+## Field roles
+
+A field may carry an optional `role`: a tag from a **closed, versioned vocabulary** that says *what
+the field means*, independent of what it is *named*. Two plugins may store a TLS client certificate
+as `tlsClientCert` and `clientCertificate`; both can declare `"role": "tls.clientCert"` so a generic
+consumer can find "the TLS client cert" without knowing either plugin's field names.
+
+`role` serves two concrete goals:
+
+- **Automated HTTP client construction** — a generic builder can locate the timeout, TLS cert, or
+  basic-auth password across any plugin by role instead of hard-coding field names.
+- **Assistant reasoning** — tools populating a never-before-seen config can recognize, for example,
+  "the secret the user must paste," regardless of the author's field name.
+
+`role` is **optional** and adoption is **incremental**: a field with no `role` behaves exactly as
+before. The vocabulary is fixed in the package — an unknown value is rejected at validation, the same
+discipline `valueType` and `target` use. If a field's meaning isn't represented yet, it simply gets
+no `role`; growing the vocabulary is an additive change to the package, not something a schema
+controls.
+
+### Vocabulary
+
+| Namespace       | Roles                                                                                |
+| --------------- | ------------------------------------------------------------------------------------ |
+| `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`             |
+| `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                 |
+| `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                     |
+| `auth.*`        | `auth.discriminator`, `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`, `auth.bearer.token`, `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.jwt.signingKey`, `auth.awsSigV4.enabled`, `auth.forwardOAuthToken.enabled` |
+| `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields) |
+| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)   |
+
+An endpoint may be modeled as a single `endpoint.baseUrl`, or split into `endpoint.scheme`,
+`endpoint.domain`, and `endpoint.port` for plugins that store the parts separately.
+
+```json
+{
+  "id": "secure.tlsClientCert",
+  "key": "clientCertificate",
+  "valueType": "string",
+  "target": "secureJsonData",
+  "role": "tls.clientCert"
+}
+```
+
+Compound fields use a **parent + item** pattern: the array field carries the collection role
+(`http.header`) and its item sub-fields carry the element roles (`http.header.name`,
+`http.header.value`):
+
+```json
+{
+  "id": "jsonData.httpHeaders",
+  "key": "httpHeaders",
+  "valueType": "array",
+  "target": "jsonData",
+  "role": "http.header",
+  "item": {
+    "valueType": "object",
+    "fields": [
+      { "id": "httpHeaders.item.name", "key": "name", "valueType": "string", "isItemField": true, "role": "http.header.name" },
+      { "id": "httpHeaders.item.value", "key": "value", "valueType": "string", "isItemField": true, "role": "http.header.value" }
+    ]
+  }
+}
+```
+
+HTTP query-string parameters follow the same parent + item pattern with `http.query`,
+`http.query.name`, and `http.query.value`.
+
+A valid `role` does not yet guarantee an *appropriate* one — nothing currently cross-checks, for
+example, `tls.clientCert` against the field being a `string` in `secureJsonData`, or `http.header.name`
+against the field being an item field under an `http.header` array. That cross-validation, and the
+companion `roleConflicts` mechanism, are tracked as follow-up work.
+
 ## Map fields
 
 When `valueType` is `"map"` it represents an object with dynamic string keys. Like arrays, maps require an `item` property that describes the value type:
@@ -339,15 +454,37 @@ Generated JSON files remain self-contained — no resolution step needed for con
 ## Groups and relationships
 
 **Groups** define UI layout sections. They reference fields by `id`.
-Set `"optional": true` on groups that can be collapsed or hidden by default (e.g. advanced sections):
+Set `"optional": true` on groups that can be collapsed or hidden by default (e.g. advanced sections).
+The optional `ui` object holds presentation hints. Its `icon` is a **Grafana** icon name (a Grafana
+`IconName` such as `plug`, `lock`, or `shield`) that a Grafana editor may render next to the group in
+a settings sidebar. It is a Grafana-specific hint only — non-Grafana consumers should ignore it, so
+it is always safe to omit or leave unhandled:
 
 ```json
 {
   "id": "auth",
   "title": "Authentication",
+  "description": "How to prove who you are to the API.",
+  "ui": { "icon": "lock" },
   "fieldRefs": ["auth.user", "auth.password"]
 }
 ```
+
+| Property      | Type     | Required | Description                                 |
+| ------------- | -------- | -------- | ------------------------------------------- |
+| `id`          | string   | Required | Unique group identifier.                    |
+| `title`       | string   | Required | Human-readable section title.               |
+| `fieldRefs`   | string[] | Required | Field `id`s shown in this group.            |
+| `description` | string   | Optional | One-line section description.               |
+| `ui`          | GroupUI  | Optional | Presentation hints (see below).             |
+| `order`       | number   | Optional | Explicit ordering hint.                     |
+| `optional`    | boolean  | Optional | Group can be collapsed/hidden by default.   |
+
+**GroupUI**
+
+| Property | Type   | Required | Description                                                                  |
+| -------- | ------ | -------- | --------------------------------------------------------------------------- |
+| `icon`   | string | Optional | Grafana `IconName` for a Grafana editor; non-Grafana consumers ignore it.   |
 
 **Relationships** define semantic connections between fields:
 

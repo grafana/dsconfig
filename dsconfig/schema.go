@@ -1,6 +1,9 @@
 package dsconfig
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // ============================================================
 // Root Schema
@@ -126,9 +129,10 @@ type ConfigField struct {
 	// Key is the local key (used in storage or object structures)
 	Key string `json:"key"`
 
-	Label       string `json:"label,omitempty"`
-	Description string `json:"description,omitempty"`
-	DocURL      string `json:"docURL,omitempty"`
+	Label       string     `json:"label,omitempty"`
+	Description string     `json:"description,omitempty"`
+	DocURL      string     `json:"docURL,omitempty"`
+	Help        *FieldHelp `json:"help,omitempty"`
 
 	// Core typing
 	ValueType ValueType `json:"valueType"`
@@ -143,6 +147,8 @@ type ConfigField struct {
 
 	// Field type: storage (default) or virtual
 	Kind FieldKind `json:"kind,omitempty"`
+
+	Role Role `json:"role,omitempty"`
 
 	// True if part of array item schema
 	IsItemField *bool `json:"isItemField,omitempty"`
@@ -224,6 +230,10 @@ func (f *ConfigField) Validate() error {
 		return fmt.Errorf("field %s: invalid kind %q", f.ID, f.Kind)
 	}
 
+	if f.Role != "" && !f.Role.IsValid() {
+		return fmt.Errorf("field %s: invalid role %q", f.ID, f.Role)
+	}
+
 	if f.UI != nil {
 		if !f.UI.Component.IsValid() {
 			return fmt.Errorf("field %s: invalid ui component %q", f.ID, f.UI.Component)
@@ -277,6 +287,12 @@ func (f *ConfigField) Validate() error {
 	for i := range f.Effects {
 		if err := f.Effects[i].Validate(); err != nil {
 			return fmt.Errorf("field %s: invalid effect[%d]: %w", f.ID, i, err)
+		}
+	}
+
+	if f.Help != nil {
+		if err := f.Help.Validate(); err != nil {
+			return fmt.Errorf("field %s: invalid help: %w", f.ID, err)
 		}
 	}
 
@@ -464,6 +480,84 @@ const (
 func (w UIWidth) IsValid() bool {
 	switch w {
 	case FullWidth, HalfWidth:
+		return true
+	default:
+		return false
+	}
+}
+
+// ============================================================
+// Help
+// ============================================================
+
+type FieldHelp struct {
+	Title    string `json:"title,omitempty"`
+	Subtitle string `json:"subtitle,omitempty"`
+	Markdown string `json:"markdown"`
+	DocURL   string `json:"docURL,omitempty"`
+}
+
+func (h *FieldHelp) Validate() error {
+	if h.Markdown == "" {
+		return fmt.Errorf("help requires markdown content")
+	}
+	return nil
+}
+
+// ============================================================
+// Roles
+// ============================================================
+
+type Role string
+
+const (
+	RoleEndpointBaseURL Role = "endpoint.baseUrl"
+	RoleEndpointScheme  Role = "endpoint.scheme"
+	RoleEndpointDomain  Role = "endpoint.domain"
+	RoleEndpointPort    Role = "endpoint.port"
+
+	RoleTransportTimeoutSeconds Role = "transport.timeoutSeconds"
+	RoleTransportTLSSkipVerify  Role = "transport.tlsSkipVerify"
+
+	RoleTLSClientCert Role = "tls.clientCert"
+	RoleTLSClientKey  Role = "tls.clientKey"
+	RoleTLSCACert     Role = "tls.caCert"
+	RoleTLSServerName Role = "tls.serverName"
+
+	RoleAuthDiscriminator            Role = "auth.discriminator"
+	RoleAuthBasicEnabled             Role = "auth.basic.enabled"
+	RoleAuthBasicUsername            Role = "auth.basic.username"
+	RoleAuthBasicPassword            Role = "auth.basic.password"
+	RoleAuthBearerToken              Role = "auth.bearer.token"
+	RoleAuthOAuth2ClientID           Role = "auth.oauth2.clientId"
+	RoleAuthOAuth2ClientSecret       Role = "auth.oauth2.clientSecret"
+	RoleAuthOAuth2TokenURL           Role = "auth.oauth2.tokenUrl"
+	RoleAuthJWTSigningKey            Role = "auth.jwt.signingKey"
+	RoleAuthAWSSigV4Enabled          Role = "auth.awsSigV4.enabled"
+	RoleAuthForwardOAuthTokenEnabled Role = "auth.forwardOAuthToken.enabled"
+
+	RoleHTTPHeader      Role = "http.header"
+	RoleHTTPHeaderName  Role = "http.header.name"
+	RoleHTTPHeaderValue Role = "http.header.value"
+
+	RoleHTTPQuery      Role = "http.query"
+	RoleHTTPQueryName  Role = "http.query.name"
+	RoleHTTPQueryValue Role = "http.query.value"
+)
+
+func (r Role) IsValid() bool {
+	switch r {
+	case RoleEndpointBaseURL, RoleEndpointScheme, RoleEndpointDomain, RoleEndpointPort,
+		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
+		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
+		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
+		RoleAuthBearerToken,
+		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL,
+		RoleAuthJWTSigningKey,
+		RoleAuthAWSSigV4Enabled,
+		RoleAuthForwardOAuthTokenEnabled,
+		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
+		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue:
 		return true
 	default:
 		return false
@@ -703,9 +797,14 @@ type ConfigGroup struct {
 	ID          string   `json:"id"`
 	Title       string   `json:"title"`
 	Description string   `json:"description,omitempty"`
+	UI          *GroupUI `json:"ui,omitempty"`
 	Order       *int     `json:"order,omitempty"`
 	Optional    bool     `json:"optional,omitempty"`
 	FieldRefs   []string `json:"fieldRefs"`
+}
+
+type GroupUI struct {
+	Icon string `json:"icon,omitempty"`
 }
 
 // ============================================================
@@ -742,4 +841,15 @@ type FieldRelationship struct {
 type Instruction struct {
 	Message string   `json:"msg"`
 	Tags    []string `json:"tags,omitempty"`
+}
+
+// ParseSchemaJSON unmarshals dsconfig JSON data into a Schema.
+// This is a convenience function for plugins that embed their dsconfig.json
+// and need to parse it at runtime.
+func ParseSchemaJSON(data []byte) (*Schema, error) {
+	var s Schema
+	if err := json.Unmarshal(data, &s); err != nil {
+		return nil, fmt.Errorf("parse dsconfig.json: %w", err)
+	}
+	return &s, nil
 }
