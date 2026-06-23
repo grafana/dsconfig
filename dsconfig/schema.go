@@ -542,9 +542,10 @@ const (
 	RoleHTTPHeaderName  Role = "http.header.name"
 	RoleHTTPHeaderValue Role = "http.header.value"
 
-	RoleHTTPQuery      Role = "http.query"
-	RoleHTTPQueryName  Role = "http.query.name"
-	RoleHTTPQueryValue Role = "http.query.value"
+	RoleHTTPQuery        Role = "http.query"
+	RoleHTTPQueryName    Role = "http.query.name"
+	RoleHTTPQueryValue   Role = "http.query.value"
+	RoleHTTPQueryTimeout Role = "http.query.timeout"
 )
 
 func (r Role) IsValid() bool {
@@ -560,7 +561,7 @@ func (r Role) IsValid() bool {
 		RoleAuthAWSSigV4Enabled,
 		RoleAuthForwardOAuthTokenEnabled,
 		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
-		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue:
+		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue, RoleHTTPQueryTimeout:
 		return true
 	default:
 		return false

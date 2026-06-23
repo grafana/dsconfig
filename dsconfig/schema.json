@@ -172,7 +172,8 @@
                         "http.header.value",
                         "http.query",
                         "http.query.name",
-                        "http.query.value"
+                        "http.query.value",
+                        "http.query.timeout"
                     ]
                 },
                 "isItemField": {
