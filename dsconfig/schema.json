@@ -137,6 +137,38 @@
                     ],
                     "default": "storage"
                 },
+                "role": {
+                    "type": "string",
+                    "description": "Optional semantic tag from a closed, versioned vocabulary describing what the field means, independent of its key, so generic consumers can find it across plugins. Optional and incremental; unknown values are rejected at validation.",
+                    "enum": [
+                        "endpoint.baseUrl",
+                        "endpoint.scheme",
+                        "endpoint.domain",
+                        "endpoint.port",
+                        "transport.timeoutSeconds",
+                        "transport.tlsSkipVerify",
+                        "tls.clientCert",
+                        "tls.clientKey",
+                        "tls.caCert",
+                        "tls.serverName",
+                        "auth.discriminator",
+                        "auth.basic.enabled",
+                        "auth.basic.username",
+                        "auth.basic.password",
+                        "auth.oauth2.clientId",
+                        "auth.oauth2.clientSecret",
+                        "auth.oauth2.tokenUrl",
+                        "auth.jwt.signingKey",
+                        "auth.awsSigV4.enabled",
+                        "auth.forwardOAuthToken.enabled",
+                        "http.header",
+                        "http.header.name",
+                        "http.header.value",
+                        "http.query",
+                        "http.query.name",
+                        "http.query.value"
+                    ]
+                },
                 "isItemField": {
                     "type": "boolean",
                     "description": "Must be true for fields inside array item schemas"

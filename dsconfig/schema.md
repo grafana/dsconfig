@@ -124,6 +124,79 @@ don't restate the `description` here.
 | `markdown` | string | Required | Help body in Markdown (multi-step instructions, links, code). |
 | `docURL`   | string | Optional | Documentation link surfaced in the drawer.                    |
 
+## Field roles
+
+A field may carry an optional `role`: a tag from a **closed, versioned vocabulary** that says *what
+the field means*, independent of what it is *named*. Two plugins may store a TLS client certificate
+as `tlsClientCert` and `clientCertificate`; both can declare `"role": "tls.clientCert"` so a generic
+consumer can find "the TLS client cert" without knowing either plugin's field names.
+
+`role` serves two concrete goals:
+
+- **Automated HTTP client construction** — a generic builder can locate the timeout, TLS cert, or
+  basic-auth password across any plugin by role instead of hard-coding field names.
+- **Assistant reasoning** — tools populating a never-before-seen config can recognize, for example,
+  "the secret the user must paste," regardless of the author's field name.
+
+`role` is **optional** and adoption is **incremental**: a field with no `role` behaves exactly as
+before. The vocabulary is fixed in the package — an unknown value is rejected at validation, the same
+discipline `valueType` and `target` use. If a field's meaning isn't represented yet, it simply gets
+no `role`; growing the vocabulary is an additive change to the package, not something a schema
+controls.
+
+### Vocabulary
+
+| Namespace       | Roles                                                                                |
+| --------------- | ------------------------------------------------------------------------------------ |
+| `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`             |
+| `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                 |
+| `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                     |
+| `auth.*`        | `auth.discriminator`, `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`, `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.jwt.signingKey`, `auth.awsSigV4.enabled`, `auth.forwardOAuthToken.enabled` |
+| `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields) |
+| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)   |
+
+An endpoint may be modeled as a single `endpoint.baseUrl`, or split into `endpoint.scheme`,
+`endpoint.domain`, and `endpoint.port` for plugins that store the parts separately.
+
+```json
+{
+  "id": "secure.tlsClientCert",
+  "key": "clientCertificate",
+  "valueType": "string",
+  "target": "secureJsonData",
+  "role": "tls.clientCert"
+}
+```
+
+Compound fields use a **parent + item** pattern: the array field carries the collection role
+(`http.header`) and its item sub-fields carry the element roles (`http.header.name`,
+`http.header.value`):
+
+```json
+{
+  "id": "jsonData.httpHeaders",
+  "key": "httpHeaders",
+  "valueType": "array",
+  "target": "jsonData",
+  "role": "http.header",
+  "item": {
+    "valueType": "object",
+    "fields": [
+      { "id": "httpHeaders.item.name", "key": "name", "valueType": "string", "isItemField": true, "role": "http.header.name" },
+      { "id": "httpHeaders.item.value", "key": "value", "valueType": "string", "isItemField": true, "role": "http.header.value" }
+    ]
+  }
+}
+```
+
+HTTP query-string parameters follow the same parent + item pattern with `http.query`,
+`http.query.name`, and `http.query.value`.
+
+A valid `role` does not yet guarantee an *appropriate* one — nothing currently cross-checks, for
+example, `tls.clientCert` against the field being a `string` in `secureJsonData`, or `http.header.name`
+against the field being an item field under an `http.header` array. That cross-validation, and the
+companion `roleConflicts` mechanism, are tracked as follow-up work.
+
 ## Map fields
 
 When `valueType` is `"map"` it represents an object with dynamic string keys. Like arrays, maps require an `item` property that describes the value type:

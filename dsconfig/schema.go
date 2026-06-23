@@ -145,6 +145,8 @@ type ConfigField struct {
 	// Field type: storage (default) or virtual
 	Kind FieldKind `json:"kind,omitempty"`
 
+	Role Role `json:"role,omitempty"`
+
 	// True if part of array item schema
 	IsItemField *bool `json:"isItemField,omitempty"`
 
@@ -223,6 +225,10 @@ func (f *ConfigField) Validate() error {
 
 	if f.Kind != "" && !f.Kind.IsValid() {
 		return fmt.Errorf("field %s: invalid kind %q", f.ID, f.Kind)
+	}
+
+	if f.Role != "" && !f.Role.IsValid() {
+		return fmt.Errorf("field %s: invalid role %q", f.ID, f.Role)
 	}
 
 	if f.UI != nil {
@@ -493,6 +499,63 @@ func (h *FieldHelp) Validate() error {
 		return fmt.Errorf("help requires markdown content")
 	}
 	return nil
+}
+
+// ============================================================
+// Roles
+// ============================================================
+
+type Role string
+
+const (
+	RoleEndpointBaseURL Role = "endpoint.baseUrl"
+	RoleEndpointScheme  Role = "endpoint.scheme"
+	RoleEndpointDomain  Role = "endpoint.domain"
+	RoleEndpointPort    Role = "endpoint.port"
+
+	RoleTransportTimeoutSeconds Role = "transport.timeoutSeconds"
+	RoleTransportTLSSkipVerify  Role = "transport.tlsSkipVerify"
+
+	RoleTLSClientCert Role = "tls.clientCert"
+	RoleTLSClientKey  Role = "tls.clientKey"
+	RoleTLSCACert     Role = "tls.caCert"
+	RoleTLSServerName Role = "tls.serverName"
+
+	RoleAuthDiscriminator            Role = "auth.discriminator"
+	RoleAuthBasicEnabled             Role = "auth.basic.enabled"
+	RoleAuthBasicUsername            Role = "auth.basic.username"
+	RoleAuthBasicPassword            Role = "auth.basic.password"
+	RoleAuthOAuth2ClientID           Role = "auth.oauth2.clientId"
+	RoleAuthOAuth2ClientSecret       Role = "auth.oauth2.clientSecret"
+	RoleAuthOAuth2TokenURL           Role = "auth.oauth2.tokenUrl"
+	RoleAuthJWTSigningKey            Role = "auth.jwt.signingKey"
+	RoleAuthAWSSigV4Enabled          Role = "auth.awsSigV4.enabled"
+	RoleAuthForwardOAuthTokenEnabled Role = "auth.forwardOAuthToken.enabled"
+
+	RoleHTTPHeader      Role = "http.header"
+	RoleHTTPHeaderName  Role = "http.header.name"
+	RoleHTTPHeaderValue Role = "http.header.value"
+
+	RoleHTTPQuery      Role = "http.query"
+	RoleHTTPQueryName  Role = "http.query.name"
+	RoleHTTPQueryValue Role = "http.query.value"
+)
+
+func (r Role) IsValid() bool {
+	switch r {
+	case RoleEndpointBaseURL, RoleEndpointScheme, RoleEndpointDomain, RoleEndpointPort,
+		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
+		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
+		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
+		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL, RoleAuthJWTSigningKey,
+		RoleAuthAWSSigV4Enabled,
+		RoleAuthForwardOAuthTokenEnabled,
+		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
+		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue:
+		return true
+	default:
+		return false
+	}
 }
 
 // ============================================================
