@@ -1,7 +1,9 @@
 package schema
 
 import (
+	"errors"
 	"flag"
+	"strings"
 	"testing"
 
 	"github.com/grafana/dsconfig/dsconfig"
@@ -38,13 +40,30 @@ type PluginUnderTest struct {
 	SettingsExamples *sdkSchema.SettingsExamples
 }
 
+func (p PluginUnderTest) validate() error {
+	if strings.TrimSpace(p.ID) == "" {
+		return errors.New("ID is empty")
+	}
+	if len(p.ConfigSchemaJSON) == 0 {
+		return errors.New("ConfigSchemaJSON is empty")
+	}
+	if p.SettingsJSONModel == nil {
+		return errors.New("SettingsJSONModel is nil")
+	}
+	if len(p.SecureKeys) == 0 {
+		return errors.New("SecureKeys is empty")
+	}
+	return nil
+}
+
 // RunPluginTests is the one-call test entry point for plugins built on the
 // dsconfig single source of truth. When invoked with -generateArtifacts, it
 // writes the schema artifacts to disk; otherwise it runs the full conformance
 // suite. Call it from a single Test function in the plugin's test package.
 func RunPluginTests(t *testing.T, p PluginUnderTest) {
 	t.Helper()
-
+	require.NotNil(t, p)
+	require.NoError(t, p.validate(), "invalid PluginUnderTest params")
 	examples := p.SettingsExamples
 	if examples == nil {
 		examples = &sdkSchema.SettingsExamples{}
