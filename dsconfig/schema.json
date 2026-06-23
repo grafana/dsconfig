@@ -152,6 +152,7 @@
                         "transport.timeoutSeconds",
                         "transport.tlsSkipVerify",
                         "request.interval",
+                        "query.data.link",
                         "tls.clientCert",
                         "tls.clientKey",
                         "tls.caCert",

@@ -521,6 +521,8 @@ const (
 
 	RoleRequestInterval Role = "request.interval"
 
+	RoleQueryDataLink Role = "query.data.link"
+
 	RoleTLSClientCert Role = "tls.clientCert"
 	RoleTLSClientKey  Role = "tls.clientKey"
 	RoleTLSCACert     Role = "tls.caCert"
@@ -553,6 +555,7 @@ func (r Role) IsValid() bool {
 	case RoleEndpointBaseURL, RoleEndpointScheme, RoleEndpointDomain, RoleEndpointPort,
 		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
 		RoleRequestInterval,
+		RoleQueryDataLink,
 		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
 		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
 		RoleAuthBearerToken,

@@ -151,6 +151,7 @@ controls.
 | `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`             |
 | `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                 |
 | `request.*`     | `request.interval`                                                                    |
+| `query.*`       | `query.data.link`                                                                     |
 | `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                     |
 | `auth.*`        | `auth.discriminator`, `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`, `auth.bearer.token`, `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.jwt.signingKey`, `auth.awsSigV4.enabled`, `auth.forwardOAuthToken.enabled` |
 | `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields) |
