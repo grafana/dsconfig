@@ -170,6 +170,7 @@
                         "auth.awsSigV4.enabled",
                         "auth.aws.accessKeyId",
                         "auth.aws.accessKeySecret",
+                        "auth.azureBlob.storageAccountKey",
                         "auth.forwardOAuthToken.enabled",
                         "auth.api.keyValue",
                         "http.header",
