@@ -168,6 +168,7 @@
                         "auth.jwt.signingKey",
                         "auth.awsSigV4.enabled",
                         "auth.forwardOAuthToken.enabled",
+                        "auth.api.keyValue",
                         "http.header",
                         "http.header.name",
                         "http.header.value",

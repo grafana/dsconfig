@@ -539,6 +539,7 @@ const (
 	RoleAuthJWTSigningKey            Role = "auth.jwt.signingKey"
 	RoleAuthAWSSigV4Enabled          Role = "auth.awsSigV4.enabled"
 	RoleAuthForwardOAuthTokenEnabled Role = "auth.forwardOAuthToken.enabled"
+	RoleAuthAPIKeyValue              Role = "auth.api.keyValue"
 
 	RoleHTTPHeader      Role = "http.header"
 	RoleHTTPHeaderName  Role = "http.header.name"
@@ -563,6 +564,7 @@ func (r Role) IsValid() bool {
 		RoleAuthJWTSigningKey,
 		RoleAuthAWSSigV4Enabled,
 		RoleAuthForwardOAuthTokenEnabled,
+		RoleAuthAPIKeyValue,
 		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
 		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue, RoleHTTPQueryTimeout:
 		return true
