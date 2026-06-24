@@ -532,9 +532,15 @@ const (
 	RoleAuthOAuth2ClientID           Role = "auth.oauth2.clientId"
 	RoleAuthOAuth2ClientSecret       Role = "auth.oauth2.clientSecret"
 	RoleAuthOAuth2TokenURL           Role = "auth.oauth2.tokenUrl"
+	RoleAuthOAuth2JWTPrivateKey      Role = "auth.oauth2.jwtPrivateKey"
 	RoleAuthJWTSigningKey            Role = "auth.jwt.signingKey"
 	RoleAuthAWSSigV4Enabled          Role = "auth.awsSigV4.enabled"
+	RoleAuthAWSAccessKeyID           Role = "auth.aws.accessKeyId"
+	RoleAuthAWSSecretAccessKey       Role = "auth.aws.secretAccessKey"
+	RoleAuthAzureBlobStorageAccKey   Role = "auth.azureBlob.storageAccountKey"
 	RoleAuthForwardOAuthTokenEnabled Role = "auth.forwardOAuthToken.enabled"
+	RoleAuthAPIKeyKey                Role = "auth.apiKey.key"
+	RoleAuthAPIKeyValue              Role = "auth.apiKey.value"
 
 	RoleHTTPHeader      Role = "http.header"
 	RoleHTTPHeaderName  Role = "http.header.name"
@@ -552,10 +558,13 @@ func (r Role) IsValid() bool {
 		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
 		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
 		RoleAuthBearerToken,
-		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL,
+		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL, RoleAuthOAuth2JWTPrivateKey,
 		RoleAuthJWTSigningKey,
 		RoleAuthAWSSigV4Enabled,
+		RoleAuthAWSAccessKeyID, RoleAuthAWSSecretAccessKey,
+		RoleAuthAzureBlobStorageAccKey,
 		RoleAuthForwardOAuthTokenEnabled,
+		RoleAuthAPIKeyKey, RoleAuthAPIKeyValue,
 		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
 		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue:
 		return true
