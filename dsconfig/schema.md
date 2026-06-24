@@ -150,12 +150,10 @@ controls.
 | --------------- | ------------------------------------------------------------------------------------ |
 | `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`             |
 | `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                 |
-| `request.*`     | `request.interval`                                                                    |
-| `query.*`       | `query.data.link`                                                                     |
 | `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                     |
 | `auth.*`        | `auth.discriminator`, `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`, `auth.bearer.token`, `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.oauth2.jwtPrivateKey`, `auth.jwt.signingKey`, `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.accessKeySecret`, `auth.azureBlob.storageAccountKey`, `auth.forwardOAuthToken.enabled`, `auth.api.keyValue` |
 | `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields) |
-| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields), `http.query.timeout` |
+| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)   |
 
 An endpoint may be modeled as a single `endpoint.baseUrl`, or split into `endpoint.scheme`,
 `endpoint.domain`, and `endpoint.port` for plugins that store the parts separately.

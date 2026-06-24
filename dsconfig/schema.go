@@ -519,10 +519,6 @@ const (
 	RoleTransportTimeoutSeconds Role = "transport.timeoutSeconds"
 	RoleTransportTLSSkipVerify  Role = "transport.tlsSkipVerify"
 
-	RoleRequestInterval Role = "request.interval"
-
-	RoleQueryDataLink Role = "query.data.link"
-
 	RoleTLSClientCert Role = "tls.clientCert"
 	RoleTLSClientKey  Role = "tls.clientKey"
 	RoleTLSCACert     Role = "tls.caCert"
@@ -549,18 +545,15 @@ const (
 	RoleHTTPHeaderName  Role = "http.header.name"
 	RoleHTTPHeaderValue Role = "http.header.value"
 
-	RoleHTTPQuery        Role = "http.query"
-	RoleHTTPQueryName    Role = "http.query.name"
-	RoleHTTPQueryValue   Role = "http.query.value"
-	RoleHTTPQueryTimeout Role = "http.query.timeout"
+	RoleHTTPQuery      Role = "http.query"
+	RoleHTTPQueryName  Role = "http.query.name"
+	RoleHTTPQueryValue Role = "http.query.value"
 )
 
 func (r Role) IsValid() bool {
 	switch r {
 	case RoleEndpointBaseURL, RoleEndpointScheme, RoleEndpointDomain, RoleEndpointPort,
 		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
-		RoleRequestInterval,
-		RoleQueryDataLink,
 		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
 		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
 		RoleAuthBearerToken,
@@ -572,7 +565,7 @@ func (r Role) IsValid() bool {
 		RoleAuthForwardOAuthTokenEnabled,
 		RoleAuthAPIKeyValue,
 		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
-		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue, RoleHTTPQueryTimeout:
+		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue:
 		return true
 	default:
 		return false

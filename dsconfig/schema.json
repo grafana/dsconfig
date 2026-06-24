@@ -151,8 +151,6 @@
                         "endpoint.port",
                         "transport.timeoutSeconds",
                         "transport.tlsSkipVerify",
-                        "request.interval",
-                        "query.data.link",
                         "tls.clientCert",
                         "tls.clientKey",
                         "tls.caCert",
@@ -178,8 +176,7 @@
                         "http.header.value",
                         "http.query",
                         "http.query.name",
-                        "http.query.value",
-                        "http.query.timeout"
+                        "http.query.value"
                     ]
                 },
                 "isItemField": {
