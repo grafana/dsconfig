@@ -539,7 +539,8 @@ const (
 	RoleAuthAWSAccessKeySecret       Role = "auth.aws.accessKeySecret"
 	RoleAuthAzureBlobStorageAccKey   Role = "auth.azureBlob.storageAccountKey"
 	RoleAuthForwardOAuthTokenEnabled Role = "auth.forwardOAuthToken.enabled"
-	RoleAuthAPIKeyValue              Role = "auth.api.keyValue"
+	RoleAuthAPIKeyKey                Role = "auth.apiKey.key"
+	RoleAuthAPIKeyValue              Role = "auth.apiKey.value"
 
 	RoleHTTPHeader      Role = "http.header"
 	RoleHTTPHeaderName  Role = "http.header.name"
@@ -563,7 +564,7 @@ func (r Role) IsValid() bool {
 		RoleAuthAWSAccessKeyID, RoleAuthAWSAccessKeySecret,
 		RoleAuthAzureBlobStorageAccKey,
 		RoleAuthForwardOAuthTokenEnabled,
-		RoleAuthAPIKeyValue,
+		RoleAuthAPIKeyKey, RoleAuthAPIKeyValue,
 		RoleHTTPHeader, RoleHTTPHeaderName, RoleHTTPHeaderValue,
 		RoleHTTPQuery, RoleHTTPQueryName, RoleHTTPQueryValue:
 		return true
