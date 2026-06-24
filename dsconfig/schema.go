@@ -439,12 +439,13 @@ const (
 	UICode        UIComponent = "code"
 	UIKeyValue    UIComponent = "keyvalue"
 	UIList        UIComponent = "list"
+	UIFileUpload  UIComponent = "fileUpload"
 )
 
 func (c UIComponent) IsValid() bool {
 	switch c {
 	case UIInput, UITextarea, UISelect, UIMultiselect, UIRadio,
-		UICheckbox, UISwitch, UICode, UIKeyValue, UIList:
+		UICheckbox, UISwitch, UICode, UIKeyValue, UIList, UIFileUpload:
 		return true
 	default:
 		return false
@@ -467,6 +468,12 @@ type FieldUI struct {
 	// Language hint for code editor components.
 	// Example: "promql", "logql", "traceql", "sql", "json"
 	Language string `json:"language,omitempty"`
+
+	// Accept lists the file types allowed by a fileUpload component, using the
+	// same syntax as the HTML input "accept" attribute: file extensions
+	// (".json", ".pem") and/or MIME types ("application/json").
+	// Example: [".json", ".pem", "application/x-x509-ca-cert"]
+	Accept []string `json:"accept,omitempty"`
 }
 
 // UIWidth defines layout width.
