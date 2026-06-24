@@ -168,6 +168,8 @@
                         "auth.oauth2.jwtPrivateKey",
                         "auth.jwt.signingKey",
                         "auth.awsSigV4.enabled",
+                        "auth.aws.accessKeyId",
+                        "auth.aws.accessKeySecret",
                         "auth.forwardOAuthToken.enabled",
                         "auth.api.keyValue",
                         "http.header",
