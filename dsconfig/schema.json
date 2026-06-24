@@ -167,7 +167,7 @@
                         "auth.jwt.signingKey",
                         "auth.awsSigV4.enabled",
                         "auth.aws.accessKeyId",
-                        "auth.aws.accessKeySecret",
+                        "auth.aws.secretAccessKey",
                         "auth.azureBlob.storageAccountKey",
                         "auth.forwardOAuthToken.enabled",
                         "auth.apiKey.key",

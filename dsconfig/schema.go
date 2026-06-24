@@ -536,7 +536,7 @@ const (
 	RoleAuthJWTSigningKey            Role = "auth.jwt.signingKey"
 	RoleAuthAWSSigV4Enabled          Role = "auth.awsSigV4.enabled"
 	RoleAuthAWSAccessKeyID           Role = "auth.aws.accessKeyId"
-	RoleAuthAWSAccessKeySecret       Role = "auth.aws.accessKeySecret"
+	RoleAuthAWSSecretAccessKey       Role = "auth.aws.secretAccessKey"
 	RoleAuthAzureBlobStorageAccKey   Role = "auth.azureBlob.storageAccountKey"
 	RoleAuthForwardOAuthTokenEnabled Role = "auth.forwardOAuthToken.enabled"
 	RoleAuthAPIKeyKey                Role = "auth.apiKey.key"
@@ -561,7 +561,7 @@ func (r Role) IsValid() bool {
 		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL, RoleAuthOAuth2JWTPrivateKey,
 		RoleAuthJWTSigningKey,
 		RoleAuthAWSSigV4Enabled,
-		RoleAuthAWSAccessKeyID, RoleAuthAWSAccessKeySecret,
+		RoleAuthAWSAccessKeyID, RoleAuthAWSSecretAccessKey,
 		RoleAuthAzureBlobStorageAccKey,
 		RoleAuthForwardOAuthTokenEnabled,
 		RoleAuthAPIKeyKey, RoleAuthAPIKeyValue,
