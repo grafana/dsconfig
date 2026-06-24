@@ -502,6 +502,13 @@
                         "type": "string"
                     },
                     "description": "File types allowed by a fileUpload component, using the same syntax as the HTML input 'accept' attribute: file extensions (.json, .pem) and/or MIME types (application/json)."
+                },
+                "fileMapping": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Maps keys from an uploaded file (e.g. a GCP service account JSON) to destination config paths for a fileUpload component. Keys are fields within the file; values are dotted paths rooted at 'jsonData' or 'secureJsonData'. Example: {\"project_id\": \"jsonData.defaultProject\", \"private_key\": \"secureJsonData.privateKey\"}."
                 }
             }
         },

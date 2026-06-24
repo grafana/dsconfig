@@ -474,6 +474,19 @@ type FieldUI struct {
 	// (".json", ".pem") and/or MIME types ("application/json").
 	// Example: [".json", ".pem", "application/x-x509-ca-cert"]
 	Accept []string `json:"accept,omitempty"`
+
+	// FileMapping maps keys from an uploaded file (e.g. a GCP service account
+	// JSON) to destination config paths for a fileUpload component. Keys are the
+	// fields within the file; values are dotted paths rooted at "jsonData" or
+	// "secureJsonData".
+	// Example:
+	//   {
+	//     "project_id":   "jsonData.defaultProject",
+	//     "client_email": "jsonData.clientEmail",
+	//     "token_uri":    "jsonData.tokenUri",
+	//     "private_key":  "secureJsonData.privateKey",
+	//   }
+	FileMapping map[string]string `json:"fileMapping,omitempty"`
 }
 
 // UIWidth defines layout width.
