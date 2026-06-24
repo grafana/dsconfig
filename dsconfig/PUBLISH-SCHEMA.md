@@ -1,3 +1,5 @@
+## Setting up your files
+
 #### Change 1 : Add `pkg/schema/dsconfig.json`
 
 add the `dsconfig.json` file to the specified location. ( either manually authored / copy the already baselined ones from plugin-ui.
@@ -13,7 +15,9 @@ add the `dsconfig.json` file to the specified location. ( either manually author
 ```
 
 #### Change 2: Install dependencies
+
 If you have not already, run:
+
 ```
 go get github.com/grafana/dsconfig/schema
 ```
@@ -102,3 +106,9 @@ export default config;
 -    "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
 +    "dev": "webpack -w -c ./webpack.config.ts --env development",
 ```
+
+## File generation
+
+1. run `generate go test -run TestPlugin -generateArtifacts` this will generate all the necessary artifacts for the configuration schema
+
+2. To make sure everything looks right run the test that you created above under `dsconfig_test.go`. This will run tests and compare the config schema against the datasource's declared go types to make sure it matches.
