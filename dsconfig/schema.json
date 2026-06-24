@@ -165,6 +165,7 @@
                         "auth.oauth2.clientId",
                         "auth.oauth2.clientSecret",
                         "auth.oauth2.tokenUrl",
+                        "auth.oauth2.jwtPrivateKey",
                         "auth.jwt.signingKey",
                         "auth.awsSigV4.enabled",
                         "auth.forwardOAuthToken.enabled",
