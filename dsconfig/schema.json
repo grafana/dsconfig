@@ -172,6 +172,7 @@
                         "auth.forwardOAuthToken.enabled",
                         "auth.apiKey.key",
                         "auth.apiKey.value",
+                        "auth.pat.token",
                         "http.header",
                         "http.header.name",
                         "http.header.value",
