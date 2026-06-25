@@ -1,0 +1,6 @@
+{
+    "$schema": "./pack-schema.json",
+    "id": "azure_sdk_settings",
+    "description": "Azure specific datasource fields from https://github.com/grafana/grafana-azure-sdk-go / https://github.com/grafana/grafana-azure-sdk-react",
+    "fields": []
+}

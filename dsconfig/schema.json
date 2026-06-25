@@ -35,6 +35,13 @@
             "type": "string",
             "format": "uri"
         },
+        "baseFields": {
+            "type": "array",
+            "description": "SDK field packs to merge into this schema before validation. Pack fields are prepended to fields in declaration order. Plugin-declared fields with a matching ID take precedence.",
+            "items": {
+                "$ref": "#/definitions/BaseFieldRef"
+            }
+        },
         "fields": {
             "type": "array",
             "description": "Source of truth for all config fields",
@@ -76,6 +83,167 @@
         }
     },
     "definitions": {
+        "BaseFieldRef": {
+            "type": "object",
+            "title": "Base Field Reference",
+            "description": "Declares a built-in SDK field pack to compose into this schema.",
+            "required": [
+                "from"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "from": {
+                    "type": "string",
+                    "description": "Identifier of the built-in field pack to include.",
+                    "enum": [
+                        "plugin_sdk_settings",
+                        "aws_sdk_settings",
+                        "azure_sdk_settings",
+                        "google_sdk_settings"
+                    ]
+                },
+                "exclude": {
+                    "type": "array",
+                    "description": "Field IDs from the pack to omit entirely. Each ID must exist in the pack.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                },
+                "patch": {
+                    "type": "object",
+                    "description": "Presentation-only overrides keyed by field ID. Structural properties (id, key, valueType, target, role) cannot be patched.",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/FieldPatch"
+                    }
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "from": {
+                                "const": "plugin_sdk_settings"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "exclude": {
+                                "items": {
+                                    "enum": []
+                                }
+                            },
+                            "patch": {
+                                "propertyNames": {
+                                    "enum": []
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "from": {
+                                "const": "aws_sdk_settings"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "exclude": {
+                                "items": {
+                                    "enum": []
+                                }
+                            },
+                            "patch": {
+                                "propertyNames": {
+                                    "enum": []
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "from": {
+                                "const": "azure_sdk_settings"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "exclude": {
+                                "items": {
+                                    "enum": []
+                                }
+                            },
+                            "patch": {
+                                "propertyNames": {
+                                    "enum": []
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "from": {
+                                "const": "google_sdk_settings"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "exclude": {
+                                "items": {
+                                    "enum": []
+                                }
+                            },
+                            "patch": {
+                                "propertyNames": {
+                                    "enum": []
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "FieldPatch": {
+            "type": "object",
+            "title": "Field Patch",
+            "description": "Presentation-only overrides for a pack field. Structural properties (id, key, valueType, target, role) are intentionally absent.",
+            "additionalProperties": false,
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "description": "Override the field label shown in the UI."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Override the field description / tooltip."
+                },
+                "placeholder": {
+                    "type": "string",
+                    "description": "Override the input placeholder text."
+                },
+                "defaultValue": {
+                    "description": "Override the field default value."
+                },
+                "required": {
+                    "type": "boolean",
+                    "description": "Override whether the field is required."
+                },
+                "hidden": {
+                    "type": "boolean",
+                    "description": "Reserved for future use (currently ignored by baseFields resolution)."
+                }
+            }
+        },
         "ConfigField": {
             "type": "object",
             "title": "Config Field",

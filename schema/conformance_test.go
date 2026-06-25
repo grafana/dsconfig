@@ -121,6 +121,26 @@ func TestRunConformanceTests(t *testing.T) {
 }
 
 // ----------------------------------------------------------------------------
+// BaseFieldsResolved
+// ----------------------------------------------------------------------------
+
+func TestBaseFieldsResolved(t *testing.T) {
+	t.Run("success when no baseFields", func(t *testing.T) {
+		p := validParams()
+		// validDSConfigSchema has no baseFields → already resolved.
+		require.False(t, runCapture(func(tt *testing.T) { BaseFieldsResolved(tt, p) }))
+	})
+
+	t.Run("fails when baseFields non-empty", func(t *testing.T) {
+		p := validParams()
+		p.DSConfigSchema.BaseFields = []dsconfig.BaseFieldRef{
+			{From: dsconfig.PackPluginSDKSettings},
+		}
+		require.True(t, runCapture(func(tt *testing.T) { BaseFieldsResolved(tt, p) }))
+	})
+}
+
+// ----------------------------------------------------------------------------
 // SchemaRoundTrip
 // ----------------------------------------------------------------------------
 

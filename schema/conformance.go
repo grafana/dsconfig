@@ -25,7 +25,10 @@ type Params struct {
 	// "yesoreyeram-infinity-datasource").
 	PluginID string
 
-	// DSConfigSchema is the parsed dsconfig single source of truth.
+	// DSConfigSchema is the parsed and resolved dsconfig single source of truth.
+	// If the schema uses baseFields, call ResolveBaseFields() or
+	// ParseAndResolveSchemaJSON() before passing it here.
+	// Passing an unresolved schema will fail the BaseFieldsResolved check.
 	DSConfigSchema *dsconfig.Schema
 
 	// PluginSchema is the full SDK PluginSchema assembled from ConfigSchema.
@@ -46,6 +49,7 @@ type Params struct {
 func RunConformanceTests(t *testing.T, p Params) {
 	t.Helper()
 
+	t.Run("BaseFieldsResolved", func(t *testing.T) { BaseFieldsResolved(t, p) })
 	t.Run("SchemaRoundTrip", func(t *testing.T) { SchemaRoundTrip(t, p) })
 	t.Run("SchemaArtifactInSync", func(t *testing.T) { SchemaArtifactInSync(t, p) })
 	t.Run("SchemaSpecHasNoSecureJSON", func(t *testing.T) { SchemaSpecHasNoSecureJSON(t, p) })
@@ -53,6 +57,17 @@ func RunConformanceTests(t *testing.T, p Params) {
 	t.Run("JSONDataMatchesStruct", func(t *testing.T) { JSONDataMatchesStruct(t, p) })
 	t.Run("JSONDataTypesMatchStruct", func(t *testing.T) { JSONDataTypesMatchStruct(t, p) })
 	t.Run("SecureValuesMatchLoadSettings", func(t *testing.T) { SecureValuesMatchLoadSettings(t, p) })
+}
+
+// BaseFieldsResolved guards that DSConfigSchema was resolved before being
+// passed to the conformance suite. An unresolved schema (BaseFields non-empty)
+// means the plugin's production code path is also likely broken — Validate()
+// will return an error until baseFields is resolved.
+func BaseFieldsResolved(t *testing.T, p Params) {
+	t.Helper()
+	require.Empty(t, p.DSConfigSchema.BaseFields,
+		"DSConfigSchema has unresolved baseFields; call ResolveBaseFields() or "+
+			"ParseAndResolveSchemaJSON() before passing to RunConformanceTests")
 }
 
 // SchemaRoundTrip loads the committed artifact through the production provider
