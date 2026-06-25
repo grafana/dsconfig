@@ -289,10 +289,6 @@ func TestJSONDataTypesMatchStruct(t *testing.T) {
 	})
 }
 
-// ----------------------------------------------------------------------------
-// Nested jsonData objects (Section) — Gap 1 & Gap 2
-// ----------------------------------------------------------------------------
-
 // azureCredentials mirrors a named nested struct (not anonymous) that the schema
 // models leaf-by-leaf via Section.
 type azureCredentials struct {
@@ -326,8 +322,6 @@ func nestedParams() Params {
 }
 
 func TestJSONDataMatchesStructNested(t *testing.T) {
-	// Gap 1: the schema's sectioned leaves (azureCredentials.tenantId, ...)
-	// reconcile against the named struct field once it is flattened.
 	t.Run("nested object reconciles", func(t *testing.T) {
 		require.False(t, runCapture(func(tt *testing.T) { JSONDataMatchesStruct(tt, nestedParams()) }))
 	})
