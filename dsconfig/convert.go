@@ -22,11 +22,16 @@ func NewPluginSchema(settings *pluginschema.Settings, examples *pluginschema.Set
 }
 
 // NewSDKSchema is the one-call entry point for plugins: it parses the embedded
-// dsconfig JSON, converts it to SDK settings, and returns a full PluginSchema
-// stamped with TargetAPIVersion. Pass examples to populate SettingsExamples, or
-// nil to omit them.
+// dsconfig JSON, resolves any baseFields, validates, converts to SDK settings,
+// and returns a full PluginSchema stamped with TargetAPIVersion.
+// Pass examples to populate SettingsExamples, or nil to omit them.
+//
+// If the schema uses baseFields, the packs sub-package must be imported for its
+// side effects before calling this function:
+//
+//	import _ "github.com/grafana/dsconfig/dsconfig/packs"
 func NewSDKSchema(data []byte, examples *pluginschema.SettingsExamples) (*pluginschema.PluginSchema, error) {
-	cfg, err := ParseSchemaJSON(data)
+	cfg, err := ParseAndResolveSchemaJSON(data)
 	if err != nil {
 		return nil, err
 	}

@@ -24,6 +24,12 @@ type Schema struct {
 	// Optional documentation URL.
 	DocURL string `json:"docURL,omitempty"`
 
+	// BaseFields declares SDK field packs to merge into this schema before
+	// validation. Pack fields are prepended to Fields in declaration order.
+	// Plugin-declared fields with a matching ID take precedence over pack fields.
+	// Call ResolveBaseFields() or ParseAndResolveSchemaJSON() before Validate().
+	BaseFields []BaseFieldRef `json:"baseFields,omitempty"`
+
 	// Fields defines all configuration fields.
 	Fields []ConfigField `json:"fields"`
 
@@ -38,6 +44,9 @@ type Schema struct {
 }
 
 func (s *Schema) Validate() error {
+	if len(s.BaseFields) > 0 {
+		return fmt.Errorf("schema has unresolved baseFields: call ResolveBaseFields() or ParseAndResolveSchemaJSON() before Validate()")
+	}
 	if s.SchemaVersion == "" {
 		return fmt.Errorf("schemaVersion is required")
 	}
@@ -850,6 +859,68 @@ type FieldRelationship struct {
 type Instruction struct {
 	Message string   `json:"msg"`
 	Tags    []string `json:"tags,omitempty"`
+}
+
+// ============================================================
+// Base Field Packs
+// ============================================================
+
+// FieldPackID identifies a built-in field pack defined in this package.
+// Pack IDs follow the convention <sdk_name>_settings to encode provenance.
+type FieldPackID string
+
+const (
+	// PackPluginSDKSettings contains the standard fields provided by
+	// grafana-plugin-sdk-go (URL, basicAuth, TLS, timeout, HTTP headers, etc.).
+	PackPluginSDKSettings FieldPackID = "plugin_sdk_settings"
+
+	// PackAWSSDKSettings contains the standard fields provided by
+	// grafana-aws-sdk-go (SigV4 auth, region, profile, etc.).
+	PackAWSSDKSettings FieldPackID = "aws_sdk_settings"
+
+	// PackAzureSDKSettings contains the standard fields provided by
+	// grafana-azure-sdk-go (Azure credential fields, etc.).
+	PackAzureSDKSettings FieldPackID = "azure_sdk_settings"
+
+	// PackGoogleSDKSettings contains the standard fields provided by
+	// grafana-google-sdk-go (Google credential fields, etc.).
+	PackGoogleSDKSettings FieldPackID = "google_sdk_settings"
+)
+
+// BaseFieldRef declares a single field pack to compose into the schema.
+// Pack fields are merged before the schema's own Fields are validated.
+type BaseFieldRef struct {
+	// From is the identifier of a built-in field pack.
+	From FieldPackID `json:"from"`
+
+	// Exclude lists field IDs from the pack to omit entirely.
+	// Each ID must exist in the pack.
+	Exclude []string `json:"exclude,omitempty"`
+
+	// Patch applies presentation-only overrides to individual pack fields,
+	// keyed by field ID. Structural properties (id, key, valueType, target,
+	// role) cannot be patched — they are the pack's immutable contract.
+	Patch map[string]FieldPatch `json:"patch,omitempty"`
+}
+
+// FieldPatch carries safe-to-override presentation properties for a pack field.
+// Only non-zero values are applied. Structural properties (id, key, valueType,
+// target, role) are intentionally absent to preserve the pack's data contract.
+type FieldPatch struct {
+	Label        string `json:"label,omitempty"`
+	Description  string `json:"description,omitempty"`
+	Placeholder  string `json:"placeholder,omitempty"`
+	DefaultValue any    `json:"defaultValue,omitempty"`
+	Required     *bool  `json:"required,omitempty"`
+	Hidden       bool   `json:"hidden,omitempty"`
+}
+
+// FieldPack is a named set of ConfigField definitions provided by an SDK.
+// Pack field IDs must use the pack ID as a namespace prefix, e.g.
+// "plugin_sdk_settings.url" for a field in PackPluginSDKSettings.
+type FieldPack struct {
+	ID     FieldPackID
+	Fields []ConfigField
 }
 
 // ParseSchemaJSON unmarshals dsconfig JSON data into a Schema.

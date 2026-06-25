@@ -1,0 +1,6 @@
+{
+    "$schema": "./pack-schema.json",
+    "id": "aws_sdk_settings",
+    "description": "Azure specific datasource fields from https://github.com/grafana/grafana-aws-sdk / https://github.com/grafana/grafana-aws-sdk-react",
+    "fields": []
+}
