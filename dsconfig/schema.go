@@ -448,12 +448,13 @@ const (
 	UICode        UIComponent = "code"
 	UIKeyValue    UIComponent = "keyvalue"
 	UIList        UIComponent = "list"
+	UIFileUpload  UIComponent = "fileUpload"
 )
 
 func (c UIComponent) IsValid() bool {
 	switch c {
 	case UIInput, UITextarea, UISelect, UIMultiselect, UIRadio,
-		UICheckbox, UISwitch, UICode, UIKeyValue, UIList:
+		UICheckbox, UISwitch, UICode, UIKeyValue, UIList, UIFileUpload:
 		return true
 	default:
 		return false
@@ -476,6 +477,25 @@ type FieldUI struct {
 	// Language hint for code editor components.
 	// Example: "promql", "logql", "traceql", "sql", "json"
 	Language string `json:"language,omitempty"`
+
+	// Accept lists the file types allowed by a fileUpload component, using the
+	// same syntax as the HTML input "accept" attribute: file extensions
+	// (".json", ".pem") and/or MIME types ("application/json").
+	// Example: [".json", ".pem", "application/x-x509-ca-cert"]
+	Accept []string `json:"accept,omitempty"`
+
+	// FileMapping maps keys from an uploaded file (e.g. a GCP service account
+	// JSON) to destination config paths for a fileUpload component. Keys are the
+	// fields within the file; values are dotted paths rooted at "jsonData" or
+	// "secureJsonData".
+	// Example:
+	//   {
+	//     "project_id":   "jsonData.defaultProject",
+	//     "client_email": "jsonData.clientEmail",
+	//     "token_uri":    "jsonData.tokenUri",
+	//     "private_key":  "secureJsonData.privateKey",
+	//   }
+	FileMapping map[string]string `json:"fileMapping,omitempty"`
 }
 
 // UIWidth defines layout width.
@@ -537,6 +557,7 @@ const (
 	RoleAuthBasicEnabled             Role = "auth.basic.enabled"
 	RoleAuthBasicUsername            Role = "auth.basic.username"
 	RoleAuthBasicPassword            Role = "auth.basic.password"
+	RoleAuthBasicToken               Role = "auth.basic.token"
 	RoleAuthBearerToken              Role = "auth.bearer.token"
 	RoleAuthOAuth2ClientID           Role = "auth.oauth2.clientId"
 	RoleAuthOAuth2ClientSecret       Role = "auth.oauth2.clientSecret"
@@ -565,7 +586,7 @@ func (r Role) IsValid() bool {
 	case RoleEndpointBaseURL, RoleEndpointScheme, RoleEndpointDomain, RoleEndpointPort,
 		RoleTransportTimeoutSeconds, RoleTransportTLSSkipVerify,
 		RoleTLSClientCert, RoleTLSClientKey, RoleTLSCACert, RoleTLSServerName,
-		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword,
+		RoleAuthDiscriminator, RoleAuthBasicEnabled, RoleAuthBasicUsername, RoleAuthBasicPassword, RoleAuthBasicToken,
 		RoleAuthBearerToken,
 		RoleAuthOAuth2ClientID, RoleAuthOAuth2ClientSecret, RoleAuthOAuth2TokenURL, RoleAuthOAuth2JWTPrivateKey,
 		RoleAuthJWTSigningKey,

@@ -67,23 +67,23 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 
 `FieldPatch` allows customising _presentation_ properties of a pack field without redefining it. Structural properties (`id`, `key`, `valueType`, `target`, `role`) are intentionally absent — those are the pack's immutable contract.
 
-| property       | type      | description                                |
-| -------------- | --------- | ------------------------------------------ |
-| `label`        | `string`  | Override the field label.                  |
-| `description`  | `string`  | Override the field description / tooltip.  |
-| `placeholder`  | `string`  | Override the input placeholder text.       |
-| `defaultValue` | `any`     | Override the field default value.          |
-| `required`     | `boolean` | Override whether the field is required.    |
+| property       | type      | description                                                             |
+| -------------- | --------- | ----------------------------------------------------------------------- |
+| `label`        | `string`  | Override the field label.                                               |
+| `description`  | `string`  | Override the field description / tooltip.                               |
+| `placeholder`  | `string`  | Override the input placeholder text.                                    |
+| `defaultValue` | `any`     | Override the field default value.                                       |
+| `required`     | `boolean` | Override whether the field is required.                                 |
 | `hidden`       | `boolean` | Reserved for future use (currently ignored by `baseFields` resolution). |
 
 ### Built-in packs
 
-| `from` value          | Source SDK              | Content                                                      |
-| --------------------- | ----------------------- | ------------------------------------------------------------ |
-| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | *(stub — fields empty, populated in follow-up PRs)* |
-| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | *(stub — fields empty, populated in follow-up PRs)* |
-| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | *(stub — fields empty, populated in follow-up PRs)* |
-| `google_sdk_settings` | `grafana-google-sdk-go` | *(stub — fields empty, populated in follow-up PRs)* |
+| `from` value          | Source SDK              | Content                                             |
+| --------------------- | ----------------------- | --------------------------------------------------- |
+| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
+| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | _(stub — fields empty, populated in follow-up PRs)_ |
+| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | _(stub — fields empty, populated in follow-up PRs)_ |
+| `google_sdk_settings` | `grafana-google-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
 
 Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`.
 
@@ -227,14 +227,22 @@ controls.
 
 ### Vocabulary
 
-| Namespace       | Roles                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`                                                                                                                                                                                                                                                                                                                                                                |
-| `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                                                                                                                                                                                                                                                                                                                                                                    |
-| `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                                                                                                                                                                                                                                                                                                                                                                        |
-| `auth.*`        | `auth.discriminator`, `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`, `auth.bearer.token`, `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.oauth2.jwtPrivateKey`, `auth.jwt.signingKey`, `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.secretAccessKey`, `auth.azureBlob.storageAccountKey`, `auth.forwardOAuthToken.enabled`, `auth.apiKey.key`, `auth.apiKey.value` |
-| `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields)                                                                                                                                                                                                                                                                                                                                                   |
-| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)                                                                                                                                                                                                                                                                                                                                                      |
+| Namespace       | Roles                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------- |
+| `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`                               |
+| `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                                   |
+| `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                                       |
+| `auth.*`        | `auth.discriminator`                                                                                    |
+|                 | `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`,`auth.basic.token`                   |
+|                 | `auth.bearer.token`                                                                                     |
+|                 | `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.oauth2.jwtPrivateKey` |
+|                 | `auth.jwt.signingKey`,                                                                                  |
+|                 | `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.secretAccessKey`                             |
+|                 | `auth.azureBlob.storageAccountKey`                                                                      |
+|                 | `auth.forwardOAuthToken.enabled`                                                                        |
+|                 | `auth.apiKey.key`, `auth.apiKey.value`                                                                  |
+| `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields)                  |
+| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)                     |
 
 An endpoint may be modeled as a single `endpoint.baseUrl`, or split into `endpoint.scheme`,
 `endpoint.domain`, and `endpoint.port` for plugins that store the parts separately.
