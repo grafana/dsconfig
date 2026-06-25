@@ -22,6 +22,8 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 
 `baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
 
+> **Note:** The built-in packs are currently stubs with empty `fields` arrays. Until they are populated, `exclude` and `patch` references will fail resolution because the referenced field IDs do not exist yet.
+
 ```json
 {
   "schemaVersion": "v1",
@@ -72,16 +74,16 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 | `placeholder`  | `string`  | Override the input placeholder text.       |
 | `defaultValue` | `any`     | Override the field default value.          |
 | `required`     | `boolean` | Override whether the field is required.    |
-| `hidden`       | `boolean` | Hide this field from the configuration UI. |
+| `hidden`       | `boolean` | Reserved for future use (currently ignored by `baseFields` resolution). |
 
 ### Built-in packs
 
 | `from` value          | Source SDK              | Content                                                      |
 | --------------------- | ----------------------- | ------------------------------------------------------------ |
-| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | URL, basicAuth, TLS settings, timeout, HTTP headers          |
-| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | SigV4 auth, region, profile, endpoint, assume-role           |
-| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | Azure cloud, tenant ID, client credentials, managed identity |
-| `google_sdk_settings` | `grafana-google-sdk-go` | Authentication type, service account JWT, token URI          |
+| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | *(stub — fields empty, populated in follow-up PRs)* |
+| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | *(stub — fields empty, populated in follow-up PRs)* |
+| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | *(stub — fields empty, populated in follow-up PRs)* |
+| `google_sdk_settings` | `grafana-google-sdk-go` | *(stub — fields empty, populated in follow-up PRs)* |
 
 Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`.
 

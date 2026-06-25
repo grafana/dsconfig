@@ -30,10 +30,11 @@ func (s *Schema) ResolveBaseFields() (*Schema, error) {
 		seen[ref.From] = true
 	}
 
-	// Build the merged field list from packs, then deduplicate against s.Fields.
-	pluginFieldIDs := map[string]bool{}
-	for _, f := range s.Fields {
-		pluginFieldIDs[f.ID] = true
+	// Build the merged field list from packs, then deduplicate against any plugin-declared
+	// field IDs (including nested item fields).
+	pluginFieldIDs, err := s.FieldIDs()
+	if err != nil {
+		return nil, fmt.Errorf("baseFields: invalid plugin fields: %w", err)
 	}
 
 	var packFields []ConfigField
@@ -113,7 +114,9 @@ func applyFieldPatch(f ConfigField, p FieldPatch) ConfigField {
 	}
 	if p.Placeholder != "" {
 		if f.UI == nil {
-			ui := FieldUI{}
+			f.UI = &FieldUI{}
+		} else {
+			ui := *f.UI
 			f.UI = &ui
 		}
 		f.UI.Placeholder = p.Placeholder

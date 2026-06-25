@@ -240,7 +240,7 @@
                 },
                 "hidden": {
                     "type": "boolean",
-                    "description": "Hide this field from the configuration UI."
+                    "description": "Reserved for future use (currently ignored by baseFields resolution)."
                 }
             }
         },

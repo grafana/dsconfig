@@ -61,8 +61,8 @@ func RunConformanceTests(t *testing.T, p Params) {
 
 // BaseFieldsResolved guards that DSConfigSchema was resolved before being
 // passed to the conformance suite. An unresolved schema (BaseFields non-empty)
-// means the plugin's production code path is also likely broken — it would
-// fail at Validate() with an unhelpful error.
+// means the plugin's production code path is also likely broken — Validate()
+// will return an error until baseFields is resolved.
 func BaseFieldsResolved(t *testing.T, p Params) {
 	t.Helper()
 	require.Empty(t, p.DSConfigSchema.BaseFields,
