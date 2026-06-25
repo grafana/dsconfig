@@ -257,17 +257,16 @@ func jsonTagKeys(t reflect.Type, sections map[string]bool) []string {
 	return keys
 }
 
-// jsonTagFields maps each JSON field path to information about its struct field,
-// skipping fields without a json tag or tagged "-". Fields promoted from
-// anonymous embedded structs are flattened in (without a path prefix), mirroring
-// encoding/json. A named struct field whose accumulated path is declared as a
-// section in the schema is recursed into and recorded as dotted leaf paths
-// (prefix.leaf), mirroring how the schema records nested jsonData objects via
-// Section; any other field — including a struct mapped to a single JSON object —
-// is recorded as one leaf. Fields declared on the outer struct take precedence
-// over promoted ones of the same name, matching encoding/json's shallowest-wins
-// rule. prefix is the dotted path accumulated from enclosing sections ("" at the
-// root).
+// jsonTagFields maps each JSON field path to info about its struct field,
+// matching how encoding/json sees the struct. Fields without a json tag (or
+// tagged "-") are skipped. prefix is the dotted path from enclosing sections
+// ("" at the root). Three cases:
+//   - anonymous embedded struct: flattened in with no prefix (json promotion);
+//   - named struct whose path is a schema section: recursed into and recorded
+//     as dotted leaves (prefix.leaf), matching how the schema models it;
+//   - anything else (including a struct stored as one JSON object): one leaf.
+//
+// Outer fields win over promoted ones of the same name (json's shallowest-wins).
 func jsonTagFields(t reflect.Type, prefix string, sections map[string]bool) map[string]fieldInfo {
 	for t.Kind() == reflect.Ptr {
 		t = t.Elem()
