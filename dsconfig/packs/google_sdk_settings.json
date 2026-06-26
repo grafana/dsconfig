@@ -1,6 +1,180 @@
 {
     "$schema": "./pack-schema.json",
     "id": "google_sdk_settings",
-    "description": "Google specific datasource fields from https://github.com/grafana/grafana-google-sdk-go / https://github.com/grafana/grafana-google-sdk-react",
-    "fields": []
+    "description": "Google specific datasource fields from https://github.com/grafana/grafana-google-sdk-go / https://github.com/grafana/grafana-google-sdk-react. Field definitions mirror the controls rendered by `ConnectionConfig` (and the `AuthConfig`, `JWTForm`, `WIFConfigEditor` components it composes).",
+    "fields": [
+        {
+            "id": "google_sdk_settings.authenticationType",
+            "key": "authenticationType",
+            "label": "Authentication type",
+            "description": "How Grafana authenticates to Google APIs. `jwt` uses a Google JWT service account key file; `gce` uses the GCE default service account; `workloadIdentityFederation` (WIF) federates a workload identity; `forwardOAuthIdentity` forwards the signed-in user's OAuth token.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "jwt",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "jwt",
+                        "gce",
+                        "workloadIdentityFederation",
+                        "forwardOAuthIdentity"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    { "label": "Google JWT File", "value": "jwt" },
+                    { "label": "GCE Default Service Account", "value": "gce" },
+                    { "label": "Workload Identity Federation", "value": "workloadIdentityFederation" },
+                    { "label": "Forward OAuth Identity", "value": "forwardOAuthIdentity" }
+                ]
+            },
+            "effects": [
+                {
+                    "when": "value == 'forwardOAuthIdentity' || value == 'workloadIdentityFederation'",
+                    "set": { "google_sdk_settings.oauthPassThru": true }
+                },
+                {
+                    "when": "value == 'jwt' || value == 'gce'",
+                    "set": { "google_sdk_settings.oauthPassThru": false }
+                }
+            ]
+        },
+        {
+            "id": "google_sdk_settings.defaultProject",
+            "key": "defaultProject",
+            "label": "Default project",
+            "description": "Google Cloud project ID used for queries when an explicit project is not specified.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "my-gcp-project-id"
+            }
+        },
+        {
+            "id": "google_sdk_settings.clientEmail",
+            "key": "clientEmail",
+            "label": "Client email",
+            "description": "Service account email from the JWT key file (the `client_email` field).",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "google_sdk_settings.authenticationType == 'jwt'",
+            "requiredWhen": "google_sdk_settings.authenticationType == 'jwt'",
+            "ui": {
+                "component": "input",
+                "placeholder": "name@project.iam.gserviceaccount.com"
+            }
+        },
+        {
+            "id": "google_sdk_settings.tokenUri",
+            "key": "tokenUri",
+            "label": "Token URI",
+            "description": "OAuth 2.0 token endpoint from the JWT key file (the `token_uri` field, typically `https://oauth2.googleapis.com/token`).",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "google_sdk_settings.authenticationType == 'jwt'",
+            "requiredWhen": "google_sdk_settings.authenticationType == 'jwt'",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://oauth2.googleapis.com/token"
+            }
+        },
+        {
+            "id": "google_sdk_settings.privateKeyPath",
+            "key": "privateKeyPath",
+            "label": "Private key path",
+            "description": "Path on the Grafana server to a file containing the JWT private key. Use this instead of pasting the private key inline.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "google_sdk_settings.authenticationType == 'jwt'",
+            "ui": {
+                "component": "input",
+                "placeholder": "File location of your private key (e.g. /etc/secrets/gce.pem)"
+            }
+        },
+        {
+            "id": "google_sdk_settings.privateKey",
+            "key": "privateKey",
+            "label": "Private key",
+            "description": "JWT private key (the `private_key` field of the service account key file). Stored in `secureJsonData`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "google_sdk_settings.authenticationType == 'jwt'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Enter Private key"
+            }
+        },
+        {
+            "id": "google_sdk_settings.workloadIdentityPoolProvider",
+            "key": "workloadIdentityPoolProvider",
+            "label": "Workload Identity Pool Provider",
+            "description": "Full resource name of the workload identity pool provider (e.g. `projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider`).",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'",
+            "requiredWhen": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'",
+            "ui": {
+                "component": "input",
+                "placeholder": "projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>"
+            }
+        },
+        {
+            "id": "google_sdk_settings.wifServiceAccountEmail",
+            "key": "wifServiceAccountEmail",
+            "label": "Service account email",
+            "description": "Optional. If set, the federated identity impersonates this service account when calling Google APIs.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "google_sdk_settings.authenticationType == 'workloadIdentityFederation'",
+            "ui": {
+                "component": "input",
+                "placeholder": "name@project.iam.gserviceaccount.com"
+            }
+        },
+        {
+            "id": "google_sdk_settings.usingImpersonation",
+            "key": "usingImpersonation",
+            "label": "Enable service account impersonation",
+            "description": "When enabled, Grafana impersonates the configured service account when calling Google APIs. See https://cloud.google.com/iam/docs/service-account-impersonation.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "google_sdk_settings.authenticationType != 'forwardOAuthIdentity'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "google_sdk_settings.serviceAccountToImpersonate",
+            "key": "serviceAccountToImpersonate",
+            "label": "Service account to impersonate",
+            "description": "Email of the service account that Grafana should impersonate when `usingImpersonation` is enabled.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "google_sdk_settings.usingImpersonation == true",
+            "requiredWhen": "google_sdk_settings.usingImpersonation == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "name@project.iam.gserviceaccount.com"
+            }
+        },
+        {
+            "id": "google_sdk_settings.oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the signed-in user's OAuth token to Google APIs. Set automatically by `authenticationType` (true for `forwardOAuthIdentity` and `workloadIdentityFederation`).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        }
+    ]
 }

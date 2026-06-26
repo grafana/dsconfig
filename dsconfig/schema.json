@@ -200,12 +200,36 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "google_sdk_settings.authenticationType",
+                                        "google_sdk_settings.clientEmail",
+                                        "google_sdk_settings.defaultProject",
+                                        "google_sdk_settings.oauthPassThru",
+                                        "google_sdk_settings.privateKey",
+                                        "google_sdk_settings.privateKeyPath",
+                                        "google_sdk_settings.serviceAccountToImpersonate",
+                                        "google_sdk_settings.tokenUri",
+                                        "google_sdk_settings.usingImpersonation",
+                                        "google_sdk_settings.wifServiceAccountEmail",
+                                        "google_sdk_settings.workloadIdentityPoolProvider"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "google_sdk_settings.authenticationType",
+                                        "google_sdk_settings.clientEmail",
+                                        "google_sdk_settings.defaultProject",
+                                        "google_sdk_settings.oauthPassThru",
+                                        "google_sdk_settings.privateKey",
+                                        "google_sdk_settings.privateKeyPath",
+                                        "google_sdk_settings.serviceAccountToImpersonate",
+                                        "google_sdk_settings.tokenUri",
+                                        "google_sdk_settings.usingImpersonation",
+                                        "google_sdk_settings.wifServiceAccountEmail",
+                                        "google_sdk_settings.workloadIdentityPoolProvider"
+                                    ]
                                 }
                             }
                         }
