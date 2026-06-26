@@ -25,7 +25,10 @@ type Params struct {
 	// "yesoreyeram-infinity-datasource").
 	PluginID string
 
-	// DSConfigSchema is the parsed dsconfig single source of truth.
+	// DSConfigSchema is the parsed and resolved dsconfig single source of truth.
+	// If the schema uses baseFields, call ResolveBaseFields() or
+	// ParseAndResolveSchemaJSON() before passing it here.
+	// Passing an unresolved schema will fail the BaseFieldsResolved check.
 	DSConfigSchema *dsconfig.Schema
 
 	// PluginSchema is the full SDK PluginSchema assembled from ConfigSchema.
@@ -46,6 +49,7 @@ type Params struct {
 func RunConformanceTests(t *testing.T, p Params) {
 	t.Helper()
 
+	t.Run("BaseFieldsResolved", func(t *testing.T) { BaseFieldsResolved(t, p) })
 	t.Run("SchemaRoundTrip", func(t *testing.T) { SchemaRoundTrip(t, p) })
 	t.Run("SchemaArtifactInSync", func(t *testing.T) { SchemaArtifactInSync(t, p) })
 	t.Run("SchemaSpecHasNoSecureJSON", func(t *testing.T) { SchemaSpecHasNoSecureJSON(t, p) })
@@ -53,6 +57,17 @@ func RunConformanceTests(t *testing.T, p Params) {
 	t.Run("JSONDataMatchesStruct", func(t *testing.T) { JSONDataMatchesStruct(t, p) })
 	t.Run("JSONDataTypesMatchStruct", func(t *testing.T) { JSONDataTypesMatchStruct(t, p) })
 	t.Run("SecureValuesMatchLoadSettings", func(t *testing.T) { SecureValuesMatchLoadSettings(t, p) })
+}
+
+// BaseFieldsResolved guards that DSConfigSchema was resolved before being
+// passed to the conformance suite. An unresolved schema (BaseFields non-empty)
+// means the plugin's production code path is also likely broken — Validate()
+// will return an error until baseFields is resolved.
+func BaseFieldsResolved(t *testing.T, p Params) {
+	t.Helper()
+	require.Empty(t, p.DSConfigSchema.BaseFields,
+		"DSConfigSchema has unresolved baseFields; call ResolveBaseFields() or "+
+			"ParseAndResolveSchemaJSON() before passing to RunConformanceTests")
 }
 
 // SchemaRoundTrip loads the committed artifact through the production provider
@@ -140,10 +155,11 @@ func JSONDataMatchesStruct(t *testing.T, p Params) {
 	schemaKeys := []string{}
 	for _, f := range p.DSConfigSchema.Fields {
 		if f.Target != nil && *f.Target == dsconfig.JSONDataTarget {
-			schemaKeys = append(schemaKeys, f.Key)
+			schemaKeys = append(schemaKeys, jsonDataPath(f))
 		}
 	}
-	structKeys := jsonTagKeys(reflect.TypeOf(p.SettingsJSONModel))
+	sections := jsonDataSections(p.DSConfigSchema)
+	structKeys := jsonTagKeys(reflect.TypeOf(p.SettingsJSONModel), sections)
 	sort.Strings(schemaKeys)
 	sort.Strings(structKeys)
 	require.ElementsMatch(t, structKeys, schemaKeys,
@@ -159,11 +175,12 @@ func JSONDataTypesMatchStruct(t *testing.T, p Params) {
 	schemaTypes := map[string]dsconfig.ValueType{}
 	for _, f := range p.DSConfigSchema.Fields {
 		if f.Target != nil && *f.Target == dsconfig.JSONDataTarget {
-			schemaTypes[f.Key] = f.ValueType
+			schemaTypes[jsonDataPath(f)] = f.ValueType
 		}
 	}
 
-	structFields := jsonTagFields(reflect.TypeOf(p.SettingsJSONModel))
+	sections := jsonDataSections(p.DSConfigSchema)
+	structFields := jsonTagFields(reflect.TypeOf(p.SettingsJSONModel), "", sections)
 
 	for key, vt := range schemaTypes {
 		info, ok := structFields[key]
@@ -210,12 +227,44 @@ type fieldInfo struct {
 	customJSON bool
 }
 
-// jsonTagKeys returns the JSON field names produced by encoding/json for a
+// jsonDataPath returns a jsonData field's storage path relative to the jsonData
+// root: the dotted Section prefix joined with the field Key. For a top-level
+// field it is just the key; for jsonData.azureCredentials.tenantId (section
+// "azureCredentials", key "tenantId") it is "azureCredentials.tenantId". This is
+// the canonical form both sides of the struct comparison are reduced to.
+func jsonDataPath(f dsconfig.ConfigField) string {
+	if f.Section != "" {
+		return f.Section + "." + f.Key
+	}
+	return f.Key
+}
+
+// jsonDataSections collects the set of nested-object prefixes declared by
+// jsonData fields, including every dotted ancestor. A field with section "a.b"
+// contributes both "a" and "a.b". The struct walk uses this set to decide which
+// named struct fields are flattened into their leaves (because the schema models
+// the leaves individually) versus recorded as a single object value.
+func jsonDataSections(s *dsconfig.Schema) map[string]bool {
+	sections := map[string]bool{}
+	for _, f := range s.Fields {
+		if f.Target == nil || *f.Target != dsconfig.JSONDataTarget || f.Section == "" {
+			continue
+		}
+		parts := strings.Split(f.Section, ".")
+		for i := range parts {
+			sections[strings.Join(parts[:i+1], ".")] = true
+		}
+	}
+	return sections
+}
+
+// jsonTagKeys returns the JSON field paths produced by encoding/json for a
 // struct, skipping fields without a json tag or tagged "-". Fields promoted from
 // anonymous embedded structs (for example awsds.AWSDatasourceSettings) are
-// included, mirroring how encoding/json marshals embedded fields.
-func jsonTagKeys(t reflect.Type) []string {
-	fields := jsonTagFields(t)
+// included, mirroring how encoding/json marshals embedded fields. Named struct
+// fields whose path appears in sections are flattened into dotted leaf paths.
+func jsonTagKeys(t reflect.Type, sections map[string]bool) []string {
+	fields := jsonTagFields(t, "", sections)
 	keys := make([]string, 0, len(fields))
 	for name := range fields {
 		keys = append(keys, name)
@@ -223,12 +272,17 @@ func jsonTagKeys(t reflect.Type) []string {
 	return keys
 }
 
-// jsonTagFields maps each JSON field name to information about its struct field,
-// skipping fields without a json tag or tagged "-". Fields promoted from
-// anonymous embedded structs are flattened in, mirroring encoding/json. Fields
-// declared on the outer struct take precedence over promoted ones of the same
-// name, matching encoding/json's shallowest-wins rule.
-func jsonTagFields(t reflect.Type) map[string]fieldInfo {
+// jsonTagFields maps each JSON field path to info about its struct field,
+// matching how encoding/json sees the struct. Fields without a json tag (or
+// tagged "-") are skipped. prefix is the dotted path from enclosing sections
+// ("" at the root). Three cases:
+//   - anonymous embedded struct: flattened in with no prefix (json promotion);
+//   - named struct whose path is a schema section: recursed into and recorded
+//     as dotted leaves (prefix.leaf), matching how the schema models it;
+//   - anything else (including a struct stored as one JSON object): one leaf.
+//
+// Outer fields win over promoted ones of the same name (json's shallowest-wins).
+func jsonTagFields(t reflect.Type, prefix string, sections map[string]bool) map[string]fieldInfo {
 	for t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
@@ -239,15 +293,16 @@ func jsonTagFields(t reflect.Type) map[string]fieldInfo {
 		tag := field.Tag.Get("json")
 
 		// An anonymous embedded struct without a json tag has its fields
-		// promoted by encoding/json, so recurse into it. A type with a custom
-		// MarshalJSON is treated as a single value, not flattened.
+		// promoted by encoding/json, so recurse into it keeping the current
+		// prefix. A type with a custom MarshalJSON is treated as a single
+		// value, not flattened.
 		if field.Anonymous && tag == "" && !implementsJSONMarshaler(field.Type) {
 			ft := field.Type
 			for ft.Kind() == reflect.Ptr {
 				ft = ft.Elem()
 			}
 			if ft.Kind() == reflect.Struct {
-				for name, info := range jsonTagFields(ft) {
+				for name, info := range jsonTagFields(ft, prefix, sections) {
 					promoted[name] = info
 				}
 				continue
@@ -261,7 +316,29 @@ func jsonTagFields(t reflect.Type) map[string]fieldInfo {
 		if name == "" {
 			continue
 		}
-		fields[name] = fieldInfo{
+		path := name
+		if prefix != "" {
+			path = prefix + "." + name
+		}
+
+		// When the schema declares this path as a nested object (section), its
+		// leaves are modeled individually, so recurse into the struct field and
+		// record its leaves under the dotted path. A type with a custom
+		// MarshalJSON controls its own encoding and is never flattened.
+		if sections[path] && !implementsJSONMarshaler(field.Type) {
+			ft := field.Type
+			for ft.Kind() == reflect.Ptr {
+				ft = ft.Elem()
+			}
+			if ft.Kind() == reflect.Struct {
+				for leaf, info := range jsonTagFields(ft, path, sections) {
+					fields[leaf] = info
+				}
+				continue
+			}
+		}
+
+		fields[path] = fieldInfo{
 			kind:       field.Type.Kind(),
 			customJSON: implementsJSONMarshaler(field.Type),
 		}

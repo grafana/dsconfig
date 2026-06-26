@@ -4,16 +4,97 @@ Declarative schema for Grafana datasource configuration.
 
 ## Root schema
 
-| name          | type                | required  | description                                   |
-| ------------- | ------------------- | --------- | --------------------------------------------- |
-| schemaVersion | string              | Required. | Schema spec version (e.g. "v1").              |
-| pluginType    | string              | Required. | Unique plugin identifier (e.g. "prometheus"). |
-| pluginName    | string              | Required. | Human-readable name.                          |
-| docURL        | string              | Optional  | documentation URL.                            |
-| fields        | ConfigField[]       | Required. | Source of truth for all config fields.        |
-| groups        | ConfigGroup[]       | Optional  | UI layout grouping.                           |
-| instructions  | Instruction[]       | Optional  | Instructions for LLMs and other consumers.    |
-| relationships | FieldRelationship[] | Optional  | semantic relationships between fields.        |
+| name          | type                | required  | description                                                                  |
+| ------------- | ------------------- | --------- | ---------------------------------------------------------------------------- |
+| schemaVersion | string              | Required. | Schema spec version (e.g. "v1").                                             |
+| pluginType    | string              | Required. | Unique plugin identifier (e.g. "prometheus").                                |
+| pluginName    | string              | Required. | Human-readable name.                                                         |
+| docURL        | string              | Optional  | documentation URL.                                                           |
+| baseFields    | BaseFieldRef[]      | Optional  | SDK field packs to merge before validation. See [Base fields](#base-fields). |
+| fields        | ConfigField[]       | Required. | Source of truth for all config fields.                                       |
+| groups        | ConfigGroup[]       | Optional  | UI layout grouping.                                                          |
+| instructions  | Instruction[]       | Optional  | Instructions for LLMs and other consumers.                                   |
+| relationships | FieldRelationship[] | Optional  | semantic relationships between fields.                                       |
+
+## Base fields
+
+SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafana-plugin-sdk-go), [`grafana-aws-sdk`](https://github.com/grafana/grafana-aws-sdk), [`grafana-azure-sdk-go`](https://github.com/grafana/grafana-azure-sdk-go), and [`grafana-google-sdk-go`](https://github.com/grafana/grafana-google-sdk-go) define a fixed set of well-known fields (URL, basicAuth, TLS, SigV4 auth, etc.). Without `baseFields`, every plugin that uses these SDKs must redeclare those fields verbatim — creating copy-paste drift and maintenance overhead.
+
+`baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
+
+> **Note:** The built-in packs are currently stubs with empty `fields` arrays. Until they are populated, `exclude` and `patch` references will fail resolution because the referenced field IDs do not exist yet.
+
+```json
+{
+  "schemaVersion": "v1",
+  "pluginType": "prometheus",
+  "pluginName": "Prometheus",
+  "baseFields": [
+    {
+      "from": "plugin_sdk_settings",
+      "patch": {
+        "plugin_sdk_settings.url": {
+          "label": "Prometheus server URL",
+          "placeholder": "http://localhost:9090"
+        }
+      }
+    },
+    {
+      "from": "aws_sdk_settings",
+      "exclude": ["aws_sdk_settings.assumeRoleArn"]
+    }
+  ],
+  "fields": [
+    {
+      "id": "jsonData.httpMethod",
+      "key": "httpMethod",
+      "valueType": "string",
+      "target": "jsonData"
+    }
+  ]
+}
+```
+
+### `BaseFieldRef` properties
+
+| property  | type                         | required | description                                                            |
+| --------- | ---------------------------- | -------- | ---------------------------------------------------------------------- |
+| `from`    | `FieldPackID` (string)       | Required | Identifier of the built-in field pack to include.                      |
+| `exclude` | `string[]`                   | Optional | Field IDs from the pack to omit entirely. Each must exist in the pack. |
+| `patch`   | `Record<string, FieldPatch>` | Optional | Presentation-only overrides keyed by field ID.                         |
+
+### `FieldPatch` properties
+
+`FieldPatch` allows customising _presentation_ properties of a pack field without redefining it. Structural properties (`id`, `key`, `valueType`, `target`, `role`) are intentionally absent — those are the pack's immutable contract.
+
+| property       | type      | description                                                             |
+| -------------- | --------- | ----------------------------------------------------------------------- |
+| `label`        | `string`  | Override the field label.                                               |
+| `description`  | `string`  | Override the field description / tooltip.                               |
+| `placeholder`  | `string`  | Override the input placeholder text.                                    |
+| `defaultValue` | `any`     | Override the field default value.                                       |
+| `required`     | `boolean` | Override whether the field is required.                                 |
+| `hidden`       | `boolean` | Reserved for future use (currently ignored by `baseFields` resolution). |
+
+### Built-in packs
+
+| `from` value          | Source SDK              | Content                                             |
+| --------------------- | ----------------------- | --------------------------------------------------- |
+| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
+| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | _(stub — fields empty, populated in follow-up PRs)_ |
+| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | _(stub — fields empty, populated in follow-up PRs)_ |
+| `google_sdk_settings` | `grafana-google-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
+
+Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`.
+
+### Resolution rules
+
+1. `baseFields` is resolved by calling `ResolveBaseFields()` (or the convenience wrapper `ParseAndResolveSchemaJSON()`). **`Validate()` will return an error if called on an unresolved schema.**
+2. Pack fields are prepended to `fields` in declaration order.
+3. If a pack field ID collides with a plugin-declared field, the **plugin field wins** (explicit beats inherited).
+4. `exclude` is validated: every excluded ID must exist in the pack.
+5. `patch` is validated: every patched ID must exist in the pack and must not also appear in `exclude`.
+6. Duplicate `from` values in the same `baseFields` array are an error.
 
 ## Field identity: `id` vs `key`
 
@@ -86,10 +167,10 @@ Tools, docs generators, provisioning, and LLM integrations should use `validatio
 
 Help uses the same language — Markdown — at two intensities, so there is no duplication:
 
-| Source           | Markdown    | Scope                                 | Editor surface |
-| ---------------- | ----------- | ------------------------------------- | -------------- |
-| `description`    | inline only | docs, provisioning, LLM, **tooltip**  | tooltip        |
-| `help.markdown`  | block       | editor-only rich help                 | drawer         |
+| Source          | Markdown    | Scope                                | Editor surface |
+| --------------- | ----------- | ------------------------------------ | -------------- |
+| `description`   | inline only | docs, provisioning, LLM, **tooltip** | tooltip        |
+| `help.markdown` | block       | editor-only rich help                | drawer         |
 
 For **short help**, use the field's `description` — a one-liner in inline Markdown (emphasis, links,
 code spans). Editors surface it as an accessible tooltip on the label. No extra schema is needed.
@@ -117,7 +198,7 @@ don't restate the `description` here.
 }
 ```
 
-| Property   | Type   | Required | Description                                                    |
+| Property   | Type   | Required | Description                                                   |
 | ---------- | ------ | -------- | ------------------------------------------------------------- |
 | `title`    | string | Optional | Drawer heading; also the trigger label that opens the drawer. |
 | `subtitle` | string | Optional | Secondary drawer heading.                                     |
@@ -126,8 +207,8 @@ don't restate the `description` here.
 
 ## Field roles
 
-A field may carry an optional `role`: a tag from a **closed, versioned vocabulary** that says *what
-the field means*, independent of what it is *named*. Two plugins may store a TLS client certificate
+A field may carry an optional `role`: a tag from a **closed, versioned vocabulary** that says _what
+the field means_, independent of what it is _named_. Two plugins may store a TLS client certificate
 as `tlsClientCert` and `clientCertificate`; both can declare `"role": "tls.clientCert"` so a generic
 consumer can find "the TLS client cert" without knowing either plugin's field names.
 
@@ -146,14 +227,22 @@ controls.
 
 ### Vocabulary
 
-| Namespace       | Roles                                                                                |
-| --------------- | ------------------------------------------------------------------------------------ |
-| `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`             |
-| `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                 |
-| `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                     |
-| `auth.*`        | `auth.discriminator`, `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`, `auth.bearer.token`, `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.oauth2.jwtPrivateKey`, `auth.jwt.signingKey`, `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.secretAccessKey`, `auth.azureBlob.storageAccountKey`, `auth.forwardOAuthToken.enabled`, `auth.apiKey.key`, `auth.apiKey.value` |
-| `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields) |
-| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)   |
+| Namespace       | Roles                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------- |
+| `endpoint.*`    | `endpoint.baseUrl`, `endpoint.scheme`, `endpoint.domain`, `endpoint.port`                               |
+| `transport.*`   | `transport.timeoutSeconds`, `transport.tlsSkipVerify`                                                   |
+| `tls.*`         | `tls.clientCert`, `tls.clientKey`, `tls.caCert`, `tls.serverName`                                       |
+| `auth.*`        | `auth.discriminator`                                                                                    |
+|                 | `auth.basic.enabled`, `auth.basic.username`, `auth.basic.password`,`auth.basic.token`                   |
+|                 | `auth.bearer.token`                                                                                     |
+|                 | `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.oauth2.jwtPrivateKey` |
+|                 | `auth.jwt.signingKey`,                                                                                  |
+|                 | `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.secretAccessKey`                             |
+|                 | `auth.azureBlob.storageAccountKey`                                                                      |
+|                 | `auth.forwardOAuthToken.enabled`                                                                        |
+|                 | `auth.apiKey.key`, `auth.apiKey.value`                                                                  |
+| `http.header.*` | `http.header` (the array field), `http.header.name`, `http.header.value` (item fields)                  |
+| `http.query.*`  | `http.query` (the array field), `http.query.name`, `http.query.value` (item fields)                     |
 
 An endpoint may be modeled as a single `endpoint.baseUrl`, or split into `endpoint.scheme`,
 `endpoint.domain`, and `endpoint.port` for plugins that store the parts separately.
@@ -182,8 +271,20 @@ Compound fields use a **parent + item** pattern: the array field carries the col
   "item": {
     "valueType": "object",
     "fields": [
-      { "id": "httpHeaders.item.name", "key": "name", "valueType": "string", "isItemField": true, "role": "http.header.name" },
-      { "id": "httpHeaders.item.value", "key": "value", "valueType": "string", "isItemField": true, "role": "http.header.value" }
+      {
+        "id": "httpHeaders.item.name",
+        "key": "name",
+        "valueType": "string",
+        "isItemField": true,
+        "role": "http.header.name"
+      },
+      {
+        "id": "httpHeaders.item.value",
+        "key": "value",
+        "valueType": "string",
+        "isItemField": true,
+        "role": "http.header.value"
+      }
     ]
   }
 }
@@ -192,7 +293,7 @@ Compound fields use a **parent + item** pattern: the array field carries the col
 HTTP query-string parameters follow the same parent + item pattern with `http.query`,
 `http.query.name`, and `http.query.value`.
 
-A valid `role` does not yet guarantee an *appropriate* one — nothing currently cross-checks, for
+A valid `role` does not yet guarantee an _appropriate_ one — nothing currently cross-checks, for
 example, `tls.clientCert` against the field being a `string` in `secureJsonData`, or `http.header.name`
 against the field being an item field under an `http.header` array. That cross-validation, and the
 companion `roleConflicts` mechanism, are tracked as follow-up work.
@@ -442,15 +543,6 @@ Some datasources have arrays where individual items may be secrets (e.g. Snowfla
 }
 ```
 
-### Shared field sets
-
-Many datasources (~30+) share TLS, basic auth, timeout, and cookie-forwarding fields. Rather than schema-level `$ref` or includes, use **code-level helpers** that inject common field sets during schema construction:
-
-- **Go:** `schema.BasicAuthFields()`, `schema.TLSFields()`, `schema.CommonNetworkFields()`, `schema.HTTPHeaderFields()`
-- **TypeScript:** `basicAuthFields()`, `tlsFields()`, `commonNetworkFields()`, `httpHeaderFields()` from `schema/common.ts`
-
-Generated JSON files remain self-contained — no resolution step needed for consumers.
-
 ## Groups and relationships
 
 **Groups** define UI layout sections. They reference fields by `id`.
@@ -470,21 +562,21 @@ it is always safe to omit or leave unhandled:
 }
 ```
 
-| Property      | Type     | Required | Description                                 |
-| ------------- | -------- | -------- | ------------------------------------------- |
-| `id`          | string   | Required | Unique group identifier.                    |
-| `title`       | string   | Required | Human-readable section title.               |
-| `fieldRefs`   | string[] | Required | Field `id`s shown in this group.            |
-| `description` | string   | Optional | One-line section description.               |
-| `ui`          | GroupUI  | Optional | Presentation hints (see below).             |
-| `order`       | number   | Optional | Explicit ordering hint.                     |
-| `optional`    | boolean  | Optional | Group can be collapsed/hidden by default.   |
+| Property      | Type     | Required | Description                               |
+| ------------- | -------- | -------- | ----------------------------------------- |
+| `id`          | string   | Required | Unique group identifier.                  |
+| `title`       | string   | Required | Human-readable section title.             |
+| `fieldRefs`   | string[] | Required | Field `id`s shown in this group.          |
+| `description` | string   | Optional | One-line section description.             |
+| `ui`          | GroupUI  | Optional | Presentation hints (see below).           |
+| `order`       | number   | Optional | Explicit ordering hint.                   |
+| `optional`    | boolean  | Optional | Group can be collapsed/hidden by default. |
 
 **GroupUI**
 
-| Property | Type   | Required | Description                                                                  |
-| -------- | ------ | -------- | --------------------------------------------------------------------------- |
-| `icon`   | string | Optional | Grafana `IconName` for a Grafana editor; non-Grafana consumers ignore it.   |
+| Property | Type   | Required | Description                                                               |
+| -------- | ------ | -------- | ------------------------------------------------------------------------- |
+| `icon`   | string | Optional | Grafana `IconName` for a Grafana editor; non-Grafana consumers ignore it. |
 
 **Relationships** define semantic connections between fields:
 

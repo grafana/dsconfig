@@ -1,0 +1,6 @@
+{
+    "$schema": "./pack-schema.json",
+    "id": "google_sdk_settings",
+    "description": "Google specific datasource fields from https://github.com/grafana/grafana-google-sdk-go / https://github.com/grafana/grafana-google-sdk-react",
+    "fields": []
+}

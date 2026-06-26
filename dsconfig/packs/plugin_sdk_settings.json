@@ -1,0 +1,6 @@
+{
+    "$schema": "./pack-schema.json",
+    "id": "plugin_sdk_settings",
+    "description": "Standard datasource fields from https://github.com/grafana/grafana-plugin-sdk-go, @grafana/data, @grafana/plugin-ui",
+    "fields": []
+}

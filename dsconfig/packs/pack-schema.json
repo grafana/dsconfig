@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/packs/pack-schema.json",
+    "title": "Datasource Configuration Field Pack",
+    "description": "A field pack defines a reusable set of ConfigField definitions that plugins can compose into their dsconfig schema via baseFields.",
+    "type": "object",
+    "required": [
+        "id",
+        "fields"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string",
+            "description": "Canonical pack identifier. Must match the FieldPackID constant in the companion .go file.",
+            "enum": [
+                "plugin_sdk_settings",
+                "aws_sdk_settings",
+                "azure_sdk_settings",
+                "google_sdk_settings"
+            ]
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description of the pack, including the source SDK and where the canonical field definitions are maintained in both Go and TypeScript."
+        },
+        "fields": {
+            "type": "array",
+            "description": "ConfigField definitions provided by this pack. Field IDs must be namespaced with the pack ID prefix, e.g. \"plugin_sdk_settings.url\".",
+            "items": {
+                "$ref": "../schema.json#/definitions/ConfigField"
+            }
+        }
+    }
+}
