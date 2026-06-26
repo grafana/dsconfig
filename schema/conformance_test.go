@@ -309,6 +309,72 @@ func TestJSONDataTypesMatchStruct(t *testing.T) {
 	})
 }
 
+// azureCredentials mirrors a named nested struct (not anonymous) that the schema
+// models leaf-by-leaf via Section.
+type azureCredentials struct {
+	TenantID string `json:"tenantId"`
+	ClientID string `json:"clientId"`
+}
+
+type nestedJSONModel struct {
+	AuthType         string           `json:"authType"`
+	AzureCredentials azureCredentials `json:"azureCredentials"`
+}
+
+// nestedDSConfigSchema declares the nested leaves via section "azureCredentials"
+// (target jsonData) alongside a top-level authType field.
+func nestedDSConfigSchema() *dsconfig.Schema {
+	s := validDSConfigSchema()
+	s.Fields = []dsconfig.ConfigField{
+		{ID: "authType", Key: "authType", ValueType: dsconfig.StringType, Target: targetPtr(dsconfig.JSONDataTarget)},
+		{ID: "tenantId", Key: "tenantId", Section: "azureCredentials", ValueType: dsconfig.StringType, Target: targetPtr(dsconfig.JSONDataTarget)},
+		{ID: "clientId", Key: "clientId", Section: "azureCredentials", ValueType: dsconfig.StringType, Target: targetPtr(dsconfig.JSONDataTarget)},
+		{ID: "apiKey", Key: "apiKey", ValueType: dsconfig.StringType, Target: targetPtr(dsconfig.SecureJSONTarget)},
+	}
+	return s
+}
+
+func nestedParams() Params {
+	p := validParams()
+	p.DSConfigSchema = nestedDSConfigSchema()
+	p.SettingsJSONModel = nestedJSONModel{}
+	return p
+}
+
+func TestJSONDataMatchesStructNested(t *testing.T) {
+	t.Run("nested object reconciles", func(t *testing.T) {
+		require.False(t, runCapture(func(tt *testing.T) { JSONDataMatchesStruct(tt, nestedParams()) }))
+	})
+
+	t.Run("nested leaf missing from struct fails", func(t *testing.T) {
+		p := nestedParams()
+		p.SettingsJSONModel = struct {
+			AuthType         string `json:"authType"`
+			AzureCredentials struct {
+				TenantID string `json:"tenantId"`
+			} `json:"azureCredentials"`
+		}{}
+		require.True(t, runCapture(func(tt *testing.T) { JSONDataMatchesStruct(tt, p) }))
+	})
+}
+
+func TestJSONDataTypesMatchStructNested(t *testing.T) {
+	t.Run("matching nested types succeed", func(t *testing.T) {
+		require.False(t, runCapture(func(tt *testing.T) { JSONDataTypesMatchStruct(tt, nestedParams()) }))
+	})
+
+	// Gap 2: a nested leaf type mismatch is now caught (previously skipped).
+	t.Run("nested leaf type mismatch fails", func(t *testing.T) {
+		p := nestedParams()
+		for i := range p.DSConfigSchema.Fields {
+			if p.DSConfigSchema.Fields[i].ID == "tenantId" {
+				p.DSConfigSchema.Fields[i].ValueType = dsconfig.NumberType
+			}
+		}
+		require.True(t, runCapture(func(tt *testing.T) { JSONDataTypesMatchStruct(tt, p) }))
+	})
+}
+
 // ----------------------------------------------------------------------------
 // SecureValuesMatchLoadSettings
 // ----------------------------------------------------------------------------
@@ -355,7 +421,7 @@ type taggedStruct struct {
 }
 
 func TestJSONTagFields(t *testing.T) {
-	fields := jsonTagFields(reflect.TypeOf(&taggedStruct{})) // pointer deref path
+	fields := jsonTagFields(reflect.TypeOf(&taggedStruct{}), "", nil) // pointer deref path
 
 	require.Contains(t, fields, "promoted")
 	require.Contains(t, fields, "fromPtr")
@@ -377,7 +443,7 @@ func TestJSONTagFields(t *testing.T) {
 }
 
 func TestJSONTagKeys(t *testing.T) {
-	keys := jsonTagKeys(reflect.TypeOf(taggedStruct{}))
+	keys := jsonTagKeys(reflect.TypeOf(taggedStruct{}), nil)
 	require.ElementsMatch(t,
 		[]string{"promoted", "fromPtr", "path", "renamed", "custom"},
 		keys,
