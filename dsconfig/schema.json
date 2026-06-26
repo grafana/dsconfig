@@ -337,6 +337,7 @@
                         "auth.awsSigV4.enabled",
                         "auth.aws.accessKeyId",
                         "auth.aws.secretAccessKey",
+                        "auth.aws.sessionToken",
                         "auth.azureBlob.storageAccountKey",
                         "auth.forwardOAuthToken.enabled",
                         "auth.apiKey.key",
