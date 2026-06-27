@@ -12,9 +12,6 @@
             "target": "jsonData",
             "role": "auth.discriminator",
             "defaultValue": "default",
-            "help": {
-                "markdown": "`default` resolves credentials from the AWS SDK default chain (env vars, shared config, IAM role); `keys` uses an Access Key ID and Secret Access Key; `credentials` uses a named profile from `~/.aws/credentials`; `ec2_iam_role` uses the EC2 instance IAM role; `grafana_assume_role` (Grafana Cloud only) assumes a customer-provided IAM role using Grafana's identity; `arn` is the deprecated alias for `default`."
-            },
             "validations": [
                 {
                     "type": "allowedValues",
@@ -86,9 +83,6 @@
             "valueType": "string",
             "target": "secureJsonData",
             "dependsOn": "aws_sdk_settings.authType == 'keys'",
-            "help": {
-                "markdown": "Optional AWS session token, used together with the Access Key ID and Secret Access Key when authenticating with temporary credentials."
-            },
             "ui": {
                 "component": "input"
             }
