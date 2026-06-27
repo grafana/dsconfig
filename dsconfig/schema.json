@@ -205,12 +205,40 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "azure_sdk_settings.authType",
+                                        "azure_sdk_settings.azureClientSecret",
+                                        "azure_sdk_settings.azureCloud",
+                                        "azure_sdk_settings.certificateFormat",
+                                        "azure_sdk_settings.certificatePassword",
+                                        "azure_sdk_settings.clientCertificate",
+                                        "azure_sdk_settings.clientId",
+                                        "azure_sdk_settings.oauthPassThru",
+                                        "azure_sdk_settings.password",
+                                        "azure_sdk_settings.privateKey",
+                                        "azure_sdk_settings.serviceCredentialsEnabled",
+                                        "azure_sdk_settings.tenantId",
+                                        "azure_sdk_settings.userId"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "azure_sdk_settings.authType",
+                                        "azure_sdk_settings.azureClientSecret",
+                                        "azure_sdk_settings.azureCloud",
+                                        "azure_sdk_settings.certificateFormat",
+                                        "azure_sdk_settings.certificatePassword",
+                                        "azure_sdk_settings.clientCertificate",
+                                        "azure_sdk_settings.clientId",
+                                        "azure_sdk_settings.oauthPassThru",
+                                        "azure_sdk_settings.password",
+                                        "azure_sdk_settings.privateKey",
+                                        "azure_sdk_settings.serviceCredentialsEnabled",
+                                        "azure_sdk_settings.tenantId",
+                                        "azure_sdk_settings.userId"
+                                    ]
                                 }
                             }
                         }

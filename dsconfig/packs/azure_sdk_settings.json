@@ -1,6 +1,251 @@
 {
     "$schema": "./pack-schema.json",
     "id": "azure_sdk_settings",
-    "description": "Azure specific datasource fields from https://github.com/grafana/grafana-azure-sdk-go / https://github.com/grafana/grafana-azure-sdk-react",
-    "fields": []
+    "description": "Azure specific datasource fields from https://github.com/grafana/grafana-azure-sdk-go / https://github.com/grafana/grafana-azure-sdk-react. Credentials mirror the `AzureCredentials` discriminated union stored at `jsonData.azureCredentials`, and the controls rendered by the `AzureCredentialsForm` / `AppRegistrationCredentials` / `CurrentUserFallbackCredentials` components used by the Azure Monitor data source ConfigEditor.",
+    "fields": [
+        {
+            "id": "azure_sdk_settings.authType",
+            "key": "authType",
+            "section": "azureCredentials",
+            "label": "Authentication type",
+            "description": "Choose the type of authentication to Azure services. Stored at `jsonData.azureCredentials.authType`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "clientsecret",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "clientsecret",
+                        "clientcertificate",
+                        "msi",
+                        "workloadidentity",
+                        "currentuser",
+                        "clientsecret-obo",
+                        "ad-password"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "App Registration (Client Secret)", "value": "clientsecret" },
+                    { "label": "App Registration (Client Certificate)", "value": "clientcertificate" },
+                    { "label": "Managed Identity", "value": "msi" },
+                    { "label": "Workload Identity", "value": "workloadidentity" },
+                    { "label": "Current User", "value": "currentuser" },
+                    { "label": "App Registration (Client Secret) On-Behalf-Of", "value": "clientsecret-obo" },
+                    { "label": "Entra Password (AD Password)", "value": "ad-password" }
+                ]
+            }
+        },
+        {
+            "id": "azure_sdk_settings.azureCloud",
+            "key": "azureCloud",
+            "section": "azureCredentials",
+            "label": "Azure Cloud",
+            "description": "Target Azure cloud environment. See https://github.com/grafana/grafana-azure-sdk-go/blob/main/azsettings/clouds.go for the canonical cloud identifiers.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientcertificate' || azure_sdk_settings.authType == 'clientsecret-obo'",
+            "ui": {
+                "component": "select",
+                "allowCustom": true,
+                "options": [
+                    { "label": "Azure", "value": "AzureCloud" },
+                    { "label": "Azure China", "value": "AzureChinaCloud" },
+                    { "label": "Azure US Government", "value": "AzureUSGovernment" },
+                    { "label": "Azure (customized)", "value": "AzureCustomizedCloud" }
+                ]
+            }
+        },
+        {
+            "id": "azure_sdk_settings.tenantId",
+            "key": "tenantId",
+            "section": "azureCredentials",
+            "label": "Directory (tenant) ID",
+            "description": "Microsoft Entra (Azure AD) tenant ID of the app registration.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientcertificate' || azure_sdk_settings.authType == 'clientsecret-obo'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientcertificate' || azure_sdk_settings.authType == 'clientsecret-obo'",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?$",
+                    "message": "Tenant ID must be a GUID, e.g. XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.clientId",
+            "key": "clientId",
+            "section": "azureCredentials",
+            "label": "Application (client) ID",
+            "description": "Microsoft Entra (Azure AD) application (client) ID of the app registration.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientcertificate' || azure_sdk_settings.authType == 'clientsecret-obo' || azure_sdk_settings.authType == 'ad-password'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientcertificate' || azure_sdk_settings.authType == 'clientsecret-obo' || azure_sdk_settings.authType == 'ad-password'",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?$",
+                    "message": "Client ID must be a GUID, e.g. XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.azureClientSecret",
+            "key": "azureClientSecret",
+            "label": "Client secret",
+            "description": "Client secret of the app registration. Stored in `secureJsonData.azureClientSecret` (the legacy key `clientSecret` is preserved for backward compatibility but new datasources should use `azureClientSecret`).",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientsecret-obo'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientsecret' || azure_sdk_settings.authType == 'clientsecret-obo'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client secret"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.certificateFormat",
+            "key": "certificateFormat",
+            "section": "azureCredentials",
+            "label": "Certificate format",
+            "description": "Format of the client certificate used for `clientcertificate` authentication. `pem` requires a separate private key; `pfx` requires a certificate password.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientcertificate'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientcertificate'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "pem",
+                        "pfx"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "PEM", "value": "pem" },
+                    { "label": "PFX", "value": "pfx" }
+                ]
+            }
+        },
+        {
+            "id": "azure_sdk_settings.clientCertificate",
+            "key": "clientCertificate",
+            "label": "Client certificate",
+            "description": "Client certificate (PEM-encoded body or base64-encoded PFX bundle) used for `clientcertificate` authentication. Stored in `secureJsonData.clientCertificate`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientcertificate'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientcertificate'",
+            "ui": {
+                "component": "textarea",
+                "placeholder": "Begin certificate"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.privateKey",
+            "key": "privateKey",
+            "label": "Private key",
+            "description": "Private key paired with the PEM client certificate. Stored in `secureJsonData.privateKey`. Required only when `certificateFormat == 'pem'`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientcertificate' && azure_sdk_settings.certificateFormat == 'pem'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientcertificate' && azure_sdk_settings.certificateFormat == 'pem'",
+            "ui": {
+                "component": "textarea",
+                "placeholder": "Begin private key"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.certificatePassword",
+            "key": "certificatePassword",
+            "label": "Certificate password",
+            "description": "Password protecting the PFX client certificate bundle. Stored in `secureJsonData.certificatePassword`. Required only when `certificateFormat == 'pfx'`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'clientcertificate' && azure_sdk_settings.certificateFormat == 'pfx'",
+            "requiredWhen": "azure_sdk_settings.authType == 'clientcertificate' && azure_sdk_settings.certificateFormat == 'pfx'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Certificate password"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.userId",
+            "key": "userId",
+            "section": "azureCredentials",
+            "label": "User ID",
+            "description": "Microsoft Entra user principal name used for `ad-password` (Resource Owner Password Credentials) authentication.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'ad-password'",
+            "requiredWhen": "azure_sdk_settings.authType == 'ad-password'",
+            "ui": {
+                "component": "input",
+                "placeholder": "user@contoso.onmicrosoft.com"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.password",
+            "key": "password",
+            "label": "Password",
+            "description": "Password used for `ad-password` (Resource Owner Password Credentials) authentication. Stored in `secureJsonData.password`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "azure_sdk_settings.authType == 'ad-password'",
+            "requiredWhen": "azure_sdk_settings.authType == 'ad-password'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "azure_sdk_settings.serviceCredentialsEnabled",
+            "key": "serviceCredentialsEnabled",
+            "section": "azureCredentials",
+            "label": "Service Credentials",
+            "description": "Choose if fallback service credentials are enabled or disabled for this data source. Rendered inside the `Fallback Service Credentials` section of the Azure Monitor ConfigEditor when `authType == 'currentuser'`. User-based authentication does not inherently support Grafana features that issue requests without a signed-in user (e.g. alerting); enabling this provides fallback credentials for those flows.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "azure_sdk_settings.authType == 'currentuser'",
+            "ui": {
+                "component": "radio",
+                "options": [
+                    { "label": "Enabled", "value": true },
+                    { "label": "Disabled", "value": false }
+                ]
+            }
+        },
+        {
+            "id": "azure_sdk_settings.oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the signed-in user's OAuth token to Azure when making requests. Stored at `jsonData.oauthPassThru`.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        }
+    ]
 }

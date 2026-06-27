@@ -82,7 +82,7 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 | --------------------- | ----------------------- | --------------------------------------------------- |
 | `plugin_sdk_settings` | `grafana-plugin-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
 | `aws_sdk_settings`    | `grafana-aws-sdk-go`    | _(stub — fields empty, populated in follow-up PRs)_ |
-| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | _(stub — fields empty, populated in follow-up PRs)_ |
+| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | Azure credentials and auth (App Registration client secret / client certificate, Managed Identity, Workload Identity, Current User, On-Behalf-Of, Entra Password) — see [`azure_sdk_settings.json`](packs/azure_sdk_settings.json) |
 | `google_sdk_settings` | `grafana-google-sdk-go` | Google credentials and auth (JWT, GCE, WIF, Forward OAuth) — see [`google_sdk_settings.json`](packs/google_sdk_settings.json) |
 
 Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`. After editing a pack JSON file, run `go generate ./...` from the `dsconfig` module to refresh the per-pack `exclude`/`patch` enums in `schema.json`.
