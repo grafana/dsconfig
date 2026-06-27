@@ -154,12 +154,40 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "aws_sdk_settings.accessKey",
+                                        "aws_sdk_settings.assumeRoleArn",
+                                        "aws_sdk_settings.authType",
+                                        "aws_sdk_settings.defaultRegion",
+                                        "aws_sdk_settings.endpoint",
+                                        "aws_sdk_settings.externalId",
+                                        "aws_sdk_settings.profile",
+                                        "aws_sdk_settings.proxyPassword",
+                                        "aws_sdk_settings.proxyType",
+                                        "aws_sdk_settings.proxyUrl",
+                                        "aws_sdk_settings.proxyUsername",
+                                        "aws_sdk_settings.secretKey",
+                                        "aws_sdk_settings.sessionToken"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "aws_sdk_settings.accessKey",
+                                        "aws_sdk_settings.assumeRoleArn",
+                                        "aws_sdk_settings.authType",
+                                        "aws_sdk_settings.defaultRegion",
+                                        "aws_sdk_settings.endpoint",
+                                        "aws_sdk_settings.externalId",
+                                        "aws_sdk_settings.profile",
+                                        "aws_sdk_settings.proxyPassword",
+                                        "aws_sdk_settings.proxyType",
+                                        "aws_sdk_settings.proxyUrl",
+                                        "aws_sdk_settings.proxyUsername",
+                                        "aws_sdk_settings.secretKey",
+                                        "aws_sdk_settings.sessionToken"
+                                    ]
                                 }
                             }
                         }
