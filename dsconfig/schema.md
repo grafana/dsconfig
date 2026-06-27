@@ -22,7 +22,7 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 
 `baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
 
-> **Note:** The built-in packs are currently stubs with empty `fields` arrays. Until they are populated, `exclude` and `patch` references will fail resolution because the referenced field IDs do not exist yet.
+> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`) are now populated; `exclude` and `patch` may reference any field ID defined in the respective pack JSON under [`dsconfig/packs/`](packs/).
 
 ```json
 {
@@ -80,12 +80,12 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 
 | `from` value          | Source SDK              | Content                                             |
 | --------------------- | ----------------------- | --------------------------------------------------- |
-| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
-| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | _(stub — fields empty, populated in follow-up PRs)_ |
-| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | _(stub — fields empty, populated in follow-up PRs)_ |
-| `google_sdk_settings` | `grafana-google-sdk-go` | _(stub — fields empty, populated in follow-up PRs)_ |
+| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | Standard HTTP datasource fields shared by `backend/httpclient/options.go` (`Options`, `BasicAuthOptions`, `TLSOptions`, `TimeoutOptions`, `SigV4Config`, `Header`) and the `@grafana/ui` `DataSourceHttpSettings` editor (URL, access, basic auth, TLS, timeout, OAuth pass-through, SigV4 toggle, Secure Socks Proxy, custom HTTP headers) — see [`plugin_sdk_settings.json`](packs/plugin_sdk_settings.json) |
+| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | AWS credentials and auth (auth provider, profile, access/secret keys, session token, assume-role ARN, external ID, endpoint, default region, proxy settings) — see [`aws_sdk_settings.json`](packs/aws_sdk_settings.json) |
+| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | Azure credentials and auth (App Registration client secret / client certificate, Managed Identity, Workload Identity, Current User, On-Behalf-Of, Entra Password) — see [`azure_sdk_settings.json`](packs/azure_sdk_settings.json) |
+| `google_sdk_settings` | `grafana-google-sdk-go` | Google credentials and auth (JWT, GCE, WIF, Forward OAuth) — see [`google_sdk_settings.json`](packs/google_sdk_settings.json) |
 
-Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`.
+Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`. After editing a pack JSON file, run `go generate ./...` from the `dsconfig` module to refresh the per-pack `exclude`/`patch` enums in `schema.json`.
 
 ### Resolution rules
 

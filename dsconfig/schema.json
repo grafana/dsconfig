@@ -131,12 +131,56 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "plugin_sdk_settings.access",
+                                        "plugin_sdk_settings.basicAuth",
+                                        "plugin_sdk_settings.basicAuthPassword",
+                                        "plugin_sdk_settings.basicAuthUser",
+                                        "plugin_sdk_settings.enableSecureSocksProxy",
+                                        "plugin_sdk_settings.httpHeaders",
+                                        "plugin_sdk_settings.keepCookies",
+                                        "plugin_sdk_settings.oauthPassThru",
+                                        "plugin_sdk_settings.secureSocksProxyPassword",
+                                        "plugin_sdk_settings.secureSocksProxyUsername",
+                                        "plugin_sdk_settings.serverName",
+                                        "plugin_sdk_settings.sigV4Auth",
+                                        "plugin_sdk_settings.timeout",
+                                        "plugin_sdk_settings.tlsAuth",
+                                        "plugin_sdk_settings.tlsAuthWithCACert",
+                                        "plugin_sdk_settings.tlsCACert",
+                                        "plugin_sdk_settings.tlsClientCert",
+                                        "plugin_sdk_settings.tlsClientKey",
+                                        "plugin_sdk_settings.tlsSkipVerify",
+                                        "plugin_sdk_settings.url",
+                                        "plugin_sdk_settings.withCredentials"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "plugin_sdk_settings.access",
+                                        "plugin_sdk_settings.basicAuth",
+                                        "plugin_sdk_settings.basicAuthPassword",
+                                        "plugin_sdk_settings.basicAuthUser",
+                                        "plugin_sdk_settings.enableSecureSocksProxy",
+                                        "plugin_sdk_settings.httpHeaders",
+                                        "plugin_sdk_settings.keepCookies",
+                                        "plugin_sdk_settings.oauthPassThru",
+                                        "plugin_sdk_settings.secureSocksProxyPassword",
+                                        "plugin_sdk_settings.secureSocksProxyUsername",
+                                        "plugin_sdk_settings.serverName",
+                                        "plugin_sdk_settings.sigV4Auth",
+                                        "plugin_sdk_settings.timeout",
+                                        "plugin_sdk_settings.tlsAuth",
+                                        "plugin_sdk_settings.tlsAuthWithCACert",
+                                        "plugin_sdk_settings.tlsCACert",
+                                        "plugin_sdk_settings.tlsClientCert",
+                                        "plugin_sdk_settings.tlsClientKey",
+                                        "plugin_sdk_settings.tlsSkipVerify",
+                                        "plugin_sdk_settings.url",
+                                        "plugin_sdk_settings.withCredentials"
+                                    ]
                                 }
                             }
                         }
@@ -154,12 +198,40 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "aws_sdk_settings.accessKey",
+                                        "aws_sdk_settings.assumeRoleArn",
+                                        "aws_sdk_settings.authType",
+                                        "aws_sdk_settings.defaultRegion",
+                                        "aws_sdk_settings.endpoint",
+                                        "aws_sdk_settings.externalId",
+                                        "aws_sdk_settings.profile",
+                                        "aws_sdk_settings.proxyPassword",
+                                        "aws_sdk_settings.proxyType",
+                                        "aws_sdk_settings.proxyUrl",
+                                        "aws_sdk_settings.proxyUsername",
+                                        "aws_sdk_settings.secretKey",
+                                        "aws_sdk_settings.sessionToken"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "aws_sdk_settings.accessKey",
+                                        "aws_sdk_settings.assumeRoleArn",
+                                        "aws_sdk_settings.authType",
+                                        "aws_sdk_settings.defaultRegion",
+                                        "aws_sdk_settings.endpoint",
+                                        "aws_sdk_settings.externalId",
+                                        "aws_sdk_settings.profile",
+                                        "aws_sdk_settings.proxyPassword",
+                                        "aws_sdk_settings.proxyType",
+                                        "aws_sdk_settings.proxyUrl",
+                                        "aws_sdk_settings.proxyUsername",
+                                        "aws_sdk_settings.secretKey",
+                                        "aws_sdk_settings.sessionToken"
+                                    ]
                                 }
                             }
                         }
@@ -177,12 +249,40 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "azure_sdk_settings.authType",
+                                        "azure_sdk_settings.azureClientSecret",
+                                        "azure_sdk_settings.azureCloud",
+                                        "azure_sdk_settings.certificateFormat",
+                                        "azure_sdk_settings.certificatePassword",
+                                        "azure_sdk_settings.clientCertificate",
+                                        "azure_sdk_settings.clientId",
+                                        "azure_sdk_settings.oauthPassThru",
+                                        "azure_sdk_settings.password",
+                                        "azure_sdk_settings.privateKey",
+                                        "azure_sdk_settings.serviceCredentialsEnabled",
+                                        "azure_sdk_settings.tenantId",
+                                        "azure_sdk_settings.userId"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "azure_sdk_settings.authType",
+                                        "azure_sdk_settings.azureClientSecret",
+                                        "azure_sdk_settings.azureCloud",
+                                        "azure_sdk_settings.certificateFormat",
+                                        "azure_sdk_settings.certificatePassword",
+                                        "azure_sdk_settings.clientCertificate",
+                                        "azure_sdk_settings.clientId",
+                                        "azure_sdk_settings.oauthPassThru",
+                                        "azure_sdk_settings.password",
+                                        "azure_sdk_settings.privateKey",
+                                        "azure_sdk_settings.serviceCredentialsEnabled",
+                                        "azure_sdk_settings.tenantId",
+                                        "azure_sdk_settings.userId"
+                                    ]
                                 }
                             }
                         }
@@ -200,12 +300,36 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "google_sdk_settings.authenticationType",
+                                        "google_sdk_settings.clientEmail",
+                                        "google_sdk_settings.defaultProject",
+                                        "google_sdk_settings.oauthPassThru",
+                                        "google_sdk_settings.privateKey",
+                                        "google_sdk_settings.privateKeyPath",
+                                        "google_sdk_settings.serviceAccountToImpersonate",
+                                        "google_sdk_settings.tokenUri",
+                                        "google_sdk_settings.usingImpersonation",
+                                        "google_sdk_settings.wifServiceAccountEmail",
+                                        "google_sdk_settings.workloadIdentityPoolProvider"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "google_sdk_settings.authenticationType",
+                                        "google_sdk_settings.clientEmail",
+                                        "google_sdk_settings.defaultProject",
+                                        "google_sdk_settings.oauthPassThru",
+                                        "google_sdk_settings.privateKey",
+                                        "google_sdk_settings.privateKeyPath",
+                                        "google_sdk_settings.serviceAccountToImpersonate",
+                                        "google_sdk_settings.tokenUri",
+                                        "google_sdk_settings.usingImpersonation",
+                                        "google_sdk_settings.wifServiceAccountEmail",
+                                        "google_sdk_settings.workloadIdentityPoolProvider"
+                                    ]
                                 }
                             }
                         }

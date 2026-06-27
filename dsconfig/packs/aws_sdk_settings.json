@@ -1,6 +1,214 @@
 {
     "$schema": "./pack-schema.json",
     "id": "aws_sdk_settings",
-    "description": "AWS specific datasource fields from https://github.com/grafana/grafana-aws-sdk / https://github.com/grafana/grafana-aws-sdk-react",
-    "fields": []
+    "description": "AWS specific datasource fields from https://github.com/grafana/grafana-aws-sdk / https://github.com/grafana/grafana-aws-sdk-react. Field definitions mirror the controls rendered by `ConnectionConfig` (and the `SIGV4ConnectionConfig` wrapper).",
+    "fields": [
+        {
+            "id": "aws_sdk_settings.authType",
+            "key": "authType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "AWS SDK Default", "value": "default" },
+                    { "label": "Access & secret key", "value": "keys" },
+                    { "label": "Credentials file", "value": "credentials" },
+                    { "label": "EC2 IAM Role", "value": "ec2_iam_role" },
+                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
+                    { "label": "ARN (deprecated)", "value": "arn" }
+                ]
+            }
+        },
+        {
+            "id": "aws_sdk_settings.profile",
+            "key": "profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "aws_sdk_settings.authType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.accessKey",
+            "key": "accessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "aws_sdk_settings.authType == 'keys'",
+            "requiredWhen": "aws_sdk_settings.authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.secretKey",
+            "key": "secretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "aws_sdk_settings.authType == 'keys'",
+            "requiredWhen": "aws_sdk_settings.authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.sessionToken",
+            "key": "sessionToken",
+            "label": "Session Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "aws_sdk_settings.authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.assumeRoleArn",
+            "key": "assumeRoleArn",
+            "label": "Assume Role ARN",
+            "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+                    "message": "When set, must be a valid IAM role ARN, e.g. arn:aws:iam::123456789012:role/MyRole"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "arn:aws:iam:*"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.externalId",
+            "key": "externalId",
+            "label": "External ID",
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "aws_sdk_settings.authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.endpoint",
+            "key": "endpoint",
+            "label": "Endpoint",
+            "description": "Optionally, specify a custom endpoint for the service",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "aws_sdk_settings.authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://{service}.{region}.amazonaws.com"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.defaultRegion",
+            "key": "defaultRegion",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true,
+                "placeholder": "Choose"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.proxyType",
+            "key": "proxyType",
+            "label": "Proxy Type",
+            "description": "Specify the type of proxy to use. This should not be set if Secure Socks Proxy is enabled.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "env",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "none",
+                        "env",
+                        "url"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Environment (default)", "value": "env" },
+                    { "label": "None", "value": "none" },
+                    { "label": "URL", "value": "url" }
+                ]
+            }
+        },
+        {
+            "id": "aws_sdk_settings.proxyUrl",
+            "key": "proxyUrl",
+            "label": "Proxy URL",
+            "description": "Proxy URL. Don't set the username or password here",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "aws_sdk_settings.proxyType == 'url'",
+            "requiredWhen": "aws_sdk_settings.proxyType == 'url'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Example: https://localhost:3004"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.proxyUsername",
+            "key": "proxyUsername",
+            "label": "Proxy Username",
+            "description": "Optional: Proxy Username. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "aws_sdk_settings.proxyType == 'url'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.proxyPassword",
+            "key": "proxyPassword",
+            "label": "Proxy Password",
+            "description": "Optional: Proxy Password. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "aws_sdk_settings.proxyType == 'url'",
+            "ui": {
+                "component": "input"
+            }
+        }
+    ]
 }
