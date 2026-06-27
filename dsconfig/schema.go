@@ -677,6 +677,10 @@ type FieldOverride struct {
 	Placeholder  string `json:"placeholder,omitempty"`
 	Tooltip      string `json:"tooltip,omitempty"`
 
+	// SecureKey overrides the secureJsonData key the field's value is written
+	// to while this override is active.
+	SecureKey string `json:"secureKey,omitempty"`
+
 	Validations []FieldValidationRule `json:"validations,omitempty"`
 	Options     []FieldOption         `json:"options,omitempty"`
 }

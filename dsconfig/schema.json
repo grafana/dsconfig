@@ -890,6 +890,10 @@
                 "tooltip": {
                     "type": "string"
                 },
+                "secureKey": {
+                    "type": "string",
+                    "description": "Override the secureJsonData key the field's value is written to while this override is active."
+                },
                 "validations": {
                     "type": "array",
                     "items": {
