@@ -1,6 +1,412 @@
 {
     "$schema": "./pack-schema.json",
     "id": "plugin_sdk_settings",
-    "description": "Standard datasource fields from https://github.com/grafana/grafana-plugin-sdk-go, @grafana/data, @grafana/plugin-ui",
-    "fields": []
+    "description": "Standard HTTP datasource fields shared by the grafana-plugin-sdk-go HTTP client (`backend/httpclient/options.go` — `Options`, `BasicAuthOptions`, `TLSOptions`, `TimeoutOptions`) and the Grafana UI HTTP settings editor (`@grafana/ui` `DataSourceHttpSettings`, composed of `BasicAuthSettings`, `HttpProxySettings`, `TLSAuthSettings`, `CustomHeadersSettings`, `SecureSocksProxySettings`). Storage shape mirrors the canonical `DataSourceSettings` model (root-level `url`/`access`/`basicAuth*`/`withCredentials`, `jsonData.*`, `secureJsonData.*`).",
+    "fields": [
+        {
+            "id": "plugin_sdk_settings.url",
+            "key": "url",
+            "label": "URL",
+            "description": "Complete HTTP URL of the datasource (e.g. https://your-server:8080).",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "help": {
+                "markdown": "Stored at the root `url` field of the `DataSourceSettings` model. Rendered by `DataSourceHttpSettings` as the first `URL` input. The Grafana UI validates the value against `^(ftp|http|https)://...`."
+            },
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(ftp|http|https)://(\\w+:?\\w*@)?(\\S+)(:[0-9]+)?(/|/([\\w#!:.?+=&%@!\\-/]))?$",
+                    "message": "Invalid URL"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "https://your-server:8080"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.access",
+            "key": "access",
+            "label": "Access",
+            "description": "Controls how requests to the datasource are routed. `proxy` (Server) sends requests through the Grafana backend; `direct` (Browser) sends them straight from the browser and is subject to CORS.",
+            "valueType": "string",
+            "target": "root",
+            "defaultValue": "proxy",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "proxy",
+                        "direct"
+                    ]
+                }
+            ],
+            "help": {
+                "markdown": "Stored at the root `access` field of the `DataSourceSettings` model. The `direct` (Browser) mode is deprecated in modern Grafana — most datasources should leave this as `proxy`."
+            },
+            "ui": {
+                "component": "radio",
+                "options": [
+                    { "label": "Server (default)", "value": "proxy" },
+                    { "label": "Browser", "value": "direct" }
+                ]
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Cookies, by name, that the Grafana proxy should forward to the datasource. The Grafana proxy strips all cookies by default.",
+            "valueType": "array",
+            "target": "jsonData",
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "item": {
+                "valueType": "string"
+            },
+            "help": {
+                "markdown": "Stored at `jsonData.keepCookies` as an array of cookie names. Only meaningful when `access == 'proxy'`."
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "cookie-name"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds. Maps to `TimeoutOptions.Timeout` in the plugin SDK HTTP client.",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "help": {
+                "markdown": "Stored at `jsonData.timeout`. Forwarded to the SDK via `httpclient.Options.Timeouts.Timeout` (`backend/httpclient/options.go`). The SDK default (`DefaultTimeoutOptions.Timeout`) is 30 seconds."
+            },
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.basicAuth",
+            "key": "basicAuth",
+            "label": "Basic auth",
+            "description": "Enable HTTP Basic authentication. When enabled, the SDK populates `httpclient.Options.BasicAuth` from `basicAuthUser` / `secureJsonData.basicAuthPassword`.",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "help": {
+                "markdown": "Stored at the root `basicAuth` field of the `DataSourceSettings` model. Rendered as a toggle inside the `Auth` section of `DataSourceHttpSettings`. When true, the `Basic Auth Details` subsection (`BasicAuthSettings`) is shown."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "plugin_sdk_settings.basicAuth == true",
+            "requiredWhen": "plugin_sdk_settings.basicAuth == true",
+            "help": {
+                "markdown": "Stored at the root `basicAuthUser` field. Forwarded to the SDK as `httpclient.BasicAuthOptions.User`."
+            },
+            "ui": {
+                "component": "input",
+                "placeholder": "user"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "plugin_sdk_settings.basicAuth == true",
+            "requiredWhen": "plugin_sdk_settings.basicAuth == true",
+            "help": {
+                "markdown": "Stored in `secureJsonData.basicAuthPassword`. Forwarded to the SDK as `httpclient.BasicAuthOptions.Password`."
+            },
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.withCredentials",
+            "key": "withCredentials",
+            "label": "With Credentials",
+            "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+            "valueType": "boolean",
+            "target": "root",
+            "defaultValue": false,
+            "help": {
+                "markdown": "Stored at the root `withCredentials` field of the `DataSourceSettings` model. Applies to the browser `fetch` call in `direct` access mode and to the Grafana proxy's outbound request in `proxy` mode."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "description": "Enable mTLS client authentication. When enabled, `secureJsonData.tlsClientCert` and `secureJsonData.tlsClientKey` are sent to the upstream server.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "help": {
+                "markdown": "Stored at `jsonData.tlsAuth`. Rendered as the `TLS Client Auth` toggle in `HttpProxySettings`. When true the `TLSAuthSettings` subsection exposes `ServerName`, `Client Cert`, and `Client Key`."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Enable verification against a custom CA certificate (`secureJsonData.tlsCACert`). Needed for verifying self-signed TLS certs.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "help": {
+                "markdown": "Stored at `jsonData.tlsAuthWithCACert`. Rendered as the `With CA Cert` toggle in `HttpProxySettings`. When true the `TLSAuthSettings` subsection exposes the `CA Cert` input."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "description": "Skip verification of the upstream TLS certificate. Forwarded to the SDK as `TLSOptions.InsecureSkipVerify`.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "help": {
+                "markdown": "Stored at `jsonData.tlsSkipVerify`. Rendered as the `Skip TLS Verify` toggle in `HttpProxySettings`."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.serverName",
+            "key": "serverName",
+            "label": "Server Name",
+            "description": "Server name used for TLS SNI / certificate verification. Forwarded to the SDK as `TLSOptions.ServerName`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "plugin_sdk_settings.tlsAuth == true",
+            "help": {
+                "markdown": "Stored at `jsonData.serverName`. Rendered in `TLSAuthSettings` when `tlsAuth == true`."
+            },
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "description": "PEM-encoded CA certificate used to verify the upstream TLS certificate. Forwarded to the SDK as `TLSOptions.CACertificate`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "plugin_sdk_settings.tlsAuthWithCACert == true",
+            "requiredWhen": "plugin_sdk_settings.tlsAuthWithCACert == true",
+            "help": {
+                "markdown": "Stored in `secureJsonData.tlsCACert`. Rendered as a textarea in `TLSAuthSettings` when `tlsAuthWithCACert == true`."
+            },
+            "ui": {
+                "component": "textarea",
+                "placeholder": "-----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "description": "PEM-encoded client certificate used for mTLS. Forwarded to the SDK as `TLSOptions.ClientCertificate`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "plugin_sdk_settings.tlsAuth == true",
+            "requiredWhen": "plugin_sdk_settings.tlsAuth == true",
+            "help": {
+                "markdown": "Stored in `secureJsonData.tlsClientCert`. Rendered as a textarea in `TLSAuthSettings` when `tlsAuth == true`."
+            },
+            "ui": {
+                "component": "textarea",
+                "placeholder": "-----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "PEM-encoded private key paired with `tlsClientCert`. Forwarded to the SDK as `TLSOptions.ClientKey`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "plugin_sdk_settings.tlsAuth == true",
+            "requiredWhen": "plugin_sdk_settings.tlsAuth == true",
+            "help": {
+                "markdown": "Stored in `secureJsonData.tlsClientKey`. Rendered as a textarea in `TLSAuthSettings` when `tlsAuth == true`."
+            },
+            "ui": {
+                "component": "textarea",
+                "placeholder": "-----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the signed-in user's upstream OAuth identity (access token) to the datasource.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "help": {
+                "markdown": "Stored at `jsonData.oauthPassThru`. Rendered as the `Forward OAuth Identity` toggle in `HttpProxySettings` (only when the host plugin opts in via `showForwardOAuthIdentityOption`). Mutually exclusive with Azure Authentication in the Grafana UI."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.sigV4Auth",
+            "key": "sigV4Auth",
+            "label": "SigV4 auth",
+            "description": "Enable AWS SigV4 request signing. Forwarded to the SDK as `httpclient.Options.SigV4` (see `SigV4Config`).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.awsSigV4.enabled",
+            "defaultValue": false,
+            "help": {
+                "markdown": "Stored at `jsonData.sigV4Auth`. Rendered as the `SigV4 auth` toggle in `DataSourceHttpSettings` (only when the host plugin opts in via `sigV4AuthToggleEnabled`). The SigV4 credential fields themselves come from the AWS SDK pack (`aws_sdk_settings`)."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "label": "Secure Socks Proxy",
+            "description": "Route datasource traffic through Grafana's Secure Socks Proxy (PDC).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "help": {
+                "markdown": "Stored at `jsonData.enableSecureSocksProxy`. Rendered by `SecureSocksProxySettings` when the host Grafana instance has `secureSocksDSProxyEnabled`."
+            },
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.secureSocksProxyUsername",
+            "key": "secureSocksProxyUsername",
+            "label": "Secure Socks Proxy Username",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "plugin_sdk_settings.enableSecureSocksProxy == true",
+            "help": {
+                "markdown": "Stored at `jsonData.secureSocksProxyUsername`. Optional username for the Secure Socks Proxy connection."
+            },
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.secureSocksProxyPassword",
+            "key": "secureSocksProxyPassword",
+            "label": "Secure Socks Proxy Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "plugin_sdk_settings.enableSecureSocksProxy == true",
+            "help": {
+                "markdown": "Stored in `secureJsonData.secureSocksProxyPassword`. Optional password for the Secure Socks Proxy connection."
+            },
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "plugin_sdk_settings.httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Forwarded to the SDK as `httpclient.Options.Header`.",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "dependsOn": "plugin_sdk_settings.access == 'proxy'",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "plugin_sdk_settings.httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "plugin_sdk_settings.httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" },
+                "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" },
+                "startIndex": 1
+            },
+            "help": {
+                "markdown": "Stored as the legacy indexed pair `jsonData.httpHeaderName{N}` / `secureJsonData.httpHeaderValue{N}` (starting at index 1) — the shape `CustomHeadersSettings` writes and the SDK reads when populating `httpclient.Options.Header`."
+            }
+        }
+    ]
 }

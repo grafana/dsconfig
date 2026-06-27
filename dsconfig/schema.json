@@ -131,12 +131,56 @@
                         "properties": {
                             "exclude": {
                                 "items": {
-                                    "enum": []
+                                    "enum": [
+                                        "plugin_sdk_settings.access",
+                                        "plugin_sdk_settings.basicAuth",
+                                        "plugin_sdk_settings.basicAuthPassword",
+                                        "plugin_sdk_settings.basicAuthUser",
+                                        "plugin_sdk_settings.enableSecureSocksProxy",
+                                        "plugin_sdk_settings.httpHeaders",
+                                        "plugin_sdk_settings.keepCookies",
+                                        "plugin_sdk_settings.oauthPassThru",
+                                        "plugin_sdk_settings.secureSocksProxyPassword",
+                                        "plugin_sdk_settings.secureSocksProxyUsername",
+                                        "plugin_sdk_settings.serverName",
+                                        "plugin_sdk_settings.sigV4Auth",
+                                        "plugin_sdk_settings.timeout",
+                                        "plugin_sdk_settings.tlsAuth",
+                                        "plugin_sdk_settings.tlsAuthWithCACert",
+                                        "plugin_sdk_settings.tlsCACert",
+                                        "plugin_sdk_settings.tlsClientCert",
+                                        "plugin_sdk_settings.tlsClientKey",
+                                        "plugin_sdk_settings.tlsSkipVerify",
+                                        "plugin_sdk_settings.url",
+                                        "plugin_sdk_settings.withCredentials"
+                                    ]
                                 }
                             },
                             "patch": {
                                 "propertyNames": {
-                                    "enum": []
+                                    "enum": [
+                                        "plugin_sdk_settings.access",
+                                        "plugin_sdk_settings.basicAuth",
+                                        "plugin_sdk_settings.basicAuthPassword",
+                                        "plugin_sdk_settings.basicAuthUser",
+                                        "plugin_sdk_settings.enableSecureSocksProxy",
+                                        "plugin_sdk_settings.httpHeaders",
+                                        "plugin_sdk_settings.keepCookies",
+                                        "plugin_sdk_settings.oauthPassThru",
+                                        "plugin_sdk_settings.secureSocksProxyPassword",
+                                        "plugin_sdk_settings.secureSocksProxyUsername",
+                                        "plugin_sdk_settings.serverName",
+                                        "plugin_sdk_settings.sigV4Auth",
+                                        "plugin_sdk_settings.timeout",
+                                        "plugin_sdk_settings.tlsAuth",
+                                        "plugin_sdk_settings.tlsAuthWithCACert",
+                                        "plugin_sdk_settings.tlsCACert",
+                                        "plugin_sdk_settings.tlsClientCert",
+                                        "plugin_sdk_settings.tlsClientKey",
+                                        "plugin_sdk_settings.tlsSkipVerify",
+                                        "plugin_sdk_settings.url",
+                                        "plugin_sdk_settings.withCredentials"
+                                    ]
                                 }
                             }
                         }
