@@ -1,17 +1,20 @@
 {
     "$schema": "./pack-schema.json",
     "id": "aws_sdk_settings",
-    "description": "AWS specific datasource fields from https://github.com/grafana/grafana-aws-sdk (Go: `AWSDatasourceSettings` in pkg/awsds/settings.go) and https://github.com/grafana/grafana-aws-sdk-react (TS: `AwsAuthDataSourceJsonData` / `AwsAuthDataSourceSecureJsonData` in src/types.ts). Labels, descriptions, and placeholders mirror the controls rendered by `ConnectionConfig` (and the `SIGV4ConnectionConfig` wrapper).",
+    "description": "AWS specific datasource fields from https://github.com/grafana/grafana-aws-sdk / https://github.com/grafana/grafana-aws-sdk-react. Field definitions mirror the controls rendered by `ConnectionConfig` (and the `SIGV4ConnectionConfig` wrapper).",
     "fields": [
         {
             "id": "aws_sdk_settings.authType",
             "key": "authType",
             "label": "Authentication Provider",
-            "description": "Specify which AWS credentials chain to use. `default` resolves credentials from the AWS SDK default chain (env vars, shared config, IAM role); `keys` uses an Access Key ID and Secret Access Key; `credentials` uses a named profile from `~/.aws/credentials`; `ec2_iam_role` uses the EC2 instance IAM role; `grafana_assume_role` (Grafana Cloud only) assumes a customer-provided IAM role using Grafana's identity; `arn` is the deprecated alias for `default`.",
+            "description": "Specify which AWS credentials chain to use.",
             "valueType": "string",
             "target": "jsonData",
             "role": "auth.discriminator",
             "defaultValue": "default",
+            "help": {
+                "markdown": "`default` resolves credentials from the AWS SDK default chain (env vars, shared config, IAM role); `keys` uses an Access Key ID and Secret Access Key; `credentials` uses a named profile from `~/.aws/credentials`; `ec2_iam_role` uses the EC2 instance IAM role; `grafana_assume_role` (Grafana Cloud only) assumes a customer-provided IAM role using Grafana's identity; `arn` is the deprecated alias for `default`."
+            },
             "validations": [
                 {
                     "type": "allowedValues",
@@ -41,7 +44,7 @@
             "id": "aws_sdk_settings.profile",
             "key": "profile",
             "label": "Credentials Profile Name",
-            "description": "Credentials profile name, as specified in `~/.aws/credentials`. Leave blank for default.",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
             "valueType": "string",
             "target": "jsonData",
             "dependsOn": "aws_sdk_settings.authType == 'credentials'",
@@ -54,43 +57,40 @@
             "id": "aws_sdk_settings.accessKey",
             "key": "accessKey",
             "label": "Access Key ID",
-            "description": "AWS Access Key ID. Stored in `secureJsonData`.",
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.aws.accessKeyId",
             "dependsOn": "aws_sdk_settings.authType == 'keys'",
             "requiredWhen": "aws_sdk_settings.authType == 'keys'",
             "ui": {
-                "component": "input",
-                "placeholder": "Enter Access Key ID"
+                "component": "input"
             }
         },
         {
             "id": "aws_sdk_settings.secretKey",
             "key": "secretKey",
             "label": "Secret Access Key",
-            "description": "AWS Secret Access Key. Stored in `secureJsonData`.",
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.aws.secretAccessKey",
             "dependsOn": "aws_sdk_settings.authType == 'keys'",
             "requiredWhen": "aws_sdk_settings.authType == 'keys'",
             "ui": {
-                "component": "input",
-                "placeholder": "Enter Secret Access Key"
+                "component": "input"
             }
         },
         {
             "id": "aws_sdk_settings.sessionToken",
             "key": "sessionToken",
             "label": "Session Token",
-            "description": "Optional AWS session token, used together with the Access Key ID and Secret Access Key when authenticating with temporary credentials. Stored in `secureJsonData`.",
             "valueType": "string",
             "target": "secureJsonData",
             "dependsOn": "aws_sdk_settings.authType == 'keys'",
+            "help": {
+                "markdown": "Optional AWS session token, used together with the Access Key ID and Secret Access Key when authenticating with temporary credentials."
+            },
             "ui": {
-                "component": "input",
-                "placeholder": "Enter Session Token"
+                "component": "input"
             }
         },
         {
@@ -129,7 +129,7 @@
             "id": "aws_sdk_settings.endpoint",
             "key": "endpoint",
             "label": "Endpoint",
-            "description": "Optionally, specify a custom endpoint for the service.",
+            "description": "Optionally, specify a custom endpoint for the service",
             "valueType": "string",
             "target": "jsonData",
             "dependsOn": "aws_sdk_settings.authType != 'grafana_assume_role'",
@@ -142,7 +142,7 @@
             "id": "aws_sdk_settings.defaultRegion",
             "key": "defaultRegion",
             "label": "Default Region",
-            "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
             "valueType": "string",
             "target": "jsonData",
             "ui": {
@@ -155,7 +155,7 @@
             "id": "aws_sdk_settings.proxyType",
             "key": "proxyType",
             "label": "Proxy Type",
-            "description": "Specify the type of proxy to use. This should not be set if Secure Socks Proxy is enabled. `env` uses `HTTP_PROXY`/`HTTPS_PROXY` environment variables.",
+            "description": "Specify the type of proxy to use. This should not be set if Secure Socks Proxy is enabled.",
             "valueType": "string",
             "target": "jsonData",
             "defaultValue": "env",
@@ -182,7 +182,7 @@
             "id": "aws_sdk_settings.proxyUrl",
             "key": "proxyUrl",
             "label": "Proxy URL",
-            "description": "Proxy URL. Don't set the username or password here.",
+            "description": "Proxy URL. Don't set the username or password here",
             "valueType": "string",
             "target": "jsonData",
             "dependsOn": "aws_sdk_settings.proxyType == 'url'",
@@ -196,7 +196,7 @@
             "id": "aws_sdk_settings.proxyUsername",
             "key": "proxyUsername",
             "label": "Proxy Username",
-            "description": "Optional: Proxy Username. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way is NOT RECOMMENDED, because the passing of authentication information in clear text has proven to be a security risk in almost every case where it has been used.",
+            "description": "Optional: Proxy Username. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
             "valueType": "string",
             "target": "jsonData",
             "dependsOn": "aws_sdk_settings.proxyType == 'url'",
@@ -208,7 +208,7 @@
             "id": "aws_sdk_settings.proxyPassword",
             "key": "proxyPassword",
             "label": "Proxy Password",
-            "description": "Optional: Proxy Password. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way is NOT RECOMMENDED, because the passing of authentication information in clear text has proven to be a security risk in almost every case where it has been used. Stored in `secureJsonData`.",
+            "description": "Optional: Proxy Password. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
             "valueType": "string",
             "target": "secureJsonData",
             "dependsOn": "aws_sdk_settings.proxyType == 'url'",
