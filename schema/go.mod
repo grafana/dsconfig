@@ -3,7 +3,7 @@ module github.com/grafana/dsconfig/schema
 go 1.26.4
 
 require (
-	github.com/grafana/dsconfig/dsconfig v0.0.1
+	github.com/grafana/dsconfig/dsconfig v0.0.7
 	github.com/grafana/grafana-plugin-sdk-go v0.292.1
 	github.com/stretchr/testify v1.11.1
 	k8s.io/kube-openapi v0.0.0-20260603220949-865597e52e25
