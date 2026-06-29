@@ -237,7 +237,7 @@ controls.
 |                 | `auth.bearer.token`                                                                                     |
 |                 | `auth.oauth2.clientId`, `auth.oauth2.clientSecret`, `auth.oauth2.tokenUrl`, `auth.oauth2.jwtPrivateKey` |
 |                 | `auth.jwt.signingKey`,                                                                                  |
-|                 | `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.secretAccessKey`                             |
+|                 | `auth.awsSigV4.enabled`, `auth.aws.accessKeyId`, `auth.aws.secretAccessKey`, `auth.aws.sessionToken`     |
 |                 | `auth.azureBlob.storageAccountKey`                                                                      |
 |                 | `auth.forwardOAuthToken.enabled`                                                                        |
 |                 | `auth.apiKey.key`, `auth.apiKey.value`                                                                  |

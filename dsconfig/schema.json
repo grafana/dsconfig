@@ -337,6 +337,7 @@
                         "auth.awsSigV4.enabled",
                         "auth.aws.accessKeyId",
                         "auth.aws.secretAccessKey",
+                        "auth.aws.sessionToken",
                         "auth.azureBlob.storageAccountKey",
                         "auth.forwardOAuthToken.enabled",
                         "auth.apiKey.key",
@@ -888,6 +889,10 @@
                 },
                 "tooltip": {
                     "type": "string"
+                },
+                "secureKey": {
+                    "type": "string",
+                    "description": "Override the secureJsonData key the field's value is written to while this override is active."
                 },
                 "validations": {
                     "type": "array",
