@@ -11,7 +11,10 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "required": true
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
         },
         {
             "id": "plugin_sdk_settings.access",
@@ -319,9 +322,6 @@
                     "pattern": "httpHeaderValue{index}"
                 },
                 "startIndex": 1
-            },
-            "help": {
-                "markdown": "Stored as the legacy indexed pair `jsonData.httpHeaderName{N}` / `secureJsonData.httpHeaderValue{N}` (starting at index 1) — the shape `CustomHeadersSettings` writes and the SDK reads when populating `httpclient.Options.Header`."
             }
         }
     ]

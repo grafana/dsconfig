@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/grafana/dsconfig/dsconfig"
+	_ "github.com/grafana/dsconfig/dsconfig/packs" // register built-in field packs (plugin_sdk_settings, aws_sdk_settings, ...)
 	sdkSchema "github.com/grafana/grafana-plugin-sdk-go/experimental/pluginschema"
 	"github.com/stretchr/testify/require"
 )
@@ -75,7 +76,7 @@ func RunPluginTests(t *testing.T, p PluginUnderTest) {
 		return
 	}
 
-	cfg, err := dsconfig.ParseSchemaJSON(p.ConfigSchemaJSON)
+	cfg, err := dsconfig.ParseAndResolveSchemaJSON(p.ConfigSchemaJSON)
 	require.NoError(t, err)
 	RunConformanceTests(t, Params{
 		PluginID:          p.ID,
