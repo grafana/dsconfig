@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -70,19 +71,14 @@ func WithVerbose(include bool) Option { return func(o *options) { o.includeVerbo
 // and the log line.
 func WithDuration(d time.Duration) Option { return func(o *options) { o.duration = d } }
 
-// jsonDetails is the stable, additively-versioned JSONDetails contract (RFC §6.6).
-// It is self-describing: errorCode is the primary machine-readable reference;
-// providerCode/httpStatus carry the upstream's own identifiers; and the diagnostic
-// sub-signals (tlsKind/timeoutKind/bodyKind/contentType) let the UI render a full
-// description and highlight the offending fields without consulting logs.
+// jsonDetails is the stable JSONDetails contract (RFC §6.6). Its shape is fixed:
+// errorCode and providerCode are the machine-readable references; the remaining
+// diagnostic metadata (httpStatus, tls/timeout/body kind, contentType) is folded
+// into the redacted verbose string rather than added as new fields, so the schema
+// never changes.
 type jsonDetails struct {
 	ErrorCode     string       `json:"errorCode"`
 	ProviderCode  string       `json:"providerCode,omitempty"`
-	HTTPStatus    int          `json:"httpStatus,omitempty"`
-	TLSKind       string       `json:"tlsKind,omitempty"`
-	TimeoutKind   string       `json:"timeoutKind,omitempty"`
-	BodyKind      string       `json:"bodyKind,omitempty"`
-	ContentType   string       `json:"contentType,omitempty"`
 	ErrorSource   string       `json:"errorSource"`
 	CorrelationID string       `json:"correlationId,omitempty"`
 	Remediation   *Remediation `json:"remediation,omitempty"`
@@ -166,17 +162,12 @@ func shape(ctx context.Context, d Diagnosis, verbose string, o options) *backend
 	details := jsonDetails{
 		ErrorCode:     string(d.Code),
 		ProviderCode:  d.ProviderCode,
-		HTTPStatus:    d.HTTPStatus,
-		TLSKind:       string(d.TLSKind),
-		TimeoutKind:   string(d.TimeoutKind),
-		BodyKind:      string(d.BodyKind),
-		ContentType:   d.ContentType,
 		ErrorSource:   string(source),
 		CorrelationID: corrID,
 		Remediation:   &rem,
 	}
 	if o.includeVerbose {
-		details.Verbose = verbose
+		details.Verbose = appendSignals(verbose, d)
 	}
 	raw, _ := json.Marshal(details)
 
@@ -222,6 +213,37 @@ func bodySummary(d Diagnosis, resp *http.Response, body []byte) string {
 	default:
 		return fmt.Sprintf("response status %d", status)
 	}
+}
+
+// appendSignals folds the diagnostic sub-signals into the verbose string so the
+// JSONDetails schema stays fixed. The existing verbose message is preserved as the
+// prefix; only non-empty signals are appended. Values here are non-secret
+// (status/enums/content-type); the base has already been redacted.
+func appendSignals(base string, d Diagnosis) string {
+	var parts []string
+	if d.HTTPStatus != 0 {
+		parts = append(parts, "httpStatus="+strconv.Itoa(d.HTTPStatus))
+	}
+	if d.TLSKind != "" {
+		parts = append(parts, "tlsKind="+string(d.TLSKind))
+	}
+	if d.TimeoutKind != "" {
+		parts = append(parts, "timeoutKind="+string(d.TimeoutKind))
+	}
+	if d.BodyKind != "" {
+		parts = append(parts, "bodyKind="+string(d.BodyKind))
+	}
+	if d.ContentType != "" {
+		parts = append(parts, "contentType="+d.ContentType)
+	}
+	if len(parts) == 0 {
+		return base
+	}
+	sig := strings.Join(parts, " ")
+	if base == "" {
+		return sig
+	}
+	return base + " [" + sig + "]"
 }
 
 // buildMessage assembles the safe UI message from catalog/rule copy and the data

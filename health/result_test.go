@@ -158,22 +158,29 @@ func TestResult_Sinks(t *testing.T) {
 	}
 }
 
-// TestResult_SelfDescribingSignals checks the diagnostic sub-signals reach the
-// UI payload so the frontend can describe the failure structurally (RFC §6.6).
-func TestResult_SelfDescribingSignals(t *testing.T) {
+// TestResult_SignalsInVerbose checks the diagnostic sub-signals are folded into
+// the verbose string (RFC §6.6) — and crucially that the JSONDetails schema does
+// NOT grow new fields.
+func TestResult_SignalsInVerbose(t *testing.T) {
 	t.Cleanup(resetRegistry)
 	resetRegistry()
 
-	t.Run("tls kind surfaces", func(t *testing.T) {
-		d := parseDetails(t, Result(context.Background(), x509.UnknownAuthorityError{}))
+	t.Run("tls kind in verbose", func(t *testing.T) {
+		res := Result(context.Background(), x509.UnknownAuthorityError{}, WithVerbose(true))
+		d := parseDetails(t, res)
 		equal(t, "errorCode", d.ErrorCode, string(CodeTLSError))
-		equal(t, "tlsKind", d.TLSKind, string(TLSUnknownAuthority))
+		if !strings.Contains(d.Verbose, "tlsKind=unknown_authority") {
+			t.Errorf("verbose should carry tlsKind, got %q", d.Verbose)
+		}
 	})
 
-	t.Run("timeout kind surfaces", func(t *testing.T) {
-		d := parseDetails(t, Result(context.Background(), context.DeadlineExceeded))
+	t.Run("timeout kind in verbose", func(t *testing.T) {
+		res := Result(context.Background(), context.DeadlineExceeded, WithVerbose(true))
+		d := parseDetails(t, res)
 		equal(t, "errorCode", d.ErrorCode, string(CodeConnectionTimeout))
-		equal(t, "timeoutKind", d.TimeoutKind, string(TimeoutDeadline))
+		if !strings.Contains(d.Verbose, "timeoutKind=deadline") {
+			t.Errorf("verbose should carry timeoutKind, got %q", d.Verbose)
+		}
 	})
 
 	t.Run("offending field folded into remediation.fields", func(t *testing.T) {
@@ -184,10 +191,14 @@ func TestResult_SelfDescribingSignals(t *testing.T) {
 		}
 	})
 
-	t.Run("non-http failures omit httpStatus/bodyKind", func(t *testing.T) {
-		d := parseDetails(t, Result(context.Background(), x509.UnknownAuthorityError{}))
-		equal(t, "httpStatus omitted", d.HTTPStatus, 0)
-		equal(t, "bodyKind omitted", d.BodyKind, "")
+	t.Run("schema has no new top-level fields", func(t *testing.T) {
+		res := Result(context.Background(), x509.UnknownAuthorityError{}, WithVerbose(true))
+		raw := string(res.JSONDetails)
+		for _, forbidden := range []string{`"httpStatus"`, `"tlsKind"`, `"timeoutKind"`, `"bodyKind"`, `"contentType"`} {
+			if strings.Contains(raw, forbidden) {
+				t.Errorf("JSONDetails must not add %s as a top-level field: %s", forbidden, raw)
+			}
+		}
 	})
 }
 

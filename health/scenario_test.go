@@ -45,13 +45,11 @@ func TestScenario_HTMLGateway(t *testing.T) {
 	equal(t, "status", res.Status, backend.HealthStatusError)
 	d := detailsOf(t, res)
 	equal(t, "code", d.ErrorCode, string(CodeUpstreamError))
-	equal(t, "httpStatus", d.HTTPStatus, http.StatusBadGateway)
-	equal(t, "bodyKind", d.BodyKind, string(BodyHTML))
-	if !strings.Contains(d.ContentType, "text/html") {
-		t.Errorf("contentType should surface, got %q", d.ContentType)
-	}
 	if !strings.Contains(d.Verbose, "HTML response") {
 		t.Errorf("verbose should summarize HTML, got %q", d.Verbose)
+	}
+	if !strings.Contains(d.Verbose, "httpStatus=502") || !strings.Contains(d.Verbose, "bodyKind=html") {
+		t.Errorf("verbose should fold in diagnostic signals, got %q", d.Verbose)
 	}
 }
 
@@ -97,7 +95,9 @@ func TestScenario_JSONErrorEnvelope(t *testing.T) {
 	d := detailsOf(t, res)
 	equal(t, "code", d.ErrorCode, string(CodeInvalidConfiguration))
 	equal(t, "providerCode", d.ProviderCode, "bad_data")
-	equal(t, "httpStatus", d.HTTPStatus, http.StatusBadRequest)
+	if !strings.Contains(d.Verbose, "httpStatus=400") {
+		t.Errorf("verbose should fold in httpStatus, got %q", d.Verbose)
+	}
 	if !strings.Contains(d.Verbose, "invalid 'start' parameter") {
 		t.Errorf("verbose should carry extracted hint, got %q", d.Verbose)
 	}

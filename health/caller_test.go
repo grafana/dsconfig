@@ -27,11 +27,6 @@ import (
 type details struct {
 	ErrorCode     string              `json:"errorCode"`
 	ProviderCode  string              `json:"providerCode"`
-	HTTPStatus    int                 `json:"httpStatus"`
-	TLSKind       string              `json:"tlsKind"`
-	TimeoutKind   string              `json:"timeoutKind"`
-	BodyKind      string              `json:"bodyKind"`
-	ContentType   string              `json:"contentType"`
 	ErrorSource   string              `json:"errorSource"`
 	CorrelationID string              `json:"correlationId"`
 	Remediation   *health.Remediation `json:"remediation"`
@@ -260,11 +255,12 @@ func TestCaller_ResultForResponseHandlesHTMLAndBody(t *testing.T) {
 	body, _ := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
 
 	res := health.ResultForResponse(context.Background(), resp, body, nil,
-		health.WithContext(health.Context{DatasourceName: "Gateway"}))
+		health.WithContext(health.Context{DatasourceName: "Gateway"}), health.WithVerbose(true))
 	got := decode(t, res)
 	equalStr(t, "code", got.ErrorCode, string(health.CodeUpstreamError))
-	equalStr(t, "httpStatus", got.HTTPStatus, http.StatusBadGateway)
-	equalStr(t, "bodyKind", got.BodyKind, string(health.BodyHTML))
+	if !strings.Contains(got.Verbose, "httpStatus=502") {
+		t.Errorf("verbose should fold in httpStatus, got %q", got.Verbose)
+	}
 }
 
 // equalStr is a tiny assert helper local to the external test package.
