@@ -49,7 +49,7 @@ func TestPluginSDKSettingsPackValidates(t *testing.T) {
 	// grafana-plugin-sdk-go/backend/httpclient/options.go and the controls
 	// rendered by @grafana/ui DataSourceHttpSettings (and its sub-editors:
 	// BasicAuthSettings, HttpProxySettings, TLSAuthSettings,
-	// CustomHeadersSettings, SecureSocksProxySettings).
+	// CustomHeadersSettings).
 	want := []string{
 		"plugin_sdk_settings.url",
 		"plugin_sdk_settings.access",

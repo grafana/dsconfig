@@ -1,7 +1,7 @@
 {
     "$schema": "./pack-schema.json",
     "id": "plugin_sdk_settings",
-    "description": "Standard HTTP datasource fields shared by the grafana-plugin-sdk-go HTTP client (`backend/httpclient/options.go` — `Options`, `BasicAuthOptions`, `TLSOptions`, `TimeoutOptions`) and the Grafana UI HTTP settings editor (`@grafana/ui` `DataSourceHttpSettings`, composed of `BasicAuthSettings`, `HttpProxySettings`, `TLSAuthSettings`, `CustomHeadersSettings`, `SecureSocksProxySettings`). Storage shape mirrors the canonical `DataSourceSettings` model (root-level `url`/`access`/`basicAuth*`/`withCredentials`, `jsonData.*`, `secureJsonData.*`).",
+    "description": "Standard HTTP datasource fields shared by the grafana-plugin-sdk-go HTTP client (`backend/httpclient/options.go` — `Options`, `BasicAuthOptions`, `TLSOptions`, `TimeoutOptions`) and the Grafana UI HTTP settings editor (`@grafana/ui` `DataSourceHttpSettings`, composed of `BasicAuthSettings`, `HttpProxySettings`, `TLSAuthSettings`, `CustomHeadersSettings`). Storage shape mirrors the canonical `DataSourceSettings` model (root-level `url`/`access`/`basicAuth*`/`withCredentials`, `jsonData.*`, `secureJsonData.*`).",
     "fields": [
         {
             "id": "plugin_sdk_settings.url",
