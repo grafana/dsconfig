@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/grafana/grafana-plugin-sdk-go v0.292.1
-	k8s.io/kube-openapi v0.0.0-20260603220949-865597e52e25
+	k8s.io/kube-openapi v0.0.0-20260624041617-8f3fa4921821
 )
 
 require (
