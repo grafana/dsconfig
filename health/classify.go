@@ -88,9 +88,11 @@ func Diagnose(err error, ctx Context) Diagnosis {
 		return Diagnosis{Code: CodeUnknown, Path: PathUnknown, Context: ctx}
 	}
 
-	// 1. Explicit tag.
-	var tagged *Error
-	if errors.As(err, &tagged) {
+	// 1. Explicit tag(s). When an error tree carries several tags (e.g.
+	// errors.Join of independent failures), pick the most actionable by
+	// precedence rather than by traversal order (RFC §15).
+	if tags := collectTags(err); len(tags) > 0 {
+		tagged := pickTag(tags)
 		code := tagged.Code
 		if code == "" {
 			code = CodeUnknown
@@ -195,4 +197,61 @@ func classifyGeneric(err error) (Diagnosis, bool) {
 // that is a genuine timeout (RFC §6.4b).
 func isCancellation(err error) bool {
 	return err != nil && errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded)
+}
+
+// tagPrecedence ranks codes for picking a single most-actionable Code when an
+// error tree carries multiple tags (RFC §15: config → TLS → auth → connection →
+// permission). Lower rank wins; unlisted codes rank last.
+var tagPrecedence = map[Code]int{
+	CodeInvalidConfiguration: 0,
+	CodeTLSError:             1,
+	CodeAuthenticationFailed: 2,
+	CodeHostUnreachable:      3,
+	CodeConnectionTimeout:    3,
+	CodePermissionDenied:     4,
+}
+
+func rankOf(code Code) int {
+	if r, ok := tagPrecedence[code]; ok {
+		return r
+	}
+	return 100
+}
+
+// collectTags walks the error tree (following both Unwrap() error and
+// Unwrap() []error, so wrapping and errors.Join are handled) and returns every
+// *Error tag it finds.
+func collectTags(err error) []*Error {
+	var out []*Error
+	var walk func(error)
+	walk = func(e error) {
+		if e == nil {
+			return
+		}
+		if te, ok := e.(*Error); ok {
+			out = append(out, te)
+		}
+		switch x := e.(type) {
+		case interface{ Unwrap() error }:
+			walk(x.Unwrap())
+		case interface{ Unwrap() []error }:
+			for _, ee := range x.Unwrap() {
+				walk(ee)
+			}
+		}
+	}
+	walk(err)
+	return out
+}
+
+// pickTag chooses the highest-precedence tag; ties keep traversal order.
+func pickTag(tags []*Error) *Error {
+	best := tags[0]
+	bestRank := rankOf(best.Code)
+	for _, t := range tags[1:] {
+		if r := rankOf(t.Code); r < bestRank {
+			best, bestRank = t, r
+		}
+	}
+	return best
 }
