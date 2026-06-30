@@ -136,7 +136,7 @@
             "id": "aws_sdk_settings.defaultRegion",
             "key": "defaultRegion",
             "label": "Default Region",
-            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",
             "valueType": "string",
             "target": "jsonData",
             "ui": {

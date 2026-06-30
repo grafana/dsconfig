@@ -22,7 +22,7 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 
 `baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
 
-> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`) are now populated; `exclude` and `patch` may reference any field ID defined in the respective pack JSON under [`dsconfig/packs/`](packs/).
+> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`) are now populated; `exclude` and `patch` may reference any top-level field ID defined under `fields` in the respective pack JSON under [`dsconfig/packs/`](packs/). Nested item-field IDs (for example, `plugin_sdk_settings.httpHeaders.item.name`) are not eligible.
 
 ```json
 {
