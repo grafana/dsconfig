@@ -911,6 +911,11 @@ const (
 	// PackGoogleSDKSettings contains the standard fields provided by
 	// grafana-google-sdk-go (Google credential fields, etc.).
 	PackGoogleSDKSettings FieldPackID = "google_sdk_settings"
+
+	// PackSqlengSettings contains the common fields shared by the SQL engine
+	// (`sqleng`) used by grafana-postgresql-datasource,
+	// grafana-mysql-datasource, and grafana-mssql-datasource.
+	PackSqlengSettings FieldPackID = "sqleng_settings"
 )
 
 // BaseFieldRef declares a single field pack to compose into the schema.

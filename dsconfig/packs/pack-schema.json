@@ -20,7 +20,8 @@
                 "plugin_sdk_settings",
                 "aws_sdk_settings",
                 "azure_sdk_settings",
-                "google_sdk_settings"
+                "google_sdk_settings",
+                "sqleng_settings"
             ]
         },
         "description": {
