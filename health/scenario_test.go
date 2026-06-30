@@ -45,6 +45,7 @@ func TestScenario_HTMLGateway(t *testing.T) {
 	equal(t, "status", res.Status, backend.HealthStatusError)
 	d := detailsOf(t, res)
 	equal(t, "code", d.ErrorCode, string(CodeUpstreamError))
+	equal(t, "httpStatus", d.HTTPStatus, http.StatusBadGateway)
 	if !strings.Contains(d.Verbose, "HTML response") {
 		t.Errorf("verbose should summarize HTML, got %q", d.Verbose)
 	}
@@ -92,6 +93,7 @@ func TestScenario_JSONErrorEnvelope(t *testing.T) {
 	d := detailsOf(t, res)
 	equal(t, "code", d.ErrorCode, string(CodeInvalidConfiguration))
 	equal(t, "providerCode", d.ProviderCode, "bad_data")
+	equal(t, "httpStatus", d.HTTPStatus, http.StatusBadRequest)
 	if !strings.Contains(d.Verbose, "invalid 'start' parameter") {
 		t.Errorf("verbose should carry extracted hint, got %q", d.Verbose)
 	}

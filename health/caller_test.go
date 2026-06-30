@@ -27,6 +27,7 @@ import (
 type details struct {
 	ErrorCode     string              `json:"errorCode"`
 	ProviderCode  string              `json:"providerCode"`
+	HTTPStatus    int                 `json:"httpStatus"`
 	ErrorSource   string              `json:"errorSource"`
 	CorrelationID string              `json:"correlationId"`
 	Remediation   *health.Remediation `json:"remediation"`
@@ -256,7 +257,9 @@ func TestCaller_ResultForResponseHandlesHTMLAndBody(t *testing.T) {
 
 	res := health.ResultForResponse(context.Background(), resp, body, nil,
 		health.WithContext(health.Context{DatasourceName: "Gateway"}))
-	equalStr(t, "code", decode(t, res).ErrorCode, string(health.CodeUpstreamError))
+	got := decode(t, res)
+	equalStr(t, "code", got.ErrorCode, string(health.CodeUpstreamError))
+	equalStr(t, "httpStatus", got.HTTPStatus, http.StatusBadGateway)
 }
 
 // equalStr is a tiny assert helper local to the external test package.

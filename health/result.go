@@ -71,9 +71,12 @@ func WithVerbose(include bool) Option { return func(o *options) { o.includeVerbo
 func WithDuration(d time.Duration) Option { return func(o *options) { o.duration = d } }
 
 // jsonDetails is the stable, additively-versioned JSONDetails contract (RFC §6.6).
+// errorCode is the primary machine-readable reference; providerCode and
+// httpStatus carry the upstream's own identifiers when known.
 type jsonDetails struct {
 	ErrorCode     string       `json:"errorCode"`
 	ProviderCode  string       `json:"providerCode,omitempty"`
+	HTTPStatus    int          `json:"httpStatus,omitempty"`
 	ErrorSource   string       `json:"errorSource"`
 	CorrelationID string       `json:"correlationId,omitempty"`
 	Remediation   *Remediation `json:"remediation,omitempty"`
@@ -151,6 +154,7 @@ func shape(ctx context.Context, d Diagnosis, verbose string, o options) *backend
 	details := jsonDetails{
 		ErrorCode:     string(d.Code),
 		ProviderCode:  d.ProviderCode,
+		HTTPStatus:    d.HTTPStatus,
 		ErrorSource:   string(source),
 		CorrelationID: corrID,
 		Remediation:   &rem,
