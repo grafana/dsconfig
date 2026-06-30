@@ -99,7 +99,8 @@
                         "plugin_sdk_settings",
                         "aws_sdk_settings",
                         "azure_sdk_settings",
-                        "google_sdk_settings"
+                        "google_sdk_settings",
+                        "sqleng_settings"
                     ]
                 },
                 "exclude": {
@@ -323,6 +324,71 @@
                                         "google_sdk_settings.usingImpersonation",
                                         "google_sdk_settings.wifServiceAccountEmail",
                                         "google_sdk_settings.workloadIdentityPoolProvider"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "from": {
+                                "const": "sqleng_settings"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "exclude": {
+                                "items": {
+                                    "enum": [
+                                        "sqleng_settings.connMaxLifetime",
+                                        "sqleng_settings.connectionTimeout",
+                                        "sqleng_settings.database",
+                                        "sqleng_settings.enableSecureSocksProxy",
+                                        "sqleng_settings.maxIdleConns",
+                                        "sqleng_settings.maxOpenConns",
+                                        "sqleng_settings.password",
+                                        "sqleng_settings.secureSocksProxyUsername",
+                                        "sqleng_settings.servername",
+                                        "sqleng_settings.sslCertFile",
+                                        "sqleng_settings.sslKeyFile",
+                                        "sqleng_settings.sslRootCertFile",
+                                        "sqleng_settings.timeInterval",
+                                        "sqleng_settings.tlsCACert",
+                                        "sqleng_settings.tlsClientCert",
+                                        "sqleng_settings.tlsClientKey",
+                                        "sqleng_settings.tlsConfigurationMethod",
+                                        "sqleng_settings.tlsSkipVerify",
+                                        "sqleng_settings.url",
+                                        "sqleng_settings.user"
+                                    ]
+                                }
+                            },
+                            "patch": {
+                                "propertyNames": {
+                                    "enum": [
+                                        "sqleng_settings.connMaxLifetime",
+                                        "sqleng_settings.connectionTimeout",
+                                        "sqleng_settings.database",
+                                        "sqleng_settings.enableSecureSocksProxy",
+                                        "sqleng_settings.maxIdleConns",
+                                        "sqleng_settings.maxOpenConns",
+                                        "sqleng_settings.password",
+                                        "sqleng_settings.secureSocksProxyUsername",
+                                        "sqleng_settings.servername",
+                                        "sqleng_settings.sslCertFile",
+                                        "sqleng_settings.sslKeyFile",
+                                        "sqleng_settings.sslRootCertFile",
+                                        "sqleng_settings.timeInterval",
+                                        "sqleng_settings.tlsCACert",
+                                        "sqleng_settings.tlsClientCert",
+                                        "sqleng_settings.tlsClientKey",
+                                        "sqleng_settings.tlsConfigurationMethod",
+                                        "sqleng_settings.tlsSkipVerify",
+                                        "sqleng_settings.url",
+                                        "sqleng_settings.user"
                                     ]
                                 }
                             }

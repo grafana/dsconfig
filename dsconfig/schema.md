@@ -22,7 +22,7 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 
 `baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
 
-> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`) are now populated; `exclude` and `patch` may reference any top-level field ID defined under `fields` in the respective pack JSON under [`dsconfig/packs/`](packs/). Nested item-field IDs (for example, `plugin_sdk_settings.httpHeaders.item.name`) are not eligible.
+> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`, `sqleng_settings`) are now populated; `exclude` and `patch` may reference any top-level field ID defined under `fields` in the respective pack JSON under [`dsconfig/packs/`](packs/). Nested item-field IDs (for example, `plugin_sdk_settings.httpHeaders.item.name`) are not eligible.
 
 ```json
 {
@@ -84,6 +84,7 @@ SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafa
 | `aws_sdk_settings`    | `grafana-aws-sdk-go`    | AWS credentials and auth (auth provider, profile, access/secret keys, session token, assume-role ARN, external ID, endpoint, default region, proxy settings) — see [`aws_sdk_settings.json`](packs/aws_sdk_settings.json) |
 | `azure_sdk_settings`  | `grafana-azure-sdk-go`  | Azure credentials and auth (App Registration client secret / client certificate, Managed Identity, Workload Identity, Current User, On-Behalf-Of, Entra Password) — see [`azure_sdk_settings.json`](packs/azure_sdk_settings.json) |
 | `google_sdk_settings` | `grafana-google-sdk-go` | Google credentials and auth (JWT, GCE, WIF, Forward OAuth) — see [`google_sdk_settings.json`](packs/google_sdk_settings.json) |
+| `sqleng_settings`     | `grafana sqleng`        | Common SQL datasource fields shared by grafana-postgresql-datasource, grafana-mysql-datasource, and grafana-mssql-datasource (host URL, database, username/password, TLS certs, TLS server name, connection pool tuning, Secure Socks Proxy). Vendor-specific options (postgres `sslmode`/`timescaledb`, mysql `tlsAuth`/`allowCleartextPasswords`, mssql `encrypt`/`authenticationType`) stay in the individual plugin schemas. mssql plugins should set `exclude: ["sqleng_settings.servername"]` and declare their own `serverName` field (camelCase), since mssql uses a different storage key than postgres/mysql for TLS server name — see [`sqleng_settings.json`](packs/sqleng_settings.json) |
 
 Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`. After editing a pack JSON file, run `go generate ./...` from the `dsconfig` module to refresh the per-pack `exclude`/`patch` enums in `schema.json`.
 
