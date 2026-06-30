@@ -71,12 +71,18 @@ func WithVerbose(include bool) Option { return func(o *options) { o.includeVerbo
 func WithDuration(d time.Duration) Option { return func(o *options) { o.duration = d } }
 
 // jsonDetails is the stable, additively-versioned JSONDetails contract (RFC §6.6).
-// errorCode is the primary machine-readable reference; providerCode and
-// httpStatus carry the upstream's own identifiers when known.
+// It is self-describing: errorCode is the primary machine-readable reference;
+// providerCode/httpStatus carry the upstream's own identifiers; and the diagnostic
+// sub-signals (tlsKind/timeoutKind/bodyKind/contentType) let the UI render a full
+// description and highlight the offending fields without consulting logs.
 type jsonDetails struct {
 	ErrorCode     string       `json:"errorCode"`
 	ProviderCode  string       `json:"providerCode,omitempty"`
 	HTTPStatus    int          `json:"httpStatus,omitempty"`
+	TLSKind       string       `json:"tlsKind,omitempty"`
+	TimeoutKind   string       `json:"timeoutKind,omitempty"`
+	BodyKind      string       `json:"bodyKind,omitempty"`
+	ContentType   string       `json:"contentType,omitempty"`
 	ErrorSource   string       `json:"errorSource"`
 	CorrelationID string       `json:"correlationId,omitempty"`
 	Remediation   *Remediation `json:"remediation,omitempty"`
@@ -149,12 +155,22 @@ func shape(ctx context.Context, d Diagnosis, verbose string, o options) *backend
 	entry := entryFor(d.Code)
 	source := entry.Source
 	rem := applyDocsBase(resolveRemediation(d), o.dims.DocsBaseURL)
+	// Make the offending field self-describing: if the diagnosis pinpointed a
+	// config field and the remediation didn't already name fields to highlight,
+	// surface it so the UI can flag it.
+	if len(rem.Fields) == 0 && d.Field != "" {
+		rem.Fields = []string{d.Field}
+	}
 	corrID := correlationID(ctx)
 
 	details := jsonDetails{
 		ErrorCode:     string(d.Code),
 		ProviderCode:  d.ProviderCode,
 		HTTPStatus:    d.HTTPStatus,
+		TLSKind:       string(d.TLSKind),
+		TimeoutKind:   string(d.TimeoutKind),
+		BodyKind:      string(d.BodyKind),
+		ContentType:   d.ContentType,
 		ErrorSource:   string(source),
 		CorrelationID: corrID,
 		Remediation:   &rem,

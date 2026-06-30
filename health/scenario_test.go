@@ -46,6 +46,10 @@ func TestScenario_HTMLGateway(t *testing.T) {
 	d := detailsOf(t, res)
 	equal(t, "code", d.ErrorCode, string(CodeUpstreamError))
 	equal(t, "httpStatus", d.HTTPStatus, http.StatusBadGateway)
+	equal(t, "bodyKind", d.BodyKind, string(BodyHTML))
+	if !strings.Contains(d.ContentType, "text/html") {
+		t.Errorf("contentType should surface, got %q", d.ContentType)
+	}
 	if !strings.Contains(d.Verbose, "HTML response") {
 		t.Errorf("verbose should summarize HTML, got %q", d.Verbose)
 	}

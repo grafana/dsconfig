@@ -2,6 +2,7 @@ package health
 
 import (
 	"context"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -155,6 +156,39 @@ func TestResult_Sinks(t *testing.T) {
 	if strings.Contains(span.verbose, "abc123") {
 		t.Errorf("span verbose leaked secret: %q", span.verbose)
 	}
+}
+
+// TestResult_SelfDescribingSignals checks the diagnostic sub-signals reach the
+// UI payload so the frontend can describe the failure structurally (RFC §6.6).
+func TestResult_SelfDescribingSignals(t *testing.T) {
+	t.Cleanup(resetRegistry)
+	resetRegistry()
+
+	t.Run("tls kind surfaces", func(t *testing.T) {
+		d := parseDetails(t, Result(context.Background(), x509.UnknownAuthorityError{}))
+		equal(t, "errorCode", d.ErrorCode, string(CodeTLSError))
+		equal(t, "tlsKind", d.TLSKind, string(TLSUnknownAuthority))
+	})
+
+	t.Run("timeout kind surfaces", func(t *testing.T) {
+		d := parseDetails(t, Result(context.Background(), context.DeadlineExceeded))
+		equal(t, "errorCode", d.ErrorCode, string(CodeConnectionTimeout))
+		equal(t, "timeoutKind", d.TimeoutKind, string(TimeoutDeadline))
+	})
+
+	t.Run("offending field folded into remediation.fields", func(t *testing.T) {
+		err := Tag(errors.New("missing url"), CodeInvalidConfiguration, "", "url")
+		d := parseDetails(t, Result(context.Background(), err))
+		if d.Remediation == nil || len(d.Remediation.Fields) != 1 || d.Remediation.Fields[0] != "url" {
+			t.Errorf("expected remediation.fields=[url], got %+v", d.Remediation)
+		}
+	})
+
+	t.Run("non-http failures omit httpStatus/bodyKind", func(t *testing.T) {
+		d := parseDetails(t, Result(context.Background(), x509.UnknownAuthorityError{}))
+		equal(t, "httpStatus omitted", d.HTTPStatus, 0)
+		equal(t, "bodyKind omitted", d.BodyKind, "")
+	})
 }
 
 func TestResult_PluginErrorLogsAtError(t *testing.T) {
