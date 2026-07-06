@@ -1,6 +1,9 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url"
+    ],
     "properties": {
       "basicAuth": {
         "type": "boolean",
@@ -98,8 +101,7 @@
       },
       "url": {
         "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       },
       "withCredentials": {
         "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",

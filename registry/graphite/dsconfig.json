@@ -13,7 +13,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "http://localhost:8080"
@@ -355,46 +355,47 @@
     ],
     "groups": [
         {
-            "id": "http",
-            "title": "HTTP",
+            "id": "connection",
+            "title": "Connection",
+            "description": "How to reach the Graphite server.",
             "order": 1,
             "fieldRefs": [
-                "root_url",
-                "jsonData_keepCookies",
-                "jsonData_timeout",
-                "jsonData_httpHeaders"
+                "root_url"
             ]
         },
         {
-            "id": "auth",
-            "title": "Auth",
+            "id": "authentication",
+            "title": "Authentication",
+            "description": "How to authenticate requests to the Graphite server.",
             "order": 2,
             "fieldRefs": [
                 "root_basicAuth",
-                "root_withCredentials",
-                "jsonData_tlsAuth",
-                "jsonData_tlsAuthWithCACert",
-                "jsonData_tlsSkipVerify",
-                "jsonData_oauthPassThru",
                 "root_basicAuthUser",
-                "secureJsonData_basicAuthPassword"
+                "secureJsonData_basicAuthPassword",
+                "root_withCredentials",
+                "jsonData_oauthPassThru"
             ]
         },
         {
-            "id": "tls-details",
-            "title": "TLS/SSL Auth Details",
+            "id": "network-tls",
+            "title": "Network & TLS",
+            "description": "TLS client authentication and certificate verification for the connection.",
             "order": 3,
             "optional": true,
             "fieldRefs": [
+                "jsonData_tlsAuth",
                 "jsonData_serverName",
-                "secureJsonData_tlsCACert",
                 "secureJsonData_tlsClientCert",
-                "secureJsonData_tlsClientKey"
+                "secureJsonData_tlsClientKey",
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert",
+                "jsonData_tlsSkipVerify"
             ]
         },
         {
-            "id": "graphite-details",
-            "title": "Graphite details",
+            "id": "graphite-settings",
+            "title": "Graphite settings",
+            "description": "Graphite backend type and version.",
             "order": 4,
             "fieldRefs": [
                 "jsonData_graphiteVersion",
@@ -403,12 +404,25 @@
             ]
         },
         {
-            "id": "label-mappings",
-            "title": "Label mappings",
+            "id": "query-settings",
+            "title": "Query settings",
+            "description": "Query-time behaviour and cross-datasource query mappings.",
             "order": 5,
             "optional": true,
             "fieldRefs": [
                 "jsonData_importConfiguration"
+            ]
+        },
+        {
+            "id": "advanced",
+            "title": "Advanced settings",
+            "description": "Additional HTTP transport settings.",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeout",
+                "jsonData_keepCookies",
+                "jsonData_httpHeaders"
             ]
         }
     ],

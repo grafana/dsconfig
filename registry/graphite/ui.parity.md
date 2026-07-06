@@ -16,12 +16,87 @@ from this entry's [`dsconfig.json`](dsconfig.json)).
 
 | #   | Change                                                                                                                  | File                                                         | Why                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| 1   | Added **Custom HTTP Headers** field (`jsonData_httpHeaders`) with `indexedPair` storage + a `Custom HTTP Headers` group | [`dsconfig.json`](dsconfig.json)                             | Legacy UI renders `CustomHeadersSettings`; new UI had no headers editor                                     |
+| 1   | Added **Custom HTTP Headers** field (`jsonData_httpHeaders`) with `indexedPair` storage | [`dsconfig.json`](dsconfig.json)                             | Legacy UI renders `CustomHeadersSettings`; new UI had no headers editor                                     |
 | 2   | Updated the secure-values instruction to describe headers as modeled (was "not modeled here")                           | [`dsconfig.json`](dsconfig.json)                             | Keep the embedded LLM instructions truthful after change #1                                                 |
-| 3   | Skip `indexedPair` fields in `JSONDataMatchesStruct` / `JSONDataTypesMatchStruct`                                       | [`../../schema/conformance.go`](../../schema/conformance.go) | An `indexedPair` field has no single backing Go struct field (see below). **User-approved** before editing. |
-| 4   | Regenerated `schema.gen.json`, `settings.gen.json` via `go generate ./...`                                              | generated artifacts                                          | Keep committed artifacts in sync (guarded by `SchemaArtifactInSync`)                                        |
+| 3   | Restructured `groups` into a standard taxonomy: **Connection · Authentication · Network & TLS · Graphite settings · Query settings · Advanced settings** | [`dsconfig.json`](dsconfig.json)                             | Clearer, convention-aligned section layout (Custom HTTP Headers, Timeout, Allowed cookies now live under Advanced settings) |
+| 4   | Skip `indexedPair` fields in `JSONDataMatchesStruct` / `JSONDataTypesMatchStruct`                                       | [`../../schema/conformance.go`](../../schema/conformance.go) | An `indexedPair` field has no single backing Go struct field (see below). **User-approved** before editing. |
+| 5   | Regenerated `schema.gen.json`, `settings.gen.json` via `go generate ./...`                                              | generated artifacts                                          | Keep committed artifacts in sync (guarded by `SchemaArtifactInSync`)                                        |
 
 No changes were made to `settings.go`, `settings.ts`, or `README.md` — per the constraint that all changes flow through `dsconfig.json` with the rest produced by `go generate` (plus the approved conformance-test fix).
+
+---
+
+## Section layout
+
+The `groups` are organised into a standard, convention-aligned taxonomy (verified rendering
+top-to-bottom in the new UI sidebar and accordion):
+
+| Order | Section (`id`) | `optional` | Fields (in display order) |
+| --- | --- | --- | --- |
+| 1 | **Connection** (`connection`) | no | URL |
+| 2 | **Authentication** (`authentication`) | no | Basic auth, User, Password, With Credentials, Forward OAuth Identity |
+| 3 | **Network & TLS** (`network-tls`) | yes | TLS Client Auth → ServerName → Client Cert → Client Key, With CA Cert → CA Cert, Skip TLS Verify |
+| 4 | **Graphite settings** (`graphite-settings`, underlying database) | no | Version, Graphite backend type, Rollup indicator |
+| 5 | **Query settings** (`query-settings`) | yes | Label mappings (`importConfiguration`) |
+| 6 | **Advanced settings** (`advanced`) | yes | Timeout, Allowed cookies, Custom HTTP Headers |
+
+Notes:
+
+- **With Credentials** is placed under Authentication (it governs whether credentials are
+  sent on cross-site requests; this matches Grafana's newer `Auth` component, which folds it
+  in as `CrossSiteCredentials`).
+- **Timeout / Allowed cookies / Custom HTTP Headers** live under Advanced settings, matching
+  Grafana's "Advanced HTTP settings" grouping; TLS-specific fields stay in Network & TLS.
+- **Network & TLS field order** pairs each toggle with the fields it reveals: `TLS Client Auth`
+  → ServerName / Client Cert / Client Key (mTLS), then `With CA Cert` → CA Cert (server-cert
+  verification), then the standalone `Skip TLS Verify`. So flipping a toggle reveals its
+  dependent inputs directly beneath it.
+- The authentication group uses **`id: "authentication"`** (the registry convention — 65 of 67
+  entries use it). The plugin-ui wizard's required-fields resolver (`resolveRequiredFieldsGroup`)
+  and Authorization-header helper originally keyed off only the short id `auth`, so auth fields
+  did not fold into the wizard's **General** step for `authentication`-id schemas. That was fixed
+  in `plugin-ui` (see [plugin-ui change](#plugin-ui-change) below) to recognise **both**
+  `authentication` and `auth`, so graphite can keep the conventional id and still get auth in
+  General.
+- Section titles carry short `description` subtitles; `optional` groups are collapsible.
+
+### Wizard mode: URL in the "General" step
+
+In **wizard mode** the plugin-ui builds a synthetic first step titled **General**
+(`resolveRequiredFieldsGroup`) from (a) every field marked `required: true`, plus (b) every
+field in the group whose id is `auth`, plus their `dependsOn` parents/children.
+
+Two adjustments make this work for graphite:
+
+1. `root_url` previously used `requiredWhen: "true"` (a CEL expression the resolver does **not**
+   inspect), so no General step was created and the wizard opened on `Connection`. Changing it to
+   `"required": true` (unconditionally required — the backend admission handler rejects an empty
+   URL) puts URL into General and emits a proper OpenAPI `required: ["url"]` in the generated
+   settings spec (instead of the `x-dsconfig-required-when` extension).
+2. The authentication group keeps the conventional `id: "authentication"`, and `plugin-ui` was
+   updated to treat both `authentication` and `auth` as the auth group, so the resolver folds the
+   auth fields into General as well.
+
+Result: the wizard opens on **General 1/7** containing URL, Basic auth, With Credentials, and
+Forward OAuth Identity; toggling **Basic auth** reveals the dependent **User** / **Password**
+inputs inline (verified). The now-redundant `Connection` and `Authentication` steps are
+auto-skipped in the wizard flow because all their fields already appear in General. Tab mode is
+unaffected — the synthetic `_required` group is filtered out there, so it still shows the six
+sections in order.
+
+### plugin-ui change
+
+The auth-group recognition was generalised in the `grafana/plugin-ui` repo (branch `dsconfig`,
+`src/components/ConfigEditor/DatasourceConfigWizard/`) so the wizard matches the full
+`authentication` id used across the registry, not just the short `auth`:
+
+- `config.ts` — added `AUTH_GROUP_IDS = ['authentication', 'auth']` and an `isAuthGroupId()`
+  helper; `resolveRequiredFieldsGroup` now finds the auth group via `isAuthGroupId(g.id)`.
+- `TabLayout.tsx` and `DatasourceConfigWizard.tsx` — the Authorization-header helper's group
+  check now uses `isAuthGroupId(...)` instead of the literal `=== 'auth'`.
+
+This is a separate repo/PR from the dsconfig schema change; `tsc`, `eslint`, and the existing
+`DatasourceConfigWizard` Jest suite pass.
 
 ---
 
@@ -73,8 +148,8 @@ explicitly excluded them), so the new UI rendered no headers section.
 **Fix (in `dsconfig.json` only):** added the `jsonData_httpHeaders` array field with an
 `indexedPair` storage mapping that reproduces the exact legacy storage, plus item
 sub-fields for the header name (`http.header.name`, with a header-name pattern
-validation) and value (`http.header.value`), and a dedicated `Custom HTTP Headers`
-group so it renders as its own section:
+validation) and value (`http.header.value`). It is placed in the **Advanced settings**
+section (see [Section layout](#section-layout) below):
 
 ```jsonc
 {
@@ -229,8 +304,8 @@ Conformance subtests (graphite): `BaseFieldsResolved`, `SchemaRoundTrip`,
 
 ## Files changed
 
-- [`registry/graphite/dsconfig.json`](dsconfig.json) — added `jsonData_httpHeaders` field + `custom-http-headers` group (orders renumbered); updated the secure-values instruction.
-- [`registry/graphite/schema.gen.json`](schema.gen.json), [`registry/graphite/settings.gen.json`](settings.gen.json) — regenerated by `go generate`.
+- [`registry/graphite/dsconfig.json`](dsconfig.json) — added `jsonData_httpHeaders` field; restructured `groups` into the Connection / Authentication / Network & TLS / Graphite settings / Query settings / Advanced settings taxonomy; ordered the Network & TLS fields so each toggle precedes the inputs it reveals; changed `root_url` from `requiredWhen: "true"` to `required: true` (renders in the wizard's General step); updated the secure-values instruction.
+- [`registry/graphite/schema.gen.json`](schema.gen.json), [`registry/graphite/settings.gen.json`](settings.gen.json) — regenerated by `go generate` (`url` now in the spec's `required` array).
 - [`schema/conformance.go`](../../schema/conformance.go) — `isIndexedPairField()` helper; skip `indexedPair` fields in the jsonData↔struct parity checks (user-approved).
 
 _Unchanged by design:_ `settings.go`, `settings.ts`, `README.md`, `settings.examples.gen.json`.
