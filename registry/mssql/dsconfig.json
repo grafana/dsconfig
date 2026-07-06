@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "localhost:1433"
@@ -24,7 +24,7 @@
             "label": "Database",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "database name"

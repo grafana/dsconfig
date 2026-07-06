@@ -3,17 +3,23 @@
   "settings": {
     "spec": {
       "type": "object",
+      "required": [
+        "url",
+        "user"
+      ],
       "properties": {
         "jsonData": {
           "type": "object",
+          "required": [
+            "database"
+          ],
           "properties": {
             "connMaxLifetime": {
               "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
               "type": "number"
             },
             "database": {
-              "type": "string",
-              "x-dsconfig-required-when": "true"
+              "type": "string"
             },
             "maxOpenConns": {
               "description": "The maximum number of open connections to the database. If set to 0, there is no limit on the number of open connections.",
@@ -87,12 +93,10 @@
           }
         },
         "url": {
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         },
         "user": {
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         }
       }
     },

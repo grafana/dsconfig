@@ -1,6 +1,10 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url",
+      "user"
+    ],
     "properties": {
       "jsonData": {
         "type": "object",
@@ -56,12 +60,10 @@
         }
       },
       "url": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       },
       "user": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       }
     }
   },

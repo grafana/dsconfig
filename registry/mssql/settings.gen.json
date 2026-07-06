@@ -1,9 +1,15 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url"
+    ],
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "database"
+        ],
         "properties": {
           "UDPConnectionLimit": {
             "description": "The default is 1 and means always use TCP and is optional.",
@@ -55,8 +61,7 @@
             "x-dsconfig-required-when": "jsonData_authenticationType == 'Windows AD: Credential cache file'"
           },
           "database": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "enableDNSLookupKDC": {
             "description": "Indicate whether DNS `SRV` records should be used to locate the KDCs and other servers for a realm. The default is 'true'.",
@@ -112,8 +117,7 @@
         }
       },
       "url": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       },
       "user": {
         "description": "For 'Windows AD: Username + password' and 'Windows AD: Credential cache file' auth types, use the format user@EXAMPLE.COM.",

@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "localhost:3306"
@@ -36,7 +36,7 @@
             "valueType": "string",
             "target": "root",
             "role": "auth.basic.username",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Username"
