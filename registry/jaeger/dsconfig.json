@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "http://localhost:16686"
@@ -265,6 +265,23 @@
             }
         },
         {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    { "id": "jsonData_httpHeaders.item.name", "key": "name", "label": "Header", "valueType": "string", "isItemField": true, "role": "http.header.name", "required": true, "validations": [ { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." } ], "ui": { "component": "input", "placeholder": "X-Custom-Header" } },
+                    { "id": "jsonData_httpHeaders.item.value", "key": "value", "label": "Value", "valueType": "string", "isItemField": true, "role": "http.header.value", "ui": { "component": "input", "placeholder": "Header Value" } }
+                ]
+            },
+            "storage": { "type": "indexedPair", "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" }, "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" }, "startIndex": 1 }
+        },
+        {
             "id": "jsonData_tracesToLogsV2",
             "key": "tracesToLogsV2",
             "label": "Trace to logs",
@@ -392,6 +409,7 @@
             "fieldRefs": [
                 "jsonData_keepCookies",
                 "jsonData_timeout",
+                "jsonData_httpHeaders",
                 "jsonData_nodeGraph",
                 "jsonData_spanBar",
                 "jsonData_traceIdTimeParams"
@@ -464,7 +482,7 @@
             ]
         },
         {
-            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP header values follow the same pattern via httpHeaderValue<N> secrets (see the entry README) — @grafana/plugin-ui's CustomHeaders component writes indexed httpHeaderName<N> / httpHeaderValue<N> pairs starting at index 1.",
+            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP header values follow the same pattern via httpHeaderValue<N> secrets — they are modeled by the jsonData_httpHeaders array field (indexedPair storage), so @grafana/plugin-ui's CustomHeaders component writes indexed httpHeaderName<N> (jsonData) / httpHeaderValue<N> (secureJsonData) pairs starting at index 1.",
             "tags": [
                 "llm",
                 "auth",

@@ -3,6 +3,9 @@
   "settings": {
     "spec": {
       "type": "object",
+      "required": [
+        "url"
+      ],
       "properties": {
         "basicAuth": {
           "type": "boolean",
@@ -63,6 +66,25 @@
                 "raw_document"
               ]
             },
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "includeFrozen": {
               "description": "Include frozen indices in searches.",
               "type": "boolean",
@@ -70,8 +92,7 @@
             },
             "index": {
               "description": "Name of your Elasticsearch index. You can use a time pattern, such as YYYY.MM.DD, or a wildcard for the index name.",
-              "type": "string",
-              "x-dsconfig-required-when": "true"
+              "type": "string"
             },
             "interval": {
               "description": "If you're using a pattern for your index, select the type, or no pattern.",
@@ -121,8 +142,7 @@
             "timeField": {
               "description": "Name of your time field. Defaults to @timestamp.",
               "type": "string",
-              "default": "@timestamp",
-              "x-dsconfig-required-when": "true"
+              "default": "@timestamp"
             },
             "timeInterval": {
               "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
@@ -152,8 +172,7 @@
         },
         "url": {
           "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         }
       }
     },

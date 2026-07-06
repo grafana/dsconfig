@@ -1,6 +1,9 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url"
+    ],
     "properties": {
       "jsonData": {
         "type": "object",
@@ -74,6 +77,25 @@
             "description": "Forward the logged-in Grafana user's X-Grafana-User header to the workspace. Requires send_user_header to be enabled in the Grafana server configuration.",
             "type": "boolean",
             "default": false
+          },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "httpMethod": {
             "description": "You can use either POST or GET HTTP method to query your Prometheus data source. POST is the recommended method as it allows bigger queries. Change this to GET if you have a Prometheus version older than 2.1 or if POST requests are restricted in your network.",
@@ -202,8 +224,7 @@
         }
       },
       "url": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       }
     }
   },

@@ -238,7 +238,7 @@
             "label": "Database",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input"
             }

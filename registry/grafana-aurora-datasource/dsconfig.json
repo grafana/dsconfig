@@ -186,7 +186,7 @@
             "label": "Database User",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "postgres"
@@ -200,7 +200,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.domain",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Host"
@@ -213,7 +213,7 @@
             "valueType": "number",
             "target": "jsonData",
             "role": "endpoint.port",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "5432"

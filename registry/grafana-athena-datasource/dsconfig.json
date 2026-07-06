@@ -151,7 +151,7 @@
             "label": "Data source",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "select"
             }
@@ -162,7 +162,7 @@
             "label": "Database",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "select"
             }
@@ -173,7 +173,7 @@
             "label": "Workgroup",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "select"
             }

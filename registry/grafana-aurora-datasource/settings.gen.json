@@ -4,6 +4,11 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "dbUser",
+          "dbHost",
+          "dbPort"
+        ],
         "properties": {
           "assumeRoleArn": {
             "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
@@ -26,8 +31,7 @@
           },
           "dbHost": {
             "description": "You can connect to all the read replicas on your Amazon Aurora cluster through a single reader endpoint. Read more about it here (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Reader).",
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "dbHostAuth": {
             "description": "Optional, if not provided, the dbHost above will be used.",
@@ -37,16 +41,14 @@
             "type": "string"
           },
           "dbPort": {
-            "type": "number",
-            "x-dsconfig-required-when": "true"
+            "type": "number"
           },
           "dbPortAuth": {
             "description": "Optional, if not provided, the dbPort above will be used.",
             "type": "number"
           },
           "dbUser": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "defaultRegion": {
             "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",

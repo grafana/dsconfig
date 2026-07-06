@@ -51,6 +51,27 @@
             }
         },
         {
+            "id": "virtual_jwtUpload",
+            "key": "jwtUpload",
+            "label": "JWT token",
+            "description": "Upload or paste a Google service-account JWT key file (.json). Its project_id, client_email, token_uri, and private_key are distributed into the JWT fields below.",
+            "valueType": "string",
+            "kind": "virtual",
+            "dependsOn": "jsonData_authenticationType == 'jwt'",
+            "ui": {
+                "component": "fileUpload",
+                "accept": [
+                    ".json"
+                ],
+                "fileMapping": {
+                    "project_id": "jsonData.defaultProject",
+                    "client_email": "jsonData.clientEmail",
+                    "token_uri": "jsonData.tokenUri",
+                    "private_key": "secureJsonData.privateKey"
+                }
+            }
+        },
+        {
             "id": "jsonData_defaultProject",
             "key": "defaultProject",
             "label": "Default project",
@@ -423,6 +444,7 @@
             "order": 1,
             "fieldRefs": [
                 "jsonData_authenticationType",
+                "virtual_jwtUpload",
                 "jsonData_defaultProject",
                 "jsonData_clientEmail",
                 "jsonData_tokenUri",

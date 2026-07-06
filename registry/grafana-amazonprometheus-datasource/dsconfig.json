@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "http://localhost:9090"
@@ -217,6 +217,23 @@
                 "component": "input",
                 "placeholder": "Timeout in seconds"
             }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    { "id": "jsonData_httpHeaders.item.name", "key": "name", "label": "Header", "valueType": "string", "isItemField": true, "role": "http.header.name", "required": true, "validations": [ { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." } ], "ui": { "component": "input", "placeholder": "X-Custom-Header" } },
+                    { "id": "jsonData_httpHeaders.item.value", "key": "value", "label": "Value", "valueType": "string", "isItemField": true, "role": "http.header.value", "ui": { "component": "input", "placeholder": "Header Value" } }
+                ]
+            },
+            "storage": { "type": "indexedPair", "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" }, "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" }, "startIndex": 1 }
         },
         {
             "id": "jsonData_keepCookies",
@@ -595,6 +612,7 @@
             "optional": true,
             "fieldRefs": [
                 "jsonData_timeout",
+                "jsonData_httpHeaders",
                 "jsonData_keepCookies"
             ]
         },
@@ -736,7 +754,7 @@
             ]
         },
         {
-            "msg": "Connection rules & special fields: `options.access === 'direct'` (Browser access mode) is rejected inline with an error banner (`ConfigEditor.tsx:26-31`) — always use `access: 'proxy'` (Server). `jsonData.httpMethod` defaults to POST and must be POST or GET (backend validates). `jsonData.forwardGrafanaUserHeader` (default false) forwards the logged-in user's `X-Grafana-User` header to the workspace — only useful when Grafana's `send_user_header` is enabled server-side (`pkg/datasource.go:95-99`). Datasources migrated from vanilla Prometheus carry `jsonData['prometheus-type-migration'] = true`, which renders the 'Data source migrated' warning banner (`ConfigEditor.tsx:37-48`). `jsonData.oauthPassThru` is always cleared to false on save because the editor locks the auth picker to SigV4 only.",
+            "msg": "Connection rules & special fields: `options.access === 'direct'` (Browser access mode) is rejected inline with an error banner (`ConfigEditor.tsx:26-31`) — always use `access: 'proxy'` (Server). `jsonData.httpMethod` defaults to POST and must be POST or GET (backend validates). `jsonData.forwardGrafanaUserHeader` (default false) forwards the logged-in user's `X-Grafana-User` header to the workspace — only useful when Grafana's `send_user_header` is enabled server-side (`pkg/datasource.go:95-99`). Datasources migrated from vanilla Prometheus carry `jsonData['prometheus-type-migration'] = true`, which renders the 'Data source migrated' warning banner (`ConfigEditor.tsx:37-48`). `jsonData.oauthPassThru` is always cleared to false on save because the editor locks the auth picker to SigV4 only. Custom HTTP headers ARE now modeled by the `jsonData_httpHeaders` array field using an indexedPair storage mapping: each header's name is written to `jsonData.httpHeaderName<N>` and its value is written write-only to `secureJsonData.httpHeaderValue<N>` (starting at N=1), exactly as `@grafana/plugin-ui`'s `CustomHeaders` component (rendered by the shared `Auth` wrapper regardless of the SigV4-only auth lock) and the SDK `HTTPClientOptions` expect. The per-header `httpHeaderValue<N>` secrets are dynamic and are therefore not listed among the static `SecureJsonDataKeys`.",
             "tags": [
                 "llm",
                 "connection",

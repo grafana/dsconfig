@@ -1,6 +1,9 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url"
+    ],
     "properties": {
       "basicAuth": {
         "type": "boolean",
@@ -23,6 +26,25 @@
             "type": "string",
             "x-dsconfig-depends-on": "jsonData_version == 'Flux'",
             "x-dsconfig-required-when": "jsonData_version == 'Flux'"
+          },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "httpMode": {
             "description": "You can use either GET or POST HTTP method to query your InfluxDB database. The POST method allows you to perform heavy requests (with a lots of WHERE clause) while the GET method will restrict you and return an error if the query is too large.",
@@ -127,8 +149,7 @@
         }
       },
       "url": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       },
       "user": {
         "description": "Legacy root-level user field written by the v1 InfluxQL editor. Distinct from root.basicAuthUser — the v1 editor writes options.user (SDK root User field) while the v2 editor writes options.basicAuthUser (SDK root BasicAuthUser field). Not consumed by the current backend or the SDK HTTPClientOptions auth handler; effectively a display-only echo unless the operator also enables root.basicAuth so the SDK reads basicAuthUser instead.",

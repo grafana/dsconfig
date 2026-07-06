@@ -1019,6 +1019,115 @@
             "tags": [
                 "backend-only"
             ]
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_secureQuery",
+            "key": "secureQuery",
+            "label": "URL Query Params",
+            "description": "URL query parameters appended to every request. Names are stored in jsonData (secureQueryName<N>); values are write-only in secureJsonData (secureQueryValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.query",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_secureQuery.item.name",
+                        "key": "name",
+                        "label": "Key",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.query.name",
+                        "required": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "key"
+                        }
+                    },
+                    {
+                        "id": "jsonData_secureQuery.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.query.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "secureQueryName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "secureQueryValue{index}"
+                },
+                "startIndex": 1
+            }
         }
     ],
     "groups": [
@@ -1072,7 +1181,9 @@
                 "jsonData_ignoreStatusCodeCheck",
                 "jsonData_allowDangerousHTTPMethods",
                 "jsonData_pathEncodedUrlsEnabled",
-                "jsonData_keepCookies"
+                "jsonData_keepCookies",
+                "jsonData_httpHeaders",
+                "jsonData_secureQuery"
             ]
         },
         {
@@ -1263,7 +1374,7 @@
             ]
         },
         {
-            "msg": "Connection, URL, and indexed-pair storage. root.url is the Base URL prefixed to every query URL and is optional — leave blank to fully specify the URL in each query. When the editor submits an empty URL the frontend stores the sentinel '__IGNORE_URL__' (src/constants.ts:72) and LoadSettings normalizes it back to '' (pkg/models/settings.go:296-298). When root.url is empty AND auth_method is not 'none'/'azureBlob' (or any TLS toggle, custom header, secure query param, or keepCookies entry is set), jsonData.allowedHosts MUST contain the target host or the datasource fails to load (pkg/models/settings.go:169-203); an 'Accept' or 'Content-Type' custom header does NOT force allowedHosts on its own (:184-190). jsonData.timeoutInSeconds defaults to 60 when unset and is clamped 0..300 by the editor; jsonData.unsecuredQueryHandling defaults to 'warn' when empty. Custom HTTP headers, URL query params, OAuth2 endpoint params, and OAuth2 token request headers are stored as INDEXED PAIRS (dynamic keys — NOT modeled as first-class fields here; see src/components/config/SecureFieldsEditor.tsx:98-113): jsonData.httpHeaderName<N> / secureJsonData.httpHeaderValue<N>; jsonData.secureQueryName<N> / secureJsonData.secureQueryValue<N>; jsonData.oauth2EndPointParamsName<N> / secureJsonData.oauth2EndPointParamsValue<N>; jsonData.oauth2TokenHeadersName<N> / secureJsonData.oauth2TokenHeadersValue<N>. LoadSettings aggregates each set into a map (pkg/models/settings.go:389-392,427-443).",
+            "msg": "Connection, URL, and indexed-pair storage. root.url is the Base URL prefixed to every query URL and is optional — leave blank to fully specify the URL in each query. When the editor submits an empty URL the frontend stores the sentinel '__IGNORE_URL__' (src/constants.ts:72) and LoadSettings normalizes it back to '' (pkg/models/settings.go:296-298). When root.url is empty AND auth_method is not 'none'/'azureBlob' (or any TLS toggle, custom header, secure query param, or keepCookies entry is set), jsonData.allowedHosts MUST contain the target host or the datasource fails to load (pkg/models/settings.go:169-203); an 'Accept' or 'Content-Type' custom header does NOT force allowedHosts on its own (:184-190). jsonData.timeoutInSeconds defaults to 60 when unset and is clamped 0..300 by the editor; jsonData.unsecuredQueryHandling defaults to 'warn' when empty. Custom HTTP headers and URL query params are stored as INDEXED PAIRS (dynamic keys) and ARE now modeled as first-class indexedPair array fields — jsonData_httpHeaders (jsonData.httpHeaderName<N> / secureJsonData.httpHeaderValue<N>) and jsonData_secureQuery (jsonData.secureQueryName<N> / secureJsonData.secureQueryValue<N>), both in the urls-headers-params group; each editor row maps to one indexed pair (see src/components/config/SecureFieldsEditor.tsx:98-113). The OAuth2 endpoint params (jsonData.oauth2EndPointParamsName<N> / secureJsonData.oauth2EndPointParamsValue<N>) and OAuth2 token request headers (jsonData.oauth2TokenHeadersName<N> / secureJsonData.oauth2TokenHeadersValue<N>) are the same indexed-pair shape but remain NOT modeled as first-class fields here (oauth2-only; tracked as a follow-up). LoadSettings aggregates each set into a map (pkg/models/settings.go:389-392,427-443).",
             "tags": [
                 "llm",
                 "connection",
