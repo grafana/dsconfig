@@ -1,0 +1,242 @@
+apiVersion: 1
+datasources:
+  - name: cloudwatch
+    uid: cloudwatch
+    type: cloudwatch
+  - name: dlopes7-appdynamics-datasource
+    uid: dlopes7-appdynamics-datasource
+    type: dlopes7-appdynamics-datasource
+  - name: elasticsearch
+    uid: elasticsearch
+    type: elasticsearch
+  - name: grafana-adobeanalytics-datasource
+    uid: grafana-adobeanalytics-datasource
+    type: grafana-adobeanalytics-datasource
+  - name: grafana-amazonprometheus-datasource
+    uid: grafana-amazonprometheus-datasource
+    type: grafana-amazonprometheus-datasource
+  - name: grafana-astradb-datasource
+    uid: grafana-astradb-datasource
+    type: grafana-astradb-datasource
+  - name: grafana-athena-datasource
+    uid: grafana-athena-datasource
+    type: grafana-athena-datasource
+  - name: grafana-atlassianstatuspage-datasource
+    uid: grafana-atlassianstatuspage-datasource
+    type: grafana-atlassianstatuspage-datasource
+  - name: grafana-aurora-datasource
+    uid: grafana-aurora-datasource
+    type: grafana-aurora-datasource
+  - name: grafana-azure-data-explorer-datasource
+    uid: grafana-azure-data-explorer-datasource
+    type: grafana-azure-data-explorer-datasource
+  - name: grafana-azure-monitor-datasource
+    uid: grafana-azure-monitor-datasource
+    type: grafana-azure-monitor-datasource
+  - name: grafana-azurecosmosdb-datasource
+    uid: grafana-azurecosmosdb-datasource
+    type: grafana-azurecosmosdb-datasource
+  - name: grafana-azuredevops-datasource
+    uid: grafana-azuredevops-datasource
+    type: grafana-azuredevops-datasource
+  - name: grafana-azureprometheus-datasource
+    uid: grafana-azureprometheus-datasource
+    type: grafana-azureprometheus-datasource
+  - name: grafana-bigquery-datasource
+    uid: grafana-bigquery-datasource
+    type: grafana-bigquery-datasource
+  - name: grafana-catchpoint-datasource
+    uid: grafana-catchpoint-datasource
+    type: grafana-catchpoint-datasource
+  - name: grafana-clickhouse-datasource
+    uid: grafana-clickhouse-datasource
+    type: grafana-clickhouse-datasource
+  - name: grafana-cloudflare-datasource
+    uid: grafana-cloudflare-datasource
+    type: grafana-cloudflare-datasource
+  - name: grafana-cockroachdb-datasource
+    uid: grafana-cockroachdb-datasource
+    type: grafana-cockroachdb-datasource
+  - name: grafana-databricks-datasource
+    uid: grafana-databricks-datasource
+    type: grafana-databricks-datasource
+  - name: grafana-datadog-datasource
+    uid: grafana-datadog-datasource
+    type: grafana-datadog-datasource
+  - name: grafana-drone-datasource
+    uid: grafana-drone-datasource
+    type: grafana-drone-datasource
+  - name: grafana-dynamodb-datasource
+    uid: grafana-dynamodb-datasource
+    type: grafana-dynamodb-datasource
+  - name: grafana-dynatrace-datasource
+    uid: grafana-dynatrace-datasource
+    type: grafana-dynatrace-datasource
+  - name: grafana-falconlogscale-datasource
+    uid: grafana-falconlogscale-datasource
+    type: grafana-falconlogscale-datasource
+  - name: grafana-github-datasource
+    uid: grafana-github-datasource
+    type: grafana-github-datasource
+  - name: grafana-gitlab-datasource
+    uid: grafana-gitlab-datasource
+    type: grafana-gitlab-datasource
+  - name: grafana-googlesheets-datasource
+    uid: grafana-googlesheets-datasource
+    type: grafana-googlesheets-datasource
+  - name: grafana-hello-datasource
+    uid: grafana-hello-datasource
+    type: grafana-hello-datasource
+  - name: grafana-helloworld-datasource
+    uid: grafana-helloworld-datasource
+    type: grafana-helloworld-datasource
+  - name: grafana-honeycomb-datasource
+    uid: grafana-honeycomb-datasource
+    type: grafana-honeycomb-datasource
+  - name: grafana-iot-sitewise-datasource
+    uid: grafana-iot-sitewise-datasource
+    type: grafana-iot-sitewise-datasource
+  - name: grafana-iot-twinmaker-datasource
+    uid: grafana-iot-twinmaker-datasource
+    type: grafana-iot-twinmaker-datasource
+  - name: grafana-jenkins-datasource
+    uid: grafana-jenkins-datasource
+    type: grafana-jenkins-datasource
+  - name: grafana-jira-datasource
+    uid: grafana-jira-datasource
+    type: grafana-jira-datasource
+  - name: grafana-logicmonitor-datasource
+    uid: grafana-logicmonitor-datasource
+    type: grafana-logicmonitor-datasource
+  - name: grafana-looker-datasource
+    uid: grafana-looker-datasource
+    type: grafana-looker-datasource
+  - name: grafana-mock-datasource
+    uid: grafana-mock-datasource
+    type: grafana-mock-datasource
+  - name: grafana-mongodb-datasource
+    uid: grafana-mongodb-datasource
+    type: grafana-mongodb-datasource
+  - name: grafana-mqtt-datasource
+    uid: grafana-mqtt-datasource
+    type: grafana-mqtt-datasource
+  - name: grafana-netlify-datasource
+    uid: grafana-netlify-datasource
+    type: grafana-netlify-datasource
+  - name: grafana-newrelic-datasource
+    uid: grafana-newrelic-datasource
+    type: grafana-newrelic-datasource
+  - name: grafana-odbc-datasource
+    uid: grafana-odbc-datasource
+    type: grafana-odbc-datasource
+  - name: grafana-opensearch-datasource
+    uid: grafana-opensearch-datasource
+    type: grafana-opensearch-datasource
+  - name: grafana-oracle-datasource
+    uid: grafana-oracle-datasource
+    type: grafana-oracle-datasource
+  - name: grafana-pagerduty-datasource
+    uid: grafana-pagerduty-datasource
+    type: grafana-pagerduty-datasource
+  - name: grafana-postgresql-datasource
+    uid: grafana-postgresql-datasource
+    type: grafana-postgresql-datasource
+  - name: grafana-pyroscope-datasource
+    uid: grafana-pyroscope-datasource
+    type: grafana-pyroscope-datasource
+  - name: grafana-redshift-datasource
+    uid: grafana-redshift-datasource
+    type: grafana-redshift-datasource
+  - name: grafana-salesforce-datasource
+    uid: grafana-salesforce-datasource
+    type: grafana-salesforce-datasource
+  - name: grafana-saphana-datasource
+    uid: grafana-saphana-datasource
+    type: grafana-saphana-datasource
+  - name: grafana-sentry-datasource
+    uid: grafana-sentry-datasource
+    type: grafana-sentry-datasource
+  - name: grafana-servicenow-datasource
+    uid: grafana-servicenow-datasource
+    type: grafana-servicenow-datasource
+  - name: grafana-snowflake-datasource
+    uid: grafana-snowflake-datasource
+    type: grafana-snowflake-datasource
+  - name: grafana-solarwinds-datasource
+    uid: grafana-solarwinds-datasource
+    type: grafana-solarwinds-datasource
+  - name: grafana-splunk-datasource
+    uid: grafana-splunk-datasource
+    type: grafana-splunk-datasource
+  - name: grafana-splunk-monitoring-datasource
+    uid: grafana-splunk-monitoring-datasource
+    type: grafana-splunk-monitoring-datasource
+  - name: grafana-sumologic-datasource
+    uid: grafana-sumologic-datasource
+    type: grafana-sumologic-datasource
+  - name: grafana-supabase-datasource
+    uid: grafana-supabase-datasource
+    type: grafana-supabase-datasource
+  - name: grafana-timestream-datasource
+    uid: grafana-timestream-datasource
+    type: grafana-timestream-datasource
+  - name: grafana-vercel-datasource
+    uid: grafana-vercel-datasource
+    type: grafana-vercel-datasource
+  - name: grafana-wavefront-datasource
+    uid: grafana-wavefront-datasource
+    type: grafana-wavefront-datasource
+  - name: grafana-x-ray-datasource
+    uid: grafana-x-ray-datasource
+    type: grafana-x-ray-datasource
+  - name: grafana-yugabyte-datasource
+    uid: grafana-yugabyte-datasource
+    type: grafana-yugabyte-datasource
+  - name: grafana-zendesk-datasource
+    uid: grafana-zendesk-datasource
+    type: grafana-zendesk-datasource
+  - name: graphite
+    uid: graphite
+    type: graphite
+  - name: influxdb
+    uid: influxdb
+    type: influxdb
+  - name: jaeger
+    uid: jaeger
+    type: jaeger
+  - name: loki
+    uid: loki
+    type: loki
+  - name: marcusolsson-csv-datasource
+    uid: marcusolsson-csv-datasource
+    type: marcusolsson-csv-datasource
+  - name: mssql
+    uid: mssql
+    type: mssql
+  - name: mysql
+    uid: mysql
+    type: mysql
+  - name: opentsdb
+    uid: opentsdb
+    type: opentsdb
+  - name: parca
+    uid: parca
+    type: parca
+  - name: prometheus
+    uid: prometheus
+    type: prometheus
+  - name: stackdriver
+    uid: stackdriver
+    type: stackdriver
+  - name: tempo
+    uid: tempo
+    type: tempo
+  - name: yesoreyeram-infinity-datasource
+    uid: yesoreyeram-infinity-datasource
+    type: yesoreyeram-infinity-datasource
+  - name: zipkin
+    uid: zipkin
+    type: zipkin
+  - name: grafana-testdata-datasource
+    uid: grafana-testdata-datasource
+    type: grafana-testdata-datasource
