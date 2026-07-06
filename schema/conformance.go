@@ -154,6 +154,9 @@ func JSONDataMatchesStruct(t *testing.T, p Params) {
 
 	schemaKeys := []string{}
 	for _, f := range p.DSConfigSchema.Fields {
+		if isIndexedPairField(f) {
+			continue
+		}
 		if f.Target != nil && *f.Target == dsconfig.JSONDataTarget {
 			schemaKeys = append(schemaKeys, jsonDataPath(f))
 		}
@@ -174,6 +177,9 @@ func JSONDataTypesMatchStruct(t *testing.T, p Params) {
 
 	schemaTypes := map[string]dsconfig.ValueType{}
 	for _, f := range p.DSConfigSchema.Fields {
+		if isIndexedPairField(f) {
+			continue
+		}
 		if f.Target != nil && *f.Target == dsconfig.JSONDataTarget {
 			schemaTypes[jsonDataPath(f)] = f.ValueType
 		}
@@ -225,6 +231,19 @@ func SecureValuesMatchLoadSettings(t *testing.T, p Params) {
 type fieldInfo struct {
 	kind       reflect.Kind
 	customJSON bool
+}
+
+// isIndexedPairField reports whether a field uses indexedPair storage. Such a
+// field is a logical view over legacy indexed keys (for example httpHeaderName1
+// / httpHeaderValue1) rather than a single jsonData key backed by one struct
+// field: at rest it expands into dynamically-indexed name/value pairs split
+// across jsonData and secureJsonData. Those dynamic keys are intentionally not
+// modeled as Go struct fields (the SDK's HTTPClientOptions reads them by
+// prefix), so indexedPair fields are excluded from the jsonData<->struct parity
+// checks — mirroring how the per-header httpHeaderValue<N> secrets are excluded
+// from a plugin's SecureKeys list.
+func isIndexedPairField(f dsconfig.ConfigField) bool {
+	return f.Storage != nil && f.Storage.Type == dsconfig.IndexedPairMapping
 }
 
 // jsonDataPath returns a jsonData field's storage path relative to the jsonData
