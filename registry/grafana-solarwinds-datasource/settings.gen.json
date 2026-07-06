@@ -1,0 +1,100 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "solarwinds": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "default": "basic_auth",
+                        "enum": [
+                          "basic_auth"
+                        ]
+                      },
+                      "tls": {
+                        "type": "object",
+                        "properties": {
+                          "clientAuth": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "description": "Validate using TLS client authentication, in which the server authenticates the client",
+                                "type": "boolean"
+                              },
+                              "serverName": {
+                                "description": "A Servername is used to verify the hostname on the returned certificate",
+                                "type": "string",
+                                "x-dsconfig-depends-on": "jsonData_services_solarwinds_auth_tls_clientAuth_enabled == true"
+                              }
+                            }
+                          },
+                          "selfSignedCert": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean"
+                              }
+                            }
+                          },
+                          "skipVerification": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "username": {
+                        "description": "SolarWinds Username",
+                        "type": "string",
+                        "x-dsconfig-depends-on": "jsonData_services_solarwinds_auth_id == 'basic_auth'",
+                        "x-dsconfig-required-when": "jsonData_services_solarwinds_auth_id == 'basic_auth'"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "variables": {
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "description": "The URL of your SolarWinds instance, including `https://` and without trailing `/`",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "solarwinds.password",
+      "description": "SolarWinds Password"
+    },
+    {
+      "key": "solarwinds.tls.selfSignedCert",
+      "description": "Your self-signed certificate"
+    },
+    {
+      "key": "solarwinds.tls.clientCert",
+      "description": "The client certificate can be generated from a Certificate Authority or be self-signed"
+    },
+    {
+      "key": "solarwinds.tls.clientKey",
+      "description": "The client key can be generated from a Certificate Authority or be self-signed"
+    }
+  ]
+}

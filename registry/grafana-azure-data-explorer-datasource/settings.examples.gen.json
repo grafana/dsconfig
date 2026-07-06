@@ -1,0 +1,162 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with. ADX has no schema-side credential default (the config editor chooses one at load time based on Grafana's managedIdentityEnabled / workloadIdentityEnabled / userIdentityEnabled config — see `AzureCredentialsConfig.ts:22-34`), so a fresh datasource has no `azureCredentials` and empty secrets. `queryTimeout`, `dataConsistency`, and `defaultEditorMode` carry their ApplyDefaults values.",
+      "value": {
+        "jsonData": {
+          "dataConsistency": "strongconsistency",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    },
+    "clientSecret": {
+      "summary": "App Registration (Client Secret)",
+      "description": "Authenticate via an Entra ID (Azure AD) app registration and client secret. The secret is stored write-only in `secureJsonData.azureClientSecret`; the rest of the credential lives in `jsonData.azureCredentials`.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        }
+      }
+    },
+    "clientSecretOBO": {
+      "summary": "App Registration (On-Behalf-Of)",
+      "description": "OBO auth requires the `adxOnBehalfOf` feature toggle in the editor AND `jsonData.oauthPassThru = true` — the plugin backend rejects OBO instance creation without it (`adxcredentials/builder.go:89-98`). `@grafana/azure-sdk` sets `oauthPassThru: true` automatically when the OBO authType is selected.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret-obo",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "oauthPassThru": true,
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        }
+      }
+    },
+    "currentUser": {
+      "summary": "Current User",
+      "description": "Forward the signed-in Grafana user's identity to Azure Data Explorer. Only available when Grafana's `azure.userIdentityEnabled` is true. Alerting, recorded queries, and reporting run without a signed-in user and may not work — see `doc/current-user-auth.md`. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "currentuser"
+          },
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    },
+    "legacyClientSecret": {
+      "summary": "Legacy top-level Client Secret (pre-`azureCredentials`)",
+      "description": "Datasources provisioned before the credentials migration stored auth at top level (`jsonData.{azureCloud,tenantId,clientId,onBehalfOf}`) and the secret in `secureJsonData.clientSecret`. Both frontend and backend still accept this shape via legacy fallbacks (`AzureCredentialsConfig.ts:46-67`, `adxcredentials/builder.go:40-87`). Opening the editor and saving migrates the datasource to the modern `jsonData.azureCredentials` shape.",
+      "value": {
+        "jsonData": {
+          "azureCloud": "azuremonitor",
+          "clientId": "00000000-0000-0000-0000-000000000000",
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s",
+          "tenantId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "clientSecret": "changeme"
+        }
+      }
+    },
+    "managedIdentity": {
+      "summary": "Managed Identity",
+      "description": "Authenticate using the Grafana host's Azure Managed Identity. Only available when Grafana's `azure.managedIdentityEnabled` is true. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "msi"
+          },
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    },
+    "openAI": {
+      "summary": "Client Secret + OpenAI API key (provisioning-only)",
+      "description": "Populate `secureJsonData.OpenAIAPIKey` alongside a working auth payload to enable the AI query assistant (`askOpenAI` resource endpoint, `pkg/azuredx/resource_handler.go`). There is no config editor UI for this key — it must be set via provisioning YAML or the datasource HTTP API.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "OpenAIAPIKey": "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+          "azureClientSecret": "changeme"
+        }
+      }
+    },
+    "workloadIdentity": {
+      "summary": "Workload Identity",
+      "description": "Authenticate using an Entra ID Workload Identity federated to the Kubernetes service account Grafana runs under. Only available when Grafana's `azure.workloadIdentityEnabled` is true. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "workloadidentity"
+          },
+          "clusterUrl": "https://yourcluster.kusto.windows.net",
+          "dataConsistency": "strongconsistency",
+          "defaultDatabase": "mydb",
+          "defaultEditorMode": "visual",
+          "queryTimeout": "30s"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-helloworld-datasource",
+    "pluginName": "Hello World",
+    "fields": [
+        {
+            "id": "secureJsonData_apiKey",
+            "key": "apiKey",
+            "label": "API key",
+            "description": "Placeholder secret. The Hello World datasource reads no configuration: its config editor renders static text and its backend ignores instance settings. This key exists only because a dsconfig entry must declare at least one field and the shared conformance suite requires at least one secureJsonData key. The plugin never reads it.",
+            "valueType": "string",
+            "target": "secureJsonData"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Hello World datasource is a minimal sample/template plugin with NO configuration surface. Its config editor (src/module.tsx:32-34) renders the static text 'Hello World Config Editor!' and never calls onOptionsChange, so it writes nothing to root, jsonData, or secureJsonData. The frontend config types are blank: `export type Config = {} & DataSourceJsonData` and `export type SecureConfig = {}` (src/module.tsx:13-14). The backend (pkg/main.go) ignores instance settings entirely — the datasource instance factory returns an empty DatasourceInstance{} without reading settings.JSONData, settings.URL, or any secret (pkg/main.go:40-51). Minimal working payload: {\"jsonData\":{}}. No URL, authentication, or secret is required or used.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        },
+        {
+            "msg": "The single secureJsonData.apiKey field in this schema is a PLACEHOLDER, not a real credential. Upstream declares no secrets (`SecureConfig = {}`, src/module.tsx:14); this key exists only because a dsconfig entry must declare at least one field (dsconfig Schema.Validate rejects an empty `fields` array with 'fields is required') and the shared conformance suite requires at least one secureJsonData key (schema.PluginUnderTest rejects empty SecureKeys; SchemaRoundTrip asserts SecureValues is non-empty). The Hello World backend never reads it — setting or omitting secureJsonData.apiKey has no effect on the datasource's behavior.",
+            "tags": [
+                "llm",
+                "settings",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Behavior is static and does not depend on configuration. CheckHealth always returns OK with the message 'hello world datasource just works but does nothing' (pkg/main.go:17-22). QueryData returns a single-string frame ('hello world response') carrying the notice 'hello world query works. but not fully implemented' for every query (pkg/main.go:24-38). There is nothing to configure to change this; the plugin is a backend-datasource scaffold built on DataSourceWithBackend (src/module.tsx:11,18).",
+            "tags": [
+                "llm",
+                "health"
+            ]
+        }
+    ]
+}

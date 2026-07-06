@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "realmName": {
+            "type": "string",
+            "x-dsconfig-required-when": "jsonData_urlMetricsMetadata == '' || jsonData_urlSignalflow == ''"
+          },
+          "url_metrics_metadata": {
+            "description": "Optional Metrics MetaData URL.",
+            "type": "string"
+          },
+          "url_signalflow": {
+            "description": "Optional SignalFlow URL",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accessToken"
+    }
+  ]
+}

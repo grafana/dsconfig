@@ -1,0 +1,51 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "httpbin": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "default": "none",
+                        "enum": [
+                          "none"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "postman_echo": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "default": "none",
+                        "enum": [
+                          "none"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

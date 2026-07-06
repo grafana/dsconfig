@@ -1,0 +1,46 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the single service 'drone' preselects its only auth method, auth_bearer. Fill in the server url (jsonData.variables.url) and API token (secureJsonData \"drone.token\", empty here) to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "drone": {
+              "auth": {
+                "id": "auth_bearer"
+              }
+            }
+          },
+          "variables": {
+            "url": ""
+          }
+        },
+        "secureJsonData": {
+          "drone.token": ""
+        }
+      }
+    },
+    "apiToken": {
+      "summary": "API token (bearer)",
+      "description": "Authenticate against {url}/api with a Drone API token provided as the write-only secret at secureJsonData \"drone.token\".",
+      "value": {
+        "jsonData": {
+          "services": {
+            "drone": {
+              "auth": {
+                "id": "auth_bearer"
+              }
+            }
+          },
+          "variables": {
+            "url": "https://drone.example.com"
+          }
+        },
+        "secureJsonData": {
+          "drone.token": "\u003cdrone-api-token\u003e"
+        }
+      }
+    }
+  }
+}

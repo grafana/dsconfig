@@ -1,0 +1,381 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "description": "The username of the data source account",
+          "type": "string",
+          "x-dsconfig-depends-on": "virtual_authMethod == 'BasicAuth'",
+          "x-dsconfig-required-when": "root_basicAuth == true"
+        },
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "index",
+            "timeField"
+          ],
+          "properties": {
+            "apiKeyAuth": {
+              "type": "boolean",
+              "default": false
+            },
+            "dataLinks": {
+              "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "field"
+                ],
+                "properties": {
+                  "datasourceUid": {
+                    "description": "The tracing data source the data link should navigate to. When set, the link becomes an internal Grafana link and the url field is treated as a query for that data source.",
+                    "type": "string"
+                  },
+                  "field": {
+                    "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "urlDisplayLabel": {
+                    "description": "Use to override the button label.",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "defaultQueryMode": {
+              "description": "Default query mode to use for the data source. Defaults to 'Metrics'.",
+              "type": "string",
+              "default": "metrics",
+              "enum": [
+                "metrics",
+                "logs",
+                "raw_data",
+                "raw_document"
+              ]
+            },
+            "includeFrozen": {
+              "description": "Include frozen indices in searches.",
+              "type": "boolean",
+              "default": false
+            },
+            "index": {
+              "description": "Name of your Elasticsearch index. You can use a time pattern, such as YYYY.MM.DD, or a wildcard for the index name.",
+              "type": "string",
+              "x-dsconfig-required-when": "true"
+            },
+            "interval": {
+              "description": "If you're using a pattern for your index, select the type, or no pattern.",
+              "type": "string",
+              "enum": [
+                "Hourly",
+                "Daily",
+                "Weekly",
+                "Monthly",
+                "Yearly"
+              ]
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "logLevelField": {
+              "description": "Configure the field that determines the level of each log message.",
+              "type": "string"
+            },
+            "logMessageField": {
+              "description": "Configure the field to be used for log messages.",
+              "type": "string"
+            },
+            "maxConcurrentShardRequests": {
+              "description": "Maximum number of concurrent shards a search request can hit per node. Defaults to 5.",
+              "type": "number",
+              "default": 5
+            },
+            "oauthPassThru": {
+              "type": "boolean",
+              "default": false
+            },
+            "serverName": {
+              "description": "A Servername is used to verify the hostname on the returned certificate",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+              "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+            },
+            "sigV4Auth": {
+              "type": "boolean",
+              "default": false
+            },
+            "timeField": {
+              "description": "Name of your time field. Defaults to @timestamp.",
+              "type": "string",
+              "default": "@timestamp",
+              "x-dsconfig-required-when": "true"
+            },
+            "timeInterval": {
+              "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+              "type": "string",
+              "pattern": "^\\d+(ms|[Mwdhmsy])$"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number"
+            },
+            "tlsAuth": {
+              "description": "Validate using TLS client authentication, in which the server authenticates the client",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Add your own Certificate Authority (CA) certificate on top of one generated by the certificate authorities for additional security measures",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "description": "Skipping TLS certificate validation is not recommended unless absolutely necessary or for testing",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "url": {
+          "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "basicAuthPassword",
+        "description": "The password of the data source account"
+      },
+      {
+        "key": "apiKey",
+        "description": "API Key authentication"
+      },
+      {
+        "key": "tlsClientCert",
+        "description": "The client certificate can be generated from a Certificate Authority or be self-signed"
+      },
+      {
+        "key": "tlsClientKey",
+        "description": "The client key can be generated from a Certificate Authority or be self-signed"
+      },
+      {
+        "key": "tlsCACert",
+        "description": "Your self-signed certificate"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: no authentication, timeField '@timestamp', maxConcurrentShardRequests 5, defaultQueryMode 'metrics'. Fill in root.url and a concrete jsonData.index to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "es-index-name",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://localhost:9200"
+        }
+      },
+      "apiKey": {
+        "summary": "API Key authentication",
+        "description": "Elasticsearch API key auth: the backend sends `Authorization: ApiKey \u003cvalue\u003e` on every request (elasticsearch.go:125-131). Set jsonData.apiKeyAuth=true and provide the base64-encoded key in secureJsonData.apiKey.",
+        "value": {
+          "jsonData": {
+            "apiKeyAuth": true,
+            "defaultQueryMode": "logs",
+            "index": "grafana-logs",
+            "logLevelField": "level",
+            "logMessageField": "message",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "apiKey": "REPLACE_WITH_BASE64_API_KEY"
+          },
+          "url": "https://elasticsearch.example.com:9200"
+        }
+      },
+      "basicAuth": {
+        "summary": "Basic authentication",
+        "description": "Authenticate with an Elasticsearch cluster that requires HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "grafana-logs",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://elasticsearch.example.com:9200"
+        }
+      },
+      "legacyDatabaseFallback": {
+        "summary": "Legacy: index stored in root.database",
+        "description": "Datasources created before the index moved to jsonData.index stored it in the root-level `database` field instead. The backend's LoadConfig / NewDatasource promotes settings.Database to jsonData.index when the latter is empty (elasticsearch.go:164-170); the editor's indexChangeHandler always clears database on save (ElasticDetails.tsx:162), so this shape only appears on datasources that have never been re-saved through the editor.",
+        "value": {
+          "database": "grafana-legacy",
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://elasticsearch.example.com:9200"
+        }
+      },
+      "logsWithDataLinks": {
+        "summary": "Logs mode with data links",
+        "description": "Log-oriented configuration with an explicit log message / log level field and two data link entries: one external URL and one internal Grafana link (datasourceUid) that treats jsonData.dataLinks[*].url as a query for the linked data source.",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "dataLinks": [
+              {
+                "datasourceUid": "tempo",
+                "field": "traceID",
+                "url": "${__value.raw}",
+                "urlDisplayLabel": "View trace"
+              },
+              {
+                "field": "requestID",
+                "url": "https://requests.example.com/${__value.raw}",
+                "urlDisplayLabel": "Open request"
+              }
+            ],
+            "defaultQueryMode": "logs",
+            "includeFrozen": false,
+            "index": "[app-logs-]YYYY.MM.DD",
+            "interval": "Daily",
+            "logLevelField": "level",
+            "logMessageField": "message",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp",
+            "timeInterval": "10s"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://elasticsearch.example.com:9200"
+        }
+      },
+      "noAuth": {
+        "summary": "No authentication",
+        "description": "A network-isolated Elasticsearch with no HTTP-level auth. Index uses a daily logstash-style time pattern.",
+        "value": {
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "[logstash-]YYYY.MM.DD",
+            "interval": "Daily",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://elasticsearch.example.com:9200"
+        }
+      },
+      "oauthForward": {
+        "summary": "Forward OAuth Identity",
+        "description": "Forward the signed-in user's upstream OAuth identity to Elasticsearch. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+        "value": {
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "grafana-logs",
+            "maxConcurrentShardRequests": 5,
+            "oauthPassThru": true,
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://elasticsearch.example.com:9200"
+        }
+      },
+      "sigV4": {
+        "summary": "SigV4 authentication (AWS OpenSearch / managed Elasticsearch)",
+        "description": "AWS SigV4-signed requests to an AWS-managed Elasticsearch or OpenSearch cluster. The sigV4* jsonData fields are contributed by @grafana/aws-sdk's SIGV4ConnectionConfig, and the backend forces the SigV4 service namespace to 'es' whenever the SDK builds a SigV4 transport (elasticsearch.go:120-123). Requires the Grafana instance to have sigV4AuthEnabled=true for the editor to expose the option.",
+        "value": {
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "grafana-logs",
+            "maxConcurrentShardRequests": 5,
+            "sigV4Auth": true,
+            "sigV4AuthType": "default",
+            "sigV4Region": "us-east-1",
+            "timeField": "@timestamp"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://vpc-example.us-east-1.es.amazonaws.com"
+        }
+      },
+      "tlsMutualAuth": {
+        "summary": "TLS mutual auth (mTLS)",
+        "description": "Elasticsearch requiring mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+        "value": {
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "grafana-logs",
+            "maxConcurrentShardRequests": 5,
+            "serverName": "elasticsearch.example.com",
+            "timeField": "@timestamp",
+            "tlsAuth": true
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+          },
+          "url": "https://elasticsearch.example.com:9200"
+        }
+      },
+      "tlsSelfSignedCA": {
+        "summary": "Self-signed CA verification",
+        "description": "Elasticsearch behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+        "value": {
+          "jsonData": {
+            "defaultQueryMode": "metrics",
+            "index": "grafana-logs",
+            "maxConcurrentShardRequests": 5,
+            "timeField": "@timestamp",
+            "tlsAuthWithCACert": true
+          },
+          "secureJsonData": {
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+          },
+          "url": "https://elasticsearch.internal.corp:9200"
+        }
+      }
+    }
+  }
+}

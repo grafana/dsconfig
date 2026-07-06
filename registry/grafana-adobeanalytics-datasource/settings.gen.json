@@ -1,0 +1,57 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "adobe_analytics": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "clientId": {
+                        "type": "string",
+                        "x-dsconfig-depends-on": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'",
+                        "x-dsconfig-required-when": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'"
+                      },
+                      "id": {
+                        "description": "Authorization flow where application credentials are exchanged for an access token",
+                        "type": "string",
+                        "default": "oauth2_m2m",
+                        "enum": [
+                          "oauth2_m2m"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "variables": {
+            "type": "object",
+            "required": [
+              "global_company_id"
+            ],
+            "properties": {
+              "global_company_id": {
+                "description": "Refer to [plugin documentation](http://grafana.com/docs/plugins/grafana-adobeanalytics-datasource/#connection) for more information on where to find your Global Company ID in Adobe portal.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "adobe_analytics.clientSecret"
+    }
+  ]
+}

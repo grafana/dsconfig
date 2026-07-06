@@ -1,0 +1,104 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "orgSlug": {
+              "description": "Sentry Org slug. Typically this will be the last segment of the URL: https://sentry.io/organizations/{organization_slug}/ - only the slug should be entered here",
+              "type": "string",
+              "x-dsconfig-required-when": "true"
+            },
+            "tlsSkipVerify": {
+              "description": "Skip TLS certificate verification. Use this option for self-hosted Sentry instances with self-signed certificates.",
+              "type": "boolean",
+              "default": false
+            },
+            "url": {
+              "description": "Sentry URL to be used. If left blank, https://sentry.io will be used",
+              "type": "string",
+              "default": "https://sentry.io"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "authToken",
+        "description": "Sentry authentication token. Auth tokens can be created from https://sentry.io/settings/{organization_slug}/developer-settings"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: pointed at https://sentry.io with an empty org slug and an empty auth token placeholder. Both jsonData.orgSlug and secureJsonData.authToken must be filled in for the datasource to load — pkg/plugin/settings.go:41-50 rejects either being empty.",
+        "value": {
+          "jsonData": {
+            "url": "https://sentry.io"
+          },
+          "secureJsonData": {
+            "authToken": ""
+          }
+        }
+      },
+      "legacyMissingURL": {
+        "summary": "Legacy datasource with no URL set",
+        "description": "A pre-existing datasource that was provisioned without jsonData.url. Both the editor initial state (src/editors/SentryConfigEditor.tsx:19) and the backend (pkg/plugin/settings.go:37-40) treat an empty URL as https://sentry.io; LoadConfig.ApplyDefaults fills it in on load.",
+        "value": {
+          "jsonData": {
+            "orgSlug": "example-org"
+          },
+          "secureJsonData": {
+            "authToken": "sntrys_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      },
+      "selfHosted": {
+        "summary": "Self-hosted Sentry",
+        "description": "On-prem Sentry instance. jsonData.url points at the deployment's base URL (no trailing slash — the client string-concatenates request paths onto it at pkg/sentry/sentry.go:54-56).",
+        "value": {
+          "jsonData": {
+            "orgSlug": "example-org",
+            "url": "https://sentry.example.com"
+          },
+          "secureJsonData": {
+            "authToken": "sntrys_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      },
+      "selfHostedTLSSkipVerify": {
+        "summary": "Self-hosted Sentry with a self-signed certificate",
+        "description": "On-prem Sentry with a self-signed / private-CA certificate. jsonData.tlsSkipVerify=true disables server certificate verification on the SDK HTTP client (pkg/plugin/plugin.go:57-63). Only use with trusted infrastructure.",
+        "value": {
+          "jsonData": {
+            "orgSlug": "example-org",
+            "tlsSkipVerify": true,
+            "url": "https://sentry.internal.corp"
+          },
+          "secureJsonData": {
+            "authToken": "sntrys_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      },
+      "sentrySaaS": {
+        "summary": "Sentry SaaS (sentry.io)",
+        "description": "Standard configuration against the hosted Sentry service at https://sentry.io. jsonData.orgSlug is the org slug — the last segment of https://sentry.io/organizations/{organization_slug}/.",
+        "value": {
+          "jsonData": {
+            "orgSlug": "example-org",
+            "url": "https://sentry.io"
+          },
+          "secureJsonData": {
+            "authToken": "sntrys_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      }
+    }
+  }
+}

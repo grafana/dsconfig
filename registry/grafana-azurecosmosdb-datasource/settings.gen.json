@@ -1,0 +1,21 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "accountEndpoint": {
+            "type": "string",
+            "x-dsconfig-required-when": "true"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accountKey"
+    }
+  ]
+}

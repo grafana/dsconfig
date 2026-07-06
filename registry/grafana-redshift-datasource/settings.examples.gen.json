@@ -1,0 +1,172 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a fresh datasource starts with: AWS SDK Default credentials, Provisioned shape, and temporary IAM credentials. Cluster identifier, database, and dbUser still need to be picked from the connected AWS account before queries will run; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain.",
+      "value": {
+        "jsonData": {
+          "authType": "default"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "assumeRoleFromKeys": {
+      "summary": "Access \u0026 secret key + STS AssumeRole",
+      "description": "IAM user credentials that then assume a cross-account IAM role via STS to reach Redshift. `externalId` is optional and only meaningful when `assumeRoleArn` is set.",
+      "value": {
+        "jsonData": {
+          "assumeRoleArn": "arn:aws:iam::123456789012:role/GrafanaRedshift",
+          "authType": "keys",
+          "clusterIdentifier": "my-redshift-cluster",
+          "database": "dev",
+          "dbUser": "awsuser",
+          "defaultRegion": "us-east-1",
+          "externalId": "external-id-abc123",
+          "useManagedSecret": false,
+          "useServerless": false
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    },
+    "credentialsFile": {
+      "summary": "Credentials file",
+      "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Provisioned + temporary IAM credentials. Leave `profile` blank to pick the default profile.",
+      "value": {
+        "jsonData": {
+          "authType": "credentials",
+          "clusterIdentifier": "my-redshift-cluster",
+          "database": "dev",
+          "dbUser": "awsuser",
+          "defaultRegion": "us-east-1",
+          "profile": "my-redshift-profile",
+          "useManagedSecret": false,
+          "useServerless": false
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "legacyArnAuthType": {
+      "summary": "Legacy: authType = 'arn'",
+      "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The backend (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88) maps this to the modern 'default' at load time.",
+      "value": {
+        "jsonData": {
+          "authType": "arn",
+          "clusterIdentifier": "my-redshift-cluster",
+          "database": "dev",
+          "dbUser": "awsuser",
+          "defaultRegion": "us-east-1",
+          "useManagedSecret": false,
+          "useServerless": false
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "provisionedManagedSecretDefault": {
+      "summary": "Provisioned + AWS Secrets Manager + AWS SDK Default",
+      "description": "Redshift Provisioned cluster whose database credentials are read from an AWS Secrets Manager secret. Both dbUser and password come from the secret; the editor also stores managedSecret.name from the Select label.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "clusterIdentifier": "my-redshift-cluster",
+          "database": "dev",
+          "defaultRegion": "us-east-1",
+          "managedSecret": {
+            "arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:redshift-1-xxxxxx",
+            "name": "redshift-1"
+          },
+          "useManagedSecret": true,
+          "useServerless": false
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "provisionedTempCredsKeys": {
+      "summary": "Provisioned + Temporary credentials + Access \u0026 secret key",
+      "description": "Redshift Provisioned cluster with temporary IAM credentials minted via GetClusterCredentials. `dbUser` is required to name the database user the temporary password is issued for. AWS auth via IAM user access key + secret key.",
+      "value": {
+        "jsonData": {
+          "authType": "keys",
+          "clusterIdentifier": "my-redshift-cluster",
+          "database": "dev",
+          "dbUser": "awsuser",
+          "defaultRegion": "us-east-1",
+          "useManagedSecret": false,
+          "useServerless": false
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    },
+    "serverlessManagedSecretGrafanaAssume": {
+      "summary": "Serverless + AWS Secrets Manager + Grafana Assume Role (Grafana Cloud only)",
+      "description": "Redshift Serverless workgroup whose credentials are read from AWS Secrets Manager. AWS auth via Grafana Cloud's temporary-credentials broker (feature-gated on the awsDatasourcesTempCredentials toggle — the editor hides assumeRoleArn/externalId/endpoint when this provider is selected).",
+      "value": {
+        "jsonData": {
+          "authType": "grafana_assume_role",
+          "database": "dev",
+          "defaultRegion": "us-east-1",
+          "managedSecret": {
+            "arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:redshift-serverless-xxxxxx",
+            "name": "redshift-serverless"
+          },
+          "useManagedSecret": true,
+          "useServerless": true,
+          "workgroupName": "default"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "serverlessTempCredsIamRole": {
+      "summary": "Serverless + Temporary credentials + Workspace IAM Role",
+      "description": "Redshift Serverless workgroup with temporary IAM credentials minted via GetCredentials. Serverless does not require dbUser because GetCredentials issues both the username and password. AWS auth via the workload's own IAM role.",
+      "value": {
+        "jsonData": {
+          "authType": "ec2_iam_role",
+          "database": "dev",
+          "defaultRegion": "us-east-1",
+          "useManagedSecret": false,
+          "useServerless": true,
+          "workgroupName": "default"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "withEventBridge": {
+      "summary": "Send Redshift events to Amazon EventBridge",
+      "description": "Same as the Provisioned + temp-creds + keys example, with jsonData.withEvent=true so the plugin publishes query execution events to Amazon EventBridge (ConfigEditor.tsx:368-384). Requires the IAM role/user to have events:PutEvents permission.",
+      "value": {
+        "jsonData": {
+          "authType": "keys",
+          "clusterIdentifier": "my-redshift-cluster",
+          "database": "dev",
+          "dbUser": "awsuser",
+          "defaultRegion": "us-east-1",
+          "useManagedSecret": false,
+          "useServerless": false,
+          "withEvent": true
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    }
+  }
+}

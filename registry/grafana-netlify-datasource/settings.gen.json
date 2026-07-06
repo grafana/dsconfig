@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "Netlify": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Netlify REST API Key. Found here: https://app.netlify.com/user/applications#personal-access-tokens",
+                        "type": "string",
+                        "default": "bearer_token",
+                        "enum": [
+                          "bearer_token"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "Netlify.token",
+      "description": "Token for accessing the datasource API"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: no authentication, no TLS overrides, tsdbVersion=1 (\u003c=2.1), tsdbResolution=1 (second), lookupLimit=1000. Only root.url needs to be filled in to get a working datasource pointed at an OpenTSDB HTTP API on localhost:4242.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 1000,
+          "tsdbResolution": 1,
+          "tsdbVersion": 1
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://localhost:4242"
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic authentication",
+      "description": "Authenticate with an OpenTSDB that requires HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {
+          "lookupLimit": 1000,
+          "tsdbResolution": 1,
+          "tsdbVersion": 1
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://opentsdb.example.com"
+      }
+    },
+    "largeLookupLimit": {
+      "summary": "Large tag-value autocomplete limit",
+      "description": "Raise the /api/search/lookup response cap used for tag-value autocomplete. lookupLimit=10000 tells HandleKeyValueLookup (pkg/opentsdb/callresource.go:361) to request up to 10000 rows from OpenTSDB for each keyvalue lookup.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 10000,
+          "tsdbResolution": 1,
+          "tsdbVersion": 4
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://opentsdb.example.com:4242"
+      }
+    },
+    "millisecondResolution": {
+      "summary": "Millisecond resolution",
+      "description": "OpenTSDB configured to serve millisecond-precision timestamps. tsdbResolution=2 causes the frontend to add msResolution=true to outgoing query bodies (src/datasource.ts:178-180) and the response parser to treat dps keys as millisecond epochs directly.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 1000,
+          "tsdbResolution": 2,
+          "tsdbVersion": 3
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://opentsdb.example.com:4242"
+      }
+    },
+    "noAuth": {
+      "summary": "No authentication (OpenTSDB 2.4)",
+      "description": "A public or network-isolated OpenTSDB 2.4 server. tsdbVersion=4 unlocks array-response parsing (pkg/opentsdb/utils.go:138,247-254) and adds ?arrays=true to /api/query.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 1000,
+          "tsdbResolution": 1,
+          "tsdbVersion": 4
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://opentsdb.example.com:4242"
+      }
+    },
+    "oauthForward": {
+      "summary": "Forward OAuth Identity",
+      "description": "Forward the signed-in user's upstream OAuth identity to OpenTSDB. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 1000,
+          "oauthPassThru": true,
+          "tsdbResolution": 1,
+          "tsdbVersion": 1
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://opentsdb.example.com"
+      }
+    },
+    "tlsMutualAuth": {
+      "summary": "TLS mutual auth (mTLS)",
+      "description": "OpenTSDB requiring mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 1000,
+          "serverName": "opentsdb.example.com",
+          "tlsAuth": true,
+          "tsdbResolution": 1,
+          "tsdbVersion": 1
+        },
+        "secureJsonData": {
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        },
+        "url": "https://opentsdb.example.com"
+      }
+    },
+    "tlsSelfSignedCA": {
+      "summary": "Self-signed CA verification",
+      "description": "OpenTSDB behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+      "value": {
+        "jsonData": {
+          "lookupLimit": 1000,
+          "tlsAuthWithCACert": true,
+          "tsdbResolution": 1,
+          "tsdbVersion": 1
+        },
+        "secureJsonData": {
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+        },
+        "url": "https://opentsdb.internal.corp"
+      }
+    }
+  }
+}

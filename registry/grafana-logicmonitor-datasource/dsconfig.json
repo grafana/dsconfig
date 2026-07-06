@@ -1,0 +1,123 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-logicmonitor-datasource",
+    "pluginName": "LogicMonitor Devices",
+    "docURL": "https://grafana.com/docs/plugins/grafana-logicmonitor-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_account_name",
+            "key": "account_name",
+            "section": "variables",
+            "label": "Account Name",
+            "description": "Your LogicMonitor account name. Example: Use foo for the logic monitor URL https://foo.logicmonitor.com/`",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_services_logicmonitor_auth_id",
+            "key": "id",
+            "section": "services.logicmonitor.auth",
+            "label": "API v3 Key",
+            "description": "Bearer token for LogicMonitor REST API v3.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "auth_bearer",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "auth_bearer"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "API v3 Key",
+                        "value": "auth_bearer"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_logicmonitor_token",
+            "key": "logicmonitor.token",
+            "label": "Token",
+            "description": "Token for accessing the datasource API",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_services_logicmonitor_auth_id == 'auth_bearer'",
+            "requiredWhen": "jsonData_services_logicmonitor_auth_id == 'auth_bearer'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_account_name"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_services_logicmonitor_auth_id",
+                "secureJsonData_logicmonitor_token"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "LogicMonitor configuration is stored under a service-keyed jsonData shape: jsonData.services.logicmonitor.* holds per-service settings and jsonData.variables.<name> holds connection variables, while secrets use flat dotted secureJsonData keys of the form \"logicmonitor.<secret>\". There is a single service with id 'logicmonitor'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses a LogicMonitor REST API v3 bearer token. jsonData.services.logicmonitor.auth.id is 'auth_bearer' (the backend defaults to it) and the token is the write-only secret at secureJsonData key \"logicmonitor.token\".",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"logicmonitor\":{\"auth\":{\"id\":\"auth_bearer\"}}},\"variables\":{\"account_name\":\"foo\"}},\"secureJsonData\":{\"logicmonitor.token\":\"<api-v3-key>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is built from the 'account_name' variable as https://{account_name}.logicmonitor.com/santaba/rest. Set jsonData.variables.account_name to the account subdomain only (e.g. 'foo' for https://foo.logicmonitor.com/). The single server is fixed, so no server selector is shown.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"logicmonitor.token\" is write-only: it can be set or reset but never read back. To check whether it is already configured, read secureJsonFields[\"logicmonitor.token\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

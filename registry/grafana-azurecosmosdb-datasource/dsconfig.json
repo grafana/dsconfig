@@ -1,0 +1,86 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azurecosmosdb-datasource",
+    "pluginName": "Azure Cosmos DB",
+    "docURL": "https://grafana.com/docs/plugins/grafana-azurecosmosdb-datasource",
+    "fields": [
+        {
+            "id": "jsonData_accountEndpoint",
+            "key": "accountEndpoint",
+            "label": "Account Endpoint",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": ""
+            }
+        },
+        {
+            "id": "secureJsonData_accountKey",
+            "key": "accountKey",
+            "label": "Account Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Account Key"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "account-configuration",
+            "title": "Account configuration",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_accountEndpoint",
+                "secureJsonData_accountKey"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_accountEndpoint",
+                "secureJsonData_accountKey"
+            ],
+            "description": "Azure Cosmos DB account credential: the account endpoint URL and the primary/secondary master key used to construct an azcosmos.KeyCredential."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Azure Cosmos DB datasource authenticates with a single method: an Azure Cosmos DB account master key. jsonData.accountEndpoint is the account URI (for example https://<account>.documents.azure.com:443/) and secureJsonData.accountKey is the primary or secondary key. Both are strictly required — pkg/plugin/settings.go:16-22 (LoadSettings) returns 'account endpoint is empty' or 'account key is empty' otherwise. There are no other auth methods (no Entra / OAuth / managed identity), so this plugin does NOT use the @grafana/azure-sdk credentials model.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"accountEndpoint\":\"https://<account>.documents.azure.com:443/\"},\"secureJsonData\":{\"accountKey\":\"<primary or secondary key>\"}}. The key must be an Azure Cosmos DB account key (base64-encoded, ~88 chars ending in '=='), not an Azure AD credential. The backend calls azcosmos.NewKeyCredential(accountKey) + azcosmos.NewClientWithKey(accountEndpoint, cred, ...) at pkg/cosmos/client.go:24-52; an invalid endpoint or key surfaces as 'failed to create CosmosDB client, validate account key and endpoint' on health check.",
+                "tags": [
+                    "llm",
+                    "auth"
+                ]
+        },
+        {
+            "msg": "secureJsonData.accountKey is write-only: it can be set or reset but never read back. To check whether the key is already configured on an existing datasource, read secureJsonFields.accountKey (boolean) instead of secureJsonData.accountKey. The config editor (src/components/ConfigEditor.tsx:72-81) uses SecretInput with isConfigured={secureJsonFields.accountKey} for exactly this reason.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.accountEndpoint should be the full Azure Cosmos DB account URI including scheme and port — the Azure portal presents it as 'URI' in the account's Keys blade, typically https://<account>.documents.azure.com:443/. It is passed verbatim to azcosmos.NewClientWithKey (pkg/cosmos/client.go:47); the Azure SDK for Go tolerates a trailing slash. The editor placeholder is intentionally empty (ConfigEditor.tsx:70 has placeholder=\"\"), so provisioning payloads should supply the full URI explicitly.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

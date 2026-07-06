@@ -1,0 +1,336 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "allowAsRecordingRulesTarget": {
+              "description": "Allow this data source to be selected as a target for writing recording rules.",
+              "type": "boolean"
+            },
+            "azureCredentials": {
+              "description": "Choose the type of authentication to Azure services"
+            },
+            "azureEndpointResourceId": {
+              "description": "Optional override of the Azure resource ID (audience) used to build the OAuth scope for Prometheus queries. Defined on `AzurePromDataSourceOptions` (`src/configuration/AzureCredentialsConfig.ts:68`) and cleared by `resetCredentials` (`AzureCredentialsConfig.ts:57-64`). Not rendered by the config editor — provisioning-only. If unset, the backend derives the scope from the resolved Azure cloud's `prometheusResourceId` property (`pkg/azureauth/azure.go:58-63`).",
+              "type": "string"
+            },
+            "cacheLevel": {
+              "description": "Sets the browser caching level for editor queries. Higher cache settings are recommended for high cardinality data sources.",
+              "type": "string",
+              "default": "Low",
+              "enum": [
+                "Low",
+                "Medium",
+                "High",
+                "None"
+              ]
+            },
+            "customQueryParameters": {
+              "description": "Add custom parameters to the Prometheus query URL. For example timeout, partial_response, dedup, or max_source_resolution. Multiple parameters should be concatenated together with '\u0026'.",
+              "type": "string"
+            },
+            "defaultEditor": {
+              "description": "Set default editor option for all users of this data source.",
+              "type": "string",
+              "default": "builder",
+              "enum": [
+                "builder",
+                "code"
+              ]
+            },
+            "disableMetricsLookup": {
+              "description": "Checking this option will disable the metrics chooser and metric/label support in the query field's autocomplete. This helps if you have performance issues with bigger Prometheus instances.",
+              "type": "boolean",
+              "default": false
+            },
+            "disableRecordingRules": {
+              "description": "This feature will disable recording rules. Turn this on to improve dashboard performance",
+              "type": "boolean",
+              "default": false
+            },
+            "exemplarTraceIdDestinations": {
+              "description": "Exemplar trace ID destinations. For each configured destination, the plugin renders a link on exemplar labels — either to an internal Grafana tracing data source (datasourceUid) or an external URL. The label whose value carries the trace ID is 'name' (defaults to 'traceID' when new entries are added).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "datasourceUid": {
+                    "description": "The tracing data source the exemplar link should navigate to. Setting this makes the exemplar an internal link and takes precedence over url.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "description": "The URL of the trace backend the user would go to see its trace",
+                    "type": "string"
+                  },
+                  "urlDisplayLabel": {
+                    "description": "Use to override the button label on the exemplar traceID field.",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "httpMethod": {
+              "description": "You can use either POST or GET HTTP method to query your Prometheus data source. POST is the recommended method as it allows bigger queries. Change this to GET if you have a Prometheus version older than 2.1 or if POST requests are restricted in your network.",
+              "type": "string",
+              "default": "POST",
+              "enum": [
+                "POST",
+                "GET"
+              ]
+            },
+            "incrementalQueryOverlapWindow": {
+              "description": "Set a duration like 10m or 120s or 0s. Default of 10m. This duration will be added to the duration of each incremental request.",
+              "type": "string",
+              "default": "10m",
+              "x-dsconfig-depends-on": "jsonData_incrementalQuerying == true"
+            },
+            "incrementalQuerying": {
+              "description": "This feature will change the default behavior of relative queries to always request fresh data from the prometheus instance, instead query results will be cached, and only new records are requested. Turn this on to decrease database and network load.",
+              "type": "boolean",
+              "default": false
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "manageAlerts": {
+              "description": "Manage alert rules for this data source. To manage other alerting resources, add an Alertmanager data source.",
+              "type": "boolean"
+            },
+            "maxSamplesProcessedErrorThreshold": {
+              "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_error_threshold URL parameter. Not exposed in the Azure Prometheus config editor (feature-flagged off — see maxSamplesProcessedWarningThreshold).",
+              "type": "number"
+            },
+            "maxSamplesProcessedWarningThreshold": {
+              "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_warning_threshold URL parameter. Not exposed in the Azure Prometheus config editor (the PromSettings component only renders this input when its showQuerySamplesProcessedThresholdFields prop is true — this plugin never passes it), but the field is parsed by `pkg/promlib/models/settings.go:41` (backend-only).",
+              "type": "number"
+            },
+            "oauthPassThru": {
+              "description": "Set to `true` by `@grafana/azure-sdk`'s `updateDatasourceCredentials` when the selected auth type is `currentuser`. `DataSourceHttpSettingsOverhaul.onAuthMethodSelect` (`src/configuration/DataSourceHttpSettingsOverhaul.tsx:121-131`) also always clears this to `false` on every save because the plugin's `visibleMethods=[azureAuthId]` locks the user to Azure auth. Consumed by the SDK's shared HTTP client and by `pkg/promlib` (`OauthPassThru` on PromOptions).",
+              "type": "boolean"
+            },
+            "prometheus-type-migration": {
+              "description": "Sentinel flag set by the migration path when a vanilla Prometheus data source is migrated to Azure Monitor Managed Service for Prometheus. When true, `DataSourceHttpSettingsOverhaul.tsx:101-117` renders the 'Data source migrated' warning banner. Storage key uses a hyphen — the field ID is camelCased. Never rendered as an input; provisioning may set it to suppress or trigger the banner.",
+              "type": "boolean"
+            },
+            "prometheusType": {
+              "description": "Set this to the type of your prometheus database, e.g. Prometheus, Cortex, Mimir or Thanos. Changing this field will save your current settings. Certain types of Prometheus supports or does not support various APIs. For example, some types support regex matching for label queries to improve performance. Some types have an API for metadata. If you set this incorrectly you may experience odd behavior when querying metrics and labels. Please check your Prometheus documentation to ensure you enter the correct type.",
+              "type": "string",
+              "enum": [
+                "Prometheus",
+                "Cortex",
+                "Mimir",
+                "Thanos"
+              ]
+            },
+            "prometheusVersion": {
+              "description": "Use this to set the version of your Prometheus instance if it is not automatically configured. The option list depends on the selected Prometheus type (see PromFlavorVersions.ts in @grafana/prometheus).",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_prometheusType != ''"
+            },
+            "queryTimeout": {
+              "description": "Set the Prometheus query timeout.",
+              "type": "string"
+            },
+            "seriesEndpoint": {
+              "description": "Checking this option will favor the series endpoint with match[] parameter over the label values endpoint with match[] parameter. While the label values endpoint is considered more performant, some users may prefer the series because it has a POST method while the label values endpoint only has a GET method.",
+              "type": "boolean",
+              "default": false
+            },
+            "seriesLimit": {
+              "description": "The limit applies to all resources (metrics, labels, and values) for both endpoints (series and labels). Leave the field empty to use the default limit (40000). Set to 0 to disable the limit and fetch everything — this may cause performance issues. Default limit is 40000.",
+              "type": "number"
+            },
+            "timeInterval": {
+              "description": "This interval is how frequently Prometheus scrapes targets. Set this to the typical scrape and evaluation interval configured in your Prometheus config file. If you set this to a greater value than your Prometheus config file interval, Grafana will evaluate the data according to this interval and you will see less data points. Defaults to 15s.",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number"
+            }
+          }
+        },
+        "url": {
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "azureClientSecret",
+        "description": "Client secret of the App Registration. Written write-only by `@grafana/azure-sdk`'s `AzureCredentialsForm`; check `secureJsonFields.azureClientSecret` on the read side. Used when `jsonData.azureCredentials.authType` is `clientsecret` or `currentuser` with a `clientsecret` service-credentials fallback."
+      },
+      {
+        "key": "clientSecret",
+        "description": "Legacy client secret key. Preserved for backward compatibility with datasources provisioned before the credential migration to `azureClientSecret`. The backend reads it as a fallback via `grafana-azure-sdk-go/v2` `azcredentials/builder.go` `getFromCredentialsObject` when `secureJsonData.azureClientSecret` is missing."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with. Azure Prometheus has no schema-side credential default (the config editor chooses one at load time based on Grafana's `azure.managedIdentityEnabled` / `workloadIdentityEnabled` / `userIdentityEnabled` config), so a fresh datasource has no `azureCredentials` and no secrets. `httpMethod` defaults to POST (uppercased on load by both editor and backend). Users must complete authentication before the datasource is usable.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "azureClientSecret": ""
+          },
+          "url": "https://\u003cworkspace\u003e.prometheus.monitor.azure.com"
+        }
+      },
+      "clientSecret": {
+        "summary": "App Registration (Client Secret)",
+        "description": "Authenticate via an Entra ID (Azure AD) app registration and client secret. The secret is stored write-only in `secureJsonData.azureClientSecret`; the rest of the credential lives in `jsonData.azureCredentials`.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      },
+      "currentUser": {
+        "summary": "Current User (with Client Secret fallback)",
+        "description": "Forward the signed-in Grafana user's OAuth identity to Azure. Only available when Grafana's `azure.userIdentityEnabled` is true. Enabling `serviceCredentialsEnabled` lets user-context-less features (alerting, recorded queries, reporting) fall back to a service credential — here a `clientsecret` fallback whose secret shares the `secureJsonData.azureClientSecret` key.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "currentuser",
+              "serviceCredentials": {
+                "authType": "clientsecret",
+                "azureCloud": "AzureCloud",
+                "clientId": "00000000-0000-0000-0000-000000000000",
+                "tenantId": "00000000-0000-0000-0000-000000000000"
+              },
+              "serviceCredentialsEnabled": true
+            },
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      },
+      "customEndpointResourceID": {
+        "summary": "Client Secret with custom endpoint resource ID (provisioning-only)",
+        "description": "Override the OAuth scope audience the backend derives from the resolved Azure cloud's `prometheusResourceId` property by supplying `jsonData.azureEndpointResourceId`. Editor-hidden; provisioning-only. See `pkg/azureauth/azure.go:58-63`.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "azureEndpointResourceId": "https://prometheus.monitor.azure.com",
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      },
+      "legacyClientSecret": {
+        "summary": "Legacy secure key (pre-`azureClientSecret` migration)",
+        "description": "Datasources provisioned before the credentials migration stored the client secret in `secureJsonData.clientSecret` instead of the modern `secureJsonData.azureClientSecret`. The backend still accepts this shape via the shared `grafana-azure-sdk-go/v2/azcredentials/builder.go` fallback. Opening the editor and saving migrates the datasource to the modern key.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "clientSecret": "changeme"
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      },
+      "managedIdentity": {
+        "summary": "Managed Identity",
+        "description": "Authenticate using the Grafana host's Azure Managed Identity. Only available when Grafana's `azure.managedIdentityEnabled` is true. No secret required.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "msi"
+            },
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "azureClientSecret": ""
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      },
+      "migratedFromPrometheus": {
+        "summary": "Migrated from vanilla Prometheus",
+        "description": "Datasources migrated from the vanilla Prometheus plugin carry the sentinel flag `jsonData['prometheus-type-migration'] = true`, which triggers the 'Data source migrated' banner at `src/configuration/DataSourceHttpSettingsOverhaul.tsx:101-117`. The banner is purely informational — nothing in the runtime depends on the flag.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "httpMethod": "POST",
+            "prometheus-type-migration": true,
+            "prometheusType": "Prometheus",
+            "prometheusVersion": "2.50.1"
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      },
+      "workloadIdentity": {
+        "summary": "Workload Identity",
+        "description": "Authenticate using an Entra ID Workload Identity federated to the Kubernetes service account Grafana runs under. Only available when Grafana's `azure.workloadIdentityEnabled` is true. No secret required.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "workloadidentity"
+            },
+            "httpMethod": "POST"
+          },
+          "secureJsonData": {
+            "azureClientSecret": ""
+          },
+          "url": "https://mimir.prometheus.monitor.azure.com"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the single service 'Netlify' preselects its only auth method, bearer_token. Fill in the personal access token (secureJsonData \"Netlify.token\", empty here) to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "Netlify": {
+              "auth": {
+                "id": "bearer_token"
+              }
+            }
+          }
+        },
+        "secureJsonData": {
+          "Netlify.token": ""
+        }
+      }
+    },
+    "personalAccessToken": {
+      "summary": "Personal access token (bearer)",
+      "description": "Authenticate against https://api.netlify.com/api/v1 with a Netlify personal access token provided as the write-only secret at secureJsonData \"Netlify.token\".",
+      "value": {
+        "jsonData": {
+          "services": {
+            "Netlify": {
+              "auth": {
+                "id": "bearer_token"
+              }
+            }
+          }
+        },
+        "secureJsonData": {
+          "Netlify.token": "\u003cnetlify-personal-access-token\u003e"
+        }
+      }
+    }
+  }
+}

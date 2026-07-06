@@ -1,0 +1,24 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "description": "The URL of the Atlassian Statuspage, including `https://` and without trailing `/`",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

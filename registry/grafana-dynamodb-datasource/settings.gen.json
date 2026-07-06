@@ -1,0 +1,70 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "accessId": {
+            "type": "string"
+          },
+          "authType": {
+            "description": "Specify which AWS credentials chain to use.",
+            "type": "string",
+            "default": "default",
+            "enum": [
+              "default",
+              "keys",
+              "credentials",
+              "ec2_iam_role",
+              "arn"
+            ]
+          },
+          "defaultRegion": {
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Optionally, specify a custom endpoint for the service",
+            "type": "string"
+          },
+          "isV2": {
+            "type": "boolean",
+            "default": true
+          },
+          "pause": {
+            "type": "string",
+            "default": "5"
+          },
+          "profile": {
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'credentials'"
+          },
+          "region": {
+            "type": "string"
+          },
+          "retries": {
+            "type": "string",
+            "default": "5"
+          },
+          "timeout": {
+            "type": "string",
+            "default": "60"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accessKey"
+    },
+    {
+      "key": "secretKey"
+    },
+    {
+      "key": "sessionToken"
+    }
+  ]
+}

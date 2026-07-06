@@ -1,0 +1,303 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-athena-datasource",
+    "pluginName": "Amazon Athena",
+    "docURL": "https://grafana.com/grafana/plugins/grafana-athena-datasource/",
+    "fields": [
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Workspace IAM Role", "value": "ec2_iam_role" },
+                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
+                    { "label": "AWS SDK Default", "value": "default" },
+                    { "label": "Access & secret key", "value": "keys" },
+                    { "label": "Credentials file", "value": "credentials" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_profile",
+            "key": "profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "secureJsonData_accessKey",
+            "key": "accessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_secretKey",
+            "key": "secretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.sessionToken",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_assumeRoleArn",
+            "key": "assumeRoleArn",
+            "label": "Assume Role ARN",
+            "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+                    "message": "When set, must be a valid IAM role ARN, e.g. arn:aws:iam::123456789012:role/MyRole"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "arn:aws:iam:*"
+            }
+        },
+        {
+            "id": "jsonData_externalId",
+            "key": "externalId",
+            "label": "External ID",
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
+            "id": "jsonData_endpoint",
+            "key": "endpoint",
+            "label": "Endpoint",
+            "description": "Optionally, specify a custom endpoint for the service",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://{service}.{region}.amazonaws.com"
+            }
+        },
+        {
+            "id": "jsonData_defaultRegion",
+            "key": "defaultRegion",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_catalog",
+            "key": "catalog",
+            "label": "Data source",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "select"
+            }
+        },
+        {
+            "id": "jsonData_database",
+            "key": "database",
+            "label": "Database",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "select"
+            }
+        },
+        {
+            "id": "jsonData_workgroup",
+            "key": "workgroup",
+            "label": "Workgroup",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "select"
+            }
+        },
+        {
+            "id": "jsonData_outputLocation",
+            "key": "outputLocation",
+            "label": "Output Location",
+            "description": "Optional. If not specified, the default query result location from the Workgroup configuration will be used.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "s3://"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_profile",
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey",
+                "secureJsonData_sessionToken"
+            ]
+        },
+        {
+            "id": "assume-role",
+            "title": "Assume Role",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "order": 3,
+            "fieldRefs": [
+                "jsonData_endpoint",
+                "jsonData_defaultRegion"
+            ]
+        },
+        {
+            "id": "athena-details",
+            "title": "Athena Details",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_catalog",
+                "jsonData_database",
+                "jsonData_workgroup",
+                "jsonData_outputLocation"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey"
+            ],
+            "description": "AWS access key pair — supplied together when authType is 'keys'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ],
+            "description": "STS assume-role parameters — external ID is only meaningful when assumeRoleArn is set"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Six authentication values are stored in jsonData.authType. The five editor-selectable ones are: 'default' (AWS SDK Default — the default credential chain), 'keys' (Access & secret key — puts accessKey/secretKey in secureJsonData), 'credentials' (Credentials file — optionally provide jsonData.profile), 'ec2_iam_role' (Workspace IAM Role — no extra credentials needed), and 'grafana_assume_role' (Grafana Assume Role — Grafana Cloud only; visible only when the awsDatasourcesTempCredentials feature toggle is on). The sixth is 'arn' (deprecated legacy value; the backend maps it to 'default').",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payload per auth method (jsonData.defaultRegion, jsonData.catalog, jsonData.database, and jsonData.workgroup are always required by the backend to actually run queries; the editor gates its 'Save & test' button until they are chosen). Access & secret key: {\"jsonData\":{\"authType\":\"keys\",\"defaultRegion\":\"us-east-1\",\"catalog\":\"AwsDataCatalog\",\"database\":\"default\",\"workgroup\":\"primary\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\"}}. Credentials file: {\"jsonData\":{\"authType\":\"credentials\",\"profile\":\"my-profile\",\"defaultRegion\":\"us-east-1\",\"catalog\":\"AwsDataCatalog\",\"database\":\"default\",\"workgroup\":\"primary\"}}. AWS SDK Default / Workspace IAM Role / Grafana Assume Role: {\"jsonData\":{\"authType\":\"default\",\"defaultRegion\":\"us-east-1\",\"catalog\":\"AwsDataCatalog\",\"database\":\"default\",\"workgroup\":\"primary\"}} (swap authType to 'ec2_iam_role' or 'grafana_assume_role').",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Assume role: setting jsonData.assumeRoleArn (with optional jsonData.externalId) makes the chosen provider assume the given IAM role via STS instead of using the credentials directly. This works with every auth type except 'grafana_assume_role' (which manages its own trust flow). For Grafana Assume Role, the assumeRoleArn and externalId fields disappear from the editor and Grafana derives the external ID from its namespace.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Session token: sessionToken is written to secureJsonData for temporary AWS STS credentials paired with 'keys' auth. The config editor does not render a UI field for it (the backend still reads it), so provisioning is the practical way to set it. Payload shape: {\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\",\"sessionToken\":\"<STS-TOKEN>\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (accessKey, secretKey, sessionToken) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.accessKey == true) instead of secureJsonData. Backend-only secrets like sessionToken never surface in secureJsonFields until they are set.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Storage-key casing pitfall: the frontend editor writes jsonData.catalog, jsonData.database, jsonData.workgroup, and jsonData.outputLocation (camelCase, lower initial letter), but the backend Go struct (pkg/athena/models/settings.go:26-29) declares those fields with `json:\"Catalog\"`, `json:\"Database\"`, `json:\"WorkGroup\"`, `json:\"OutputLocation\"` (PascalCase). Go's encoding/json accepts case-insensitive matches, so both spellings load correctly. Prefer the camelCase spelling on write; expect either on read from older provisioned configs.",
+            "tags": [
+                "llm",
+                "settings",
+                "legacy"
+            ]
+        }
+    ]
+}

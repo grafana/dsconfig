@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "authType": {
+            "type": "string",
+            "default": "patToken",
+            "enum": [
+              "patToken"
+            ]
+          },
+          "projectsLimit": {
+            "description": "Number of items to retrieve in projects list query",
+            "type": "number",
+            "default": 100
+          },
+          "url": {
+            "description": "Azure DevOps instance URL",
+            "type": "string"
+          },
+          "username": {
+            "description": "Username of the user that owns the Azure DevOps PAT. May be needed for some versions of Azure DevOps Server.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "patToken",
+      "description": "Azure DevOps personal access token"
+    }
+  ]
+}

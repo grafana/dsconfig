@@ -1,0 +1,125 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "basicAuth": {
+        "type": "boolean",
+        "default": false
+      },
+      "basicAuthUser": {
+        "type": "string",
+        "x-dsconfig-depends-on": "virtual_authMethod == 'BasicAuth'",
+        "x-dsconfig-required-when": "root_basicAuth == true"
+      },
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authenticateWithToken": {
+            "type": "boolean",
+            "default": false
+          },
+          "baseUrl": {
+            "description": "Snapshot of the datasource URL written by the LogScale token authentication component (src/components/ConfigEditor/ConfigEditor.tsx:155). Never read by the backend, which always reads settings.URL (pkg/plugin/settings.go:38). Preserved for round-trip fidelity.",
+            "type": "string"
+          },
+          "dataLinks": {
+            "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "matcherRegex"
+              ],
+              "properties": {
+                "datasourceUid": {
+                  "description": "UID of a Grafana data source. When set, the derived data link is treated as an internal link to that data source and the URL field is interpreted as a Query.",
+                  "type": "string"
+                },
+                "field": {
+                  "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                  "type": "string"
+                },
+                "label": {
+                  "description": "Use to provide a meaningful label to the data matched in the regex",
+                  "type": "string"
+                },
+                "matcherRegex": {
+                  "description": "Use to parse and capture some part of the log message. You can use the captured groups in the template.",
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "defaultRepository": {
+            "type": "string"
+          },
+          "incrementalQueryOverlapWindow": {
+            "description": "Time window to re-fetch on each incremental query to catch late-arriving data (e.g. \"10m\", \"30s\", \"1h\"). Changes take effect after saving and reloading.",
+            "type": "string",
+            "default": "10m",
+            "x-dsconfig-depends-on": "jsonData_incrementalQuerying == true"
+          },
+          "incrementalQuerying": {
+            "description": "Results may be incomplete or incorrect in some cases. On auto-refresh, query new data and merge it with the cached result. This applies only to relative time ranges without aggregation functions.",
+            "type": "boolean",
+            "default": false
+          },
+          "keepCookies": {
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mode": {
+            "description": "Select the data source mode. NGSIEM mode only supports OAuth2 client secret authentication.",
+            "type": "string",
+            "default": "LogScale",
+            "enum": [
+              "LogScale",
+              "NGSIEM"
+            ]
+          },
+          "oauth2": {
+            "type": "boolean",
+            "default": false
+          },
+          "oauth2ClientId": {
+            "description": "The OAuth2 client ID",
+            "type": "string",
+            "x-dsconfig-depends-on": "virtual_authMethod == 'custom-oauth-client-secret'",
+            "x-dsconfig-required-when": "jsonData_oauth2 == true"
+          },
+          "oauthPassThru": {
+            "type": "boolean",
+            "default": false
+          },
+          "timeout": {
+            "description": "HTTP request timeout in seconds",
+            "type": "number"
+          }
+        }
+      },
+      "url": {
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accessToken"
+    },
+    {
+      "key": "oauth2ClientSecret",
+      "description": "The OAuth2 client secret"
+    },
+    {
+      "key": "basicAuthPassword"
+    }
+  ]
+}

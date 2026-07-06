@@ -1,0 +1,50 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "vercel": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Vercel Access Tokens are required to authenticate and use the Vercel API. Tokens are either scoped to your full account or a specific team. If a token is scoped to a team, you must also provide a team ID that matches the scope of the token.",
+                        "type": "string",
+                        "default": "vercelApiKey",
+                        "enum": [
+                          "vercelApiKey"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "variables": {
+            "type": "object",
+            "properties": {
+              "team_id": {
+                "description": "The ID of the Vercel team to query.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "vercel.token",
+      "description": "Token for accessing the datasource API"
+    }
+  ]
+}

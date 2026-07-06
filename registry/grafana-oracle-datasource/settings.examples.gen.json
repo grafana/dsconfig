@@ -1,0 +1,103 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Host with TCP Port connection, Basic authentication, UTC session time zone, and the backend connection-pool/timeout/row-limit defaults. The user must still supply url, jsonData.user, jsonData.database, and secureJsonData.password to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "connectionPoolSize": 50,
+          "dataProxyTimeout": 120,
+          "database": "",
+          "rowLimit": 1000000,
+          "timezone_name": "UTC",
+          "useKerberosAuthentication": false,
+          "useTNSNamesBasedConnection": false,
+          "user": ""
+        },
+        "secureJsonData": {
+          "password": ""
+        },
+        "url": ""
+      }
+    },
+    "basicAuthTcp": {
+      "summary": "Basic auth over Host with TCP Port",
+      "description": "The typical setup: host+port in the root url, a database name, and a password-authenticated Oracle user. useTNSNamesBasedConnection and useKerberosAuthentication default to false.",
+      "value": {
+        "jsonData": {
+          "database": "ORCLPDB1",
+          "timezone_name": "UTC",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "oracle.example.com:1521"
+      }
+    },
+    "basicAuthTns": {
+      "summary": "Basic auth over a TNSNames entry",
+      "description": "Connect using a tnsnames.ora entry (jsonData.tnsNamesEntry) with a password-authenticated user. No root url is needed. TNSNames connections are not supported in Grafana Cloud.",
+      "value": {
+        "jsonData": {
+          "timezone_name": "UTC",
+          "tnsNamesEntry": "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle-db1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=FREEPDB1)(SERVER=DEDICATED)))",
+          "useTNSNamesBasedConnection": true,
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "kerberosTns": {
+      "summary": "Kerberos auth over a TNSNames entry",
+      "description": "Kerberos authentication uses no username or password (they come from the Kerberos ticket / tnsnames.ora). The editor only exposes Kerberos when useTNSNamesBasedConnection is true. Neither TNSNames nor Kerberos is supported in Grafana Cloud.",
+      "value": {
+        "jsonData": {
+          "timezone_name": "UTC",
+          "tnsNamesEntry": "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle-db1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=FREEPDB1)(SERVER=DEDICATED)))",
+          "useKerberosAuthentication": true,
+          "useTNSNamesBasedConnection": true
+        },
+        "secureJsonData": {
+          "password": ""
+        }
+      }
+    },
+    "legacyTnsInUrl": {
+      "summary": "Legacy: TNSNames entry stored in the root url",
+      "description": "v3.3.0 stored the TNSNames entry in the root url before v3.3.2 moved it to jsonData.tnsNamesEntry. When useTNSNamesBasedConnection is true and jsonData.tnsNamesEntry is empty, the backend falls back to the root url (pkg/models/settings.go:82-84).",
+      "value": {
+        "jsonData": {
+          "timezone_name": "UTC",
+          "useTNSNamesBasedConnection": true,
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle-db1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=FREEPDB1)(SERVER=DEDICATED)))"
+      }
+    },
+    "tunedSettings": {
+      "summary": "Basic auth with tuned Additional Settings",
+      "description": "Override the optional performance knobs: a larger connection pool, a longer dataproxy timeout, driver row prefetching, a custom row limit, and a non-UTC display time zone.",
+      "value": {
+        "jsonData": {
+          "connectionPoolSize": 100,
+          "dataProxyTimeout": 200,
+          "database": "ORCLPDB1",
+          "prefetchRowsCount": 500,
+          "rowLimit": 500000,
+          "timezone_name": "Europe/Berlin",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "oracle.example.com:1521"
+      }
+    }
+  }
+}

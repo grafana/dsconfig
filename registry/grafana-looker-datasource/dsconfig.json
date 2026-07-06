@@ -1,0 +1,149 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-looker-datasource",
+    "pluginName": "Looker",
+    "docURL": "https://grafana.com/docs/plugins/grafana-looker-datasource",
+    "fields": [
+        {
+            "id": "jsonData_baseUrl",
+            "key": "base_url",
+            "label": "Looker URL",
+            "description": "Looker base URL. Example: https://00001234-1234-1ab2-1234-a1b2c3d4.looker.app",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://xxxxx.looker.app"
+            }
+        },
+        {
+            "id": "jsonData_authType",
+            "key": "auth_type",
+            "label": "Authentication type",
+            "description": "Looker authentication type",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "client_secret",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "client_secret"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Client Secret",
+                        "value": "client_secret"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_clientId",
+            "key": "client_id",
+            "label": "Looker Client ID",
+            "description": "API credentials Looker client id",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "dependsOn": "jsonData_authType == 'client_secret' || jsonData_authType == ''",
+            "requiredWhen": "jsonData_authType == 'client_secret'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client ID"
+            }
+        },
+        {
+            "id": "secureJsonData_clientSecret",
+            "key": "client_secret",
+            "label": "Looker Client Secret",
+            "description": "API credentials Looker client secret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "jsonData_authType == 'client_secret' || jsonData_authType == ''",
+            "requiredWhen": "jsonData_authType == 'client_secret'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Looker Client secret"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_baseUrl"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_clientId",
+                "secureJsonData_clientSecret"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_clientId",
+                "secureJsonData_clientSecret"
+            ],
+            "description": "Looker API3 credentials: the client ID (jsonData.client_id) and client secret (secureJsonData.client_secret) are used together to obtain an access token via the Looker SDK's client-credentials login. Both are required when auth_type is 'client_secret' (pkg/models/config.go:33-40)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "This datasource has a single authentication method: 'client_secret' (Looker API3 credentials). jsonData.auth_type defaults to 'client_secret' and the config editor hides the auth-type selector because it is the only option (src/editors/configEditor.tsx:50, src/constants.ts:4-6). Configure jsonData.base_url, jsonData.client_id, and secureJsonData.client_secret.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payload: {\"jsonData\":{\"base_url\":\"https://your-instance.looker.app\",\"auth_type\":\"client_secret\",\"client_id\":\"<your-client-id>\"},\"secureJsonData\":{\"client_secret\":\"<your-client-secret>\"}}. All three of base_url, client_id, and client_secret are mandatory — the backend Validate() rejects an empty value with 'invalid/empty Looker base url', 'invalid/empty Looker client id', or 'invalid/empty Looker client secret' respectively (pkg/models/config.go:28-45). Create the client_id/client_secret pair as API3 credentials on a Looker user in the Looker admin UI.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy/empty auth interpretation: there is no legacy storage shape. auth_type has only ever been 'client_secret', and the backend defaults a missing or empty auth_type to 'client_secret' in ApplyDefaults (pkg/models/config.go:47-50). Do not treat a missing jsonData.auth_type as unconfigured.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData.client_secret is write-only: it can be set or reset but never read back. To check whether the secret is already configured on an existing datasource, read secureJsonFields.client_secret == true instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.base_url is the Looker instance base URL, e.g. https://<instance>.looker.app. The backend trims surrounding whitespace and a single trailing slash (pkg/models/config.go:51-52); the Looker Go SDK then targets the '4.0' API version against that host (pkg/looker/client.go:22-28). Note: Grafana's standard datasource HTTP options (TLS skip-verify, timeout, proxy) are NOT applied to the Looker SDK client — the computed HTTPClientOptions are discarded (pkg/models/config.go:70-71) and looker.NewClient builds its own rtl.AuthSession (pkg/looker/client.go:22-38).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

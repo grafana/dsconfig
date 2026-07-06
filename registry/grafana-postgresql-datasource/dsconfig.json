@@ -1,0 +1,410 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-postgresql-datasource",
+    "pluginName": "PostgreSQL",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/postgres/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "Host URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "localhost:5432"
+            }
+        },
+        {
+            "id": "jsonData_database",
+            "key": "database",
+            "label": "Database name",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Database"
+            }
+        },
+        {
+            "id": "root_user",
+            "key": "user",
+            "label": "Username",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Username"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_sslmode",
+            "key": "sslmode",
+            "label": "TLS/SSL Mode",
+            "description": "This option determines whether or with what priority a secure TLS/SSL TCP/IP connection will be negotiated with the server.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "require",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "disable",
+                        "require",
+                        "verify-ca",
+                        "verify-full"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "disable",
+                        "value": "disable"
+                    },
+                    {
+                        "label": "require",
+                        "value": "require"
+                    },
+                    {
+                        "label": "verify-ca",
+                        "value": "verify-ca"
+                    },
+                    {
+                        "label": "verify-full",
+                        "value": "verify-full"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_tlsConfigurationMethod",
+            "key": "tlsConfigurationMethod",
+            "label": "TLS/SSL Method",
+            "description": "This option determines how TLS/SSL certifications are configured. Selecting 'File system path' will allow you to configure certificates by specifying paths to existing certificates on the local file system where Grafana is running. Be sure that the file is readable by the user executing the Grafana process. Selecting 'Certificate content' will allow you to configure certificates by specifying its content. The content will be stored encrypted in Grafana's database. When connecting to the database the certificates will be written as files to Grafana's configured data path on the local file system.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "file-path",
+            "dependsOn": "jsonData_sslmode != 'disable'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "file-path",
+                        "file-content"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "File system path",
+                        "value": "file-path"
+                    },
+                    {
+                        "label": "Certificate content",
+                        "value": "file-content"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_sslRootCertFile",
+            "key": "sslRootCertFile",
+            "label": "TLS/SSL Root Certificate",
+            "description": "If the selected TLS/SSL mode requires a server root certificate, provide the path to the file here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_sslmode != 'disable' && jsonData_tlsConfigurationMethod == 'file-path' && (jsonData_sslmode == 'verify-ca' || jsonData_sslmode == 'verify-full')",
+            "ui": {
+                "component": "input",
+                "placeholder": "TLS/SSL root cert file"
+            }
+        },
+        {
+            "id": "jsonData_sslCertFile",
+            "key": "sslCertFile",
+            "label": "TLS/SSL Client Certificate",
+            "description": "To authenticate with an TLS/SSL client certificate, provide the path to the file here. Be sure that the file is readable by the user executing the grafana process.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_sslmode != 'disable' && jsonData_tlsConfigurationMethod == 'file-path'",
+            "ui": {
+                "component": "input",
+                "placeholder": "TLS/SSL client cert file"
+            }
+        },
+        {
+            "id": "jsonData_sslKeyFile",
+            "key": "sslKeyFile",
+            "label": "TLS/SSL Client Key",
+            "description": "To authenticate with a client TLS/SSL certificate, provide the path to the corresponding key file here. Be sure that the file is only readable by the user executing the grafana process.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_sslmode != 'disable' && jsonData_tlsConfigurationMethod == 'file-path'",
+            "ui": {
+                "component": "input",
+                "placeholder": "TLS/SSL client key file"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "TLS/SSL Root Certificate",
+            "description": "If the selected TLS/SSL mode requires a server root certificate, provide it here",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_sslmode != 'disable' && jsonData_tlsConfigurationMethod == 'file-content' && (jsonData_sslmode == 'verify-ca' || jsonData_sslmode == 'verify-full')",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "-----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "TLS/SSL Client Certificate",
+            "description": "To authenticate with an TLS/SSL client certificate, provide the client certificate here.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_sslmode != 'disable' && jsonData_tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "-----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "TLS/SSL Client Key",
+            "description": "To authenticate with a client TLS/SSL certificate, provide the key here.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_sslmode != 'disable' && jsonData_tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "-----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_postgresVersion",
+            "key": "postgresVersion",
+            "label": "Version",
+            "description": "This option controls what functions are available in the PostgreSQL query builder.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 903,
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "9.0", "value": 900 },
+                    { "label": "9.1", "value": 901 },
+                    { "label": "9.2", "value": 902 },
+                    { "label": "9.3", "value": 903 },
+                    { "label": "9.4", "value": 904 },
+                    { "label": "9.5", "value": 905 },
+                    { "label": "9.6", "value": 906 },
+                    { "label": "10", "value": 1000 },
+                    { "label": "11", "value": 1100 },
+                    { "label": "12", "value": 1200 },
+                    { "label": "13", "value": 1300 },
+                    { "label": "14", "value": 1400 },
+                    { "label": "15", "value": 1500 }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_timeInterval",
+            "key": "timeInterval",
+            "label": "Min time interval",
+            "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "1m"
+            }
+        },
+        {
+            "id": "jsonData_timescaledb",
+            "key": "timescaledb",
+            "label": "TimescaleDB",
+            "description": "TimescaleDB is a time-series database built as a PostgreSQL extension. If enabled, Grafana will use time_bucket in the $__timeGroup macro and display TimescaleDB specific aggregate functions in the query builder.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_maxOpenConns",
+            "key": "maxOpenConns",
+            "label": "Max open",
+            "description": "The maximum number of open connections to the database. If set to 0, there is no limit on the number of open connections.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_connMaxLifetime",
+            "key": "connMaxLifetime",
+            "label": "Max lifetime",
+            "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url",
+                "jsonData_database"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "root_user",
+                "secureJsonData_password",
+                "jsonData_sslmode",
+                "jsonData_tlsConfigurationMethod"
+            ]
+        },
+        {
+            "id": "tls-details",
+            "title": "TLS/SSL Auth Details",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_sslRootCertFile",
+                "jsonData_sslCertFile",
+                "jsonData_sslKeyFile",
+                "secureJsonData_tlsCACert",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_postgresVersion",
+                "jsonData_timeInterval",
+                "jsonData_timescaledb",
+                "jsonData_maxOpenConns",
+                "jsonData_connMaxLifetime"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_sslRootCertFile",
+                "jsonData_sslCertFile",
+                "jsonData_sslKeyFile"
+            ],
+            "description": "File-path TLS credentials — used when tlsConfigurationMethod is 'file-path' and sslmode is not 'disable'."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "secureJsonData_tlsCACert",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "Inline TLS credentials — used when tlsConfigurationMethod is 'file-content' and sslmode is not 'disable'. The backend writes the decrypted content to Grafana's data path at connection time."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The PostgreSQL datasource authenticates with a username / password over TCP. Minimal payload: {\"url\":\"localhost:5432\",\"user\":\"<user>\",\"jsonData\":{\"database\":\"<db>\",\"sslmode\":\"require\"},\"secureJsonData\":{\"password\":\"<password>\"}}. Root-level url and user are read by the backend directly from backend.DataSourceInstanceSettings; jsonData.database takes precedence when both root.database and jsonData.database are set (pkg/postgresql/postgres.go:101-104). Grant the PostgreSQL user SELECT only on the specific database/tables Grafana should query — the backend does not sandbox statements.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "TLS: jsonData.sslmode selects the negotiation mode ('disable', 'require', 'verify-ca', 'verify-full' — default 'require'). When sslmode is anything other than 'disable', jsonData.tlsConfigurationMethod selects how certificates are provided: 'file-path' (default) reads jsonData.sslRootCertFile / sslCertFile / sslKeyFile as paths on the Grafana server; 'file-content' reads secureJsonData.tlsCACert / tlsClientCert / tlsClientKey as inline PEM content that the backend writes to a temporary file before connecting. Root-certificate fields only apply when sslmode is 'verify-ca' or 'verify-full'.",
+            "tags": [
+                "llm",
+                "auth",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (password, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.password == true) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Legacy datasources may store the database name in the root-level 'database' field instead of jsonData.database. useMigrateDatabaseFields (@grafana/sql) migrates it on first render, and the backend (pkg/postgresql/postgres.go:101-104) falls back to root.database when jsonData.database is empty. New configurations should write jsonData.database.",
+            "tags": [
+                "llm",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "Optional knobs: jsonData.postgresVersion (numeric encoding e.g. 903 = 9.3, 1500 = 15) controls what functions are exposed in the query builder — it is NOT used to gate the actual protocol/wire behaviour, only the editor UI. jsonData.timescaledb=true tells the query builder to use time_bucket in the $__timeGroup macro. jsonData.timeInterval sets an auto group-by lower bound like '1m'. jsonData.maxOpenConns and jsonData.connMaxLifetime override the Grafana-wide connection-pool defaults (pkg/postgresql/postgres.go:87-94).",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        },
+        {
+            "msg": "Plugin ID quirk: 'grafana-postgresql-datasource' is the canonical id, but plugin.json declares an aliasIDs entry for the legacy short name 'postgres'. Existing datasources with either id refer to the same plugin.",
+            "tags": [
+                "llm",
+                "legacy"
+            ]
+        }
+    ]
+}

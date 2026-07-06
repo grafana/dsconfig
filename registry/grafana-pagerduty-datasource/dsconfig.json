@@ -1,0 +1,107 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-pagerduty-datasource",
+    "pluginName": "PagerDuty",
+    "docURL": "https://grafana.com/docs/plugins/grafana-pagerduty-datasource",
+    "fields": [
+        {
+            "id": "jsonData_authId",
+            "key": "id",
+            "section": "auth",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "api_key",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "api_key"
+                    ]
+                }
+            ],
+            "tags": [
+                "frontend-managed"
+            ]
+        },
+        {
+            "id": "secureJsonData_authApiKeyApiKey",
+            "key": "auth.api_key.apiKey",
+            "label": "API key",
+            "description": "PagerDuty REST API Key (prefer generating read-only key)",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "requiredWhen": "jsonData_authId == 'api_key'",
+            "ui": {
+                "component": "input"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "secureJsonData_authApiKeyApiKey"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_authId",
+                "secureJsonData_authApiKeyApiKey"
+            ],
+            "description": "PagerDuty API key authentication: the auth scheme discriminator (jsonData.auth.id = 'api_key') selects the security scheme, and the REST API key is stored under secureJsonData['auth.api_key.apiKey'] \u2014 the secret key name embeds the selected scheme id."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "PagerDuty supports a single authentication method: a PagerDuty REST API key (an OpenAPI 'apiKey' security scheme). No-auth is not supported (pkg/customization.json:5). The config editor auto-selects the scheme and stores it as jsonData.auth.id='api_key'; you must set this exact value when provisioning.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"auth\":{\"id\":\"api_key\"}},\"secureJsonData\":{\"auth.api_key.apiKey\":\"<your-pagerduty-api-token>\"}}. The secret is stored under the literal, dotted key name 'auth.api_key.apiKey' (secrets are namespaced by scheme id: auth.<schemeId>.apiKey). This matches the official provisioning example (docs/sources/_index.md:88-99).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Enter the raw PagerDuty REST API key only. The backend prepends the 'Token token=' prefix and sends it in the 'Authorization' header \u2014 i.e. 'Authorization: Token token=<key>' (pkg/openapids/httpclient.go:42-48; header name from pkg/spec.json:3700-3705; prefix from pkg/customization.json:9). Do not include the 'Token token=' prefix yourself; the backend adds it if missing. Prefer a read-only key (docs/sources/_index.md:47).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData['auth.api_key.apiKey'] is write-only: it can be set or reset but never read back. To check whether the key is already configured on an existing datasource, read secureJsonFields['auth.api_key.apiKey'] (boolean) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "There is no URL or host setting. The base URL is fixed to https://api.pagerduty.com by the bundled OpenAPI spec (pkg/spec.json:164-169), which defines exactly one server and no server variables, so the editor renders no connection section (src/openapids/components/config-editor/Connection.tsx:43-45) and jsonData.servers is unused. The plugin targets the US PagerDuty region only; the EU region (api.eu.pagerduty.com) is not selectable.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Health check: Save & test issues GET https://api.pagerduty.com/incidents (pkg/customization.json:18 marks it healthcheck:true). A missing or invalid API key returns HTTP 401 and the health check fails; success reports 'PagerDuty API datasource connected successfully' (pkg/openapids/plugin.go:80-89).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

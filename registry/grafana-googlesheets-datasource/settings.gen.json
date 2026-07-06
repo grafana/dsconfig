@@ -1,0 +1,66 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authType": {
+            "description": "Legacy authentication type field. Older provisioning stored the auth type here; the backend copies its value into `authenticationType` on load. Prefer `authenticationType` for new configurations.",
+            "type": "string",
+            "enum": [
+              "key",
+              "jwt",
+              "gce"
+            ]
+          },
+          "authenticationType": {
+            "type": "string",
+            "default": "jwt",
+            "enum": [
+              "key",
+              "jwt",
+              "gce"
+            ]
+          },
+          "clientEmail": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
+          },
+          "defaultProject": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce'"
+          },
+          "defaultSheetID": {
+            "description": "Optional spreadsheet ID to use as default when creating new queries",
+            "type": "string"
+          },
+          "privateKeyPath": {
+            "description": "Paste private key or provide path to private file",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'"
+          },
+          "tokenUri": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "apiKey"
+    },
+    {
+      "key": "privateKey",
+      "description": "Paste private key or provide path to private file"
+    },
+    {
+      "key": "jwt",
+      "description": "Legacy write-only secret used by older versions of the plugin. The backend still copies its decrypted value into memory but no runtime code path depends on it; new configurations should use `privateKey` instead."
+    }
+  ]
+}

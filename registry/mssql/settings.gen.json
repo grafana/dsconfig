@@ -1,0 +1,135 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "UDPConnectionLimit": {
+            "description": "The default is 1 and means always use TCP and is optional.",
+            "type": "number",
+            "default": 1,
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Windows AD: Username + password' || jsonData_authenticationType == 'Windows AD: Keytab' || jsonData_authenticationType == 'Windows AD: Credential cache' || jsonData_authenticationType == 'Windows AD: Credential cache file'"
+          },
+          "authenticationType": {
+            "description": "'SQL Server Authentication' Default mechanism (SQL login or Windows DOMAIN\\User format). 'Windows Authentication' Integrated Security - SSO for users already logged on to Windows. 'Azure AD Authentication' Managed Service Identity or Client Secret. 'Windows AD: Username + password' Kerberos with username/password. 'Windows AD: Keytab' Kerberos with a keytab file. 'Windows AD: Credential cache' Kerberos with a credential cache path. 'Windows AD: Credential cache file' Kerberos with a credential-cache lookup file.",
+            "type": "string",
+            "default": "SQL Server Authentication",
+            "enum": [
+              "SQL Server Authentication",
+              "Windows Authentication",
+              "Azure AD Authentication",
+              "Windows AD: Username + password",
+              "Windows AD: Keytab",
+              "Windows AD: Credential cache",
+              "Windows AD: Credential cache file"
+            ]
+          },
+          "azureCredentials": {
+            "description": "Object holding Azure AD auth credentials (authType: 'msi' | 'workloadidentity' | 'clientsecret' | 'clientsecret-obo' | 'ad-password' | 'clientcertificate' | 'currentuser', plus type-specific fields azureCloud / tenantId / clientId / userId). Written by the @grafana/azure-sdk AzureCredentialsForm; the secret component (clientSecret / password / privateKey / certificatePassword) is stored write-only in secureJsonData.azureClientSecret (and related keys) — read secureJsonFields.azureClientSecret to check whether it is configured.",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Azure AD Authentication'"
+          },
+          "configFilePath": {
+            "description": "The path to the configuration file for the MIT krb5 package. The default is /etc/krb5.conf.",
+            "type": "string",
+            "default": "/etc/krb5.conf",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Windows AD: Username + password' || jsonData_authenticationType == 'Windows AD: Keytab' || jsonData_authenticationType == 'Windows AD: Credential cache' || jsonData_authenticationType == 'Windows AD: Credential cache file'"
+          },
+          "connMaxLifetime": {
+            "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
+            "type": "number"
+          },
+          "connectionTimeout": {
+            "description": "The number of seconds to wait before canceling the request when connecting to the database. The default is 0, meaning no timeout.",
+            "type": "number",
+            "default": 0
+          },
+          "credentialCache": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Windows AD: Credential cache'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'Windows AD: Credential cache'"
+          },
+          "credentialCacheLookupFile": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Windows AD: Credential cache file'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'Windows AD: Credential cache file'"
+          },
+          "database": {
+            "type": "string",
+            "x-dsconfig-required-when": "true"
+          },
+          "enableDNSLookupKDC": {
+            "description": "Indicate whether DNS `SRV` records should be used to locate the KDCs and other servers for a realm. The default is 'true'.",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Windows AD: Username + password' || jsonData_authenticationType == 'Windows AD: Keytab' || jsonData_authenticationType == 'Windows AD: Credential cache' || jsonData_authenticationType == 'Windows AD: Credential cache file'"
+          },
+          "encrypt": {
+            "description": "Determines whether or to which extent a secure SSL TCP/IP connection will be negotiated with the server. 'disable' - Data sent between client and server is not encrypted. 'false' - Data sent between client and server is not encrypted beyond the login packet. (default) 'true' - Data sent between client and server is encrypted. If you're using an older version of Microsoft SQL Server like 2008 and 2008R2 you may need to disable encryption to be able to connect.",
+            "type": "string",
+            "default": "false",
+            "enum": [
+              "disable",
+              "false",
+              "true"
+            ]
+          },
+          "keytabFilePath": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'Windows AD: Keytab'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'Windows AD: Keytab'"
+          },
+          "maxIdleConns": {
+            "description": "The maximum number of connections in the idle connection pool.",
+            "type": "number"
+          },
+          "maxIdleConnsAuto": {
+            "description": "If enabled, automatically set the number of Maximum idle connections to the same value as Max open connections.",
+            "type": "boolean",
+            "default": true
+          },
+          "maxOpenConns": {
+            "description": "The maximum number of open connections to the database. If set to 0, there is no limit on the number of open connections.",
+            "type": "number"
+          },
+          "serverName": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_encrypt == 'true' \u0026\u0026 jsonData_tlsSkipVerify != true"
+          },
+          "sslRootCertFile": {
+            "description": "Path to file containing the public key certificate of the CA that signed the SQL Server certificate. Needed when the server certificate is self signed.",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_encrypt == 'true' \u0026\u0026 jsonData_tlsSkipVerify != true"
+          },
+          "timeInterval": {
+            "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "type": "string"
+          },
+          "tlsSkipVerify": {
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_encrypt == 'true'"
+          }
+        }
+      },
+      "url": {
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      },
+      "user": {
+        "description": "For 'Windows AD: Username + password' and 'Windows AD: Credential cache file' auth types, use the format user@EXAMPLE.COM.",
+        "type": "string",
+        "x-dsconfig-depends-on": "jsonData_authenticationType == 'SQL Server Authentication' || jsonData_authenticationType == 'Windows AD: Username + password' || jsonData_authenticationType == 'Windows AD: Keytab' || jsonData_authenticationType == 'Windows AD: Credential cache file'",
+        "x-dsconfig-required-when": "jsonData_authenticationType == 'SQL Server Authentication' || jsonData_authenticationType == 'Windows AD: Username + password' || jsonData_authenticationType == 'Windows AD: Keytab' || jsonData_authenticationType == 'Windows AD: Credential cache file'"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password"
+    },
+    {
+      "key": "azureClientSecret",
+      "description": "Azure AD client secret (for authType='clientsecret' or 'clientsecret-obo'). Written by @grafana/azure-sdk's AzureCredentialsForm."
+    }
+  ]
+}

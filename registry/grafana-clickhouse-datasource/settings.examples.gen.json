@@ -1,0 +1,207 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: native protocol, insecure, classic mode. The user must still supply host, port, username, and secureJsonData.password to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "connMaxLifetime": "5",
+          "dialTimeout": "10",
+          "enableMapKeysDiscovery": true,
+          "maxIdleConns": "25",
+          "maxOpenConns": "50",
+          "protocol": "native",
+          "queryTimeout": "60",
+          "secure": false
+        },
+        "secureJsonData": {
+          "password": ""
+        }
+      }
+    },
+    "httpSecureWithHeaders": {
+      "summary": "HTTPS with custom headers",
+      "description": "HTTP protocol on 8443 with TLS. Adds one plaintext HTTP header and one secure HTTP header — secure header values are stored under secureJsonData['secureHttpHeaders.\u003cHeader Name\u003e'] and the value in jsonData.httpHeaders is left empty.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "enableMapKeysDiscovery": true,
+          "forwardGrafanaHeaders": true,
+          "host": "clickhouse.internal",
+          "httpHeaders": [
+            {
+              "name": "X-ClickHouse-User",
+              "secure": false,
+              "value": "grafana"
+            },
+            {
+              "name": "X-Api-Key",
+              "secure": true,
+              "value": ""
+            }
+          ],
+          "path": "clickhouse",
+          "port": 8443,
+          "protocol": "http",
+          "secure": true,
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme",
+          "secureHttpHeaders.X-Api-Key": "abcd1234"
+        }
+      }
+    },
+    "legacyV3ServerField": {
+      "summary": "Legacy: v3 `server` / `timeout` fields",
+      "description": "Datasources created before ClickHouse plugin v4 stored the host under jsonData.server and the dial timeout under jsonData.timeout. The backend still maps them into settings.Host and settings.DialTimeout at load time (pkg/plugin/settings.go:86-92,159-168); the config editor migrates them on first render. New configurations should use host and dialTimeout.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "enableMapKeysDiscovery": true,
+          "port": 9000,
+          "protocol": "native",
+          "server": "legacy-clickhouse.internal",
+          "timeout": 10,
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "nativeInsecure": {
+      "summary": "Native TCP, insecure",
+      "description": "Typical local development setup: ClickHouse native protocol on port 9000, plain TCP, username/password auth.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "enableMapKeysDiscovery": true,
+          "host": "localhost",
+          "port": 9000,
+          "protocol": "native",
+          "secure": false,
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "nativeSecure": {
+      "summary": "Native TCP, TLS",
+      "description": "ClickHouse Cloud-style setup: native protocol on port 9440 with TLS.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "enableMapKeysDiscovery": true,
+          "host": "my-cluster.clickhouse.cloud",
+          "port": 9440,
+          "protocol": "native",
+          "secure": true,
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "otelLogsSingleTable": {
+      "summary": "Single-table logs with OTel schema",
+      "description": "configMode='single-table' + signalType='logs' pins the datasource to one table. Enabling logs.otelEnabled and picking an otelVersion makes the plugin fill every column-role field from the OTel column map at runtime.",
+      "value": {
+        "jsonData": {
+          "configMode": "single-table",
+          "enableMapKeysDiscovery": true,
+          "host": "clickhouse.internal",
+          "logs": {
+            "defaultDatabase": "otel",
+            "defaultTable": "otel_logs",
+            "otelEnabled": true,
+            "otelVersion": "latest",
+            "selectContextColumns": true,
+            "showLogLinks": true
+          },
+          "port": 9440,
+          "protocol": "native",
+          "secure": true,
+          "signalType": "logs",
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "otelTracesSingleTable": {
+      "summary": "Single-table traces with OTel schema",
+      "description": "configMode='single-table' + signalType='traces'. The plugin defaults traces.defaultTable to otel_traces and, with traces.otelEnabled=true, drives every column-role and duration unit from the OTel column map.",
+      "value": {
+        "jsonData": {
+          "configMode": "single-table",
+          "enableMapKeysDiscovery": true,
+          "host": "clickhouse.internal",
+          "port": 9440,
+          "protocol": "native",
+          "secure": true,
+          "signalType": "traces",
+          "traces": {
+            "defaultDatabase": "otel",
+            "defaultTable": "otel_traces",
+            "durationUnit": "nanoseconds",
+            "otelEnabled": true,
+            "otelVersion": "latest",
+            "showTraceLinks": true,
+            "traceTimestampTableSuffix": "_trace_id_ts"
+          },
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "tlsClientAuth": {
+      "summary": "mTLS with a client certificate",
+      "description": "Enables jsonData.tlsAuth so the driver supplies a client certificate + key to the server. Populate both secureJsonData.tlsClientCert and secureJsonData.tlsClientKey as full PEM blocks including BEGIN/END lines.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "enableMapKeysDiscovery": true,
+          "host": "clickhouse.internal",
+          "port": 9440,
+          "protocol": "native",
+          "secure": true,
+          "tlsAuth": true,
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme",
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+        }
+      }
+    },
+    "tlsWithCACert": {
+      "summary": "TLS with a custom CA",
+      "description": "Enables jsonData.tlsAuthWithCACert so the driver verifies the server's certificate against secureJsonData.tlsCACert. Independent of tlsAuth.",
+      "value": {
+        "jsonData": {
+          "configMode": "classic",
+          "enableMapKeysDiscovery": true,
+          "host": "clickhouse.internal",
+          "port": 9440,
+          "protocol": "native",
+          "secure": true,
+          "tlsAuthWithCACert": true,
+          "username": "default"
+        },
+        "secureJsonData": {
+          "password": "changeme",
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n"
+        }
+      }
+    }
+  }
+}

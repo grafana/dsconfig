@@ -1,0 +1,118 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: no authentication, no TLS overrides, no custom health check. root.url can be blank — the Mock plugin never dials it.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": ""
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic authentication",
+      "description": "Authenticate the SDK HTTP client with HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://mock.example.com"
+      }
+    },
+    "customHealthCheckError": {
+      "summary": "Custom health check returning ERROR",
+      "description": "Use the CustomHealthCheck override to force a failing CheckHealth response for testing. status=2 maps to backend.HealthStatusError; details is passed through as jsonDetails on the CheckHealth response.",
+      "value": {
+        "jsonData": {
+          "customHealthCheck": {
+            "details": "{\"verboseMessage\":\"simulated failure via customHealthCheck\"}",
+            "message": "upstream is unreachable",
+            "skipBackend": false,
+            "status": 2
+          },
+          "customHealthCheckEnabled": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://mock.example.com"
+      }
+    },
+    "customHealthCheckSkipBackend": {
+      "summary": "Custom health check with skipBackend=true (frontend-only)",
+      "description": "With skipBackend=true, the frontend testDatasource() short-circuits and never calls the backend (src/datasource.ts:32-58). The response is synthesised entirely from jsonData.customHealthCheck. status=1 maps to a success response on the UI side.",
+      "value": {
+        "jsonData": {
+          "customHealthCheck": {
+            "details": "{\"verboseMessage\":\"backend was never called\"}",
+            "message": "frontend-only OK",
+            "skipBackend": true,
+            "status": 1
+          },
+          "customHealthCheckEnabled": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://mock.example.com"
+      }
+    },
+    "noAuth": {
+      "summary": "No authentication",
+      "description": "A Mock datasource with a plausible URL and no HTTP-level auth. The Mock backend does not dial the URL; it is only relevant when downstream tools proxy through the SDK's HTTP client.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://mock.example.com"
+      }
+    },
+    "oauthForward": {
+      "summary": "Forward OAuth Identity",
+      "description": "Forward the signed-in user's upstream OAuth identity through the SDK HTTP client. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+      "value": {
+        "jsonData": {
+          "oauthPassThru": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://mock.example.com"
+      }
+    },
+    "tlsMutualAuth": {
+      "summary": "TLS mutual auth (mTLS)",
+      "description": "SDK HTTP client using mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+      "value": {
+        "jsonData": {
+          "serverName": "mock.example.com",
+          "tlsAuth": true
+        },
+        "secureJsonData": {
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        },
+        "url": "https://mock.example.com"
+      }
+    },
+    "tlsSelfSignedCA": {
+      "summary": "Self-signed CA verification",
+      "description": "SDK HTTP client verifying the upstream against a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+      "value": {
+        "jsonData": {
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+        },
+        "url": "https://mock.internal.corp"
+      }
+    }
+  }
+}

@@ -1,0 +1,168 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-odbc-datasource",
+    "pluginName": "Sqlyze Datasource",
+    "docURL": "https://grafana.com/docs/plugins/grafana-odbc-datasource",
+    "fields": [
+        {
+            "id": "jsonData_driver",
+            "key": "driver",
+            "label": "Driver",
+            "description": "This field either accepts '{mydb2}' for driver connections or a absolute path to the odbc driver of your database of choice, for example '/home/driver/db2/libs2.so'.",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "DSN or path to ODBC Driver"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout (seconds)",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "defaultValue": "10",
+            "ui": {
+                "component": "input",
+                "placeholder": "10"
+            }
+        },
+        {
+            "id": "jsonData_settings",
+            "key": "settings",
+            "label": "Driver Settings",
+            "description": "These settings will be parsed into key value pairs and concatenated to create the Connection string the plugin will use. For additional settings, please check the keys match exactly what your database requires in a connection string.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_settings.item.name",
+                        "key": "name",
+                        "label": "Name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Setting name"
+                        }
+                    },
+                    {
+                        "id": "jsonData_settings.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Setting value"
+                        }
+                    },
+                    {
+                        "id": "jsonData_settings.item.secure",
+                        "key": "secure",
+                        "valueType": "boolean",
+                        "isItemField": true,
+                        "defaultValue": false,
+                        "ui": {
+                            "component": "switch"
+                        }
+                    }
+                ]
+            },
+            "ui": {
+                "component": "keyvalue"
+            }
+        },
+        {
+            "id": "jsonData_dsn",
+            "key": "DSN",
+            "description": "Optional Data Source Name. Read only by the backend (pkg/database/connect.go:76-78): when non-empty, the connection string is built as 'DSN=<value>;' instead of 'Driver=<driver>;'. Not written by the configuration editor.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "secureJsonData_pwd",
+            "key": "pwd",
+            "label": "pwd",
+            "description": "Representative secret for a driver setting whose 'secure' flag is enabled. Secret keys are dynamic and equal to the secure setting's Name; 'pwd' is the conventional password key from the plugin README's driver-settings table. There is no fixed secret key.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "ui": {
+                "component": "input",
+                "placeholder": "Setting value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection Settings",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_driver",
+                "jsonData_timeout",
+                "jsonData_settings"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_settings",
+                "secureJsonData_pwd"
+            ],
+            "description": "A driver setting whose 'secure' flag is true stores its value in secureJsonData keyed by the setting's Name (pwd is the conventional example); the settings[] entry then carries only name+secure, not the value."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Sqlyze (ODBC) datasource connects through an ODBC driver — there is no separate auth method selector. jsonData.driver is required and is either a driver alias in braces (e.g. '{MySQLDB}') or an absolute path to the ODBC driver shared library (e.g. '/opt/db2/clidriver/lib/libdb2.so.1'). Every other connection parameter (host, port, database, uid, pwd, …) is supplied through jsonData.settings, a list of {name, value, secure} objects that the backend concatenates into the connection string as 'name=value;' (pkg/database/connect.go:75-86).",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Secure driver settings: when a setting's 'secure' flag is true, its value is stored in secureJsonData under a key equal to the setting's Name (NOT in jsonData.settings[].value, which is omitted). Secret keys are therefore dynamic and user-defined — there are no fixed secret keys; the most common is the password (conventionally 'pwd'). Minimal payload: {\"jsonData\":{\"driver\":\"{MyDSN}\",\"settings\":[{\"name\":\"uid\",\"value\":\"grafana\",\"secure\":false},{\"name\":\"pwd\",\"secure\":true}]},\"secureJsonData\":{\"pwd\":\"<your-password>\"}}. Every setting marked secure MUST have a matching secureJsonData entry or the backend fails to load with 'Missing <name>' (pkg/models/settings.go:33-41).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "secureJsonData values are write-only: they can be set or reset but never read back. To check whether a secure setting is already configured on an existing datasource, read secureJsonFields[<name>] == true (keyed by the secure setting's Name) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection string rules and pitfalls: the backend builds 'Driver=<driver>;' followed by 'name=value;' for each setting (pkg/database/connect.go:76,83-85). The backend-only jsonData.DSN field, when set, replaces the prefix with 'DSN=<DSN>;'. However jsonData.driver must still be non-empty even when DSN is set — settings load rejects an empty driver via CheckDriverFileExists (pkg/models/settings.go:68-71) before the connection string is built, so a DSN-only configuration cannot connect. Setting keys must match exactly what your ODBC driver expects in a connection string.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "jsonData.timeout is a string number of seconds and defaults to '10' when empty (pkg/models/settings.go:50-52). The backend parses it with strconv.Atoi (pkg/database/connect.go:18); a non-integer value makes the connection fail with 'invalid timeout'.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

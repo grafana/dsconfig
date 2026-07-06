@@ -1,0 +1,150 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-zendesk-datasource",
+    "pluginName": "Zendesk",
+    "docURL": "https://grafana.com/docs/plugins/grafana-zendesk-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_subdomain",
+            "key": "subdomain",
+            "section": "variables",
+            "label": "Subdomain",
+            "description": "If your Zendesk URL is \"grafana.zendesk.com\", the subdomain would be \"grafana\".",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_services_zendesk_auth_id",
+            "key": "id",
+            "section": "services.zendesk.auth",
+            "label": "Authentication method",
+            "description": "Identifier of the selected authentication method for the Tickets service. The Zendesk API server exposes a single method, `basic_auth`; the backend defaults to it when unset.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "basic_auth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basic_auth"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Basic Auth",
+                        "value": "basic_auth"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_services_zendesk_auth_username",
+            "key": "username",
+            "section": "services.zendesk.auth",
+            "label": "Email",
+            "description": "Email address used to login to Zendesk",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_services_zendesk_auth_id == 'basic_auth'",
+            "requiredWhen": "jsonData_services_zendesk_auth_id == 'basic_auth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Email"
+            }
+        },
+        {
+            "id": "secureJsonData_zendesk_password",
+            "key": "zendesk.password",
+            "label": "API Token",
+            "description": "API Token generated from Zendesk. Visit the [docs](https://support.zendesk.com/hc/en-us/articles/4408889192858-Managing-access-to-the-Zendesk-API) to learn how",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_services_zendesk_auth_id == 'basic_auth'",
+            "requiredWhen": "jsonData_services_zendesk_auth_id == 'basic_auth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "API Token"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_subdomain"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_services_zendesk_auth_id",
+                "jsonData_services_zendesk_auth_username",
+                "secureJsonData_zendesk_password"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_services_zendesk_auth_username",
+                "secureJsonData_zendesk_password"
+            ],
+            "description": "Basic auth credentials for the Tickets service (email + API token)"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Zendesk configuration is stored under a service-keyed jsonData shape: jsonData.services.zendesk.* holds per-service settings and jsonData.variables.<name> holds connection variables, while secrets use flat dotted secureJsonData keys of the form \"zendesk.<secret>\". There is a single service with id 'zendesk' (labeled 'Tickets').",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Only one authentication method is available: basic auth (jsonData.services.zendesk.auth.id = 'basic_auth'). Provide the login email in jsonData.services.zendesk.auth.username and the Zendesk API token as the write-only secret at secureJsonData key \"zendesk.password\". The backend defaults auth.id to 'basic_auth' when unset.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"zendesk\":{\"auth\":{\"id\":\"basic_auth\",\"username\":\"you@example.com\"}}},\"variables\":{\"subdomain\":\"mycompany\"}},\"secureJsonData\":{\"zendesk.password\":\"<zendesk-api-token>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection URL is derived from the 'subdomain' variable: the backend builds https://{subdomain}.zendesk.com/api/v2/ from jsonData.variables.subdomain. Provide the subdomain only (for the URL grafana.zendesk.com, subdomain is 'grafana'), not the full URL. The single server is fixed, so no server selector is shown; the backend defaults jsonData.services.zendesk.server.id to the sole server.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"zendesk.password\" is write-only: it can be set or reset but never read back. To check whether it is already configured on an existing datasource, read secureJsonFields[\"zendesk.password\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

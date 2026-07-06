@@ -1,0 +1,393 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "allowAsRecordingRulesTarget": {
+              "description": "Allow this data source to be selected as a target for writing recording rules.",
+              "type": "boolean"
+            },
+            "cacheLevel": {
+              "description": "Sets the browser caching level for editor queries. Higher cache settings are recommended for high cardinality data sources.",
+              "type": "string",
+              "default": "Low",
+              "enum": [
+                "Low",
+                "Medium",
+                "High",
+                "None"
+              ]
+            },
+            "customQueryParameters": {
+              "description": "Add custom parameters to the Prometheus query URL. For example timeout, partial_response, dedup, or max_source_resolution. Multiple parameters should be concatenated together with '\u0026'.",
+              "type": "string"
+            },
+            "defaultEditor": {
+              "description": "Set default editor option for all users of this data source.",
+              "type": "string",
+              "default": "builder",
+              "enum": [
+                "builder",
+                "code"
+              ]
+            },
+            "disableMetricsLookup": {
+              "description": "Checking this option will disable the metrics chooser and metric/label support in the query field's autocomplete. This helps if you have performance issues with bigger Prometheus instances.",
+              "type": "boolean",
+              "default": false
+            },
+            "disableRecordingRules": {
+              "description": "This feature will disable recording rules. Turn this on to improve dashboard performance",
+              "type": "boolean",
+              "default": false
+            },
+            "exemplarTraceIdDestinations": {
+              "description": "Exemplar trace ID destinations. Not rendered by this plugin's editor (Amazon Prometheus passes `hideExemplars={true}` to `PromSettings`, `ConfigEditor.tsx:101`). Provisioning-only — the backend still parses and returns exemplar links from `promlib` query results.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "datasourceUid": {
+                    "description": "The tracing data source the exemplar link should navigate to. Setting this makes the exemplar an internal link and takes precedence over url.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "description": "The URL of the trace backend the user would go to see its trace",
+                    "type": "string"
+                  },
+                  "urlDisplayLabel": {
+                    "description": "Use to override the button label on the exemplar traceID field.",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "forwardGrafanaUserHeader": {
+              "description": "Forward the logged-in Grafana user's X-Grafana-User header to the workspace. Requires send_user_header to be enabled in the Grafana server configuration.",
+              "type": "boolean",
+              "default": false
+            },
+            "httpMethod": {
+              "description": "You can use either POST or GET HTTP method to query your Prometheus data source. POST is the recommended method as it allows bigger queries. Change this to GET if you have a Prometheus version older than 2.1 or if POST requests are restricted in your network.",
+              "type": "string",
+              "default": "POST",
+              "enum": [
+                "POST",
+                "GET"
+              ]
+            },
+            "incrementalQueryOverlapWindow": {
+              "description": "Set a duration like 10m or 120s or 0s. Default of 10m. This duration will be added to the duration of each incremental request.",
+              "type": "string",
+              "default": "10m",
+              "x-dsconfig-depends-on": "jsonData_incrementalQuerying == true"
+            },
+            "incrementalQuerying": {
+              "description": "This feature will change the default behavior of relative queries to always request fresh data from the prometheus instance, instead query results will be cached, and only new records are requested. Turn this on to decrease database and network load.",
+              "type": "boolean",
+              "default": false
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "manageAlerts": {
+              "description": "Manage alert rules for this data source. To manage other alerting resources, add an Alertmanager data source.",
+              "type": "boolean"
+            },
+            "maxSamplesProcessedErrorThreshold": {
+              "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_error_threshold URL parameter. Leave empty to omit.",
+              "type": "number"
+            },
+            "maxSamplesProcessedWarningThreshold": {
+              "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_warning_threshold URL parameter. Leave empty to omit.",
+              "type": "number"
+            },
+            "oauthPassThru": {
+              "description": "Set to `false` by `DataSourceHttpSettingsOverhaul.onAuthMethodSelect` (`:103-115`) on every save because `visibleMethods=[sigV4Id]` locks the editor to SigV4 auth. Consumed by the SDK's shared HTTP client.",
+              "type": "boolean",
+              "default": false
+            },
+            "prometheus-type-migration": {
+              "description": "Sentinel flag set when a vanilla Prometheus data source is migrated to Amazon Managed Service for Prometheus. When true, `ConfigEditor.tsx:37-48` renders the 'Data source migrated' warning banner. Storage key uses a hyphen — the field ID is camelCased. Never rendered as an input; provisioning may set it to trigger the banner.",
+              "type": "boolean"
+            },
+            "prometheusType": {
+              "description": "The Prometheus flavor. Not rendered by this plugin's editor (Amazon Prometheus passes `hidePrometheusTypeVersion={true}` to `PromSettings`, `ConfigEditor.tsx:100`). Provisioning can still set it — the backend `promlib` heuristics use it to enable flavor-specific query paths.",
+              "type": "string",
+              "enum": [
+                "Prometheus",
+                "Cortex",
+                "Mimir",
+                "Thanos"
+              ]
+            },
+            "prometheusVersion": {
+              "description": "Free-form Prometheus version string. Editor-hidden alongside `prometheusType` (`ConfigEditor.tsx:100`). Provisioning-only.",
+              "type": "string"
+            },
+            "queryTimeout": {
+              "description": "Set the Prometheus query timeout.",
+              "type": "string"
+            },
+            "seriesEndpoint": {
+              "description": "Checking this option will favor the series endpoint with match[] parameter over the label values endpoint with match[] parameter. While the label values endpoint is considered more performant, some users may prefer the series because it has a POST method while the label values endpoint only has a GET method.",
+              "type": "boolean",
+              "default": false
+            },
+            "seriesLimit": {
+              "description": "The limit applies to all resources (metrics, labels, and values) for both endpoints (series and labels). Leave the field empty to use the default limit (40000). Set to 0 to disable the limit and fetch everything — this may cause performance issues. Default limit is 40000.",
+              "type": "number"
+            },
+            "sigV4AssumeRoleArn": {
+              "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+              "type": "string",
+              "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$"
+            },
+            "sigV4Auth": {
+              "description": "SigV4 signing is mandatory for this plugin. `DataSourceHttpSettingsOverhaul.tsx:27-38` unconditionally sets `jsonData.sigV4Auth = true` on every editor mount and `visibleMethods=[sigV4Id]` (`:120`) hides every other authentication method.",
+              "type": "boolean",
+              "default": true
+            },
+            "sigV4AuthType": {
+              "description": "Specify which AWS credentials chain to use.",
+              "type": "string",
+              "enum": [
+                "default",
+                "keys",
+                "credentials",
+                "ec2_iam_role",
+                "grafana_assume_role",
+                "arn"
+              ]
+            },
+            "sigV4ExternalId": {
+              "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_sigV4AuthType != 'grafana_assume_role'"
+            },
+            "sigV4Profile": {
+              "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_sigV4AuthType == 'credentials'"
+            },
+            "sigV4Region": {
+              "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+              "type": "string"
+            },
+            "sigv4Service": {
+              "description": "Specify the AWS service to sign requests against (e.g., 'aps' for Prometheus).",
+              "type": "string",
+              "default": "aps"
+            },
+            "timeInterval": {
+              "description": "This interval is how frequently Prometheus scrapes targets. Set this to the typical scrape and evaluation interval configured in your Prometheus config file. If you set this to a greater value than your Prometheus config file interval, Grafana will evaluate the data according to this interval and you will see less data points. Defaults to 15s.",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number"
+            }
+          }
+        },
+        "url": {
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "sigV4AccessKey"
+      },
+      {
+        "key": "sigV4SecretKey"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with. `sigV4Auth` is forced to true and `sigv4Service` defaults to \"aps\" (Amazon Managed Prometheus). `httpMethod` defaults to POST. The user must still pick a SigV4 auth provider and (when applicable) supply credentials before the datasource is usable.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4Auth": true,
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.\u003cregion\u003e.amazonaws.com/workspaces/\u003cworkspace-id\u003e"
+        }
+      },
+      "accessKeys": {
+        "summary": "Access \u0026 secret key",
+        "description": "Sign requests using a static AWS IAM user's access key + secret key pair. Both secrets are stored write-only in `secureJsonData` (`sigV4AccessKey`, `sigV4SecretKey`).",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4Auth": true,
+            "sigV4AuthType": "keys",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "AKIAIOSFODNN7EXAMPLE",
+            "sigV4SecretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "assumeRoleCrossAccount": {
+        "summary": "Access keys + Assume Role ARN (cross-account)",
+        "description": "Use static access keys to call STS AssumeRole against a role in another AWS account, with an external ID for the cross-account trust policy.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4AssumeRoleArn": "arn:aws:iam::987654321098:role/PrometheusReader",
+            "sigV4Auth": true,
+            "sigV4AuthType": "keys",
+            "sigV4ExternalId": "my-external-id",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "AKIAIOSFODNN7EXAMPLE",
+            "sigV4SecretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "awsSdkDefault": {
+        "summary": "AWS SDK Default credential chain",
+        "description": "Delegate credential lookup to the AWS SDK default chain (env vars, shared config, EC2/ECS metadata, ...). No secret material required.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4Auth": true,
+            "sigV4AuthType": "default",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "credentialsFile": {
+        "summary": "Credentials file",
+        "description": "Read credentials from a named profile in `~/.aws/credentials` on the Grafana host. Leave `sigV4Profile` empty to use the default profile.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4Auth": true,
+            "sigV4AuthType": "credentials",
+            "sigV4Profile": "aps-workspace-1",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "ec2IamRole": {
+        "summary": "Workspace IAM Role",
+        "description": "Sign requests using the IAM role attached to the current EC2 instance / ECS task / EKS pod. No secret material required — the AWS SDK reads temporary credentials from the instance metadata service.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4Auth": true,
+            "sigV4AuthType": "ec2_iam_role",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "forwardGrafanaUserHeader": {
+        "summary": "Forward Grafana User HTTP Header",
+        "description": "Enable `forwardGrafanaUserHeader` so the plugin adds the logged-in Grafana user's `X-Grafana-User` header on every upstream request. Requires `send_user_header = true` in the Grafana server configuration.",
+        "value": {
+          "jsonData": {
+            "forwardGrafanaUserHeader": true,
+            "httpMethod": "POST",
+            "sigV4Auth": true,
+            "sigV4AuthType": "ec2_iam_role",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "grafanaAssumeRole": {
+        "summary": "Grafana Assume Role (Grafana Cloud)",
+        "description": "Delegate to Grafana Cloud's temporary credentials broker. Feature-gated on the Grafana instance's `awsDatasourcesTempCredentials` toggle. The external ID field hides itself when this auth type is selected because Grafana Cloud injects the external ID automatically (`ConnectionConfig.tsx:274`).",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "sigV4AssumeRoleArn": "arn:aws:iam::123456789012:role/GrafanaCloudPrometheus",
+            "sigV4Auth": true,
+            "sigV4AuthType": "grafana_assume_role",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      },
+      "migratedFromPrometheus": {
+        "summary": "Migrated from vanilla Prometheus",
+        "description": "Datasources migrated from the vanilla Prometheus plugin carry the sentinel flag `jsonData['prometheus-type-migration'] = true`, which triggers the 'Data source migrated' banner at `ConfigEditor.tsx:37-48`. The banner is purely informational — nothing in the runtime depends on the flag.",
+        "value": {
+          "jsonData": {
+            "httpMethod": "POST",
+            "prometheus-type-migration": true,
+            "prometheusType": "Prometheus",
+            "prometheusVersion": "2.50.1",
+            "sigV4Auth": true,
+            "sigV4AuthType": "ec2_iam_role",
+            "sigV4Region": "us-east-1",
+            "sigv4Service": "aps"
+          },
+          "secureJsonData": {
+            "sigV4AccessKey": "",
+            "sigV4SecretKey": ""
+          },
+          "url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-12345678-1234-1234-1234-123456789012"
+        }
+      }
+    }
+  }
+}

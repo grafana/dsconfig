@@ -1,0 +1,102 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "drone": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "You can find your API token under \u003cYOUR_DRONE_URL\u003e/account",
+                          "type": "string",
+                          "default": "auth_bearer",
+                          "enum": [
+                            "auth_bearer"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "variables": {
+              "type": "object",
+              "required": [
+                "url"
+              ],
+              "properties": {
+                "url": {
+                  "description": "The URL of the Drone server, including `https://` and without trailing `/`",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "drone.token",
+        "description": "Token for accessing the datasource API"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the single service 'drone' preselects its only auth method, auth_bearer. Fill in the server url (jsonData.variables.url) and API token (secureJsonData \"drone.token\", empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "drone": {
+                "auth": {
+                  "id": "auth_bearer"
+                }
+              }
+            },
+            "variables": {
+              "url": ""
+            }
+          },
+          "secureJsonData": {
+            "drone.token": ""
+          }
+        }
+      },
+      "apiToken": {
+        "summary": "API token (bearer)",
+        "description": "Authenticate against {url}/api with a Drone API token provided as the write-only secret at secureJsonData \"drone.token\".",
+        "value": {
+          "jsonData": {
+            "services": {
+              "drone": {
+                "auth": {
+                  "id": "auth_bearer"
+                }
+              }
+            },
+            "variables": {
+              "url": "https://drone.example.com"
+            }
+          },
+          "secureJsonData": {
+            "drone.token": "\u003cdrone-api-token\u003e"
+          }
+        }
+      }
+    }
+  }
+}

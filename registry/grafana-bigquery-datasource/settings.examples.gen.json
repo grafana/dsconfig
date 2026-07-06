@@ -1,0 +1,118 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Google JWT File authentication (jwt). The user must still supply defaultProject, clientEmail, tokenUri, and a private key (either inline or via privateKeyPath) to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "jwt"
+        },
+        "secureJsonData": {
+          "privateKey": ""
+        }
+      }
+    },
+    "additionalSettings": {
+      "summary": "JWT with all Additional Settings populated",
+      "description": "JWT auth plus every optional 'Additional Settings' knob: processingLocation (regional), serviceEndpoint (private-service-connect override), and MaxBytesBilled cap.",
+      "value": {
+        "jsonData": {
+          "MaxBytesBilled": 5242880,
+          "authenticationType": "jwt",
+          "clientEmail": "bigquery-reader@my-gcp-project.iam.gserviceaccount.com",
+          "defaultProject": "my-gcp-project",
+          "processingLocation": "EU",
+          "serviceEndpoint": "https://bigquery.googleapis.com/bigquery/v2/",
+          "tokenUri": "https://oauth2.googleapis.com/token"
+        },
+        "secureJsonData": {
+          "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+        }
+      }
+    },
+    "forwardOAuthIdentity": {
+      "summary": "Forward OAuth Identity",
+      "description": "The caller's OAuth token is forwarded to BigQuery. No credentials are stored on the datasource. The backend sets ForwardHTTPHeaders on the HTTP client at pkg/bigquery/http_client.go:99-107; oauthPassThru is set to true as a side-effect.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "forwardOAuthIdentity",
+          "oauthPassThru": true
+        },
+        "secureJsonData": {}
+      }
+    },
+    "gceDefaultServiceAccount": {
+      "summary": "GCE Default Service Account",
+      "description": "Grafana is running on a Google Compute Engine VM; credentials are retrieved from the GCE metadata server. No secret is stored in secureJsonData. Optionally set defaultProject to override the project resolved from the metadata server.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "gce",
+          "defaultProject": "my-gcp-project"
+        },
+        "secureJsonData": {}
+      }
+    },
+    "googleJWTFile": {
+      "summary": "Google JWT File (inline private key)",
+      "description": "Authenticate as a Google service account. defaultProject, clientEmail, and tokenUri come from the service-account JSON; the private key is supplied inline as secureJsonData.privateKey. Grant the SA the 'BigQuery Data Viewer' and 'Job User' roles and enable the BigQuery API for the project.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "jwt",
+          "clientEmail": "bigquery-reader@my-gcp-project.iam.gserviceaccount.com",
+          "defaultProject": "my-gcp-project",
+          "tokenUri": "https://oauth2.googleapis.com/token"
+        },
+        "secureJsonData": {
+          "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+        }
+      }
+    },
+    "googleJWTFilePath": {
+      "summary": "Google JWT File (private key path)",
+      "description": "Same as googleJWTFile, but the private key is read from a file on the Grafana server via jsonData.privateKeyPath — no secret is stored in secureJsonData.privateKey. The referenced file may be a raw PEM key or a service-account JSON containing a private_key field (grafana-google-sdk-go/pkg/utils/utils.go:62-80).",
+      "value": {
+        "jsonData": {
+          "authenticationType": "jwt",
+          "clientEmail": "bigquery-reader@my-gcp-project.iam.gserviceaccount.com",
+          "defaultProject": "my-gcp-project",
+          "privateKeyPath": "/etc/secrets/bigquery-sa.json",
+          "tokenUri": "https://oauth2.googleapis.com/token"
+        },
+        "secureJsonData": {
+          "privateKey": ""
+        }
+      }
+    },
+    "impersonation": {
+      "summary": "JWT with service account impersonation",
+      "description": "JWT auth where the base service account impersonates another SA. Only usable for jwt / gce auth (ConfigEditor.tsx:35-36 controls when the AuthConfig impersonation UI renders). Backend uses NewImpersonatedJwtAccessTokenProvider (pkg/bigquery/http_client.go:73-80).",
+      "value": {
+        "jsonData": {
+          "authenticationType": "jwt",
+          "clientEmail": "bigquery-caller@my-gcp-project.iam.gserviceaccount.com",
+          "defaultProject": "my-gcp-project",
+          "serviceAccountToImpersonate": "bigquery-reader@my-gcp-project.iam.gserviceaccount.com",
+          "tokenUri": "https://oauth2.googleapis.com/token",
+          "usingImpersonation": true
+        },
+        "secureJsonData": {
+          "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+        }
+      }
+    },
+    "workloadIdentityFederation": {
+      "summary": "Workload Identity Federation",
+      "description": "Federated identity via a WIF pool provider. workloadIdentityPoolProvider is mandatory (backend fails at pkg/bigquery/http_client.go:95 if empty); wifServiceAccountEmail is optional for impersonation. Only exposed in the editor when Grafana is running as a Cloud stack (src/types.ts:47).",
+      "value": {
+        "jsonData": {
+          "authenticationType": "workloadIdentityFederation",
+          "defaultProject": "my-gcp-project",
+          "oauthPassThru": true,
+          "wifServiceAccountEmail": "bigquery-reader@my-gcp-project.iam.gserviceaccount.com",
+          "workloadIdentityPoolProvider": "projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider"
+        },
+        "secureJsonData": {}
+      }
+    }
+  }
+}

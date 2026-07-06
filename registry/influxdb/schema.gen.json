@@ -1,0 +1,331 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "type": "string",
+          "x-dsconfig-depends-on": "root_basicAuth == true",
+          "x-dsconfig-required-when": "root_basicAuth == true"
+        },
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "dbName": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_version == 'InfluxQL' || jsonData_version == 'SQL'",
+              "x-dsconfig-required-when": "jsonData_version == 'InfluxQL' || jsonData_version == 'SQL'"
+            },
+            "defaultBucket": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_version == 'Flux'",
+              "x-dsconfig-required-when": "jsonData_version == 'Flux'"
+            },
+            "httpMode": {
+              "description": "You can use either GET or POST HTTP method to query your InfluxDB database. The POST method allows you to perform heavy requests (with a lots of WHERE clause) while the GET method will restrict you and return an error if the query is too large.",
+              "type": "string",
+              "default": "GET",
+              "enum": [
+                "GET",
+                "POST"
+              ],
+              "x-dsconfig-depends-on": "jsonData_version == 'InfluxQL'"
+            },
+            "insecureGrpc": {
+              "description": "Disable TLS for the FlightSQL gRPC connection used by the SQL query path.",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "jsonData_version == 'SQL'"
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "maxSeries": {
+              "description": "Limit the number of series/tables that Grafana will process. Lower this number to prevent abuse, and increase it if you have lots of small time series and not all are shown. Defaults to 1000.",
+              "type": "number",
+              "default": 1000
+            },
+            "oauthPassThru": {
+              "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+              "type": "boolean",
+              "default": false
+            },
+            "organization": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_version == 'Flux'",
+              "x-dsconfig-required-when": "jsonData_version == 'Flux'"
+            },
+            "pdcInjected": {
+              "description": "Backend-controlled indicator that a Private Datasource Connect (PDC) proxy has been injected into this datasource's HTTP transport. Not editor-writable; read by the v2 LeftSideBar to render PDC-specific section headers (LeftSideBar.tsx:12).",
+              "type": "boolean",
+              "default": false
+            },
+            "product": {
+              "description": "Use InfluxDB detection to identify the product",
+              "type": "string",
+              "enum": [
+                "InfluxDB Cloud Dedicated",
+                "InfluxDB Cloud Serverless",
+                "InfluxDB Clustered",
+                "InfluxDB Enterprise 1.x",
+                "InfluxDB Enterprise 3.x",
+                "InfluxDB Cloud (TSM)",
+                "InfluxDB Cloud 1",
+                "InfluxDB OSS 1.x",
+                "InfluxDB OSS 2.x",
+                "InfluxDB OSS 3.x"
+              ]
+            },
+            "serverName": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+              "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+            },
+            "showTagTime": {
+              "description": "This time range is used in the query editor's autocomplete to reduce the execution time of tag filter queries.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_version == 'InfluxQL'"
+            },
+            "timeInterval": {
+              "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_version == 'InfluxQL' || jsonData_version == 'Flux'"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds.",
+              "type": "number"
+            },
+            "tlsAuth": {
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying self-signed TLS Certs",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "type": "boolean",
+              "default": false
+            },
+            "version": {
+              "type": "string",
+              "default": "InfluxQL",
+              "enum": [
+                "InfluxQL",
+                "SQL",
+                "Flux"
+              ]
+            }
+          }
+        },
+        "url": {
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        },
+        "user": {
+          "description": "Legacy root-level user field written by the v1 InfluxQL editor. Distinct from root.basicAuthUser — the v1 editor writes options.user (SDK root User field) while the v2 editor writes options.basicAuthUser (SDK root BasicAuthUser field). Not consumed by the current backend or the SDK HTTPClientOptions auth handler; effectively a display-only echo unless the operator also enables root.basicAuth so the SDK reads basicAuthUser instead.",
+          "type": "string",
+          "x-dsconfig-depends-on": "jsonData_version == 'InfluxQL'"
+        },
+        "withCredentials": {
+          "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "basicAuthPassword"
+      },
+      {
+        "key": "tlsCACert"
+      },
+      {
+        "key": "tlsClientCert"
+      },
+      {
+        "key": "tlsClientKey"
+      },
+      {
+        "key": "password",
+        "description": "Legacy secure password paired with root.user for the v1 InfluxQL editor's User + Password inputs. Distinct from secureJsonData.basicAuthPassword. Not consumed by the current backend or SDK HTTP auth path."
+      },
+      {
+        "key": "token"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: no authentication, InfluxQL query language, HTTP GET, maxSeries=1000. dbName is empty and must be provided to connect to an InfluxDB 1.x instance.",
+        "value": {
+          "jsonData": {
+            "dbName": "mydb",
+            "httpMode": "GET",
+            "maxSeries": 1000,
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://localhost:8086"
+        }
+      },
+      "fluxToken": {
+        "summary": "Flux with token (InfluxDB 2.x)",
+        "description": "Flux against InfluxDB Cloud (TSM) or OSS 2.x. Requires jsonData.organization + jsonData.defaultBucket + secureJsonData.token. httpMode is POST (the v1 editor forces this at ConfigEditor.tsx:65). Note: the v1 editor also force-sets root.basicAuth=true on Flux selection (ConfigEditor.tsx:63) — this example uses provisioning-clean settings with basicAuth omitted; Flux auth flows exclusively through the bearer token regardless.",
+        "value": {
+          "jsonData": {
+            "defaultBucket": "metrics",
+            "httpMode": "POST",
+            "maxSeries": 1000,
+            "organization": "grafana-org",
+            "product": "InfluxDB Cloud (TSM)",
+            "timeInterval": "10s",
+            "version": "Flux"
+          },
+          "secureJsonData": {
+            "token": "REPLACE_WITH_TOKEN"
+          },
+          "url": "https://us-west-2-1.aws.cloud2.influxdata.com"
+        }
+      },
+      "influxqlBasicAuth": {
+        "summary": "InfluxQL with HTTP Basic auth (InfluxDB OSS 1.x / 2.x)",
+        "description": "InfluxQL against an InfluxDB 1.x/2.x server that accepts HTTP Basic auth. root.basicAuth=true wires the SDK transport to attach basicAuthUser + secureJsonData.basicAuthPassword to outgoing requests. Backend consumes jsonData.dbName as the ?db= URL parameter (influxql.go:176).",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "dbName": "telegraf",
+            "httpMode": "POST",
+            "maxSeries": 1000,
+            "product": "InfluxDB OSS 1.x",
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://influxdb.example.com:8086"
+        }
+      },
+      "influxqlLegacyUserPassword": {
+        "summary": "InfluxQL with legacy user/password (v1 editor)",
+        "description": "Legacy shape written by the v1 InfluxQL config tab (InfluxInfluxQLConfig.tsx:87-107): root.user + secureJsonData.password (distinct from basicAuthUser/basicAuthPassword). The current backend does not automatically attach these to outgoing HTTP requests; provisioning that relies on 1.x database auth should enable root.basicAuth as well.",
+        "value": {
+          "jsonData": {
+            "dbName": "telegraf",
+            "httpMode": "GET",
+            "maxSeries": 1000,
+            "showTagTime": "12h",
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "password": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "http://influxdb.example.com:8086",
+          "user": "admin"
+        }
+      },
+      "legacyRootDatabase": {
+        "summary": "Legacy root.database fallback",
+        "description": "Pre-jsonData datasources stored the database name at the root level. The backend uses jsonData.dbName if set, else settings.Database (pkg/influxdb/influxdb.go:58-61). This example represents a legacy provisioning payload with no jsonData.dbName; ApplyDefaults copies root.database into DbName so callers see a consistent shape.",
+        "value": {
+          "database": "legacy_db",
+          "jsonData": {
+            "httpMode": "GET",
+            "maxSeries": 1000,
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://influxdb.example.com:8086"
+        }
+      },
+      "oauthForward": {
+        "summary": "Forward OAuth Identity",
+        "description": "Forward the signed-in user's upstream OAuth identity to InfluxDB. Independent of the query-language selection.",
+        "value": {
+          "jsonData": {
+            "dbName": "telegraf",
+            "httpMode": "GET",
+            "maxSeries": 1000,
+            "oauthPassThru": true,
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://influxdb.example.com"
+        }
+      },
+      "sqlFlightSQL": {
+        "summary": "SQL (FlightSQL, InfluxDB 3.x)",
+        "description": "Native SQL against an InfluxDB 3.x server or InfluxDB Cloud Serverless / Dedicated. Requires jsonData.dbName + secureJsonData.token. The FlightSQL transport is separate from the HTTP client — jsonData.insecureGrpc disables TLS on that gRPC transport.",
+        "value": {
+          "jsonData": {
+            "dbName": "metrics",
+            "insecureGrpc": false,
+            "maxSeries": 1000,
+            "product": "InfluxDB Cloud Serverless",
+            "version": "SQL"
+          },
+          "secureJsonData": {
+            "token": "REPLACE_WITH_TOKEN"
+          },
+          "url": "https://us-east-1-1.aws.cloud2.influxdata.com"
+        }
+      },
+      "tlsMutualAuth": {
+        "summary": "TLS mutual auth (mTLS)",
+        "description": "InfluxDB behind mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData. Applies to any query language.",
+        "value": {
+          "jsonData": {
+            "dbName": "telegraf",
+            "httpMode": "GET",
+            "maxSeries": 1000,
+            "serverName": "influxdb.example.com",
+            "tlsAuth": true,
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+          },
+          "url": "https://influxdb.example.com:8086"
+        }
+      },
+      "tlsSelfSignedCA": {
+        "summary": "Self-signed CA verification",
+        "description": "InfluxDB behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+        "value": {
+          "jsonData": {
+            "dbName": "telegraf",
+            "httpMode": "GET",
+            "maxSeries": 1000,
+            "tlsAuthWithCACert": true,
+            "version": "InfluxQL"
+          },
+          "secureJsonData": {
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+          },
+          "url": "https://influxdb.internal.corp"
+        }
+      }
+    }
+  }
+}

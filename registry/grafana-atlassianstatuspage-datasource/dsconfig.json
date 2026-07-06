@@ -1,0 +1,57 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-atlassianstatuspage-datasource",
+    "pluginName": "Atlassian Statuspage",
+    "docURL": "https://grafana.com/docs/plugins/grafana-atlassianstatuspage-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_url",
+            "key": "url",
+            "section": "variables",
+            "label": "URL",
+            "description": "The URL of the Atlassian Statuspage, including `https://` and without trailing `/`",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "role": "endpoint.baseUrl",
+            "ui": {
+                "component": "input"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_url"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Atlassian Statuspage configuration is stored under a service-keyed jsonData shape: jsonData.variables.<name> holds connection variables. There is a single service with id 'atlassianstatuspage'. This datasource queries the public Statuspage API and requires no authentication, so there are no secureJsonData secrets.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "There is no authentication. The only configuration is the Statuspage URL. Minimal working payload: {\"jsonData\":{\"variables\":{\"url\":\"https://www.githubstatus.com\"}}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the API base URL is built from the 'url' variable as {url}/api/v2. Set jsonData.variables.url to the Statuspage URL including https:// and without a trailing slash. The single server is fixed, so no server selector is shown.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

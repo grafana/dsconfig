@@ -1,0 +1,178 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-honeycomb-datasource",
+    "pluginName": "Honeycomb",
+    "docURL": "https://grafana.com/docs/plugins/grafana-honeycomb-datasource",
+    "fields": [
+        {
+            "id": "secureJsonData_apiKey",
+            "key": "apiKey",
+            "label": "Honeycomb API Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Honeycomb API Key"
+            },
+            "help": {
+                "title": "Team API Key",
+                "markdown": "To create or retrieve new Team API Key, navigate to [Account & Profile](https://ui.honeycomb.io/account)\n\nEnsure key has the following permissions:\n\n- Manage Queries and Columns\n- Run Queries",
+                "docURL": "https://ui.honeycomb.io/account"
+            }
+        },
+        {
+            "id": "jsonData_hostname",
+            "key": "hostname",
+            "label": "URL",
+            "description": "Customize the api URL. By default this will be https://api.honeycomb.io",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "defaultValue": "https://api.honeycomb.io",
+            "requiredWhen": "true",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^https://",
+                    "message": "URL must use the https scheme"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "https://api.honeycomb.io"
+            }
+        },
+        {
+            "id": "jsonData_team",
+            "key": "team",
+            "label": "Team Name",
+            "description": "Specify the team name. This will be useful in data links",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_environment",
+            "key": "environment",
+            "label": "Environment Name",
+            "description": "Optional. Specify the environment name. This will be useful in data links",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_retentionLimit",
+            "key": "retentionLimit",
+            "label": "Time Window (days)",
+            "description": "Optional. The maximum time window, in days. Queries will only return data from the last N days, where N is the retention limit. Default is 7 days, since that is the maximum retention limit normally supported by the Honeycomb API. Honeycomb API docs: https://api-docs.honeycomb.io/api/query-data",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 7,
+            "ui": {
+                "component": "input",
+                "placeholder": "7"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "access",
+            "title": "Access",
+            "order": 1,
+            "fieldRefs": [
+                "secureJsonData_apiKey"
+            ]
+        },
+        {
+            "id": "environment",
+            "title": "Environment",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_hostname",
+                "jsonData_team",
+                "jsonData_environment"
+            ]
+        },
+        {
+            "id": "advanced-settings",
+            "title": "Advanced Settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_retentionLimit"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_hostname",
+                "secureJsonData_apiKey"
+            ],
+            "description": "API connection: the Honeycomb API base URL (jsonData.hostname) and the API key (secureJsonData.apiKey), which is sent as the X-Honeycomb-Team header on every request (pkg/main.go:46-51; pkg/httpclient/client.go:39-42)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_hostname",
+                "jsonData_team",
+                "jsonData_environment"
+            ],
+            "description": "Honeycomb UI URL for the 'Open in Honeycomb' data link: the API hostname with its literal 'api' substring replaced by 'ui', followed by /<team>[/environments/<environment>]/datasets/<dataset>/result/<id> (pkg/plugin/querydata.go:200-216; src/Datasource.ts:109-136)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Honeycomb datasource has a single authentication method: an API key stored in secureJsonData.apiKey. It is sent as the 'X-Honeycomb-Team' header on every outgoing request (pkg/httpclient/client.go:39-42). There are no other auth methods. The key must be a Honeycomb Team API key with the 'Run Queries' and 'Manage Queries and Columns' permissions; the health check fails otherwise (pkg/plugin/healthcheck.go:28-38 checks api_key_access['queries'] and api_key_access['columns']).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"hostname\":\"https://api.honeycomb.io\",\"team\":\"<your-honeycomb-team-slug>\"},\"secureJsonData\":{\"apiKey\":\"<your-honeycomb-api-key>\"}}. jsonData.hostname, jsonData.team, and secureJsonData.apiKey are all required; jsonData.environment and jsonData.retentionLimit are optional. The backend Validate rejects a missing/empty hostname ('enter a URL'), a non-https hostname ('invalid url: scheme must be https'), a missing API key ('enter an API key'), and a missing team ('enter a Honeycomb team name') (pkg/models/settings.go:45-71).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.apiKey is write-only: it can be set or reset but never read back. To check whether the key is already configured on an existing datasource, read secureJsonFields.apiKey (boolean) instead of secureJsonData.apiKey.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.hostname is the Honeycomb API base URL and must use the https scheme (pkg/models/settings.go:52-60). It defaults to https://api.honeycomb.io (US) when absent (pkg/models/settings.go:28); use the region-specific host for other Honeycomb instances (for example https://api.eu1.honeycomb.io for EU). The backend uses it as the request base URL and REPLACES its path per request (pkg/requestor/requestor.go:76-81), so a trailing path is discarded rather than concatenated.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "jsonData.team (required) and jsonData.environment (optional) are used only to build the 'Open in Honeycomb' data-link URLs; they are NOT part of API authentication (that is the apiKey alone). The link is <hostname with 'api'->'ui'>/<team>[/environments/<environment>]/datasets/<dataset>/result/<id> (pkg/plugin/querydata.go:200-216; src/Datasource.ts:109-136). team is the Honeycomb team slug used in the URL path, not the display name. Even though it only affects data links, the health check fails without it.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "jsonData.retentionLimit is a number of days (default 7) that clamps query start times to the last N days; when a panel's time range extends past it, results are clipped and a 'Partial results' warning is attached (pkg/plugin/querydata.go:281-318). Only raise it above 7 if your Honeycomb plan retains more than 7 days of data.",
+            "tags": [
+                "llm",
+                "behavior"
+            ]
+        }
+    ]
+}

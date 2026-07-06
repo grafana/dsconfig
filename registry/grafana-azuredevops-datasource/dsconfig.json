@@ -1,0 +1,159 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azuredevops-datasource",
+    "pluginName": "Azure DevOps",
+    "docURL": "https://grafana.com/docs/plugins/grafana-azuredevops-datasource",
+    "fields": [
+        {
+            "id": "jsonData_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Azure DevOps instance URL",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "https://dev.azure.com/XXXX"
+            }
+        },
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "patToken",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "patToken"
+                    ]
+                }
+            ],
+            "tags": [
+                "backend-declared-unused"
+            ]
+        },
+        {
+            "id": "secureJsonData_patToken",
+            "key": "patToken",
+            "label": "PAT",
+            "description": "Azure DevOps personal access token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Azure DevOps PAT"
+            }
+        },
+        {
+            "id": "jsonData_projectsLimit",
+            "key": "projectsLimit",
+            "label": "Projects limit",
+            "description": "Number of items to retrieve in projects list query",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 100,
+            "ui": {
+                "component": "input",
+                "placeholder": "100"
+            }
+        },
+        {
+            "id": "jsonData_username",
+            "key": "username",
+            "label": "Username",
+            "description": "Username of the user that owns the Azure DevOps PAT. May be needed for some versions of Azure DevOps Server.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "ui": {
+                "component": "input",
+                "placeholder": "ado"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "azure-devops-settings",
+            "title": "Azure DevOps settings",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_url",
+                "secureJsonData_patToken"
+            ]
+        },
+        {
+            "id": "optional-configuration",
+            "title": "Optional Configuration",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_projectsLimit",
+                "jsonData_username"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_url",
+                "secureJsonData_patToken"
+            ],
+            "description": "Azure DevOps PAT connection: the organization/collection URL (jsonData.url) and the personal access token (secureJsonData.patToken). By default azuredevops.NewPatConnection(url, patToken) sends the PAT as HTTP Basic auth (empty username + PAT) on every request (pkg/plugin/plugin.go:74)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_username",
+                "secureJsonData_patToken"
+            ],
+            "description": "Optional Basic auth username: when jsonData.username is non-empty the backend builds an explicit Basic auth header via azuredevops.CreateBasicAuthHeaderValue(username, patToken) and normalizes the URL (lowercased, trailing slash trimmed) instead of the default empty-username PAT connection \u2014 needed for some Azure DevOps Server versions (pkg/plugin/plugin.go:76-84)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Azure DevOps datasource has a single authentication method: a personal access token (PAT). jsonData.authType is fixed to 'patToken' (the only supported value); the backend declares the field but does not branch on it (marked 'Not in use yet', pkg/plugin/settings.go:11). Configure the organization/collection URL plus the PAT.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"url\":\"https://dev.azure.com/<organization>\",\"authType\":\"patToken\"},\"secureJsonData\":{\"patToken\":\"<your-azure-devops-pat>\"}}. Both jsonData.url and secureJsonData.patToken are required: an empty url fails settings load with 'invalid URL' and an empty patToken fails with 'invalid PAT' (pkg/plugin/settings.go:19-27,35-45).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Optional jsonData.username: when set, the backend authenticates with an explicit HTTP Basic header CreateBasicAuthHeaderValue(username, patToken) and lowercases + trims the trailing slash of the URL; when empty it uses azuredevops.NewPatConnection, which is empty-username PAT Basic auth. Set username only if your Azure DevOps Server version requires it (pkg/plugin/plugin.go:76-84).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.patToken is write-only: it can be set or reset but never read back. To check whether the token is already configured on an existing datasource, read secureJsonFields.patToken (boolean) instead of secureJsonData.patToken.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection/URL rules: jsonData.url is stored in jsonData (NOT the datasource root url) and must be the full Azure DevOps organization/collection URL \u2014 e.g. https://dev.azure.com/<organization> for Azure DevOps Services or https://<server>/<collection> for Azure DevOps Server. jsonData.projectsLimit (optional) caps how many items the projects-list query returns; any value < 1 is coerced to 100 (pkg/plugin/settings.go:46-48).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

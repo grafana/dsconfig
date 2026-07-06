@@ -1,0 +1,355 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-datadog-datasource",
+    "pluginName": "Datadog",
+    "docURL": "https://grafana.com/docs/plugins/grafana-datadog-datasource",
+    "fields": [
+        {
+            "id": "virtual_mode",
+            "key": "mode",
+            "label": "Mode",
+            "description": "Choose **Hosted Datadog Metrics**, if you want to connect using a Datadog proxy through [Hosted Datadog Metrics](https://grafana.com/docs/grafana-cloud/data-configuration/metrics/metrics-datadog/). Otherwise choose **Default** to directly connect to DataDog API endpoints.",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "hosted-metrics"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Hosted Datadog Metrics",
+                        "value": "hosted-metrics"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "jsonData.pluginMode != '' ? jsonData.pluginMode : (root.basicAuth == true ? 'hosted-metrics' : 'default')"
+            },
+            "effects": [
+                {
+                    "when": "value == 'default'",
+                    "set": {
+                        "jsonData_pluginMode": "default",
+                        "root_basicAuth": false
+                    }
+                },
+                {
+                    "when": "value == 'hosted-metrics'",
+                    "set": {
+                        "jsonData_pluginMode": "hosted-metrics",
+                        "root_basicAuth": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "jsonData_pluginMode",
+            "key": "pluginMode",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "hosted-metrics"
+                    ]
+                }
+            ],
+            "tags": [
+                "managed-by:virtual_mode"
+            ]
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_mode"
+            ]
+        },
+        {
+            "id": "jsonData_url",
+            "key": "url",
+            "label": "API URL / Region",
+            "description": "A URL to the Datadog API (e.g.: https://api.datadoghq.com)",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "defaultValue": "https://api.datadoghq.com",
+            "requiredWhen": "true",
+            "overrides": [
+                {
+                    "when": "virtual_mode == 'hosted-metrics'",
+                    "description": "A URL to the Hosted metrics API (e.g.: https://dd-prod-10-prod-us-central-0.grafana.net/datadog). [Click here](https://grafana.com/docs/grafana-cloud/data-configuration/metrics/metrics-datadog/) to learn more.",
+                    "placeholder": "https://dd-prod-10-prod-us-central-0.grafana.net/datadog"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "https://api.datadoghq.com"
+            }
+        },
+        {
+            "id": "secureJsonData_apiKey",
+            "key": "apiKey",
+            "label": "API key",
+            "description": "An API key is unique to your organization. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-an-api-key-and-application-key-from-datadog).",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "dependsOn": "virtual_mode == 'default'",
+            "requiredWhen": "jsonData_pluginMode != 'hosted-metrics'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Datadog API key"
+            }
+        },
+        {
+            "id": "secureJsonData_appKey",
+            "key": "appKey",
+            "label": "App key",
+            "description": "An application key is used with the API key to give access to the Datadog API. By default, application keys have the permissions of the user who created them. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-api-key-and-application-key-from-datadog). You can also customize the scope of the application key in the [Datadog docs](https://docs.datadoghq.com/api/latest/scopes/).",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "virtual_mode == 'default'",
+            "requiredWhen": "jsonData_pluginMode != 'hosted-metrics'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Datadog App key"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "description": "Your username is your Grafana Cloud Prometheus username. This can be found in the Prometheus details in your cloud portal.",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "virtual_mode == 'hosted-metrics'",
+            "requiredWhen": "jsonData_pluginMode == 'hosted-metrics'",
+            "ui": {
+                "component": "input",
+                "placeholder": "User"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "Your password is your Grafana Cloud API Key with read permissions. This can be found in the Prometheus details in your cloud portal.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "virtual_mode == 'hosted-metrics'",
+            "requiredWhen": "jsonData_pluginMode == 'hosted-metrics'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_logApiRateLimits",
+            "key": "logApiRateLimits",
+            "label": "Show API rate limits",
+            "description": "Show Datadog API limits for each queried endpoint. To view the API rate limits, go to the **Query Inspector**, select **JSON**, and set **select source** to **DataFrame structure**.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "jsonData_rateLimitEnabled",
+            "key": "rateLimitEnabled",
+            "label": "Enable API rate limit threshold",
+            "description": "Enable rate limit. Datadog query will stop once it reaches entered threshold.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "jsonData_rateLimitMetrics",
+            "key": "rateLimitMetrics",
+            "label": "API rate limit threshold %",
+            "description": "Enter percentage of threshold. (If the API hit the % of rate limit, plugin will block subsequent requests till next reset)",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 100,
+            "dependsOn": "jsonData_rateLimitEnabled == true",
+            "validations": [
+                {
+                    "type": "range",
+                    "min": 0,
+                    "max": 100
+                }
+            ],
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_disableDataLinks",
+            "key": "disableDataLinks",
+            "label": "Disable data links",
+            "description": "Data links take users directly to the relevant location in the Datadog app when they interact with panels.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "jsonData_size",
+            "key": "size",
+            "label": "Response Size",
+            "description": "Set maximum number of items to retrieve in a single API request (default is 100).",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 100,
+            "ui": {
+                "component": "input",
+                "placeholder": "100"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "virtual_mode",
+                "jsonData_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "secureJsonData_apiKey",
+                "secureJsonData_appKey",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_logApiRateLimits",
+                "jsonData_rateLimitEnabled",
+                "jsonData_rateLimitMetrics",
+                "jsonData_disableDataLinks",
+                "jsonData_size"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_pluginMode",
+                "root_basicAuth"
+            ],
+            "description": "Connection/auth mode discriminator. jsonData.pluginMode ('default' or 'hosted-metrics') is the stored value; root.basicAuth is set true only in hosted-metrics mode. The editor's Mode selector (virtual_mode) writes both, and reads back a legacy datasource with root.basicAuth=true but no pluginMode as hosted-metrics (ConfigEditor.tsx:527-535; pkg/models/settings.go:84-92)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "secureJsonData_apiKey",
+                "secureJsonData_appKey"
+            ],
+            "description": "Default-mode credentials: the Datadog API key (DD-API-KEY header) and Application key (DD-APPLICATION-KEY header) are used together. Both are required when pluginMode != 'hosted-metrics' (pkg/datadog/health_diagnostics.go:82-89; pkg/datadog/client/client_v1.go:97-99)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Hosted-metrics credentials: the Grafana Cloud basic-auth username (root.basicAuthUser) and password (secureJsonData.basicAuthPassword), injected as URL userinfo against the hosted-metrics proxy (pkg/datadog/client/client_v1.go:85-87). Both are required when pluginMode == 'hosted-metrics' (pkg/datadog/health_diagnostics.go:90-100)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_rateLimitEnabled",
+                "jsonData_rateLimitMetrics"
+            ],
+            "description": "The API rate limit threshold input is only rendered when jsonData.rateLimitEnabled is true (ConfigEditor.tsx:406-425); when enabled but left at 0 the backend coerces it to 100 (pkg/models/settings.go:63-65)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Two connection/authentication modes are selected by jsonData.pluginMode: 'default' (the default) connects directly to the Datadog API and authenticates with an API key + Application key stored in secureJsonData (apiKey, appKey); 'hosted-metrics' connects through a Grafana Cloud Datadog proxy and authenticates with datasource root basic auth (root.basicAuth=true, root.basicAuthUser, secureJsonData.basicAuthPassword). The editor's Mode radio drives everything: it sets jsonData.pluginMode and toggles root.basicAuth together, and only the selected mode's credential fields are shown.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Default (direct API) mode, set jsonData.pluginMode to 'default', jsonData.url to a Datadog API URL (region), and put both secrets in secureJsonData. Minimal payload: {\"jsonData\":{\"pluginMode\":\"default\",\"url\":\"https://api.datadoghq.com\"},\"secureJsonData\":{\"apiKey\":\"<your-datadog-api-key>\",\"appKey\":\"<your-application-key>\"}}. Both apiKey and appKey are mandatory in this mode — the backend health check returns 'Enter an API key.' / 'Enter an App key.' otherwise (pkg/datadog/health_diagnostics.go:82-89). They are sent as the DD-API-KEY and DD-APPLICATION-KEY request headers.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Hosted Datadog Metrics mode, set jsonData.pluginMode to 'hosted-metrics', set root.basicAuth to true, jsonData.url to the Grafana Cloud hosted-metrics proxy URL, root.basicAuthUser to your Grafana Cloud Prometheus username, and secureJsonData.basicAuthPassword to your Grafana Cloud API key. Minimal payload: {\"basicAuth\":true,\"basicAuthUser\":\"<your-grafana-cloud-username>\",\"jsonData\":{\"pluginMode\":\"hosted-metrics\",\"url\":\"https://dd-prod-10-prod-us-central-0.grafana.net/datadog\"},\"secureJsonData\":{\"basicAuthPassword\":\"<your-grafana-cloud-api-key>\"}}. The URL must NOT be the default https://api.datadoghq.com, and both the username and password are required (pkg/datadog/health_diagnostics.go:90-100).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: datasources created by the 1.x plugin stored api_key and app_key as plaintext under jsonData; on load the editor and backend migrate them into secureJsonData.apiKey / secureJsonData.appKey and stop reading the jsonData copies (ConfigEditor.tsx:41-68; pkg/models/settings.go:52-58). Also, a datasource with root.basicAuth=true but no jsonData.pluginMode is treated as 'hosted-metrics' (pkg/models/settings.go:84-92) — do not assume a missing pluginMode means Default mode when basic auth is enabled.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (apiKey, appKey, basicAuthPassword) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.apiKey == true) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.url is required in every mode and its meaning depends on pluginMode: in Default mode it is the regional Datadog API base URL — one of https://api.datadoghq.com (US1), https://api.us3.datadoghq.com (US3), https://api.us5.datadoghq.com (US5), https://api.datadoghq.eu (EU), https://api.ddog-gov.com (US1-FED), or a custom value; in Hosted Datadog Metrics mode it is the Grafana Cloud proxy URL. The backend joins '/api/v1' (and '/api/v2') onto this URL (pkg/datadog/client/client_v1.go:88,118), so provide the scheme+host with no trailing path. An empty url fails the health check with 'Enter a URL.' (pkg/datadog/health_diagnostics.go:101-103).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,270 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "dlopes7-appdynamics-datasource",
+    "pluginName": "AppDynamics",
+    "docURL": "https://grafana.com/docs/plugins/dlopes7-appdynamics-datasource",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:8086"
+            }
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "label": "Basic auth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "user"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_clientName",
+            "key": "clientName",
+            "label": "Client Name",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "requiredWhen": "jsonData_clientDomain != '' || secureJsonData_clientSecret != ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client Name"
+            }
+        },
+        {
+            "id": "jsonData_clientDomain",
+            "key": "clientDomain",
+            "label": "Client Domain",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "jsonData_clientName != '' || secureJsonData_clientSecret != ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client Domain"
+            }
+        },
+        {
+            "id": "secureJsonData_clientSecret",
+            "key": "clientSecret",
+            "label": "Client Secret",
+            "description": "Authenticate to AppDynamics using an API key. This will override username/password (basic) authenticationLeave blank for username/password authentication.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "requiredWhen": "jsonData_clientName != '' || jsonData_clientDomain != ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Paste the client secret here..."
+            }
+        },
+        {
+            "id": "jsonData_analyticsURL",
+            "key": "analyticsURL",
+            "label": "Analytics API URL",
+            "description": "The Analytics API URL",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_globalAccountName",
+            "key": "globalAccountName",
+            "label": "Global Account Name",
+            "description": "The global account name, as shown in the Controller UI License page.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_analyticsAPIKey",
+            "key": "analyticsAPIKey",
+            "label": "Analytics API Key",
+            "description": "The Analytics API Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "ui": {
+                "component": "input",
+                "placeholder": "Paste in Analytics API Key here..."
+            },
+            "help": {
+                "title": "API Key",
+                "markdown": "You can generate and use an API key for each API access call into your Controller by generating an access token through the Administration UI. These API keys usually have a longer expiration. The account administrator can generate and distribute to parties/teams who need Controller access, but do not want to refresh such tokens frequently.\n\nCreate an API key in the Controller Administration UI under `Account > API Clients` (`<controller-url>/controller/#/location=ACCOUNT_ADMIN_API_CLIENTS`)."
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "root_basicAuth",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword",
+                "jsonData_clientName",
+                "jsonData_clientDomain",
+                "secureJsonData_clientSecret"
+            ]
+        },
+        {
+            "id": "analytics",
+            "title": "Analytics",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_analyticsURL",
+                "jsonData_globalAccountName",
+                "secureJsonData_analyticsAPIKey"
+            ]
+        },
+        {
+            "id": "tls-settings",
+            "title": "TLS settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tlsSkipVerify"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic auth credentials for the Controller (Metrics) API. Both are used together when root.basicAuth is true and no clientSecret is set (pkg/models/settings.go:49-51; pkg/appd/auth/auth_provider.go:56-64)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_clientName",
+                "jsonData_clientDomain",
+                "secureJsonData_clientSecret"
+            ],
+            "description": "API Client (OAuth2 client-credentials) credentials for the Controller (Metrics) API. The backend builds client_id=clientName@clientDomain and posts client_secret to <url>/controller/api/oauth/access_token; all three are required together and take precedence over basic auth (pkg/appd/auth/auth_provider.go:66-83; pkg/appd/health_diagnostics.go:98-114)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_analyticsURL",
+                "jsonData_globalAccountName",
+                "secureJsonData_analyticsAPIKey"
+            ],
+            "description": "Analytics (Events) API credentials, independent of the Controller auth. All three are required to enable Analytics; the backend sends analyticsAPIKey as X-Events-API-Key and globalAccountName as X-Events-API-AccountName against analyticsURL (pkg/appd/analytics/client.go:39-54; pkg/appd/health_diagnostics.go:70-84)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Controller (Metrics) API supports two authentication methods, and there is NO stored discriminator field: the backend picks the method at runtime. API Client auth is used when secureJsonData.clientSecret is set together with jsonData.clientName and jsonData.clientDomain (it builds an OAuth2 client_id of clientName@clientDomain); otherwise Basic auth is used with root.basicAuth=true, root.basicAuthUser and secureJsonData.basicAuthPassword. clientSecret overrides basic auth. root.url (the Controller URL, e.g. http://localhost:8086) is always required. Configure exactly one method.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal API Client payload: {\"url\":\"https://controller.example.com\",\"jsonData\":{\"clientName\":\"<your-api-client-name>\",\"clientDomain\":\"<your-account-name>\"},\"secureJsonData\":{\"clientSecret\":\"<your-api-client-secret>\"}}. Minimal Basic auth payload: {\"url\":\"https://controller.example.com\",\"basicAuth\":true,\"basicAuthUser\":\"<your-username>\",\"jsonData\":{},\"secureJsonData\":{\"basicAuthPassword\":\"<your-password>\"}}. For API Client auth all three of clientName, clientDomain and clientSecret must be present; for Basic auth both the username and password must be present (pkg/appd/health_diagnostics.go:92-128).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Analytics (Events) is optional and configured independently of the Controller auth via jsonData.analyticsURL, jsonData.globalAccountName and secureJsonData.analyticsAPIKey. All three must be set for Analytics to be active; if any is missing the backend silently skips Analytics (no error) — it does not fall back to the Controller credentials (pkg/appd/health_diagnostics.go:70-84). analyticsURL is a separate Events API endpoint (NOT the Controller URL); the editor offers https://analytics.api.appdynamics.com, https://fra-ana-api.saas.appdynamics.com and https://syd-ana-api.saas.appdynamics.com but accepts any custom URL (e.g. an on-prem Events Service at http(s)://<controller-host>:9080/).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, clientSecret, analyticsAPIKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.clientSecret == true) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "root.url is the AppDynamics Controller base URL and is read by the backend as settings.MetricsURL (pkg/models/settings.go:44); the backend path-joins Controller paths such as /controller/rest/applications and /controller/api/oauth/access_token onto it. Set jsonData.tlsSkipVerify=true only for self-signed Controllers (testing) — it is the single HTTP setting from Grafana's standard DataSourceHttpSettings that this backend honors (pkg/appd/client/client.go:39-41).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "This datasource has no legacy storage shape and no auth-type discriminator, so do not infer the method from a stored field: a datasource with only basic-auth fields is Basic auth, and one with clientName/clientDomain/clientSecret is API Client auth. Grafana's DataSourceHttpSettings also renders With Credentials, access mode, custom headers, and TLS client-certificate fields (jsonData.tlsAuth, tlsAuthWithCACert, serverName, secureJsonData.tlsCACert/tlsClientCert/tlsClientKey), but this plugin's HTTP client ignores all of them except tlsSkipVerify and the proxy options (pkg/appd/client/client.go:29-44) — do not rely on them.",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        }
+    ]
+}

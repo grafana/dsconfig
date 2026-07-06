@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "database": {
+            "type": "string",
+            "x-dsconfig-required-when": "true"
+          }
+        }
+      },
+      "url": {
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      },
+      "user": {
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password"
+    }
+  ]
+}

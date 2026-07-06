@@ -1,0 +1,71 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "authMethod": {
+            "description": "Select the authentication method to use when connecting to Jira",
+            "type": "string",
+            "default": "basicAuth",
+            "enum": [
+              "basicAuth",
+              "oauth2"
+            ]
+          },
+          "cloudId": {
+            "description": "Jira App Cloud Id is required to be used with API Token with Scopes",
+            "type": "string",
+            "x-dsconfig-depends-on": "(jsonData_authMethod == 'basicAuth' \u0026\u0026 jsonData_scopedToken == true) || jsonData_authMethod == 'oauth2'",
+            "x-dsconfig-required-when": "jsonData_authMethod == 'oauth2' || (jsonData_authMethod == 'basicAuth' \u0026\u0026 jsonData_scopedToken == true)"
+          },
+          "hosting": {
+            "description": "The provider is where your JIRA instance is hosted. Select Jira Cloud if your Jira is being hosted on Atlassian Cloud. Select Jira Data Center / Jira Server if your Jira is being hosted elsewhere.",
+            "type": "string",
+            "default": "cloud",
+            "enum": [
+              "cloud",
+              "server"
+            ],
+            "x-dsconfig-disabled-when": "jsonData_authMethod == 'oauth2'"
+          },
+          "oauthClientID": {
+            "description": "The OAuth 2.0 Client ID for the Jira service account",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2'",
+            "x-dsconfig-required-when": "jsonData_authMethod == 'oauth2'"
+          },
+          "scopedToken": {
+            "description": "Toggle this switch on if API Token with scopes is used",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_authMethod == 'basicAuth'"
+          },
+          "url": {
+            "description": "The URL is the root URL for your Atlassian instance (example: company.atlassian.net)",
+            "type": "string"
+          },
+          "user": {
+            "description": "The email address for the user/service account",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authMethod == 'basicAuth'"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "token",
+      "description": "The API token is the token associated with the user. You can create one here."
+    },
+    {
+      "key": "oauthClientSecret",
+      "description": "The OAuth 2.0 Client Secret for the Jira service account"
+    }
+  ]
+}

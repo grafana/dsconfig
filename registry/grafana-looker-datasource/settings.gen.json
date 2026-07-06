@@ -1,0 +1,37 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "auth_type": {
+            "description": "Looker authentication type",
+            "type": "string",
+            "default": "client_secret",
+            "enum": [
+              "client_secret"
+            ]
+          },
+          "base_url": {
+            "description": "Looker base URL. Example: https://00001234-1234-1ab2-1234-a1b2c3d4.looker.app",
+            "type": "string",
+            "x-dsconfig-required-when": "true"
+          },
+          "client_id": {
+            "description": "API credentials Looker client id",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'client_secret' || jsonData_authType == ''",
+            "x-dsconfig-required-when": "jsonData_authType == 'client_secret'"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "client_secret",
+      "description": "API credentials Looker client secret"
+    }
+  ]
+}

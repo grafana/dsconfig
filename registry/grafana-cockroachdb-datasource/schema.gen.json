@@ -1,0 +1,230 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "authType": {
+              "type": "string",
+              "enum": [
+                "SQL Authentication",
+                "Kerberos Authentication",
+                "TLS/SSL Authentication"
+              ]
+            },
+            "configFilePath": {
+              "description": "The path to the configuration file for the [MIT krb5 package](https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html). The default is `/etc/krb5.conf`.",
+              "type": "string",
+              "default": "/etc/krb5.conf",
+              "x-dsconfig-depends-on": "jsonData_authType == 'Kerberos Authentication'",
+              "x-dsconfig-required-when": "jsonData_authType == 'Kerberos Authentication'"
+            },
+            "connMaxLifetime": {
+              "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
+              "type": "number",
+              "default": 300
+            },
+            "credentialCache": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'Kerberos Authentication'",
+              "x-dsconfig-required-when": "jsonData_authType == 'Kerberos Authentication'"
+            },
+            "database": {
+              "type": "string",
+              "x-dsconfig-required-when": "true"
+            },
+            "kerberosServerName": {
+              "description": "The Kerberos service name to use (optional). Default is 'postgres'.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'Kerberos Authentication'"
+            },
+            "maxIdleConns": {
+              "description": "The maximum number of connections in the idle connection pool.If Max open connections is greater than 0 but less than the Max idle connections, then the Max idle connections will be reduced to match the Max open connections limit. If set to 0, no idle connections are retained.",
+              "type": "number",
+              "default": 2
+            },
+            "maxIdleConnsAuto": {
+              "description": "If enabled, automatically set the number of Maximum idle connections to the same value as Max open connections. If the number of maximum open connections is not set it will be set to the default.",
+              "type": "boolean",
+              "default": false
+            },
+            "maxOpenConns": {
+              "description": "The maximum number of open connections to the database. If Max idle connections is greater than 0 and the Max open connections is less than Max idle connections, then Max idle connections will be reduced to match the Max open connections limit. If set to 0, there is no limit on the number of open connections.",
+              "type": "number",
+              "default": 5
+            },
+            "queryTimeout": {
+              "description": "The maximum amount of time in seconds to wait for a query to complete. Valid range: 5-600 seconds (10 minutes). If set to 0, the default of 30 seconds will be used.",
+              "type": "number",
+              "default": 30
+            },
+            "sslCertFile": {
+              "description": "To authenticate with an TLS/SSL client certificate, provide the path to the file here. Be sure that the file is readable by the user executing the grafana process.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'",
+              "x-dsconfig-required-when": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'"
+            },
+            "sslKeyFile": {
+              "description": "To authenticate with a client TLS/SSL certificate, provide the path to the corresponding key file here. Be sure that the file is only readable by the user executing the grafana process.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'",
+              "x-dsconfig-required-when": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'"
+            },
+            "sslRootCertFile": {
+              "description": "If the selected TLS/SSL mode requires a server root certificate, provide the path to the file here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'",
+              "x-dsconfig-required-when": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'"
+            },
+            "sslmode": {
+              "description": "This option determines whether or with what priority a secure TLS/SSL TCP/IP connection will be negotiated with the server",
+              "type": "string",
+              "default": "require",
+              "enum": [
+                "disable",
+                "require",
+                "verify-ca",
+                "verify-full"
+              ],
+              "x-dsconfig-depends-on": "jsonData_authType == 'TLS/SSL Authentication'"
+            },
+            "tlsConfigurationMethod": {
+              "description": "This option determines how TLS/SSL certifications are configured. Selecting File system path will allow you to configure certificates by specifying paths to existing certificates on the local file system where Grafana is running. Be sure that the file is readable by the user executing the Grafana process. Selecting Certificate content will allow you to configure certificates by specifying its content. The content will be stored encrypted in Grafana's database. When connecting to the database the certificates will be written as files to Grafana's configured data path on the local file system.",
+              "type": "string",
+              "default": "file-content",
+              "enum": [
+                "file-content",
+                "file-path"
+              ],
+              "x-dsconfig-depends-on": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable'"
+            },
+            "url": {
+              "type": "string",
+              "x-dsconfig-required-when": "true"
+            },
+            "user": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != ''",
+              "x-dsconfig-required-when": "true"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password"
+      },
+      {
+        "key": "tlsCACert",
+        "description": "If the selected TLS/SSL mode requires a server root certificate, provide it here."
+      },
+      {
+        "key": "tlsClientCert",
+        "description": "To authenticate with an TLS/SSL client certificate, provide the client certificate here."
+      },
+      {
+        "key": "tlsClientKey",
+        "description": "To authenticate with a client TLS/SSL certificate, provide the key here."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with (sslmode='require', tlsConfigurationMethod='file-content', pool defaults 5/2/300/30). The user must still choose authType and supply jsonData.url, jsonData.user, jsonData.database and (for non-Kerberos auth) secureJsonData.password.",
+        "value": {
+          "jsonData": {
+            "connMaxLifetime": 300,
+            "database": "",
+            "maxIdleConns": 2,
+            "maxOpenConns": 5,
+            "queryTimeout": 30,
+            "sslmode": "require",
+            "tlsConfigurationMethod": "file-content",
+            "url": "",
+            "user": ""
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "kerberosAuth": {
+        "summary": "Kerberos Authentication",
+        "description": "Kerberos auth needs NO password. credentialCache is required; configFilePath defaults to /etc/krb5.conf; kerberosServerName (krbsrvname) is optional and defaults to 'postgres'. The backend always negotiates sslmode=require with authenticator=krb5.",
+        "value": {
+          "jsonData": {
+            "authType": "Kerberos Authentication",
+            "configFilePath": "/etc/krb5.conf",
+            "credentialCache": "/tmp/krb5cc_1000",
+            "database": "defaultdb",
+            "kerberosServerName": "postgres",
+            "url": "crdb.internal:26257",
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {}
+        }
+      },
+      "sqlAuth": {
+        "summary": "SQL Authentication (username / password)",
+        "description": "The most common setup: username + password over the PostgreSQL wire protocol. All connection fields live in jsonData; the password is the only secret.",
+        "value": {
+          "jsonData": {
+            "authType": "SQL Authentication",
+            "database": "defaultdb",
+            "url": "localhost:26257",
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          }
+        }
+      },
+      "tlsVerifyCAFileContent": {
+        "summary": "TLS/SSL Authentication, sslmode=verify-ca, inline PEM content",
+        "description": "TLS auth with certificates stored as encrypted content in secureJsonData; the backend writes them to Grafana's data path as files before connecting. All three inline PEMs are required. This is the editor's default TLS method (file-content).",
+        "value": {
+          "jsonData": {
+            "authType": "TLS/SSL Authentication",
+            "database": "defaultdb",
+            "sslmode": "verify-ca",
+            "tlsConfigurationMethod": "file-content",
+            "url": "crdb.internal:26257",
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme",
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+          }
+        }
+      },
+      "tlsVerifyFullFilePath": {
+        "summary": "TLS/SSL Authentication, sslmode=verify-full, file-path certs",
+        "description": "TLS auth with certificate paths read from the Grafana host's local filesystem. All three paths (root/cert/key) are required. A password is still required.",
+        "value": {
+          "jsonData": {
+            "authType": "TLS/SSL Authentication",
+            "database": "defaultdb",
+            "sslCertFile": "/etc/secrets/cockroach/client.crt",
+            "sslKeyFile": "/etc/secrets/cockroach/client.key",
+            "sslRootCertFile": "/etc/secrets/cockroach/ca.crt",
+            "sslmode": "verify-full",
+            "tlsConfigurationMethod": "file-path",
+            "url": "crdb.internal:26257",
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          }
+        }
+      }
+    }
+  }
+}

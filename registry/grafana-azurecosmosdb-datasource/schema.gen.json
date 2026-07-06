@@ -1,0 +1,52 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "accountEndpoint": {
+              "type": "string",
+              "x-dsconfig-required-when": "true"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accountKey"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: empty accountEndpoint and an empty accountKey placeholder. Both jsonData.accountEndpoint and secureJsonData.accountKey must be filled in for the datasource to load — pkg/plugin/settings.go:15-23 rejects either being empty.",
+        "value": {
+          "jsonData": {
+            "accountEndpoint": ""
+          },
+          "secureJsonData": {
+            "accountKey": ""
+          }
+        }
+      },
+      "accountKey": {
+        "summary": "Account key authentication",
+        "description": "Standard configuration against an Azure Cosmos DB account. jsonData.accountEndpoint is the account URI (as shown on the account's Keys blade in the Azure portal, typically https://\u003caccount\u003e.documents.azure.com:443/) and secureJsonData.accountKey is the primary or secondary master key. The backend wraps the key with azcosmos.NewKeyCredential and calls azcosmos.NewClientWithKey at pkg/cosmos/client.go:24-52.",
+        "value": {
+          "jsonData": {
+            "accountEndpoint": "https://my-account.documents.azure.com:443/"
+          },
+          "secureJsonData": {
+            "accountKey": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX=="
+          }
+        }
+      }
+    }
+  }
+}

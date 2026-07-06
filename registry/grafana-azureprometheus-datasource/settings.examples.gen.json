@@ -1,0 +1,152 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with. Azure Prometheus has no schema-side credential default (the config editor chooses one at load time based on Grafana's `azure.managedIdentityEnabled` / `workloadIdentityEnabled` / `userIdentityEnabled` config), so a fresh datasource has no `azureCredentials` and no secrets. `httpMethod` defaults to POST (uppercased on load by both editor and backend). Users must complete authentication before the datasource is usable.",
+      "value": {
+        "jsonData": {
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        },
+        "url": "https://\u003cworkspace\u003e.prometheus.monitor.azure.com"
+      }
+    },
+    "clientSecret": {
+      "summary": "App Registration (Client Secret)",
+      "description": "Authenticate via an Entra ID (Azure AD) app registration and client secret. The secret is stored write-only in `secureJsonData.azureClientSecret`; the rest of the credential lives in `jsonData.azureCredentials`.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    },
+    "currentUser": {
+      "summary": "Current User (with Client Secret fallback)",
+      "description": "Forward the signed-in Grafana user's OAuth identity to Azure. Only available when Grafana's `azure.userIdentityEnabled` is true. Enabling `serviceCredentialsEnabled` lets user-context-less features (alerting, recorded queries, reporting) fall back to a service credential — here a `clientsecret` fallback whose secret shares the `secureJsonData.azureClientSecret` key.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "currentuser",
+            "serviceCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "serviceCredentialsEnabled": true
+          },
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    },
+    "customEndpointResourceID": {
+      "summary": "Client Secret with custom endpoint resource ID (provisioning-only)",
+      "description": "Override the OAuth scope audience the backend derives from the resolved Azure cloud's `prometheusResourceId` property by supplying `jsonData.azureEndpointResourceId`. Editor-hidden; provisioning-only. See `pkg/azureauth/azure.go:58-63`.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "azureEndpointResourceId": "https://prometheus.monitor.azure.com",
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    },
+    "legacyClientSecret": {
+      "summary": "Legacy secure key (pre-`azureClientSecret` migration)",
+      "description": "Datasources provisioned before the credentials migration stored the client secret in `secureJsonData.clientSecret` instead of the modern `secureJsonData.azureClientSecret`. The backend still accepts this shape via the shared `grafana-azure-sdk-go/v2/azcredentials/builder.go` fallback. Opening the editor and saving migrates the datasource to the modern key.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "clientSecret": "changeme"
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    },
+    "managedIdentity": {
+      "summary": "Managed Identity",
+      "description": "Authenticate using the Grafana host's Azure Managed Identity. Only available when Grafana's `azure.managedIdentityEnabled` is true. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "msi"
+          },
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    },
+    "migratedFromPrometheus": {
+      "summary": "Migrated from vanilla Prometheus",
+      "description": "Datasources migrated from the vanilla Prometheus plugin carry the sentinel flag `jsonData['prometheus-type-migration'] = true`, which triggers the 'Data source migrated' banner at `src/configuration/DataSourceHttpSettingsOverhaul.tsx:101-117`. The banner is purely informational — nothing in the runtime depends on the flag.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "httpMethod": "POST",
+          "prometheus-type-migration": true,
+          "prometheusType": "Prometheus",
+          "prometheusVersion": "2.50.1"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    },
+    "workloadIdentity": {
+      "summary": "Workload Identity",
+      "description": "Authenticate using an Entra ID Workload Identity federated to the Kubernetes service account Grafana runs under. Only available when Grafana's `azure.workloadIdentityEnabled` is true. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "workloadidentity"
+          },
+          "httpMethod": "POST"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        },
+        "url": "https://mimir.prometheus.monitor.azure.com"
+      }
+    }
+  }
+}

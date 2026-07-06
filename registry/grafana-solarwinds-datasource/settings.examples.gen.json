@@ -1,0 +1,78 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the single service 'solarwinds' preselects its only auth method, basic_auth. Fill in the instance url (jsonData.variables.url), username, and password (secureJsonData \"solarwinds.password\", empty here) to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "solarwinds": {
+              "auth": {
+                "id": "basic_auth",
+                "username": ""
+              }
+            }
+          },
+          "variables": {
+            "url": ""
+          }
+        },
+        "secureJsonData": {
+          "solarwinds.password": ""
+        }
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic auth",
+      "description": "Authenticate against {url}:17774/SolarWinds/InformationService/v3/Json with a username and password (the password is the write-only secret at secureJsonData \"solarwinds.password\").",
+      "value": {
+        "jsonData": {
+          "services": {
+            "solarwinds": {
+              "auth": {
+                "id": "basic_auth",
+                "username": "admin"
+              }
+            }
+          },
+          "variables": {
+            "url": "https://solarwinds.example.com"
+          }
+        },
+        "secureJsonData": {
+          "solarwinds.password": "\u003csolarwinds-password\u003e"
+        }
+      }
+    },
+    "basicAuthMutualTLS": {
+      "summary": "Basic auth with mutual TLS",
+      "description": "Basic auth plus TLS client authentication: the client certificate and key are write-only secrets at secureJsonData \"solarwinds.tls.clientCert\" and \"solarwinds.tls.clientKey\".",
+      "value": {
+        "jsonData": {
+          "services": {
+            "solarwinds": {
+              "auth": {
+                "id": "basic_auth",
+                "tls": {
+                  "clientAuth": {
+                    "enabled": true,
+                    "serverName": "solarwinds.example.com"
+                  }
+                },
+                "username": "admin"
+              }
+            }
+          },
+          "variables": {
+            "url": "https://solarwinds.example.com"
+          }
+        },
+        "secureJsonData": {
+          "solarwinds.password": "\u003csolarwinds-password\u003e",
+          "solarwinds.tls.clientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "solarwinds.tls.clientKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+        }
+      }
+    }
+  }
+}

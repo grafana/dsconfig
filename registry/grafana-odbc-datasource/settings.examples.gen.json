@@ -1,0 +1,104 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: timeout '10' and no driver. jsonData.driver is required, so this default fails validation until a driver alias or driver path is supplied.",
+      "value": {
+        "jsonData": {
+          "timeout": "10"
+        },
+        "secureJsonData": {
+          "pwd": ""
+        }
+      }
+    },
+    "connectionStringDSN": {
+      "summary": "Backend-only DSN connection string",
+      "description": "The backend-only jsonData.DSN field replaces the 'Driver=\u003cdriver\u003e;' prefix with 'DSN=\u003cDSN\u003e;' (pkg/database/connect.go:76-78). jsonData.driver must still be non-empty — settings load rejects an empty driver before the connection string is built, so a DSN-only config cannot connect.",
+      "value": {
+        "jsonData": {
+          "DSN": "TESTDB",
+          "driver": "{TESTDB}",
+          "settings": [
+            {
+              "name": "uid",
+              "secure": false,
+              "value": "db2inst1"
+            },
+            {
+              "name": "pwd",
+              "secure": true
+            }
+          ],
+          "timeout": "10"
+        },
+        "secureJsonData": {
+          "pwd": "\u003cyour-password\u003e"
+        }
+      }
+    },
+    "driverAlias": {
+      "summary": "Driver alias ({...} form)",
+      "description": "jsonData.driver is a driver alias in braces (resolved from the host's odbcinst.ini). The connection string becomes 'Driver={MySQLDB};uid=grafana;pwd=\u003csecret\u003e;'.",
+      "value": {
+        "jsonData": {
+          "driver": "{MySQLDB}",
+          "settings": [
+            {
+              "name": "uid",
+              "secure": false,
+              "value": "grafana"
+            },
+            {
+              "name": "pwd",
+              "secure": true
+            }
+          ],
+          "timeout": "10"
+        },
+        "secureJsonData": {
+          "pwd": "\u003cyour-password\u003e"
+        }
+      }
+    },
+    "driverPathDB2": {
+      "summary": "Driver path (DB2) with a secure password",
+      "description": "jsonData.driver is an absolute path to the ODBC driver shared library; connection parameters are supplied as driver settings. The 'pwd' setting is marked secure, so its value lives in secureJsonData.pwd and its settings[] entry carries only name+secure.",
+      "value": {
+        "jsonData": {
+          "driver": "/opt/db2/clidriver/lib/libdb2.so.1",
+          "settings": [
+            {
+              "name": "host",
+              "secure": false,
+              "value": "127.0.0.1"
+            },
+            {
+              "name": "port",
+              "secure": false,
+              "value": "50000"
+            },
+            {
+              "name": "database",
+              "secure": false,
+              "value": "sample"
+            },
+            {
+              "name": "uid",
+              "secure": false,
+              "value": "db2inst1"
+            },
+            {
+              "name": "pwd",
+              "secure": true
+            }
+          ],
+          "timeout": "10"
+        },
+        "secureJsonData": {
+          "pwd": "\u003cyour-password\u003e"
+        }
+      }
+    }
+  }
+}

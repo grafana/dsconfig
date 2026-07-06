@@ -1,0 +1,75 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The empty defaults a new datasource starts with: no Controller URL, no auth method, and no Analytics. A working datasource needs root.url plus one Controller auth method (basic auth or API Client), so this example intentionally fails validation until those are filled in.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "clientSecret": ""
+        }
+      }
+    },
+    "apiClient": {
+      "summary": "API Client (OAuth) authentication",
+      "description": "Authenticate the Controller (Metrics) API with an API Client: jsonData.clientName + jsonData.clientDomain form the OAuth2 client_id (clientName@clientDomain) and secureJsonData.clientSecret is the client secret. clientSecret takes precedence over basic auth.",
+      "value": {
+        "jsonData": {
+          "clientDomain": "\u003cyour-account-name\u003e",
+          "clientName": "\u003cyour-api-client-name\u003e"
+        },
+        "secureJsonData": {
+          "clientSecret": "\u003cyour-api-client-secret\u003e"
+        },
+        "url": "https://controller.example.com"
+      }
+    },
+    "apiClientWithAnalytics": {
+      "summary": "API Client + Analytics (Events) API",
+      "description": "API Client auth for the Controller plus the optional Analytics API. Analytics requires all three of jsonData.analyticsURL, jsonData.globalAccountName and secureJsonData.analyticsAPIKey; analyticsURL is a separate Events API endpoint.",
+      "value": {
+        "jsonData": {
+          "analyticsURL": "https://analytics.api.appdynamics.com",
+          "clientDomain": "\u003cyour-account-name\u003e",
+          "clientName": "\u003cyour-api-client-name\u003e",
+          "globalAccountName": "\u003cyour-global-account-name\u003e"
+        },
+        "secureJsonData": {
+          "analyticsAPIKey": "\u003cyour-analytics-api-key\u003e",
+          "clientSecret": "\u003cyour-api-client-secret\u003e"
+        },
+        "url": "https://controller.example.com"
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic authentication",
+      "description": "Authenticate the Controller (Metrics) API with basic auth: root.basicAuth=true, root.basicAuthUser (typically username@account) and secureJsonData.basicAuthPassword. Used when no clientSecret is set.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "\u003cyour-username\u003e",
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": "\u003cyour-password\u003e"
+        },
+        "url": "https://controller.example.com"
+      }
+    },
+    "basicAuthWithAnalytics": {
+      "summary": "Basic auth + Analytics (Events) API",
+      "description": "Basic auth for the Controller plus the optional Analytics API. Analytics is configured independently of the Controller credentials via analyticsURL + globalAccountName + analyticsAPIKey.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "\u003cyour-username\u003e",
+        "jsonData": {
+          "analyticsURL": "https://analytics.api.appdynamics.com",
+          "globalAccountName": "\u003cyour-global-account-name\u003e"
+        },
+        "secureJsonData": {
+          "analyticsAPIKey": "\u003cyour-analytics-api-key\u003e",
+          "basicAuthPassword": "\u003cyour-password\u003e"
+        },
+        "url": "https://controller.example.com"
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "basicAuth": {
+        "type": "boolean",
+        "default": false
+      },
+      "basicAuthUser": {
+        "type": "string",
+        "x-dsconfig-depends-on": "root_basicAuth == true",
+        "x-dsconfig-required-when": "root_basicAuth == true"
+      },
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "analyticsURL": {
+            "description": "The Analytics API URL",
+            "type": "string"
+          },
+          "clientDomain": {
+            "type": "string",
+            "x-dsconfig-required-when": "jsonData_clientName != '' || secureJsonData_clientSecret != ''"
+          },
+          "clientName": {
+            "type": "string",
+            "x-dsconfig-required-when": "jsonData_clientDomain != '' || secureJsonData_clientSecret != ''"
+          },
+          "globalAccountName": {
+            "description": "The global account name, as shown in the Controller UI License page.",
+            "type": "string"
+          },
+          "tlsSkipVerify": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "url": {
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "basicAuthPassword"
+    },
+    {
+      "key": "clientSecret",
+      "description": "Authenticate to AppDynamics using an API key. This will override username/password (basic) authenticationLeave blank for username/password authentication."
+    },
+    {
+      "key": "analyticsAPIKey",
+      "description": "The Analytics API Key"
+    }
+  ]
+}

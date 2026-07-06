@@ -1,0 +1,124 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-yugabyte-datasource",
+    "pluginName": "Yugabyte",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/yugabyte/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "Host URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "localhost:5433"
+            }
+        },
+        {
+            "id": "jsonData_database",
+            "key": "database",
+            "label": "Database",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "yb_demo"
+            }
+        },
+        {
+            "id": "root_user",
+            "key": "user",
+            "label": "Username",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "yugabyte"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "ui": {
+                "component": "input",
+                "placeholder": "********"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url",
+                "jsonData_database"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "root_user",
+                "secureJsonData_password"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Yugabyte datasource authenticates over the PostgreSQL wire protocol with a username / password. Minimal payload: {\"url\":\"localhost:5433\",\"user\":\"<user>\",\"jsonData\":{\"database\":\"<db>\"},\"secureJsonData\":{\"password\":\"<password>\"}}. Root-level url and user are read by the backend directly from backend.DataSourceInstanceSettings (pkg/settings.go:25,38); jsonData.database populates Settings.Database via json unmarshal (pkg/settings.go:15,43). Password is stored write-only in secureJsonData.password (pkg/settings.go:39).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "URL contract: the backend calls net.SplitHostPort(settings.URL) at pkg/settings.go:25 and returns an error if the URL is missing a port. Configure the URL as 'host:port' (e.g. 'localhost:5433' — Yugabyte YSQL default port is 5433, not the PostgreSQL 5432). Do NOT prefix with a scheme (no 'postgres://' or 'https://'); a scheme will make SplitHostPort fail.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "TLS is hardcoded to sslmode='allow' at pkg/settings.go:52 (BuildConnectionString). There is no editor UI or jsonData/secureJsonData field for TLS: no server verification, no client certs, no root-CA pinning. libpq's 'allow' mode first tries a non-TLS connection and falls back to TLS only if the server rejects plaintext, so cluster policy fully determines whether the connection is encrypted. This is a significant divergence from grafana-postgresql-datasource which exposes disable/require/verify-ca/verify-full modes.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData.password is write-only: it can be set or reset but never read back. To check whether a password is already configured on an existing datasource, read secureJsonFields.password (boolean) instead of secureJsonData.password.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Secure Socks Proxy: the config editor renders a jsonData.enableSecureSocksProxy toggle (ConfigEditor.tsx:83) that is wired into the backend at pkg/driver.go:41-53. This field is intentionally excluded from the registry schema per repo policy; provisioning callers that need it should write jsonData.enableSecureSocksProxy=true directly.",
+            "tags": [
+                "llm",
+                "proxy"
+            ]
+        },
+        {
+            "msg": "The frontend types (src/types.ts:11) declare YugabyteOptions extends SQLOptions (from @grafana/plugin-ui), so any SQLOptions field (timeInterval, sslmode, sslRootCertFile, maxOpenConns, connMaxLifetime, tlsConfigurationMethod, …) could technically be written to jsonData. The backend (pkg/settings.go) ONLY reads jsonData.database — every other SQLOptions field is silently ignored. Do not model those fields for this plugin; they are dead configuration.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

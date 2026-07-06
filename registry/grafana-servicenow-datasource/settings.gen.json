@@ -1,0 +1,61 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "basicAuthUser": {
+        "description": "Username of the ServiceNow account",
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      },
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authMethod": {
+            "description": "Type of authentication to use. Defaults to basic auth",
+            "type": "string",
+            "default": "basicAuth",
+            "enum": [
+              "basicAuth",
+              "serviceNowOAuth"
+            ]
+          },
+          "oauthClientID": {
+            "description": "Client ID for OAuth",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authMethod == 'serviceNowOAuth'",
+            "x-dsconfig-required-when": "jsonData_authMethod == 'serviceNowOAuth'"
+          },
+          "oauthEnabled": {
+            "description": "Deprecated legacy boolean that predates `authMethod`. Older plugin versions stored `oauthEnabled: true` to select ServiceNow OAuth. Not written by the current config editor, but still read for backwards compatibility by both the editor (initial auth-method derivation) and the backend (`GetAuthMethod`): when `authMethod` is empty, `oauthEnabled: true` selects `serviceNowOAuth`, otherwise `basicAuth`.",
+            "type": "boolean"
+          },
+          "queryTimeoutSeconds": {
+            "description": "Maximum time in seconds for queries to complete. Increase this for slow ServiceNow instances or large tables. Default is 30 seconds.",
+            "type": "number",
+            "default": 30
+          },
+          "useSysTables": {
+            "description": "Query sys tables for schema/meta lookups (requires elevated permissions)",
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "url": {
+        "description": "Your access method is Server, this means the URL needs to be accessible from the grafana backend/server.",
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "basicAuthPassword",
+      "description": "Password for the ServiceNow account"
+    },
+    {
+      "key": "oauthClientSecret",
+      "description": "Client Secret for OAuth"
+    }
+  ]
+}

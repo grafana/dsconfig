@@ -1,0 +1,194 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a fresh datasource starts with: AWS SDK Default credentials, environment proxy strategy, and the 30-minute Cloudwatch Logs polling timeout. `defaultRegion` still needs to be set before queries will run; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "accessAndSecretKey": {
+      "summary": "Access \u0026 secret key",
+      "description": "IAM user credentials supplied directly via secureJsonData. Optionally include sessionToken for temporary STS credentials.",
+      "value": {
+        "jsonData": {
+          "authType": "keys",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    },
+    "assumeRoleFromKeys": {
+      "summary": "Access \u0026 secret key + STS AssumeRole",
+      "description": "IAM user credentials that then assume a cross-account IAM role via STS. `externalId` is optional and only meaningful when `assumeRoleArn` is set.",
+      "value": {
+        "jsonData": {
+          "assumeRoleArn": "arn:aws:iam::123456789012:role/GrafanaCloudWatch",
+          "authType": "keys",
+          "defaultRegion": "us-east-1",
+          "externalId": "external-id-abc123",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    },
+    "awsSdkDefault": {
+      "summary": "AWS SDK Default",
+      "description": "Uses the AWS SDK default credential chain (env vars, shared config, EC2/ECS/EKS metadata). No secrets are set; the placeholder accessKey is empty to signal that.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "customMetricsNamespaces": "AWS/EC2,AWS/ELB",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "cloudwatchLogsDefaults": {
+      "summary": "Default log groups + custom logs timeout + Application Signals link",
+      "description": "Configures CloudWatch Logs default log groups (modern object shape written by the LogGroupsField when the cloudWatchCrossAccountQuerying feature toggle is on), a shorter logs polling timeout, and a link to a grafana-x-ray-datasource instance for Application Signals (formerly X-Ray) trace links from log entries containing an @xrayTraceId field.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "customMetricsNamespaces": "AWS/EC2,AWS/RDS,MyApp/Custom",
+          "defaultRegion": "us-east-1",
+          "logGroups": [
+            {
+              "arn": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/example",
+              "name": "/aws/lambda/example"
+            },
+            {
+              "accountId": "210987654321",
+              "accountLabel": "production",
+              "arn": "arn:aws:logs:us-east-1:210987654321:log-group:/aws/lambda/cross-account",
+              "name": "/aws/lambda/cross-account"
+            }
+          ],
+          "logsTimeout": "10m",
+          "proxyType": "env",
+          "tracingDatasourceUid": "aws-xray-uid"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "credentialsFile": {
+      "summary": "Credentials file",
+      "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Leave `profile` blank to pick the default profile.",
+      "value": {
+        "jsonData": {
+          "authType": "credentials",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "profile": "my-cloudwatch-profile",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "grafanaAssumeRole": {
+      "summary": "Grafana Assume Role (Grafana Cloud only)",
+      "description": "Grafana Cloud's temporary-credentials broker. Feature-gated on the awsDatasourcesTempCredentials toggle; the editor hides assumeRoleArn/externalId/endpoint when this provider is selected because Grafana derives them itself.",
+      "value": {
+        "jsonData": {
+          "authType": "grafana_assume_role",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "legacyArnAuthType": {
+      "summary": "Legacy: authType = 'arn'",
+      "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The backend (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88) maps this to the modern 'default' at load time; the editor surfaces a deprecation warning banner (`ARN_DEPRECATION_WARNING_MESSAGE`).",
+      "value": {
+        "jsonData": {
+          "authType": "arn",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "legacyDefaultLogGroups": {
+      "summary": "Legacy default log groups (defaultLogGroups)",
+      "description": "The pre-cross-account log group shape: a plain array of log group name strings written by `LegacyLogGroupSelection` when the `cloudWatchCrossAccountQuerying` feature toggle is off. The editor migrates this into `logGroups` on first open.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "defaultLogGroups": [
+            "/aws/lambda/example",
+            "/aws/lambda/other"
+          ],
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "urlProxy": {
+      "summary": "URL HTTP proxy",
+      "description": "Routes AWS SDK traffic through an explicit proxy URL. Editor-visible only when both `showHttpProxySettings` is passed by the plugin (CloudWatch does) AND the runtime `awsPerDatasourceHTTPProxyEnabled` feature toggle is on. Pair with authType 'keys' or any other credential provider — proxy settings apply regardless.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "url",
+          "proxyUrl": "https://proxy.internal:3128",
+          "proxyUsername": "grafana"
+        },
+        "secureJsonData": {
+          "proxyPassword": "proxy-password-placeholder"
+        }
+      }
+    },
+    "workspaceIamRole": {
+      "summary": "Workspace IAM Role (ec2_iam_role)",
+      "description": "Uses the IAM role attached to the Grafana workload (EC2 instance profile / ECS task role / EKS IRSA). Editor label is 'Workspace IAM Role'; storage value is 'ec2_iam_role'.",
+      "value": {
+        "jsonData": {
+          "authType": "ec2_iam_role",
+          "defaultRegion": "us-east-1",
+          "logsTimeout": "30m0s",
+          "proxyType": "env"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    }
+  }
+}

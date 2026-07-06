@@ -1,0 +1,254 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-mqtt-datasource",
+    "pluginName": "MQTT",
+    "docURL": "https://grafana.com/grafana/plugins/grafana-mqtt-datasource/",
+    "fields": [
+        {
+            "id": "jsonData_uri",
+            "key": "uri",
+            "label": "URI",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "TCP (tcp://), TLS (tls://), or WebSocket (ws://)"
+            }
+        },
+        {
+            "id": "jsonData_clientID",
+            "key": "clientID",
+            "label": "Client ID",
+            "description": "If not set, a random client ID is used.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_username",
+            "key": "username",
+            "label": "Username",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "ui": {
+                "component": "input",
+                "placeholder": "Username"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "Use TLS Client Auth",
+            "description": "Enables TLS authentication using client cert configured in secure json data.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verification",
+            "description": "When enabled, skips verification of the MQTT server's TLS certificate chain and host name.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying servers with self-signed TLS Certs.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "TLS CA Certificate",
+            "description": "If a Certificate Authority certificate is required to verify the server's certificate, provide it here.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "placeholder": "-----BEGIN CERTIFICATE-----",
+                "rows": 7
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "TLS Client Certificate",
+            "description": "To authenticate with an TLS client certificate, provide the client certificate here.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "placeholder": "-----BEGIN CERTIFICATE-----",
+                "rows": 7
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "TLS Client Key",
+            "description": "To authenticate with a client TLS certificate, provide the private key here.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "placeholder": "-----BEGIN RSA PRIVATE KEY-----",
+                "rows": 7
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_uri",
+                "jsonData_clientID"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_username",
+                "secureJsonData_password",
+                "jsonData_tlsAuth",
+                "jsonData_tlsSkipVerify",
+                "jsonData_tlsAuthWithCACert"
+            ]
+        },
+        {
+            "id": "tls-configuration",
+            "title": "TLS Configuration",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "secureJsonData_tlsCACert",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_username",
+                "secureJsonData_password"
+            ],
+            "description": "Optional MQTT basic-auth username/password pair. Passed to paho.SetUsername / paho.SetPassword when non-empty (pkg/mqtt/client.go:54-60)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS client key pair loaded via tls.X509KeyPair when either value is non-empty (pkg/mqtt/client.go:66-73). Both must be provided together — providing only one causes the handshake to fail."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "Editor gating: the tlsAuth switch controls whether the TLS Client Certificate / TLS Client Key inputs are rendered (src/ConfigEditor.tsx:107-122). The backend itself does not read tlsAuth — it uses whichever of tlsClientCert/tlsClientKey are present (pkg/mqtt/client.go:66-73)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Editor gating: the tlsAuthWithCACert switch controls whether the TLS CA Certificate input is rendered (src/ConfigEditor.tsx:107-122). The backend itself does not read tlsAuthWithCACert — it uses tlsCACert whenever it is non-empty (pkg/mqtt/client.go:75-79)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The MQTT datasource uses no explicit auth discriminator. Authentication is composed from any combination of: (a) MQTT basic auth via jsonData.username + secureJsonData.password (paho.SetUsername / paho.SetPassword only fire when the values are non-empty — pkg/mqtt/client.go:54-60), and (b) TLS client authentication via secureJsonData.tlsClientCert + secureJsonData.tlsClientKey (loaded via tls.X509KeyPair when either is non-empty — pkg/mqtt/client.go:66-73). Both can be combined with a custom CA in secureJsonData.tlsCACert (pkg/mqtt/client.go:75-79). Choose auth by which secrets you set; jsonData.tlsAuth and jsonData.tlsAuthWithCACert are editor-visibility toggles only and are not read by the backend.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload — anonymous broker: {\"jsonData\":{\"uri\":\"tcp://broker.example.com:1883\"}}. Only jsonData.uri is required — the backend calls opts.AddBroker(o.URI) unconditionally with no fallback (pkg/mqtt/client.go:46) and a missing URI produces a connection error against an empty broker address. If jsonData.clientID is empty the backend generates a random client id of the form 'grafana_<int>' (pkg/mqtt/client.go:48-52).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Basic auth payload: {\"jsonData\":{\"uri\":\"tcp://broker.example.com:1883\",\"username\":\"user\"},\"secureJsonData\":{\"password\":\"<password>\"}}. TLS client auth payload: {\"jsonData\":{\"uri\":\"tls://broker.example.com:8883\",\"tlsAuth\":true},\"secureJsonData\":{\"tlsClientCert\":\"-----BEGIN CERTIFICATE-----...\",\"tlsClientKey\":\"-----BEGIN RSA PRIVATE KEY-----...\"}}. Self-signed server + client-cert: add \"tlsAuthWithCACert\":true and \"tlsCACert\":\"-----BEGIN CERTIFICATE-----...\". tlsClientCert and tlsClientKey MUST be provided together — pkg/mqtt/client.go:66-73 calls tls.X509KeyPair when either is non-empty, and the call fails if only one side is present.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (password, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.tlsClientKey == true) instead of secureJsonData. The password reset button explicitly clears the stored value via updateDatasourcePluginResetOption (src/ConfigEditor.tsx:21-23); the TLS certificate reset buttons behave the same way (src/TLSConfig.tsx:51-53,80-82,107-109).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.uri is a paho broker URI, not an HTTP URL. Valid schemes are tcp://, tls:// (or ssl://, tcps://, mqtts:// — all treated as MQTT-over-TLS), ws://, and wss:// (pkg/mqtt/proxy.go:69-80 default-port mapping). Include the host and port explicitly (e.g. tcp://broker:1883, tls://broker:8883, ws://broker:80, wss://broker:443) — omitting the port makes the paho library apply the scheme's default. jsonData.tlsSkipVerify=true disables server certificate verification for tls:// / wss:// connections (pkg/mqtt/client.go:62-64); use only with trusted infrastructure.",
+            "tags": [
+                "llm",
+                "connection",
+                "tls"
+            ]
+        },
+        {
+            "msg": "Editor-only toggles: jsonData.tlsAuth and jsonData.tlsAuthWithCACert exist only to gate the visibility of the TLS Configuration section in the editor (src/ConfigEditor.tsx:107-122). The Go backend's mqtt.Options struct (pkg/mqtt/client.go:26-35) does not include either field — it decides TLS behavior purely by whether the corresponding secrets are non-empty. Setting a toggle without the matching secret has no runtime effect; setting a secret without the toggle still works because the backend never reads the toggles.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        }
+    ]
+}

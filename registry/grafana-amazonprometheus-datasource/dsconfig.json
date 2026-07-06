@@ -1,0 +1,747 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-amazonprometheus-datasource",
+    "pluginName": "Amazon Managed Service for Prometheus",
+    "docURL": "https://aws.amazon.com/prometheus/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "Prometheus server URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:9090"
+            }
+        },
+        {
+            "id": "jsonData_sigV4Auth",
+            "key": "sigV4Auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.awsSigV4.enabled",
+            "defaultValue": true,
+            "description": "SigV4 signing is mandatory for this plugin. `DataSourceHttpSettingsOverhaul.tsx:27-38` unconditionally sets `jsonData.sigV4Auth = true` on every editor mount and `visibleMethods=[sigV4Id]` (`:120`) hides every other authentication method.",
+            "tags": [
+                "sdk-managed"
+            ]
+        },
+        {
+            "id": "jsonData_sigV4AuthType",
+            "key": "sigV4AuthType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Workspace IAM Role", "value": "ec2_iam_role" },
+                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
+                    { "label": "AWS SDK Default", "value": "default" },
+                    { "label": "Access & secret key", "value": "keys" },
+                    { "label": "Credentials file", "value": "credentials" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_sigV4Profile",
+            "key": "sigV4Profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_sigV4AuthType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "secureJsonData_sigV4AccessKey",
+            "key": "sigV4AccessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "jsonData_sigV4AuthType == 'keys'",
+            "requiredWhen": "jsonData_sigV4AuthType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_sigV4SecretKey",
+            "key": "sigV4SecretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "jsonData_sigV4AuthType == 'keys'",
+            "requiredWhen": "jsonData_sigV4AuthType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_sigV4AssumeRoleArn",
+            "key": "sigV4AssumeRoleArn",
+            "label": "Assume Role ARN",
+            "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+                    "message": "When set, must be a valid IAM role ARN, e.g. arn:aws:iam::123456789012:role/MyRole"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "arn:aws:iam:*"
+            }
+        },
+        {
+            "id": "jsonData_sigV4ExternalId",
+            "key": "sigV4ExternalId",
+            "label": "External ID",
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_sigV4AuthType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
+            "id": "jsonData_sigV4Region",
+            "key": "sigV4Region",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true,
+                "placeholder": "Choose"
+            }
+        },
+        {
+            "id": "jsonData_sigv4Service",
+            "key": "sigv4Service",
+            "label": "Service",
+            "description": "Specify the AWS service to sign requests against (e.g., 'aps' for Prometheus).",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "aps",
+            "ui": {
+                "component": "input",
+                "placeholder": "aps"
+            }
+        },
+        {
+            "id": "jsonData_forwardGrafanaUserHeader",
+            "key": "forwardGrafanaUserHeader",
+            "label": "Forward Grafana User HTTP Header",
+            "description": "Forward the logged-in Grafana user's X-Grafana-User header to the workspace. Requires send_user_header to be enabled in the Grafana server configuration.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "description": "Set to `false` by `DataSourceHttpSettingsOverhaul.onAuthMethodSelect` (`:103-115`) on every save because `visibleMethods=[sigV4Id]` locks the editor to SigV4 auth. Consumed by the SDK's shared HTTP client.",
+            "tags": [
+                "sdk-managed"
+            ]
+        },
+        {
+            "id": "jsonData_manageAlerts",
+            "key": "manageAlerts",
+            "label": "Manage alerts via Alerting UI",
+            "description": "Manage alert rules for this data source. To manage other alerting resources, add an Alertmanager data source.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_allowAsRecordingRulesTarget",
+            "key": "allowAsRecordingRulesTarget",
+            "label": "Allow as recording rules target",
+            "description": "Allow this data source to be selected as a target for writing recording rules.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "New cookie (hit enter to add)"
+            }
+        },
+        {
+            "id": "jsonData_timeInterval",
+            "key": "timeInterval",
+            "label": "Scrape interval",
+            "description": "This interval is how frequently Prometheus scrapes targets. Set this to the typical scrape and evaluation interval configured in your Prometheus config file. If you set this to a greater value than your Prometheus config file interval, Grafana will evaluate the data according to this interval and you will see less data points. Defaults to 15s.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "15s"
+            }
+        },
+        {
+            "id": "jsonData_queryTimeout",
+            "key": "queryTimeout",
+            "label": "Query timeout",
+            "description": "Set the Prometheus query timeout.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "60s"
+            }
+        },
+        {
+            "id": "jsonData_defaultEditor",
+            "key": "defaultEditor",
+            "label": "Default editor",
+            "description": "Set default editor option for all users of this data source.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "builder",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "builder",
+                        "code"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Builder", "value": "builder" },
+                    { "label": "Code", "value": "code" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_disableMetricsLookup",
+            "key": "disableMetricsLookup",
+            "label": "Disable metrics lookup",
+            "description": "Checking this option will disable the metrics chooser and metric/label support in the query field's autocomplete. This helps if you have performance issues with bigger Prometheus instances.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_prometheusType",
+            "key": "prometheusType",
+            "description": "The Prometheus flavor. Not rendered by this plugin's editor (Amazon Prometheus passes `hidePrometheusTypeVersion={true}` to `PromSettings`, `ConfigEditor.tsx:100`). Provisioning can still set it — the backend `promlib` heuristics use it to enable flavor-specific query paths.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Prometheus",
+                        "Cortex",
+                        "Mimir",
+                        "Thanos"
+                    ]
+                }
+            ],
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_prometheusVersion",
+            "key": "prometheusVersion",
+            "description": "Free-form Prometheus version string. Editor-hidden alongside `prometheusType` (`ConfigEditor.tsx:100`). Provisioning-only.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_cacheLevel",
+            "key": "cacheLevel",
+            "label": "Cache level",
+            "description": "Sets the browser caching level for editor queries. Higher cache settings are recommended for high cardinality data sources.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "Low",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Low",
+                        "Medium",
+                        "High",
+                        "None"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Low", "value": "Low" },
+                    { "label": "Medium", "value": "Medium" },
+                    { "label": "High", "value": "High" },
+                    { "label": "None", "value": "None" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_incrementalQuerying",
+            "key": "incrementalQuerying",
+            "label": "Incremental querying (beta)",
+            "description": "This feature will change the default behavior of relative queries to always request fresh data from the prometheus instance, instead query results will be cached, and only new records are requested. Turn this on to decrease database and network load.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_incrementalQueryOverlapWindow",
+            "key": "incrementalQueryOverlapWindow",
+            "label": "Query overlap window",
+            "description": "Set a duration like 10m or 120s or 0s. Default of 10m. This duration will be added to the duration of each incremental request.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "10m",
+            "dependsOn": "jsonData_incrementalQuerying == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "10m"
+            }
+        },
+        {
+            "id": "jsonData_disableRecordingRules",
+            "key": "disableRecordingRules",
+            "label": "Disable recording rules (beta)",
+            "description": "This feature will disable recording rules. Turn this on to improve dashboard performance",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_customQueryParameters",
+            "key": "customQueryParameters",
+            "label": "Custom query parameters",
+            "description": "Add custom parameters to the Prometheus query URL. For example timeout, partial_response, dedup, or max_source_resolution. Multiple parameters should be concatenated together with '&'.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Example: max_source_resolution=5m&timeout=10"
+            }
+        },
+        {
+            "id": "jsonData_httpMethod",
+            "key": "httpMethod",
+            "label": "HTTP method",
+            "description": "You can use either POST or GET HTTP method to query your Prometheus data source. POST is the recommended method as it allows bigger queries. Change this to GET if you have a Prometheus version older than 2.1 or if POST requests are restricted in your network.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "POST",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "POST",
+                        "GET"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "POST", "value": "POST" },
+                    { "label": "GET", "value": "GET" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_seriesLimit",
+            "key": "seriesLimit",
+            "label": "Series limit",
+            "description": "The limit applies to all resources (metrics, labels, and values) for both endpoints (series and labels). Leave the field empty to use the default limit (40000). Set to 0 to disable the limit and fetch everything — this may cause performance issues. Default limit is 40000.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "40000"
+            }
+        },
+        {
+            "id": "jsonData_maxSamplesProcessedWarningThreshold",
+            "key": "maxSamplesProcessedWarningThreshold",
+            "label": "Query warning threshold",
+            "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_warning_threshold URL parameter. Leave empty to omit.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Example: 100000000"
+            }
+        },
+        {
+            "id": "jsonData_maxSamplesProcessedErrorThreshold",
+            "key": "maxSamplesProcessedErrorThreshold",
+            "label": "Query error threshold",
+            "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_error_threshold URL parameter. Leave empty to omit.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Example: 200000000"
+            }
+        },
+        {
+            "id": "jsonData_seriesEndpoint",
+            "key": "seriesEndpoint",
+            "label": "Use series endpoint",
+            "description": "Checking this option will favor the series endpoint with match[] parameter over the label values endpoint with match[] parameter. While the label values endpoint is considered more performant, some users may prefer the series because it has a POST method while the label values endpoint only has a GET method.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_exemplarTraceIdDestinations",
+            "key": "exemplarTraceIdDestinations",
+            "description": "Exemplar trace ID destinations. Not rendered by this plugin's editor (Amazon Prometheus passes `hideExemplars={true}` to `PromSettings`, `ConfigEditor.tsx:101`). Provisioning-only — the backend still parses and returns exemplar links from `promlib` query results.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.name",
+                        "key": "name",
+                        "label": "Label name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "traceID"
+                        }
+                    },
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.url",
+                        "key": "url",
+                        "label": "URL",
+                        "description": "The URL of the trace backend the user would go to see its trace",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "https://example.com/${__value.raw}"
+                        }
+                    },
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.urlDisplayLabel",
+                        "key": "urlDisplayLabel",
+                        "label": "URL Label",
+                        "description": "Use to override the button label on the exemplar traceID field.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Go to example.com"
+                        }
+                    },
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.datasourceUid",
+                        "key": "datasourceUid",
+                        "label": "Data source",
+                        "description": "The tracing data source the exemplar link should navigate to. Setting this makes the exemplar an internal link and takes precedence over url.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    }
+                ]
+            },
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_prometheusTypeMigration",
+            "key": "prometheus-type-migration",
+            "description": "Sentinel flag set when a vanilla Prometheus data source is migrated to Amazon Managed Service for Prometheus. When true, `ConfigEditor.tsx:37-48` renders the 'Data source migrated' warning banner. Storage key uses a hyphen — the field ID is camelCased. Never rendered as an input; provisioning may set it to trigger the banner.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only",
+                "migration"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "SigV4 Auth Details",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_sigV4Auth",
+                "jsonData_sigV4AuthType",
+                "jsonData_sigV4Profile",
+                "secureJsonData_sigV4AccessKey",
+                "secureJsonData_sigV4SecretKey",
+                "jsonData_sigV4AssumeRoleArn",
+                "jsonData_sigV4ExternalId",
+                "jsonData_sigV4Region",
+                "jsonData_sigv4Service",
+                "jsonData_forwardGrafanaUserHeader",
+                "jsonData_oauthPassThru"
+            ]
+        },
+        {
+            "id": "alerting",
+            "title": "Alerting",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_manageAlerts",
+                "jsonData_allowAsRecordingRulesTarget"
+            ]
+        },
+        {
+            "id": "advanced-http",
+            "title": "Advanced HTTP settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeout",
+                "jsonData_keepCookies"
+            ]
+        },
+        {
+            "id": "interval-behaviour",
+            "title": "Interval behaviour",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeInterval",
+                "jsonData_queryTimeout"
+            ]
+        },
+        {
+            "id": "query-editor",
+            "title": "Query editor",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_defaultEditor",
+                "jsonData_disableMetricsLookup"
+            ]
+        },
+        {
+            "id": "performance",
+            "title": "Performance",
+            "order": 7,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_prometheusType",
+                "jsonData_prometheusVersion",
+                "jsonData_cacheLevel",
+                "jsonData_incrementalQuerying",
+                "jsonData_incrementalQueryOverlapWindow",
+                "jsonData_disableRecordingRules"
+            ]
+        },
+        {
+            "id": "other",
+            "title": "Other",
+            "order": 8,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_customQueryParameters",
+                "jsonData_httpMethod",
+                "jsonData_seriesLimit",
+                "jsonData_maxSamplesProcessedWarningThreshold",
+                "jsonData_maxSamplesProcessedErrorThreshold",
+                "jsonData_seriesEndpoint"
+            ]
+        },
+        {
+            "id": "exemplars",
+            "title": "Exemplars",
+            "order": 9,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_exemplarTraceIdDestinations"
+            ]
+        },
+        {
+            "id": "migration",
+            "title": "Migration",
+            "order": 10,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_prometheusTypeMigration"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_sigV4Auth",
+                "jsonData_sigV4AuthType",
+                "jsonData_sigV4Profile",
+                "jsonData_sigV4AssumeRoleArn",
+                "jsonData_sigV4ExternalId",
+                "jsonData_sigV4Region",
+                "jsonData_sigv4Service",
+                "secureJsonData_sigV4AccessKey",
+                "secureJsonData_sigV4SecretKey"
+            ],
+            "description": "AWS SigV4 credential fields written by `@grafana/aws-sdk`'s `SIGV4ConnectionConfig` (which wraps `ConnectionConfig` with `skipHeader` + `skipEndpoint`). `sigV4Auth` is the enabling flag (forced true on mount); the remaining fields carry the sigV4-prefixed forms of the standard `ConnectionConfig` fields (authType/profile/assumeRoleArn/externalId/defaultRegion + secure accessKey/secretKey). `sigv4Service` (note lowercase 'v') is the AWS service namespace and defaults to `aps` — added by this plugin outside the shared component."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_sigV4AccessKey",
+                "secureJsonData_sigV4SecretKey"
+            ],
+            "description": "AWS access-key credentials: both must be present when `jsonData.sigV4AuthType == 'keys'`."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_incrementalQuerying",
+                "jsonData_incrementalQueryOverlapWindow"
+            ],
+            "description": "Overlap window only takes effect when incrementalQuerying is enabled (`PromSettings.tsx:429`)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Amazon Managed Service for Prometheus authenticates exclusively through AWS SigV4. `DataSourceHttpSettingsOverhaul.tsx:27-38` unconditionally forces `jsonData.sigV4Auth = true` on every editor mount and `visibleMethods=[sigV4Id]` (`:120`) hides Basic auth, OAuth Forward, and Cross-Site Credentials; `onAuthMethodSelect` (`:103-115`) then clears `basicAuth`, `withCredentials`, and `oauthPassThru` on every save. Credentials are collected by `@grafana/aws-sdk`'s `SIGV4ConnectionConfig` component, which writes the `sigV4`-prefixed jsonData fields (`sigV4AuthType`, `sigV4Profile`, `sigV4AssumeRoleArn`, `sigV4ExternalId`, `sigV4Region`) and the `sigV4AccessKey` / `sigV4SecretKey` secrets. Backend signing is installed by `awsauth.NewSigV4Middleware()` (`pkg/datasource.go:89`).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payloads. Workspace IAM role (default when running on EC2/EKS): {\"url\":\"https://aps-workspaces.<region>.amazonaws.com/workspaces/ws-<id>\",\"jsonData\":{\"sigV4Auth\":true,\"sigV4AuthType\":\"ec2_iam_role\",\"sigV4Region\":\"us-east-1\",\"sigv4Service\":\"aps\",\"httpMethod\":\"POST\"}}. Access & secret key: same jsonData but with \"sigV4AuthType\":\"keys\" and \"secureJsonData\":{\"sigV4AccessKey\":\"<key>\",\"sigV4SecretKey\":\"<secret>\"}. Credentials file: same jsonData but with \"sigV4AuthType\":\"credentials\" and optional \"sigV4Profile\":\"<name>\" (blank = default). Grafana Assume Role (Grafana Cloud only): same jsonData but with \"sigV4AuthType\":\"grafana_assume_role\" and \"sigV4AssumeRoleArn\":\"arn:aws:iam::<account>:role/<role>\". root.url is always required (`promlib` admission rejects missing URL) and must point at the AWS-hosted Prometheus workspace endpoint.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Assume Role ARN and External ID are optional add-ons that layer on top of any auth type EXCEPT `grafana_assume_role` (the External ID field hides itself when the auth type is `grafana_assume_role` because Grafana Cloud injects the external ID automatically — `ConnectionConfig.tsx:274`). Setting `jsonData.sigV4AssumeRoleArn` makes the selected provider call STS AssumeRole with that ARN rather than using the credentials directly. `awsAssumeRoleEnabled` (defaults true) is a Grafana-instance toggle that can hide the Assume Role fields entirely (`ConnectionConfig.tsx:258`).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "`jsonData.sigv4Service` (note the lowercase 'v') defaults to \"aps\" — the AWS service namespace for Amazon Managed Prometheus. `extendClientOpts` (`pkg/datasource.go:117-131`) reads it via `promlib/utils.GetJsonData` and falls back to \"aps\" when missing/empty, then writes it onto `clientOpts.SigV4.Service` for the SigV4 middleware to sign against. Override only when signing against a non-standard AWS service.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        },
+        {
+            "msg": "Secure values (`sigV4AccessKey`, `sigV4SecretKey`) are write-only: set/reset them but never read them back. To detect whether a secret is configured, read `secureJsonFields` (e.g. `secureJsonFields.sigV4AccessKey == true`); the ConnectionConfig editor renders a masked \"Configured\" input + `Edit` button when the field is set (`ConnectionConfig.tsx:139-155`) and a plain input otherwise. `jsonData.sigV4Auth` is a boolean-only flag; the secret material lives entirely in `secureJsonData`.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection rules & special fields: `options.access === 'direct'` (Browser access mode) is rejected inline with an error banner (`ConfigEditor.tsx:26-31`) — always use `access: 'proxy'` (Server). `jsonData.httpMethod` defaults to POST and must be POST or GET (backend validates). `jsonData.forwardGrafanaUserHeader` (default false) forwards the logged-in user's `X-Grafana-User` header to the workspace — only useful when Grafana's `send_user_header` is enabled server-side (`pkg/datasource.go:95-99`). Datasources migrated from vanilla Prometheus carry `jsonData['prometheus-type-migration'] = true`, which renders the 'Data source migrated' warning banner (`ConfigEditor.tsx:37-48`). `jsonData.oauthPassThru` is always cleared to false on save because the editor locks the auth picker to SigV4 only.",
+            "tags": [
+                "llm",
+                "connection",
+                "legacy"
+            ]
+        }
+    ]
+}

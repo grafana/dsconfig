@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "mgmt": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Supabase personal token",
+                        "type": "string",
+                        "default": "mgmt_bearer",
+                        "enum": [
+                          "mgmt_bearer"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "mgmt.token",
+      "description": "Token for accessing the datasource API"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: HTTP storage, no authentication, no TLS overrides. Only root.url needs to be filled in to get a working datasource pointed at a CSV endpoint on localhost:8080. jsonData.storage defaults to \"http\" for backwards compatibility (src/utils.ts:9, pkg/settings.go:22-24).",
+      "value": {
+        "jsonData": {
+          "storage": "http"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://localhost:8080"
+      }
+    },
+    "httpAdvanced": {
+      "summary": "HTTP storage, timeout + cookies + query params",
+      "description": "HTTP CSV endpoint with a 30-second request timeout, an explicit list of forwarded cookies, and admin-configured query parameters merged into every request.",
+      "value": {
+        "jsonData": {
+          "keepCookies": [
+            "session_id"
+          ],
+          "queryParams": "format=csv\u0026limit=1000",
+          "storage": "http",
+          "timeout": 30
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://csv.example.com/reports.csv"
+      }
+    },
+    "httpBasicAuth": {
+      "summary": "HTTP storage, Basic authentication",
+      "description": "Authenticate against a CSV endpoint that requires HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {
+          "storage": "http"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://csv.example.com/reports.csv"
+      }
+    },
+    "httpNoAuth": {
+      "summary": "HTTP storage, no authentication",
+      "description": "A public or network-isolated CSV endpoint. jsonData.queryParams (\"limit=100\") is appended to every outgoing HTTP request — its values override any collision with per-query params (pkg/http_storage.go:102-109).",
+      "value": {
+        "jsonData": {
+          "queryParams": "limit=100",
+          "storage": "http"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://csv.example.com/data.csv"
+      }
+    },
+    "httpOAuthForward": {
+      "summary": "HTTP storage, Forward OAuth Identity",
+      "description": "Forward the signed-in user's upstream OAuth identity to the CSV endpoint. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+      "value": {
+        "jsonData": {
+          "oauthPassThru": true,
+          "storage": "http"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://csv.example.com/reports.csv"
+      }
+    },
+    "httpTLSMutualAuth": {
+      "summary": "HTTP storage, TLS mutual auth (mTLS)",
+      "description": "CSV endpoint requiring mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+      "value": {
+        "jsonData": {
+          "serverName": "csv.example.com",
+          "storage": "http",
+          "tlsAuth": true
+        },
+        "secureJsonData": {
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        },
+        "url": "https://csv.example.com/reports.csv"
+      }
+    },
+    "httpTLSSelfSignedCA": {
+      "summary": "HTTP storage, self-signed CA verification",
+      "description": "CSV endpoint behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+      "value": {
+        "jsonData": {
+          "storage": "http",
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+        },
+        "url": "https://csv.internal.corp/reports.csv"
+      }
+    },
+    "legacyEmptyStorage": {
+      "summary": "Legacy storage (pre-storage-selector datasource)",
+      "description": "A pre-existing datasource that was provisioned before jsonData.storage existed. Both the frontend (src/utils.ts:4-10) and the backend (pkg/settings.go:22-24) treat a missing storage value as \"http\" for backwards compatibility; LoadConfig.ApplyDefaults fills it in on load.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://csv.legacy.example.com/data.csv"
+      }
+    },
+    "localFile": {
+      "summary": "Local filesystem storage",
+      "description": "Read CSV data from the plugin host's local filesystem. root.url carries the base filesystem path (pkg/local_storage.go:33-45); per-query Path values are joined to it. REQUIRES the plugin process to have been started with GF_PLUGIN_ALLOW_LOCAL_MODE=true, otherwise every query returns \"local mode has been disabled by your administrator\" (pkg/datasource.go:44,158-160).",
+      "value": {
+        "jsonData": {
+          "storage": "local"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "/var/lib/csv-data"
+      }
+    }
+  }
+}

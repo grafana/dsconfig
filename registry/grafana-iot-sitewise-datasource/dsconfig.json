@@ -1,0 +1,364 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-iot-sitewise-datasource",
+    "pluginName": "AWS IoT SiteWise",
+    "docURL": "https://grafana.com/grafana/plugins/grafana-iot-sitewise-datasource/",
+    "fields": [
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "default",
+            "dependsOn": "jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Workspace IAM Role", "value": "ec2_iam_role" },
+                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
+                    { "label": "AWS SDK Default", "value": "default" },
+                    { "label": "Access & secret key", "value": "keys" },
+                    { "label": "Credentials file", "value": "credentials" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_profile",
+            "key": "profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') && jsonData_authType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "secureJsonData_accessKey",
+            "key": "accessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') && jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_secretKey",
+            "key": "secretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') && jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.sessionToken",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_assumeRoleArn",
+            "key": "assumeRoleArn",
+            "label": "Assume Role ARN",
+            "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') && jsonData_authType != 'grafana_assume_role'",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+                    "message": "When set, must be a valid IAM role ARN, e.g. arn:aws:iam::123456789012:role/MyRole"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "arn:aws:iam:*"
+            }
+        },
+        {
+            "id": "jsonData_externalId",
+            "key": "externalId",
+            "label": "External ID",
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') && jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
+            "id": "jsonData_endpoint",
+            "key": "endpoint",
+            "label": "Endpoint",
+            "description": "Optionally, specify a custom endpoint for the service",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "(jsonData_defaultRegion == 'Edge' && jsonData_edgeAuthMode != 'default') || jsonData_authType != 'grafana_assume_role'",
+            "requiredWhen": "jsonData_defaultRegion == 'Edge'",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://{service}.{region}.amazonaws.com"
+            }
+        },
+        {
+            "id": "jsonData_defaultRegion",
+            "key": "defaultRegion",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true,
+                "options": [
+                    { "label": "us-east-2", "value": "us-east-2" },
+                    { "label": "us-east-1", "value": "us-east-1" },
+                    { "label": "us-west-2", "value": "us-west-2" },
+                    { "label": "ap-south-1", "value": "ap-south-1" },
+                    { "label": "ap-northeast-2", "value": "ap-northeast-2" },
+                    { "label": "ap-southeast-1", "value": "ap-southeast-1" },
+                    { "label": "ap-southeast-2", "value": "ap-southeast-2" },
+                    { "label": "ap-northeast-1", "value": "ap-northeast-1" },
+                    { "label": "ca-central-1", "value": "ca-central-1" },
+                    { "label": "eu-central-1", "value": "eu-central-1" },
+                    { "label": "eu-west-1", "value": "eu-west-1" },
+                    { "label": "us-gov-west-1", "value": "us-gov-west-1" },
+                    { "label": "cn-north-1", "value": "cn-north-1" },
+                    { "label": "Edge", "value": "Edge" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_edgeAuthMode",
+            "key": "edgeAuthMode",
+            "label": "Authentication Mode",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "default",
+            "dependsOn": "jsonData_defaultRegion == 'Edge'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "linux",
+                        "ldap"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    { "label": "Standard", "value": "default", "description": "Use the authentication provider configured above" },
+                    { "label": "Linux", "value": "linux", "description": "Linux-based authentication" },
+                    { "label": "LDAP", "value": "ldap", "description": "LDAP-based authentication" }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_edgeAuthUser",
+            "key": "edgeAuthUser",
+            "label": "Username",
+            "description": "The username set to local authentication proxy",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_defaultRegion == 'Edge' && jsonData_edgeAuthMode != 'default'",
+            "requiredWhen": "jsonData_defaultRegion == 'Edge' && jsonData_edgeAuthMode != 'default'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_edgeAuthPass",
+            "key": "edgeAuthPass",
+            "label": "Password",
+            "description": "The password sent to local authentication proxy",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_defaultRegion == 'Edge' && jsonData_edgeAuthMode != 'default'",
+            "requiredWhen": "jsonData_defaultRegion == 'Edge' && jsonData_edgeAuthMode != 'default'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_cert",
+            "key": "cert",
+            "label": "SSL Certificate",
+            "description": "Certificate for SSL enabled authentication.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_defaultRegion == 'Edge'",
+            "requiredWhen": "jsonData_defaultRegion == 'Edge'",
+            "ui": {
+                "component": "textarea",
+                "placeholder": "Begins with -----BEGIN CERTIFICATE------"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_profile",
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey",
+                "secureJsonData_sessionToken"
+            ]
+        },
+        {
+            "id": "assume-role",
+            "title": "Assume Role",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "order": 3,
+            "fieldRefs": [
+                "jsonData_endpoint",
+                "jsonData_defaultRegion"
+            ]
+        },
+        {
+            "id": "edge-settings",
+            "title": "Edge settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_edgeAuthMode",
+                "jsonData_edgeAuthUser",
+                "secureJsonData_edgeAuthPass",
+                "secureJsonData_cert"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey"
+            ],
+            "description": "AWS access key pair — supplied together when authType is 'keys'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ],
+            "description": "STS assume-role parameters — external ID is only meaningful when assumeRoleArn is set"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_edgeAuthUser",
+                "secureJsonData_edgeAuthPass"
+            ],
+            "description": "Edge Kernel auth credentials — supplied together when defaultRegion is 'Edge' and edgeAuthMode is not 'default'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_defaultRegion",
+                "jsonData_endpoint",
+                "jsonData_edgeAuthMode",
+                "secureJsonData_cert"
+            ],
+            "description": "Edge Kernel deployment: setting defaultRegion to 'Edge' requires an explicit endpoint and SSL certificate, and unlocks the edgeAuthMode selector."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Six authentication values are stored in jsonData.authType. The five editor-selectable ones are: 'default' (AWS SDK Default — the default credential chain), 'keys' (Access & secret key — puts accessKey/secretKey in secureJsonData), 'credentials' (Credentials file — optionally provide jsonData.profile), 'ec2_iam_role' (Workspace IAM Role — no extra credentials needed), and 'grafana_assume_role' (Grafana Assume Role — Grafana Cloud only; visible only when the awsDatasourcesTempCredentials feature toggle is on). The sixth is 'arn' (deprecated legacy value; the backend maps it to 'default').",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payload per AWS auth method. Access & secret key: {\"jsonData\":{\"authType\":\"keys\",\"defaultRegion\":\"us-east-1\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\"}}. Credentials file: {\"jsonData\":{\"authType\":\"credentials\",\"profile\":\"my-profile\",\"defaultRegion\":\"us-east-1\"}}. AWS SDK Default / Workspace IAM Role / Grafana Assume Role: {\"jsonData\":{\"authType\":\"default\",\"defaultRegion\":\"us-east-1\"}} (swap authType to 'ec2_iam_role' or 'grafana_assume_role'). Assume-role variant: add jsonData.assumeRoleArn (and optionally jsonData.externalId) to any provider except 'grafana_assume_role'.",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Edge Kernel (on-prem SiteWise gateway) deployment: set jsonData.defaultRegion to the literal value 'Edge'. This flips the editor into Edge mode. The backend then requires jsonData.endpoint (the gateway URL) and secureJsonData.cert (SSL certificate, PEM-encoded, must begin with -----BEGIN CERTIFICATE-----). jsonData.edgeAuthMode selects the auth proxy: 'default' (delegates to the AWS auth provider configured above), 'linux' (Linux PAM auth), or 'ldap' (LDAP auth). For 'linux' or 'ldap', also set jsonData.edgeAuthUser and secureJsonData.edgeAuthPass. Payload: {\"jsonData\":{\"defaultRegion\":\"Edge\",\"endpoint\":\"https://edge.example.local:8443\",\"edgeAuthMode\":\"linux\",\"edgeAuthUser\":\"grafana\"},\"secureJsonData\":{\"edgeAuthPass\":\"<PASS>\",\"cert\":\"-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "edge",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Session token: sessionToken is written to secureJsonData for temporary AWS STS credentials paired with 'keys' auth. The config editor does not render a UI field for it (the backend still reads it), so provisioning is the practical way to set it. Payload shape: {\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\",\"sessionToken\":\"<STS-TOKEN>\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (accessKey, secretKey, sessionToken, edgeAuthPass, cert) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.accessKey == true, secureJsonFields.cert == true) instead of secureJsonData. Backend-only secrets like sessionToken never surface in secureJsonFields until they are set.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Region handling pitfall: jsonData.defaultRegion is a plain string, and the plugin's supportedRegions list (src/regions.ts) mixes AWS region codes with the string 'Edge' (which is not a real AWS region — it triggers Edge Kernel mode). At runtime, the backend copies defaultRegion into the effective Region when the per-query region is empty or the sentinel 'default' (pkg/models/setting.go:31-33). For an Edge datasource, the endpoint URL and SSL certificate become the connection anchor instead of the AWS region.",
+            "tags": [
+                "llm",
+                "settings",
+                "connection"
+            ]
+        }
+    ]
+}

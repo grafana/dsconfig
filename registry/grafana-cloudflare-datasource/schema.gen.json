@@ -1,0 +1,84 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "cloudflare": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Cloudflare API Key. Provide relevant read-only permissions",
+                          "type": "string",
+                          "default": "bearer_token",
+                          "enum": [
+                            "bearer_token"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "cloudflare.token",
+        "description": "Token for accessing the datasource API"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the single service 'cloudflare' preselects its only auth method, bearer_token. Fill in the API token (secureJsonData \"cloudflare.token\", empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "cloudflare": {
+                "auth": {
+                  "id": "bearer_token"
+                }
+              }
+            }
+          },
+          "secureJsonData": {
+            "cloudflare.token": ""
+          }
+        }
+      },
+      "apiToken": {
+        "summary": "API token (bearer)",
+        "description": "Authenticate against https://api.cloudflare.com/client/v4 with a Cloudflare API token (read-only permissions) provided as the write-only secret at secureJsonData \"cloudflare.token\".",
+        "value": {
+          "jsonData": {
+            "services": {
+              "cloudflare": {
+                "auth": {
+                  "id": "bearer_token"
+                }
+              }
+            }
+          },
+          "secureJsonData": {
+            "cloudflare.token": "\u003ccloudflare-api-token\u003e"
+          }
+        }
+      }
+    }
+  }
+}

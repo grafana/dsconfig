@@ -1,0 +1,286 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-jira-datasource",
+    "pluginName": "Jira",
+    "docURL": "https://grafana.com/docs/plugins/grafana-jira-datasource",
+    "fields": [
+        {
+            "id": "jsonData_hosting",
+            "key": "hosting",
+            "label": "Provider",
+            "description": "The provider is where your JIRA instance is hosted. Select Jira Cloud if your Jira is being hosted on Atlassian Cloud. Select Jira Data Center / Jira Server if your Jira is being hosted elsewhere.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "cloud",
+            "disabledWhen": "jsonData_authMethod == 'oauth2'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "cloud",
+                        "server"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Jira Cloud",
+                        "value": "cloud"
+                    },
+                    {
+                        "label": "Jira Data Center / Jira Server",
+                        "value": "server"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_url",
+            "key": "url",
+            "label": "URL",
+            "description": "The URL is the root URL for your Atlassian instance (example: company.atlassian.net)",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "URL"
+            }
+        },
+        {
+            "id": "jsonData_authMethod",
+            "key": "authMethod",
+            "label": "Authentication method",
+            "description": "Select the authentication method to use when connecting to Jira",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "basicAuth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basicAuth",
+                        "oauth2"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Basic Auth",
+                        "value": "basicAuth"
+                    },
+                    {
+                        "label": "OAuth 2.0 — Service Account",
+                        "value": "oauth2"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_user",
+            "key": "user",
+            "label": "User email",
+            "description": "The email address for the user/service account",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_authMethod == 'basicAuth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "User email"
+            }
+        },
+        {
+            "id": "secureJsonData_token",
+            "key": "token",
+            "label": "API Token",
+            "description": "The API token is the token associated with the user. You can create one here.",
+            "docURL": "https://id.atlassian.com/manage-profile/security/api-tokens",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_authMethod == 'basicAuth'",
+            "requiredWhen": "jsonData_authMethod == 'basicAuth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "API Token"
+            }
+        },
+        {
+            "id": "jsonData_scopedToken",
+            "key": "scopedToken",
+            "label": "Scoped Token",
+            "description": "Toggle this switch on if API Token with scopes is used",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_authMethod == 'basicAuth'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_cloudId",
+            "key": "cloudId",
+            "label": "Jira App Cloud Id",
+            "description": "Jira App Cloud Id is required to be used with API Token with Scopes",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "(jsonData_authMethod == 'basicAuth' && jsonData_scopedToken == true) || jsonData_authMethod == 'oauth2'",
+            "requiredWhen": "jsonData_authMethod == 'oauth2' || (jsonData_authMethod == 'basicAuth' && jsonData_scopedToken == true)",
+            "overrides": [
+                {
+                    "when": "jsonData_authMethod == 'oauth2'",
+                    "description": "Jira App Cloud Id is required for OAuth 2.0 authentication"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "Jira App Cloud Id"
+            }
+        },
+        {
+            "id": "jsonData_oauthClientID",
+            "key": "oauthClientID",
+            "label": "Client ID",
+            "description": "The OAuth 2.0 Client ID for the Jira service account",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "dependsOn": "jsonData_authMethod == 'oauth2'",
+            "requiredWhen": "jsonData_authMethod == 'oauth2'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client ID"
+            }
+        },
+        {
+            "id": "secureJsonData_oauthClientSecret",
+            "key": "oauthClientSecret",
+            "label": "Client Secret",
+            "description": "The OAuth 2.0 Client Secret for the Jira service account",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "jsonData_authMethod == 'oauth2'",
+            "requiredWhen": "jsonData_authMethod == 'oauth2'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client Secret"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_hosting",
+                "jsonData_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authMethod",
+                "jsonData_user",
+                "secureJsonData_token",
+                "jsonData_scopedToken",
+                "jsonData_cloudId",
+                "jsonData_oauthClientID",
+                "secureJsonData_oauthClientSecret"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_user",
+                "secureJsonData_token"
+            ],
+            "description": "Basic Auth credentials (authMethod='basicAuth'): the Atlassian account email and its API token, sent as HTTP Basic auth (username:token). When jsonData.user is empty the backend instead sends the token as a Bearer token (pkg/plugin.go:253-264)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_scopedToken",
+                "jsonData_cloudId"
+            ],
+            "description": "Scoped API token routing (Basic Auth): enabling scopedToken routes requests through https://api.atlassian.com/ex/jira/<cloudId>, so cloudId is required when scopedToken is on (pkg/plugin.go:221-226)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_oauthClientID",
+                "secureJsonData_oauthClientSecret",
+                "jsonData_cloudId"
+            ],
+            "description": "OAuth 2.0 client-credentials (authMethod='oauth2'): the service-account client ID and secret, exchanged for a token at https://auth.atlassian.com/oauth/token, plus the Cloud ID that selects the https://api.atlassian.com/ex/jira/<cloudId> gateway base URL (pkg/plugin.go:214-244)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_authMethod",
+                "jsonData_hosting"
+            ],
+            "description": "Selecting OAuth 2.0 forces the provider to Jira Cloud and disables the Provider selector (src/components/ConfigEditor.tsx:94-96,200); OAuth 2.0 is Jira Cloud only."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Two authentication methods are available, selected via jsonData.authMethod: 'basicAuth' (Basic Auth, the default) and 'oauth2' (OAuth 2.0 — Service Account). Configure exactly one; only the selected method's inputs are validated and used. When jsonData.authMethod is empty or unrecognized the backend resolves it to 'basicAuth' (pkg/models/auth_method.go:11-15). OAuth 2.0 works only with Jira Cloud — selecting it forces jsonData.hosting to 'cloud' (src/components/ConfigEditor.tsx:94-96).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Basic Auth, set jsonData.authMethod='basicAuth', jsonData.url to your Jira base URL, jsonData.user to the account email, and put the API token in secureJsonData.token. Minimal payload: {\"jsonData\":{\"authMethod\":\"basicAuth\",\"url\":\"https://mycompany.atlassian.net\",\"user\":\"user@example.com\"},\"secureJsonData\":{\"token\":\"<your-jira-api-token>\"}}. secureJsonData.token is required (pkg/models/settings.go:65-71). If jsonData.user is empty the backend sends the token as a Bearer token instead of HTTP Basic auth (pkg/plugin.go:253-264) — the pattern for a Jira Data Center personal access token.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure OAuth 2.0, set jsonData.authMethod='oauth2', jsonData.url, jsonData.oauthClientID and jsonData.cloudId, and put the client secret in secureJsonData.oauthClientSecret. Minimal payload: {\"jsonData\":{\"authMethod\":\"oauth2\",\"url\":\"https://mycompany.atlassian.net\",\"oauthClientID\":\"<your-oauth-client-id>\",\"cloudId\":\"<your-jira-cloud-id>\"},\"secureJsonData\":{\"oauthClientSecret\":\"<your-oauth-client-secret>\"}}. oauthClientID, oauthClientSecret and cloudId are all required (pkg/models/settings.go:56-64); the backend performs a client-credentials grant against https://auth.atlassian.com/oauth/token and targets https://api.atlassian.com/ex/jira/<cloudId> (pkg/plugin.go:214-244). OAuth 2.0 is Jira Cloud only.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: datasources created before jsonData.authMethod existed store no authMethod; the backend's GetAuthMethod resolves any empty or unknown value to 'basicAuth' (pkg/models/auth_method.go:11-15), so such instances authenticate with jsonData.user + secureJsonData.token. Do not assume a missing authMethod means the datasource is unconfigured.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (token, oauthClientSecret) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.token == true) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.url is required and is stored in jsonData (not the datasource root url); the backend prepends 'https://' when the value has no http(s):// scheme (pkg/models/settings.go:43-45), so 'company.atlassian.net' becomes 'https://company.atlassian.net'. jsonData.hosting selects the REST API version — 'cloud' uses /rest/api/3, 'server' (Jira Data Center / Jira Server) uses /rest/api/2 (pkg/plugin.go:177-180). For a non-scoped Basic Auth token the base URL is jsonData.url; for scoped tokens or OAuth 2.0 it is https://api.atlassian.com/ex/jira/<cloudId>, so jsonData.cloudId is required in those cases (pkg/plugin.go:214-228).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

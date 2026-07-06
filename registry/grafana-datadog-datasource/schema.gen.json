@@ -1,0 +1,155 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "description": "Your username is your Grafana Cloud Prometheus username. This can be found in the Prometheus details in your cloud portal.",
+          "type": "string",
+          "x-dsconfig-depends-on": "virtual_mode == 'hosted-metrics'",
+          "x-dsconfig-required-when": "jsonData_pluginMode == 'hosted-metrics'"
+        },
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "disableDataLinks": {
+              "description": "Data links take users directly to the relevant location in the Datadog app when they interact with panels.",
+              "type": "boolean",
+              "default": false
+            },
+            "logApiRateLimits": {
+              "description": "Show Datadog API limits for each queried endpoint. To view the API rate limits, go to the **Query Inspector**, select **JSON**, and set **select source** to **DataFrame structure**.",
+              "type": "boolean",
+              "default": false
+            },
+            "pluginMode": {
+              "type": "string",
+              "enum": [
+                "default",
+                "hosted-metrics"
+              ]
+            },
+            "rateLimitEnabled": {
+              "description": "Enable rate limit. Datadog query will stop once it reaches entered threshold.",
+              "type": "boolean",
+              "default": false
+            },
+            "rateLimitMetrics": {
+              "description": "Enter percentage of threshold. (If the API hit the % of rate limit, plugin will block subsequent requests till next reset)",
+              "type": "number",
+              "default": 100,
+              "maximum": 100,
+              "minimum": 0,
+              "x-dsconfig-depends-on": "jsonData_rateLimitEnabled == true"
+            },
+            "size": {
+              "description": "Set maximum number of items to retrieve in a single API request (default is 100).",
+              "type": "number",
+              "default": 100
+            },
+            "url": {
+              "description": "A URL to the Datadog API (e.g.: https://api.datadoghq.com)",
+              "type": "string",
+              "default": "https://api.datadoghq.com",
+              "x-dsconfig-required-when": "true"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "apiKey",
+        "description": "An API key is unique to your organization. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-an-api-key-and-application-key-from-datadog)."
+      },
+      {
+        "key": "appKey",
+        "description": "An application key is used with the API key to give access to the Datadog API. By default, application keys have the permissions of the user who created them. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-api-key-and-application-key-from-datadog). You can also customize the scope of the application key in the [Datadog docs](https://docs.datadoghq.com/api/latest/scopes/)."
+      },
+      {
+        "key": "basicAuthPassword",
+        "description": "Your password is your Grafana Cloud API Key with read permissions. This can be found in the Prometheus details in your cloud portal."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: Default (direct API) mode against the US1 region (https://api.datadoghq.com). Fill in secureJsonData.apiKey and secureJsonData.appKey (empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "pluginMode": "default",
+            "url": "https://api.datadoghq.com"
+          },
+          "secureJsonData": {
+            "apiKey": "",
+            "appKey": ""
+          }
+        }
+      },
+      "directApiAppKey": {
+        "summary": "Default mode (US1) with API key + App key",
+        "description": "Direct connection to the Datadog US1 API. Authenticates with the API key (DD-API-KEY) and Application key (DD-APPLICATION-KEY) in secureJsonData.",
+        "value": {
+          "jsonData": {
+            "pluginMode": "default",
+            "url": "https://api.datadoghq.com"
+          },
+          "secureJsonData": {
+            "apiKey": "\u003cyour-datadog-api-key\u003e",
+            "appKey": "\u003cyour-application-key\u003e"
+          }
+        }
+      },
+      "directApiAppKeyEU": {
+        "summary": "Default mode (EU region)",
+        "description": "Direct connection to the Datadog EU site. jsonData.url selects the region; the region list is US1 (https://api.datadoghq.com), US3, US5, EU (https://api.datadoghq.eu), and US1-FED, plus any custom value.",
+        "value": {
+          "jsonData": {
+            "pluginMode": "default",
+            "url": "https://api.datadoghq.eu"
+          },
+          "secureJsonData": {
+            "apiKey": "\u003cyour-datadog-api-key\u003e",
+            "appKey": "\u003cyour-application-key\u003e"
+          }
+        }
+      },
+      "hostedMetrics": {
+        "summary": "Hosted Datadog Metrics mode",
+        "description": "Connection through a Grafana Cloud Datadog proxy. Uses datasource root basic auth: basicAuth=true, basicAuthUser is the Grafana Cloud Prometheus username, and secureJsonData.basicAuthPassword is a Grafana Cloud API key with read permissions. jsonData.url is the hosted-metrics proxy URL (must not be the default Datadog API URL).",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "123456",
+          "jsonData": {
+            "pluginMode": "hosted-metrics",
+            "url": "https://dd-prod-10-prod-us-central-0.grafana.net/datadog"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "\u003cyour-grafana-cloud-api-key\u003e"
+          }
+        }
+      },
+      "legacyHostedMetricsNoPluginMode": {
+        "summary": "Legacy: hosted metrics without pluginMode",
+        "description": "A datasource created before jsonData.pluginMode existed: root basicAuth is true but pluginMode is absent. getPluginMode (pkg/models/settings.go:84-92) and the editor treat this as hosted-metrics. Do not assume a missing pluginMode means Default mode.",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "123456",
+          "jsonData": {
+            "url": "https://dd-prod-10-prod-us-central-0.grafana.net/datadog"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "\u003cyour-grafana-cloud-api-key\u003e"
+          }
+        }
+      }
+    }
+  }
+}

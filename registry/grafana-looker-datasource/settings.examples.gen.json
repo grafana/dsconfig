@@ -1,0 +1,32 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: client_secret authentication with an empty base URL, client ID, and client secret. jsonData.base_url, jsonData.client_id, and secureJsonData.client_secret must all be filled in to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "auth_type": "client_secret",
+          "base_url": "",
+          "client_id": ""
+        },
+        "secureJsonData": {
+          "client_secret": ""
+        }
+      }
+    },
+    "clientSecret": {
+      "summary": "Client Secret (Looker API3 credentials)",
+      "description": "Authenticate against a Looker instance with API3 credentials: jsonData.client_id plus secureJsonData.client_secret, connecting to jsonData.base_url. auth_type is 'client_secret' (the only supported method).",
+      "value": {
+        "jsonData": {
+          "auth_type": "client_secret",
+          "base_url": "https://your-instance.looker.app",
+          "client_id": "\u003cyour-client-id\u003e"
+        },
+        "secureJsonData": {
+          "client_secret": "\u003cyour-client-secret\u003e"
+        }
+      }
+    }
+  }
+}

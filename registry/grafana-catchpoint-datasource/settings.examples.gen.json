@@ -1,0 +1,40 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the single service 'catchpoint' preselects its only auth method, bearer_token. Fill in the API v2 key (secureJsonData \"catchpoint.token\", empty here) to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "catchpoint": {
+              "auth": {
+                "id": "bearer_token"
+              }
+            }
+          }
+        },
+        "secureJsonData": {
+          "catchpoint.token": ""
+        }
+      }
+    },
+    "apiKey": {
+      "summary": "API v2 key (bearer)",
+      "description": "Authenticate against https://io.catchpoint.com/api/v2 with a Catchpoint REST API v2 Key provided as the write-only secret at secureJsonData \"catchpoint.token\".",
+      "value": {
+        "jsonData": {
+          "services": {
+            "catchpoint": {
+              "auth": {
+                "id": "bearer_token"
+              }
+            }
+          }
+        },
+        "secureJsonData": {
+          "catchpoint.token": "\u003ccatchpoint-api-v2-key\u003e"
+        }
+      }
+    }
+  }
+}

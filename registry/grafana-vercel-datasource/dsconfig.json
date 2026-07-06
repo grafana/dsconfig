@@ -1,0 +1,124 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-vercel-datasource",
+    "pluginName": "Vercel",
+    "docURL": "https://grafana.com/docs/plugins/grafana-vercel-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_team_id",
+            "key": "team_id",
+            "section": "variables",
+            "label": "Team ID",
+            "description": "The ID of the Vercel team to query.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "eg: team_1a2b3c4d5e6f7g8h9i0j1k2l"
+            }
+        },
+        {
+            "id": "jsonData_services_vercel_auth_id",
+            "key": "id",
+            "section": "services.vercel.auth",
+            "label": "Access Token",
+            "description": "Vercel Access Tokens are required to authenticate and use the Vercel API. Tokens are either scoped to your full account or a specific team. If a token is scoped to a team, you must also provide a team ID that matches the scope of the token.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "vercelApiKey",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "vercelApiKey"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Access Token",
+                        "value": "vercelApiKey"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_vercel_token",
+            "key": "vercel.token",
+            "label": "Token",
+            "description": "Token for accessing the datasource API",
+            "docURL": "https://vercel.com/docs/rest-api#creating-an-access-token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_services_vercel_auth_id == 'vercelApiKey'",
+            "requiredWhen": "jsonData_services_vercel_auth_id == 'vercelApiKey'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_team_id"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_services_vercel_auth_id",
+                "secureJsonData_vercel_token"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Vercel configuration is stored under a service-keyed jsonData shape: jsonData.services.vercel.* holds per-service settings and jsonData.variables.<name> holds connection variables, while secrets use flat dotted secureJsonData keys of the form \"vercel.<secret>\". There is a single service with id 'vercel'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses a Vercel Access Token (bearer). jsonData.services.vercel.auth.id is 'vercelApiKey' (the backend defaults to it) and the token is the write-only secret at secureJsonData key \"vercel.token\".",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"vercel\":{\"auth\":{\"id\":\"vercelApiKey\"}}}},\"secureJsonData\":{\"vercel.token\":\"<vercel-access-token>\"}}. If the token is scoped to a team, also set jsonData.variables.team_id to that team's ID.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is fixed at https://api.vercel.com (no server selector). jsonData.variables.team_id is optional and only needed for team-scoped tokens; it is not part of the base URL.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"vercel.token\" is write-only: it can be set or reset but never read back. To check whether it is already configured on an existing datasource, read secureJsonFields[\"vercel.token\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,123 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: sslmode='require', tlsConfigurationMethod='file-path'. The user must still supply url, user, jsonData.database, and secureJsonData.password.",
+      "value": {
+        "jsonData": {
+          "sslmode": "require",
+          "tlsConfigurationMethod": "file-path"
+        },
+        "secureJsonData": {
+          "password": ""
+        },
+        "url": "",
+        "user": ""
+      }
+    },
+    "basicAuthNoTLS": {
+      "summary": "Username / password, TLS disabled",
+      "description": "Local dev-style setup with sslmode='disable'. No certificate configuration required.",
+      "value": {
+        "jsonData": {
+          "database": "metrics",
+          "sslmode": "disable"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "localhost:5432",
+        "user": "grafana_reader"
+      }
+    },
+    "legacyRootDatabase": {
+      "summary": "Legacy: database stored at root level",
+      "description": "Older datasources stored the database name at the root level. useMigrateDatabaseFields migrates it; the backend (pkg/postgresql/postgres.go:101-104) falls back to root.database when jsonData.database is empty. New configurations should write jsonData.database.",
+      "value": {
+        "database": "metrics",
+        "jsonData": {
+          "sslmode": "require"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "localhost:5432",
+        "user": "grafana_reader"
+      }
+    },
+    "timescaledb": {
+      "summary": "TimescaleDB extension enabled",
+      "description": "jsonData.timescaledb=true tells the query builder to use time_bucket in $__timeGroup and show TimescaleDB-specific aggregate functions.",
+      "value": {
+        "jsonData": {
+          "database": "metrics",
+          "postgresVersion": 1500,
+          "sslmode": "require",
+          "timeInterval": "1m",
+          "timescaledb": true
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "timescale.internal:5432",
+        "user": "grafana_reader"
+      }
+    },
+    "tlsRequireFilePath": {
+      "summary": "sslmode=require with file-path certs",
+      "description": "The typical production TLS setup: sslmode='require' asks for encryption but does not verify identity; certificate file paths are read from the Grafana host's local filesystem.",
+      "value": {
+        "jsonData": {
+          "database": "metrics",
+          "sslCertFile": "/etc/secrets/postgres/client.crt",
+          "sslKeyFile": "/etc/secrets/postgres/client.key",
+          "sslmode": "require",
+          "tlsConfigurationMethod": "file-path"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "postgres.internal:5432",
+        "user": "grafana_reader"
+      }
+    },
+    "tlsVerifyCAInlineContent": {
+      "summary": "sslmode=verify-ca with inline PEM content",
+      "description": "TLS credentials stored as encrypted content in secureJsonData; the backend writes them to disk at connection time.",
+      "value": {
+        "jsonData": {
+          "database": "metrics",
+          "sslmode": "verify-ca",
+          "tlsConfigurationMethod": "file-content"
+        },
+        "secureJsonData": {
+          "password": "changeme",
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+        },
+        "url": "postgres.internal:5432",
+        "user": "grafana_reader"
+      }
+    },
+    "tlsVerifyFullFilePath": {
+      "summary": "sslmode=verify-full with file-path certs",
+      "description": "Strictest TLS mode — verifies the server certificate is signed by the supplied root CA AND that the server hostname matches the certificate.",
+      "value": {
+        "jsonData": {
+          "database": "metrics",
+          "sslCertFile": "/etc/secrets/postgres/client.crt",
+          "sslKeyFile": "/etc/secrets/postgres/client.key",
+          "sslRootCertFile": "/etc/secrets/postgres/ca.crt",
+          "sslmode": "verify-full",
+          "tlsConfigurationMethod": "file-path"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "postgres.internal:5432",
+        "user": "grafana_reader"
+      }
+    }
+  }
+}

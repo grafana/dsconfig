@@ -1,0 +1,265 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "type": "string",
+          "x-dsconfig-depends-on": "root_basicAuth == true",
+          "x-dsconfig-required-when": "root_basicAuth == true"
+        },
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "graphiteType": {
+              "description": "There are different types of Graphite compatible backends. Here you can specify the type you are using. For Metrictank, this will enable specific features, like query processing meta data. Metrictank\n        is a multi-tenant timeseries engine for Graphite and friends.",
+              "type": "string",
+              "enum": [
+                "default",
+                "metrictank"
+              ]
+            },
+            "graphiteVersion": {
+              "description": "This option controls what functions are available in the Graphite query editor.",
+              "type": "string",
+              "default": "1.1",
+              "enum": [
+                "0.9",
+                "1.0",
+                "1.1"
+              ]
+            },
+            "importConfiguration": {
+              "type": "object"
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "oauthPassThru": {
+              "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+              "type": "boolean",
+              "default": false
+            },
+            "rollupIndicatorEnabled": {
+              "description": "Shows up as an info icon in panel headers when data is aggregated.",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "jsonData_graphiteType == 'metrictank'"
+            },
+            "serverName": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+              "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number"
+            },
+            "tlsAuth": {
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying self-signed TLS Certs",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "url": {
+          "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        },
+        "withCredentials": {
+          "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "basicAuthPassword"
+      },
+      {
+        "key": "tlsCACert"
+      },
+      {
+        "key": "tlsClientCert"
+      },
+      {
+        "key": "tlsClientKey"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: no authentication, no TLS overrides, Graphite version '1.1' (written by the editor on load). Only root.url needs to be filled in to get a working datasource pointed at a Graphite server on localhost:8080.",
+        "value": {
+          "jsonData": {
+            "graphiteVersion": "1.1"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://localhost:8080"
+        }
+      },
+      "basicAuth": {
+        "summary": "Basic authentication",
+        "description": "Authenticate with a Graphite that requires HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "graphiteVersion": "1.1"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://graphite.example.com"
+        }
+      },
+      "legacyDirectAccess": {
+        "summary": "Legacy browser access mode",
+        "description": "A pre-existing datasource stored with root.access='direct' (browser access mode). Graphite's editor renders a deprecation Alert (ConfigEditor.tsx:54-58) but preserves the mode on save. New datasources should not use this — the deprecation notice says it will be removed.",
+        "value": {
+          "access": "direct",
+          "jsonData": {
+            "graphiteVersion": "1.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://graphite.example.com:8080"
+        }
+      },
+      "metrictank": {
+        "summary": "Metrictank backend with rollup indicator",
+        "description": "A Metrictank server exposed via the Graphite render API. graphiteType='metrictank' unlocks Metrictank-specific features in the query editor; rollupIndicatorEnabled=true adds a badge to panels when Metrictank aggregates data.",
+        "value": {
+          "jsonData": {
+            "graphiteType": "metrictank",
+            "graphiteVersion": "1.1",
+            "rollupIndicatorEnabled": true
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://metrictank.example.com"
+        }
+      },
+      "noAuth": {
+        "summary": "No authentication (Graphite 1.1)",
+        "description": "A public or network-isolated Graphite with no HTTP-level auth. Graphite version is set explicitly so the query editor exposes the 1.1 function library (tags + seriesByTag).",
+        "value": {
+          "jsonData": {
+            "graphiteType": "default",
+            "graphiteVersion": "1.1"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://graphite.example.com:8080"
+        }
+      },
+      "oauthForward": {
+        "summary": "Forward OAuth Identity",
+        "description": "Forward the signed-in user's upstream OAuth identity to Graphite. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+        "value": {
+          "jsonData": {
+            "graphiteVersion": "1.1",
+            "oauthPassThru": true
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://graphite.example.com"
+        }
+      },
+      "tlsMutualAuth": {
+        "summary": "TLS mutual auth (mTLS)",
+        "description": "Graphite requiring mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+        "value": {
+          "jsonData": {
+            "graphiteVersion": "1.1",
+            "serverName": "graphite.example.com",
+            "tlsAuth": true
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+          },
+          "url": "https://graphite.example.com"
+        }
+      },
+      "tlsSelfSignedCA": {
+        "summary": "Self-signed CA verification",
+        "description": "Graphite behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+        "value": {
+          "jsonData": {
+            "graphiteVersion": "1.1",
+            "tlsAuthWithCACert": true
+          },
+          "secureJsonData": {
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+          },
+          "url": "https://graphite.internal.corp"
+        }
+      },
+      "withLabelMappings": {
+        "summary": "Graphite→Loki label mappings",
+        "description": "Configures importConfiguration.loki.mappings so Explore's datasource-switch flow can convert 'servers.(cluster).(server).*' Graphite paths into Loki label selectors. The mapping is frontend-only: neither Graphite nor Loki reads it at query time.",
+        "value": {
+          "jsonData": {
+            "graphiteVersion": "1.1",
+            "importConfiguration": {
+              "loki": {
+                "mappings": [
+                  {
+                    "matchers": [
+                      {
+                        "value": "servers"
+                      },
+                      {
+                        "labelName": "cluster",
+                        "value": "*"
+                      },
+                      {
+                        "labelName": "server",
+                        "value": "*"
+                      },
+                      {
+                        "value": "*"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://localhost:8080"
+        }
+      }
+    }
+  }
+}

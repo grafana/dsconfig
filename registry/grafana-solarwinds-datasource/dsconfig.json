@@ -1,0 +1,273 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-solarwinds-datasource",
+    "pluginName": "Solarwinds",
+    "docURL": "https://grafana.com/docs/plugins/grafana-solarwinds-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_url",
+            "key": "url",
+            "section": "variables",
+            "label": "URL",
+            "description": "The URL of your SolarWinds instance, including `https://` and without trailing `/`",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "role": "endpoint.baseUrl",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_services_solarwinds_auth_id",
+            "key": "id",
+            "section": "services.solarwinds.auth",
+            "label": "Basic Auth",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "basic_auth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basic_auth"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Basic Auth",
+                        "value": "basic_auth"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_services_solarwinds_auth_username",
+            "key": "username",
+            "section": "services.solarwinds.auth",
+            "label": "Username",
+            "description": "SolarWinds Username",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_services_solarwinds_auth_id == 'basic_auth'",
+            "requiredWhen": "jsonData_services_solarwinds_auth_id == 'basic_auth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Username"
+            }
+        },
+        {
+            "id": "secureJsonData_solarwinds_password",
+            "key": "solarwinds.password",
+            "label": "Password",
+            "description": "SolarWinds Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_services_solarwinds_auth_id == 'basic_auth'",
+            "requiredWhen": "jsonData_services_solarwinds_auth_id == 'basic_auth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_services_solarwinds_auth_tls_selfSignedCert_enabled",
+            "key": "enabled",
+            "section": "services.solarwinds.auth.tls.selfSignedCert",
+            "label": "Add self-signed certificate",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_solarwinds_tls_selfSignedCert",
+            "key": "solarwinds.tls.selfSignedCert",
+            "label": "CA Certificate",
+            "description": "Your self-signed certificate",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_services_solarwinds_auth_tls_selfSignedCert_enabled == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true
+            }
+        },
+        {
+            "id": "jsonData_services_solarwinds_auth_tls_clientAuth_enabled",
+            "key": "enabled",
+            "section": "services.solarwinds.auth.tls.clientAuth",
+            "label": "TLS Client Authentication",
+            "description": "Validate using TLS client authentication, in which the server authenticates the client",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_services_solarwinds_auth_tls_clientAuth_serverName",
+            "key": "serverName",
+            "section": "services.solarwinds.auth.tls.clientAuth",
+            "label": "ServerName",
+            "description": "A Servername is used to verify the hostname on the returned certificate",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_services_solarwinds_auth_tls_clientAuth_enabled == true",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_solarwinds_tls_clientCert",
+            "key": "solarwinds.tls.clientCert",
+            "label": "Client Certificate",
+            "description": "The client certificate can be generated from a Certificate Authority or be self-signed",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_services_solarwinds_auth_tls_clientAuth_enabled == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true
+            }
+        },
+        {
+            "id": "secureJsonData_solarwinds_tls_clientKey",
+            "key": "solarwinds.tls.clientKey",
+            "label": "Client Key",
+            "description": "The client key can be generated from a Certificate Authority or be self-signed",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_services_solarwinds_auth_tls_clientAuth_enabled == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true
+            }
+        },
+        {
+            "id": "jsonData_services_solarwinds_auth_tls_skipVerification",
+            "key": "skipVerification",
+            "section": "services.solarwinds.auth.tls",
+            "label": "Skip TLS certificate validation",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "ui": {
+                "component": "switch"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_services_solarwinds_auth_id",
+                "jsonData_services_solarwinds_auth_username",
+                "secureJsonData_solarwinds_password"
+            ]
+        },
+        {
+            "id": "tls",
+            "title": "TLS Settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_services_solarwinds_auth_tls_selfSignedCert_enabled",
+                "secureJsonData_solarwinds_tls_selfSignedCert",
+                "jsonData_services_solarwinds_auth_tls_clientAuth_enabled",
+                "jsonData_services_solarwinds_auth_tls_clientAuth_serverName",
+                "secureJsonData_solarwinds_tls_clientCert",
+                "secureJsonData_solarwinds_tls_clientKey",
+                "jsonData_services_solarwinds_auth_tls_skipVerification"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_services_solarwinds_auth_username",
+                "secureJsonData_solarwinds_password"
+            ],
+            "description": "Basic auth credentials for the SolarWinds service"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_services_solarwinds_auth_tls_clientAuth_enabled",
+                "jsonData_services_solarwinds_auth_tls_clientAuth_serverName",
+                "secureJsonData_solarwinds_tls_clientCert",
+                "secureJsonData_solarwinds_tls_clientKey"
+            ],
+            "description": "TLS client authentication settings"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "SolarWinds configuration is stored under a service-keyed jsonData shape: jsonData.services.solarwinds.* holds per-service settings and jsonData.variables.<name> holds connection variables, while secrets use flat dotted secureJsonData keys of the form \"solarwinds.<secret>\". There is a single service with id 'solarwinds'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses basic auth. jsonData.services.solarwinds.auth.id is 'basic_auth' (the backend defaults to it), the username is jsonData.services.solarwinds.auth.username, and the password is the write-only secret at secureJsonData key \"solarwinds.password\".",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"solarwinds\":{\"auth\":{\"id\":\"basic_auth\",\"username\":\"<user>\"}}},\"variables\":{\"url\":\"https://solarwinds.example.com\"}},\"secureJsonData\":{\"solarwinds.password\":\"<password>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Optional TLS: enable a self-signed CA via jsonData.services.solarwinds.auth.tls.selfSignedCert.enabled=true with secureJsonData \"solarwinds.tls.selfSignedCert\"; enable mutual TLS via jsonData.services.solarwinds.auth.tls.clientAuth.enabled=true with secureJsonData \"solarwinds.tls.clientCert\" and \"solarwinds.tls.clientKey\" (and optional serverName); set jsonData.services.solarwinds.auth.tls.skipVerification=true to skip certificate validation.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is built from the 'url' variable as {url}:17774/SolarWinds/InformationService/v3/Json. Set jsonData.variables.url to your SolarWinds instance URL including https:// and without a trailing slash. The single server is fixed, so no server selector is shown.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (solarwinds.password and the solarwinds.tls.* certificates/keys) are write-only: they can be set or reset but never read back. To check whether a secret is already configured, read the matching secureJsonFields entry (e.g. secureJsonFields[\"solarwinds.password\"] == true) rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

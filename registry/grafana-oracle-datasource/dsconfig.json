@@ -1,0 +1,378 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-oracle-datasource",
+    "pluginName": "Oracle Database",
+    "docURL": "https://grafana.com/docs/plugins/grafana-oracle-datasource",
+    "fields": [
+        {
+            "id": "virtual_connectionType",
+            "key": "connectionType",
+            "label": "Connection methods",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "tcp",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "tcp",
+                        "tns"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Host with TCP Port",
+                        "value": "tcp",
+                        "description": "Connect with a hostname or IP address with the TCP port number"
+                    },
+                    {
+                        "label": "TNSNames Entry",
+                        "value": "tns",
+                        "description": "Allows for specifying a tnsnames.ora entry for connection. Note: This is not supported in Grafana Cloud"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "jsonData.useTNSNamesBasedConnection == true ? 'tns' : 'tcp'"
+            },
+            "effects": [
+                {
+                    "when": "value == 'tcp'",
+                    "set": {
+                        "jsonData_useTNSNamesBasedConnection": false,
+                        "jsonData_useKerberosAuthentication": false
+                    }
+                },
+                {
+                    "when": "value == 'tns'",
+                    "set": {
+                        "jsonData_useTNSNamesBasedConnection": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "jsonData_useTNSNamesBasedConnection",
+            "key": "useTNSNamesBasedConnection",
+            "description": "Connection-method discriminator: false selects 'Host with TCP Port' (host + port + database), true selects 'TNSNames Entry' (a tnsnames.ora entry). Written by the config editor's Connection methods selector.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "managed-by:virtual_connectionType"
+            ]
+        },
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "Host",
+            "description": "Hostname or IP Address with TCP port number.",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "dependsOn": "virtual_connectionType == 'tcp'",
+            "requiredWhen": "jsonData_useTNSNamesBasedConnection != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Host"
+            }
+        },
+        {
+            "id": "jsonData_database",
+            "key": "database",
+            "label": "Database",
+            "description": "Name of database",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "virtual_connectionType == 'tcp'",
+            "requiredWhen": "jsonData_useTNSNamesBasedConnection != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Database"
+            }
+        },
+        {
+            "id": "jsonData_tnsNamesEntry",
+            "key": "tnsNamesEntry",
+            "label": "TNSName",
+            "description": "Use connection config specified in tnsnames.ora",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "virtual_connectionType == 'tns'",
+            "requiredWhen": "jsonData_useTNSNamesBasedConnection == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "server/DB"
+            }
+        },
+        {
+            "id": "virtual_authType",
+            "key": "authType",
+            "label": "Oracle authentication",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "basic",
+            "disabledWhen": "virtual_connectionType == 'tcp'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basic",
+                        "kerberos"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Basic Authentication",
+                        "value": "basic",
+                        "description": "Authenticate with an username and password"
+                    },
+                    {
+                        "label": "Kerberos Authentication",
+                        "value": "kerberos",
+                        "description": "Kerberos authentication only works with TNSNames enabled, and must be configured with tnsnames.ora. Note: This is not supported in Grafana Cloud"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "jsonData.useKerberosAuthentication == true ? 'kerberos' : 'basic'"
+            },
+            "effects": [
+                {
+                    "when": "value == 'basic'",
+                    "set": {
+                        "jsonData_useKerberosAuthentication": false
+                    }
+                },
+                {
+                    "when": "value == 'kerberos'",
+                    "set": {
+                        "jsonData_useKerberosAuthentication": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "jsonData_useKerberosAuthentication",
+            "key": "useKerberosAuthentication",
+            "description": "Authentication discriminator: false selects Basic Authentication (username + password), true selects Kerberos Authentication. The config editor only exposes Kerberos when useTNSNamesBasedConnection is true, though the backend also accepts Kerberos with a host + port connection.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "tags": [
+                "managed-by:virtual_authType"
+            ]
+        },
+        {
+            "id": "jsonData_user",
+            "key": "user",
+            "label": "User",
+            "description": "An Oracle username with access to the specified database.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "dependsOn": "virtual_authType == 'basic'",
+            "requiredWhen": "jsonData_useKerberosAuthentication != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "User"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "description": "An Oracle password with access to the specified database.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "virtual_authType == 'basic'",
+            "requiredWhen": "jsonData_useKerberosAuthentication != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_timezone_name",
+            "key": "timezone_name",
+            "label": "Time zone",
+            "description": "Choose the default timezone of the Oracle server. Typically this is UTC.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "UTC",
+            "ui": {
+                "component": "select"
+            }
+        },
+        {
+            "id": "jsonData_connectionPoolSize",
+            "key": "connectionPoolSize",
+            "label": "Connection Pool size",
+            "description": "Choose the maximum number of connections in the connection pool. Defaults to 50. Takes precedence over environment variable 'GF_PLUGINS_ORACLE_DATASOURCE_POOLSIZE' if set.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 50,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_dataProxyTimeout",
+            "key": "dataProxyTimeout",
+            "label": "Dataproxy Timeout",
+            "description": "Choose the maximum time in seconds to wait for a response. Defaults to 120 seconds. Takes precedence over environment variable 'GF_DATAPROXY_TIMEOUT' if set.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 120,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_prefetchRowsCount",
+            "key": "prefetchRowsCount",
+            "label": "Prefetch Row Size",
+            "description": "Row Prefetching allow you to set the number of rows to prefetch into the client while a result set is being populated during a query. This feature reduces the number of round trips to the server.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_rowLimit",
+            "key": "rowLimit",
+            "label": "Row Limit",
+            "description": "Maximum number of rows returned per query. Defaults to 1,000,000.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 1000000,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_use_dst",
+            "key": "use_dst",
+            "description": "Parsed by the backend into DBConnectionOptions.DSTEnabled (pkg/models/settings.go:23) but never read when building the connection string. Declared in the frontend OracleOptions type (src/types.ts:9) but not written by the config editor \u2014 use_dst is a per-query/annotation option (src/types.ts:30, src/datasource.ts:109), not a datasource-level setting.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to this datasource.",
+            "order": 1,
+            "fieldRefs": [
+                "virtual_connectionType",
+                "root_url",
+                "jsonData_database",
+                "jsonData_tnsNamesEntry"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "description": "Provide information to grant access to this datasource.",
+            "order": 2,
+            "fieldRefs": [
+                "virtual_authType",
+                "jsonData_user",
+                "secureJsonData_password"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "description": "Additional settings are optional settings that can be configured for more control over your data source.",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timezone_name",
+                "jsonData_connectionPoolSize",
+                "jsonData_dataProxyTimeout",
+                "jsonData_prefetchRowsCount",
+                "jsonData_rowLimit"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_useTNSNamesBasedConnection",
+                "jsonData_tnsNamesEntry"
+            ],
+            "description": "TNSNames connection toggle and the tnsnames.ora entry it enables"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_user",
+                "secureJsonData_password"
+            ],
+            "description": "Basic authentication credentials \u2014 supplied together when useKerberosAuthentication is false"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Oracle datasource has two independent selectors, both stored in jsonData. Connection method: jsonData.useTNSNamesBasedConnection (false = 'Host with TCP Port', the default; true = 'TNSNames Entry'). Authentication: jsonData.useKerberosAuthentication (false = Basic Authentication with username + password, the default; true = Kerberos Authentication). The config editor only lets you pick Kerberos when useTNSNamesBasedConnection is true and it requires a configured tnsnames.ora; TNSNames and Kerberos are not supported in Grafana Cloud. The host+port is stored in the root-level 'url' field; database, user, tnsNamesEntry and the selectors live in jsonData; the password lives in secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Minimal payloads. Basic auth + Host with TCP Port: {\"url\":\"<host>:1521\",\"jsonData\":{\"database\":\"<db>\",\"user\":\"<user>\"},\"secureJsonData\":{\"password\":\"<password>\"}}. Basic auth + TNSNames: {\"jsonData\":{\"useTNSNamesBasedConnection\":true,\"tnsNamesEntry\":\"<tnsnames.ora entry>\",\"user\":\"<user>\"},\"secureJsonData\":{\"password\":\"<password>\"}}. Kerberos + TNSNames (no user/password): {\"jsonData\":{\"useTNSNamesBasedConnection\":true,\"useKerberosAuthentication\":true,\"tnsNamesEntry\":\"<tnsnames.ora entry>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.password is write-only: it can be set or reset but never read back. To check whether a password is already configured on an existing datasource, read the secureJsonFields object (secureJsonFields.password == true) instead of secureJsonData. Kerberos authentication uses no username or password (they come from the Kerberos ticket / tnsnames.ora).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: in v3.3.0 the TNSNames entry was stored in the root-level 'url' field; v3.3.2 moved it to jsonData.tnsNamesEntry. Both the config editor and the backend migrate it: when useTNSNamesBasedConnection is true and jsonData.tnsNamesEntry is empty but root 'url' is set, the backend uses root 'url' as the tnsNamesEntry (pkg/models/settings.go:82-84). Do not assume an empty tnsNamesEntry means an unconfigured TNSNames datasource.",
+            "tags": [
+                "llm",
+                "legacy",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Connection string rules and pitfalls: the backend always connects in UTC and shifts times later, so jsonData.timezone_name (default 'UTC') only affects display, not the wire protocol (pkg/models/settings.go:110-115). For Host with TCP Port include the port in root 'url' (e.g. 'oracle.example.com:1521'); the backend builds '<user>/<password>@<url>/<database>?loc=<tz>'. Grant the Oracle user SELECT only on the specific tables Grafana should query \u2014 the backend does not sandbox statements, so any SQL (including DELETE/DROP) will run.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Optional performance knobs in jsonData, all applied by the backend when set: connectionPoolSize (default 50; env GF_PLUGINS_ORACLE_DATASOURCE_POOLSIZE overrides only when the stored value is 0), dataProxyTimeout in seconds (default 120; env GF_DATAPROXY_TIMEOUT overrides only when the stored value is 0), rowLimit (default 1000000; applied when the stored value is <= 0), and prefetchRowsCount (only added to the driver connection string when > 0). jsonData.use_dst is parsed by the backend but not used for connection building.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

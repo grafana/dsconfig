@@ -1,0 +1,78 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "httpbin": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "default": "none",
+                          "enum": [
+                            "none"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "postman_echo": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "default": "none",
+                          "enum": [
+                            "none"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "Both services ('httpbin', 'postman_echo') use the 'none' auth method and fixed server URLs, so no configuration is required — an empty datasource works. The auth.id discriminators default to 'none'.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "httpbin": {
+                "auth": {
+                  "id": "none"
+                }
+              },
+              "postman_echo": {
+                "auth": {
+                  "id": "none"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

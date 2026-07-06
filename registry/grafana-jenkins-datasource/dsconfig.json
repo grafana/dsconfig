@@ -1,0 +1,124 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-jenkins-datasource",
+    "pluginName": "Jenkins",
+    "docURL": "https://grafana.com/docs/plugins/grafana-jenkins-datasource",
+    "fields": [
+        {
+            "id": "jsonData_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Jenkins URL, e.g. https://jenkins.example.com",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Jenkins URL, e.g. https://jenkins.example.com"
+            }
+        },
+        {
+            "id": "jsonData_username",
+            "key": "username",
+            "label": "User",
+            "description": "The username to use for authentication",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "ui": {
+                "component": "input",
+                "placeholder": "Username"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "description": "The password to use for authentication",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_username",
+                "secureJsonData_password"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_username",
+                "secureJsonData_password"
+            ],
+            "description": "HTTP Basic auth credentials sent to the Jenkins API. Only applied when jsonData.username is non-empty (pkg/plugin/datasource.go:66-71); otherwise the client is anonymous."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Jenkins authentication is HTTP Basic auth or anonymous. The backend applies BasicAuth on the SDK HTTP client only when jsonData.username is non-empty (pkg/plugin/datasource.go:66-71); if jsonData.username is empty the datasource performs anonymous, unauthenticated requests, even if secureJsonData.password is set. There is no auth-type discriminator.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload for Basic auth: {\"jsonData\":{\"url\":\"https://jenkins.example.com\",\"username\":\"<user>\"},\"secureJsonData\":{\"password\":\"<password or API token>\"}}. The password field accepts either a user password or a Jenkins API token (both are sent verbatim in the Authorization: Basic header). jsonData.url is strictly required — pkg/plugin/settings.go:23-25 returns a DownstreamError \"URL is missing\" when it is empty. jsonData.username and secureJsonData.password have no backend-side required check.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload for anonymous access: {\"jsonData\":{\"url\":\"https://jenkins.example.com\"}}. Omit jsonData.username (or set it to an empty string) to skip the BasicAuth wiring; the Jenkins client will make unauthenticated requests, which only works against Jenkins instances that permit anonymous read access.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.password is write-only: it can be set or reset but never read back. To check whether the password is already configured on an existing datasource, read secureJsonFields.password (boolean) instead of secureJsonData.password.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.url is the Jenkins base URL. The client normalizes the value with strings.TrimRight(url, \"/\") (pkg/jenkins/client.go:226), so a trailing slash is tolerated. API paths (/api/json, /computer/api/json, /queue/api/json, /job/<name>/api/json, /label/<name>/api/json) are joined onto it — do NOT include an API path in the URL.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Legacy datasources may have been provisioned with only jsonData.url (and optionally jsonData.username) and no secureJsonData.password. Nothing in the backend rejects this configuration: an empty password is passed straight into httpclient.BasicAuthOptions when a username is set, and the Jenkins server decides whether the resulting empty-password request is authorised.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,108 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "adobe_analytics": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "clientId": {
+                          "type": "string",
+                          "x-dsconfig-depends-on": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'",
+                          "x-dsconfig-required-when": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'"
+                        },
+                        "id": {
+                          "description": "Authorization flow where application credentials are exchanged for an access token",
+                          "type": "string",
+                          "default": "oauth2_m2m",
+                          "enum": [
+                            "oauth2_m2m"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "variables": {
+              "type": "object",
+              "required": [
+                "global_company_id"
+              ],
+              "properties": {
+                "global_company_id": {
+                  "description": "Refer to [plugin documentation](http://grafana.com/docs/plugins/grafana-adobeanalytics-datasource/#connection) for more information on where to find your Global Company ID in Adobe portal.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "adobe_analytics.clientSecret"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the single service 'adobe_analytics' preselects its only auth method, oauth2_m2m. Fill in the global company id (jsonData.variables.global_company_id), client id, and client secret (secureJsonData \"adobe_analytics.clientSecret\", empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "adobe_analytics": {
+                "auth": {
+                  "clientId": "",
+                  "id": "oauth2_m2m"
+                }
+              }
+            },
+            "variables": {
+              "global_company_id": ""
+            }
+          },
+          "secureJsonData": {
+            "adobe_analytics.clientSecret": ""
+          }
+        }
+      },
+      "oauth2ClientCredentials": {
+        "summary": "OAuth2 client credentials",
+        "description": "Authenticate against https://analytics.adobe.io/api/{global_company_id} by exchanging the client id and client secret for an access token. The client secret is the write-only secret at secureJsonData \"adobe_analytics.clientSecret\".",
+        "value": {
+          "jsonData": {
+            "services": {
+              "adobe_analytics": {
+                "auth": {
+                  "clientId": "fake_client_id",
+                  "id": "oauth2_m2m"
+                }
+              }
+            },
+            "variables": {
+              "global_company_id": "examplecompany0"
+            }
+          },
+          "secureJsonData": {
+            "adobe_analytics.clientSecret": "\u003cadobe-client-secret\u003e"
+          }
+        }
+      }
+    }
+  }
+}

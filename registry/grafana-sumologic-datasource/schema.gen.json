@@ -1,0 +1,110 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "accessId": {
+              "description": "Sumo Logic Access Id",
+              "type": "string",
+              "x-dsconfig-required-when": "jsonData_authMethod == 'accessKey'"
+            },
+            "apiUrl": {
+              "description": "SumoLogic API URL. [Read how to find your deployment.](https://help.sumologic.com/docs/api/getting-started/#which-endpoint-should-i-should-use)",
+              "type": "string",
+              "default": "https://api.sumologic.com/api/",
+              "x-dsconfig-required-when": "true"
+            },
+            "authMethod": {
+              "description": "Authentication method discriminator. The only supported value is 'accessKey' (HTTP basic auth with an access ID + access key). The configuration editor never writes this key — it renders a single fixed authentication method whose selector handler is a no-op — and the backend defaults it to 'accessKey' when empty and rejects any other value.",
+              "type": "string",
+              "default": "accessKey",
+              "enum": [
+                "accessKey"
+              ]
+            },
+            "interval": {
+              "description": "Interval in milliseconds for the log polling requests. Min value is 200.",
+              "type": "number",
+              "default": 1000,
+              "minimum": 200
+            },
+            "timeout": {
+              "description": "Timeout in seconds for the data requests",
+              "type": "number",
+              "default": 30,
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accessKey",
+        "description": "Sumo Logic Access Key"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: access-key authentication against the US1 / Default region (https://api.sumologic.com/api/). Fill in jsonData.accessId and secureJsonData.accessKey (empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "apiUrl": "https://api.sumologic.com/api/",
+            "authMethod": "accessKey"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "accessKey": {
+        "summary": "Access key (US1 / Default region)",
+        "description": "Access-key authentication against the US1 / Default Sumo Logic region. The access ID is the HTTP basic-auth username (jsonData.accessId) and the access key the password (secureJsonData.accessKey).",
+        "value": {
+          "jsonData": {
+            "accessId": "\u003cyour-access-id\u003e",
+            "apiUrl": "https://api.sumologic.com/api/",
+            "authMethod": "accessKey"
+          },
+          "secureJsonData": {
+            "accessKey": "\u003cyour-access-key\u003e"
+          }
+        }
+      },
+      "accessKeyEU": {
+        "summary": "Access key (EU region)",
+        "description": "Access-key authentication against the EU Sumo Logic region. jsonData.apiUrl selects the region; the region list is US1/Default, US2, EU, AU, CA, DE, IN, JP, FED, plus any custom value.",
+        "value": {
+          "jsonData": {
+            "accessId": "\u003cyour-access-id\u003e",
+            "apiUrl": "https://api.eu.sumologic.com/api/",
+            "authMethod": "accessKey"
+          },
+          "secureJsonData": {
+            "accessKey": "\u003cyour-access-key\u003e"
+          }
+        }
+      },
+      "legacyNoAuthMethod": {
+        "summary": "Legacy: no authMethod set",
+        "description": "A datasource created without jsonData.authMethod: LoadSettings defaults it to 'accessKey' (pkg/models/settings.go:40-42). Do not assume a missing authMethod means the datasource is unconfigured.",
+        "value": {
+          "jsonData": {
+            "accessId": "\u003cyour-access-id\u003e",
+            "apiUrl": "https://api.sumologic.com/api/"
+          },
+          "secureJsonData": {
+            "accessKey": "\u003cyour-access-key\u003e"
+          }
+        }
+      }
+    }
+  }
+}

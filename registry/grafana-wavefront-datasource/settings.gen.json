@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "requestTimeout": {
+            "description": "Request timeout in seconds. Defaults to 30",
+            "type": "number",
+            "default": 30
+          },
+          "url": {
+            "description": "URL to Wavefront API",
+            "type": "string",
+            "default": "https://try.wavefront.com",
+            "x-dsconfig-required-when": "true"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "token",
+      "description": "Wavefront token"
+    }
+  ]
+}

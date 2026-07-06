@@ -1,0 +1,205 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "basicAuthUser": {
+        "description": "The username of the data source account",
+        "type": "string",
+        "x-dsconfig-depends-on": "jsonData_authType == 'BasicAuth' || jsonData_authType == ''",
+        "x-dsconfig-required-when": "jsonData_authType == 'BasicAuth' || jsonData_authType == ''"
+      },
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authType": {
+            "description": "Choose an authentication method to access the data source",
+            "type": "string",
+            "default": "BasicAuth",
+            "enum": [
+              "BasicAuth",
+              "custom-splunk",
+              "OAuthForward"
+            ]
+          },
+          "autoCancel": {
+            "description": "Jobs automatically cancel after this many seconds of inactivity. Set to 0 to never auto cancel",
+            "type": "string"
+          },
+          "dataLinks": {
+            "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "matcherRegex"
+              ],
+              "properties": {
+                "datasourceUid": {
+                  "description": "UID of a Grafana data source. When set, the derived data link becomes an internal link to that data source and the URL is interpreted as a query.",
+                  "type": "string"
+                },
+                "field": {
+                  "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                  "type": "string"
+                },
+                "label": {
+                  "description": "Use to provide a meaningful label to the data matched in the regex",
+                  "type": "string"
+                },
+                "matcherRegex": {
+                  "description": "Use to parse and capture some part of the log message. You can use the captured groups in the template.",
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "defaultEarliestTime": {
+            "description": "Earliest time for searches without time range (such as template variable queries)",
+            "type": "string"
+          },
+          "fieldSearchType": {
+            "description": "Set the Search Mode for Fields",
+            "type": "string",
+            "default": "quick",
+            "enum": [
+              "quick",
+              "full"
+            ]
+          },
+          "internalFieldPattern": {
+            "description": "Regular expression defining the filter for filtering out internal fields",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_internalFieldsFiltration == true"
+          },
+          "internalFieldsFiltration": {
+            "description": "By default hides fields with names that start with ‘_’. This filter can be customized using the Internal field pattern option.",
+            "type": "boolean",
+            "default": false
+          },
+          "keepCookies": {
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxPollInterval": {
+            "description": "Sets the bounds for async query poll interval. Each poll will run a random number milliseconds from [min, max).",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_pollSearchResult == true || jsonData_previewMode == true"
+          },
+          "maxResultCount": {
+            "description": "Set the `count` limit for returned results from each data request. When set to 0, there is no limit.",
+            "type": "number",
+            "default": 0
+          },
+          "minPollInterval": {
+            "description": "Sets the bounds for async query poll interval. Each poll will run a random number milliseconds from [min, max).",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_pollSearchResult == true || jsonData_previewMode == true"
+          },
+          "oauthPassThru": {
+            "description": "Set to true only when the 'Forward OAuth Identity' (OAuthForward) authentication method is selected. Written by the config editor alongside jsonData.authType (SplunkAuthComponent.tsx:14-23); consumed by Grafana core to forward the user's OAuth token, not by the plugin backend. The OAuthForward method is only offered in the editor when the 'splunkEnableOAuthForwarding' feature toggle is enabled.",
+            "type": "boolean",
+            "default": false
+          },
+          "pollSearchResult": {
+            "description": "Run query and periodically check for results.",
+            "type": "boolean",
+            "default": false
+          },
+          "previewMode": {
+            "description": "Displays events as soon as the event is returned, instead of waiting until all of the events are returned.",
+            "type": "boolean",
+            "default": false
+          },
+          "serverName": {
+            "description": "A Servername is used to verify the hostname on the returned certificate",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+            "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+          },
+          "statusBuckets": {
+            "description": "Maximum number of timeline status buckets generated per query. Set to 0 to disable timelines",
+            "type": "string"
+          },
+          "streamMode": {
+            "description": "Legacy 'stream mode' flag no longer rendered by the config editor. The backend migrates a true value into previewMode (pkg/models/settings.go:103-105) and the frontend query builder also treats it as preview mode (src/datasource/query.ts:267). Preserved for round-trip fidelity with older datasources.",
+            "type": "boolean",
+            "default": false
+          },
+          "timeout": {
+            "description": "HTTP request timeout in seconds",
+            "type": "number"
+          },
+          "timeoutInSeconds": {
+            "description": "Grafana request timeout. This is the maximum time in seconds that a query can run before it is killed. Minimum value is 1.",
+            "type": "number",
+            "default": 30
+          },
+          "tlsAuth": {
+            "description": "Validate using TLS client authentication, in which the server authenticates the client",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsAuthWithCACert": {
+            "description": "Add your own Certificate Authority (CA) certificate on top of one generated by the certificate authorities for additional security measures",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "description": "Skipping TLS certificate validation is not recommended unless absolutely necessary or for testing",
+            "type": "boolean",
+            "default": false
+          },
+          "tsField": {
+            "description": "Field used by Grafana to determine event timestamps",
+            "type": "string",
+            "default": "_time"
+          },
+          "variableSearchLevel": {
+            "description": "Set the Search Mode for Variables",
+            "type": "string",
+            "default": "fast",
+            "enum": [
+              "fast",
+              "smart",
+              "verbose"
+            ]
+          }
+        }
+      },
+      "url": {
+        "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
+        "type": "string",
+        "x-dsconfig-required-when": "true"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "basicAuthPassword",
+      "description": "The password of the data source account"
+    },
+    {
+      "key": "authToken",
+      "description": "Instead of providing a username and password, use an authentication token generated in Splunk dashboard."
+    },
+    {
+      "key": "tlsCACert",
+      "description": "Your self-signed certificate"
+    },
+    {
+      "key": "tlsClientCert",
+      "description": "The client certificate can be generated from a Certificate Authority or be self-signed"
+    },
+    {
+      "key": "tlsClientKey",
+      "description": "The client key can be generated from a Certificate Authority or be self-signed"
+    }
+  ]
+}

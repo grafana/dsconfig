@@ -1,0 +1,207 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "allowCleartextPasswords": {
+              "description": "Allows using the cleartext client side plugin if required by an account.",
+              "type": "boolean",
+              "default": false
+            },
+            "connMaxLifetime": {
+              "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
+              "type": "number"
+            },
+            "database": {
+              "type": "string"
+            },
+            "maxIdleConns": {
+              "description": "The maximum number of connections in the idle connection pool. If Max open connections is greater than 0 but less than the Max idle connections, then the Max idle connections will be reduced to match the Max open connections limit. If set to 0, no idle connections are retained.",
+              "type": "number"
+            },
+            "maxIdleConnsAuto": {
+              "description": "If enabled, automatically set the number of Maximum idle connections to the same value as Max open connections. If the number of maximum open connections is not set it will be set to the default.",
+              "type": "boolean",
+              "default": true
+            },
+            "maxOpenConns": {
+              "description": "The maximum number of open connections to the database. If Max idle connections is greater than 0 and the Max open connections is less than Max idle connections, then Max idle connections will be reduced to match the Max open connections limit. If set to 0, there is no limit on the number of open connections.",
+              "type": "number"
+            },
+            "timeInterval": {
+              "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+              "type": "string"
+            },
+            "timezone": {
+              "description": "Specify the timezone used in the database session, such as Europe/Berlin or +02:00. Required if the timezone of the database (or the host of the database) is set to something other than UTC. Set this to +00:00 so Grafana can handle times properly. Set the value used in the session with SET time_zone='...'. If you leave this field empty, the timezone will not be updated. You can find more information in the MySQL documentation.",
+              "type": "string"
+            },
+            "tlsAuth": {
+              "description": "Enables TLS authentication using client cert configured in secure json data.",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying self-signed TLS Certs.",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "description": "When enabled, skips verification of the MySQL server's TLS certificate chain and host name.",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "url": {
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        },
+        "user": {
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password"
+      },
+      {
+        "key": "tlsClientCert",
+        "description": "To authenticate with an TLS/SSL client certificate, provide the client certificate here."
+      },
+      {
+        "key": "tlsCACert",
+        "description": "If the selected TLS/SSL mode requires a server root certificate, provide it here"
+      },
+      {
+        "key": "tlsClientKey",
+        "description": "To authenticate with a client TLS/SSL certificate, provide the key here."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: no TLS, no cleartext passwords, connection-pool auto-idle enabled. The user must still supply url, user, jsonData.database, and secureJsonData.password to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "maxIdleConnsAuto": true
+          },
+          "secureJsonData": {
+            "password": ""
+          },
+          "url": "",
+          "user": ""
+        }
+      },
+      "basicAuth": {
+        "summary": "Username / password",
+        "description": "The typical local MySQL setup: host+port, database, and a password-authenticated user. No TLS.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "maxIdleConnsAuto": true
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "localhost:3306",
+          "user": "grafana_reader"
+        }
+      },
+      "cleartextPasswords": {
+        "summary": "MySQL cleartext client-side plugin",
+        "description": "Enables jsonData.allowCleartextPasswords, required by some MySQL user accounts. The backend appends allowCleartextPasswords=true to the DSN at pkg/mysql/mysql.go:106-108.",
+        "value": {
+          "jsonData": {
+            "allowCleartextPasswords": true,
+            "database": "metrics",
+            "maxIdleConnsAuto": true
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "mysql.internal:3306",
+          "user": "grafana_reader"
+        }
+      },
+      "legacyRootDatabase": {
+        "summary": "Legacy: database stored at root level",
+        "description": "Older datasources stored the database name at the root level rather than in jsonData. The backend still falls back to root.database when jsonData.database is empty (pkg/mysql/mysql.go:58-61); useMigrateDatabaseFields (@grafana/sql) migrates it on first render. New configurations should write jsonData.database.",
+        "value": {
+          "database": "metrics",
+          "jsonData": {
+            "maxIdleConnsAuto": true
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "localhost:3306",
+          "user": "grafana_reader"
+        }
+      },
+      "tlsClientAuth": {
+        "summary": "mTLS client-certificate auth",
+        "description": "Enables jsonData.tlsAuth so the backend supplies a client certificate + key to the server. Populate both secureJsonData.tlsClientCert and secureJsonData.tlsClientKey as full PEM blocks including BEGIN/END lines.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "maxIdleConnsAuto": true,
+            "tlsAuth": true
+          },
+          "secureJsonData": {
+            "password": "changeme",
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+          },
+          "url": "mysql.internal:3306",
+          "user": "grafana_reader"
+        }
+      },
+      "tlsWithCACert": {
+        "summary": "TLS with a custom CA",
+        "description": "Enables jsonData.tlsAuthWithCACert so the backend verifies the server's certificate against secureJsonData.tlsCACert.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "maxIdleConnsAuto": true,
+            "tlsAuthWithCACert": true
+          },
+          "secureJsonData": {
+            "password": "changeme",
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n"
+          },
+          "url": "mysql.internal:3306",
+          "user": "grafana_reader"
+        }
+      },
+      "tunedConnectionPool": {
+        "summary": "Explicit connection-pool tuning",
+        "description": "Override the Grafana-wide defaults for pool size and lifetime. When maxIdleConnsAuto is false, maxIdleConns must be set explicitly.",
+        "value": {
+          "jsonData": {
+            "connMaxLifetime": 3600,
+            "database": "metrics",
+            "maxIdleConns": 10,
+            "maxIdleConnsAuto": false,
+            "maxOpenConns": 50,
+            "timeInterval": "1m",
+            "timezone": "+00:00"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "mysql.internal:3306",
+          "user": "grafana_reader"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the single service 'zendesk' preselects its only auth method, basic_auth. Fill in the login email (jsonData.services.zendesk.auth.username), the subdomain (jsonData.variables.subdomain), and the API token (secureJsonData \"zendesk.password\", empty here) to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "zendesk": {
+              "auth": {
+                "id": "basic_auth",
+                "username": ""
+              }
+            }
+          },
+          "variables": {
+            "subdomain": ""
+          }
+        },
+        "secureJsonData": {
+          "zendesk.password": ""
+        }
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic auth (email + API token)",
+      "description": "Authenticate against https://{subdomain}.zendesk.com/api/v2/ with the account login email and a Zendesk API token. The token is the write-only secret at secureJsonData \"zendesk.password\".",
+      "value": {
+        "jsonData": {
+          "services": {
+            "zendesk": {
+              "auth": {
+                "id": "basic_auth",
+                "username": "agent@example.com"
+              }
+            }
+          },
+          "variables": {
+            "subdomain": "mycompany"
+          }
+        },
+        "secureJsonData": {
+          "zendesk.password": "\u003czendesk-api-token\u003e"
+        }
+      }
+    }
+  }
+}

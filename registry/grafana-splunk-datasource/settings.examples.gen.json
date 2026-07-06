@@ -1,0 +1,121 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Basic authentication against the Splunk management/REST API. root.url, root.basicAuthUser and secureJsonData.basicAuthPassword (empty here) must be filled in to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "authType": "BasicAuth"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://splunk.example.com:8089"
+      }
+    },
+    "alternativeToken": {
+      "summary": "Alternative authentication (Splunk auth token)",
+      "description": "Authenticate with a Splunk authentication token instead of a username/password. The token is stored in secureJsonData.authToken and sent as 'Authorization: Bearer \u003ctoken\u003e' (pkg/splunk/client.go:229-230).",
+      "value": {
+        "jsonData": {
+          "authType": "custom-splunk"
+        },
+        "secureJsonData": {
+          "authToken": "\u003csplunk-authentication-token\u003e"
+        },
+        "url": "https://splunk.example.com:8089"
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic authentication",
+      "description": "Authenticate with a Splunk username and password. The username is stored at root.basicAuthUser and the password in secureJsonData.basicAuthPassword; the backend derives BasicAuthEnabled from authType (pkg/models/settings.go:95), so root.basicAuth is not set.",
+      "value": {
+        "basicAuthUser": "splunk_admin",
+        "jsonData": {
+          "authType": "BasicAuth"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "\u003cyour-splunk-password\u003e"
+        },
+        "url": "https://splunk.example.com:8089"
+      }
+    },
+    "basicAuthWithTLS": {
+      "summary": "Basic authentication with TLS client auth and custom CA",
+      "description": "Basic auth combined with mutual TLS (jsonData.tlsAuth + serverName + client cert/key) and custom-CA verification (jsonData.tlsAuthWithCACert + CA cert). TLS values are consumed by the SDK via config.HTTPClientOptions (pkg/models/settings.go:125).",
+      "value": {
+        "basicAuthUser": "splunk_admin",
+        "jsonData": {
+          "authType": "BasicAuth",
+          "serverName": "splunk.example.com",
+          "tlsAuth": true,
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "\u003cyour-splunk-password\u003e",
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n\u003credacted\u003e\n-----END RSA PRIVATE KEY-----"
+        },
+        "url": "https://splunk.example.com:8089"
+      }
+    },
+    "oauthForward": {
+      "summary": "Forward OAuth Identity",
+      "description": "Forward the signed-in Grafana user's OAuth identity to Splunk. Sets jsonData.authType='OAuthForward' and jsonData.oauthPassThru=true; there is no secret to configure. Only offered in the editor when the splunkEnableOAuthForwarding feature toggle is enabled.",
+      "value": {
+        "jsonData": {
+          "authType": "OAuthForward",
+          "oauthPassThru": true
+        },
+        "url": "https://splunk.example.com:8089"
+      }
+    },
+    "tokenWithAdvancedOptions": {
+      "summary": "Alternative token auth with advanced options and data links",
+      "description": "A fully-populated instance: token auth, preview + async queries with a poll interval, a plugin request timeout, internal-field filtering, a custom result limit, forwarded cookies, and two data links (one external URL template, one internal link to a Tempo datasource).",
+      "value": {
+        "jsonData": {
+          "authType": "custom-splunk",
+          "autoCancel": "30",
+          "dataLinks": [
+            {
+              "field": "trace_id",
+              "label": "View trace",
+              "matcherRegex": "/trace_id=(\\w+)/",
+              "url": "https://traces.example.com/${__value.raw}"
+            },
+            {
+              "datasourceUid": "tempo",
+              "field": "trace_id",
+              "label": "Trace",
+              "matcherRegex": "/trace_id=(\\w+)/",
+              "url": "${__value.raw}"
+            }
+          ],
+          "defaultEarliestTime": "-1hr",
+          "fieldSearchType": "full",
+          "internalFieldPattern": "^_.+",
+          "internalFieldsFiltration": true,
+          "keepCookies": [
+            "session_id"
+          ],
+          "maxPollInterval": "3000",
+          "maxResultCount": 5000,
+          "minPollInterval": "500",
+          "pollSearchResult": true,
+          "previewMode": true,
+          "statusBuckets": "300",
+          "timeout": 30,
+          "timeoutInSeconds": 60,
+          "tsField": "_time",
+          "variableSearchLevel": "smart"
+        },
+        "secureJsonData": {
+          "authToken": "\u003csplunk-authentication-token\u003e"
+        },
+        "url": "https://splunk.example.com:8089"
+      }
+    }
+  }
+}

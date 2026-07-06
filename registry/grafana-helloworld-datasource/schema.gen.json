@@ -1,0 +1,28 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object"
+    },
+    "secureValues": [
+      {
+        "key": "apiKey",
+        "description": "Placeholder secret. The Hello World datasource reads no configuration: its config editor renders static text and its backend ignores instance settings. This key exists only because a dsconfig entry must declare at least one field and the shared conformance suite requires at least one secureJsonData key. The plugin never reads it."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The Hello World datasource requires no configuration. jsonData is empty and the placeholder secureJsonData.apiKey (which the plugin never reads) is left empty. This is a complete, working instance-settings payload.",
+        "value": {
+          "jsonData": {},
+          "secureJsonData": {
+            "apiKey": ""
+          }
+        }
+      }
+    }
+  }
+}

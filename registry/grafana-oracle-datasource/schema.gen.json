@@ -1,0 +1,184 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "connectionPoolSize": {
+              "description": "Choose the maximum number of connections in the connection pool. Defaults to 50. Takes precedence over environment variable 'GF_PLUGINS_ORACLE_DATASOURCE_POOLSIZE' if set.",
+              "type": "number",
+              "default": 50
+            },
+            "dataProxyTimeout": {
+              "description": "Choose the maximum time in seconds to wait for a response. Defaults to 120 seconds. Takes precedence over environment variable 'GF_DATAPROXY_TIMEOUT' if set.",
+              "type": "number",
+              "default": 120
+            },
+            "database": {
+              "description": "Name of database",
+              "type": "string",
+              "x-dsconfig-depends-on": "virtual_connectionType == 'tcp'",
+              "x-dsconfig-required-when": "jsonData_useTNSNamesBasedConnection != true"
+            },
+            "prefetchRowsCount": {
+              "description": "Row Prefetching allow you to set the number of rows to prefetch into the client while a result set is being populated during a query. This feature reduces the number of round trips to the server.",
+              "type": "number"
+            },
+            "rowLimit": {
+              "description": "Maximum number of rows returned per query. Defaults to 1,000,000.",
+              "type": "number",
+              "default": 1000000
+            },
+            "timezone_name": {
+              "description": "Choose the default timezone of the Oracle server. Typically this is UTC.",
+              "type": "string",
+              "default": "UTC"
+            },
+            "tnsNamesEntry": {
+              "description": "Use connection config specified in tnsnames.ora",
+              "type": "string",
+              "x-dsconfig-depends-on": "virtual_connectionType == 'tns'",
+              "x-dsconfig-required-when": "jsonData_useTNSNamesBasedConnection == true"
+            },
+            "useKerberosAuthentication": {
+              "description": "Authentication discriminator: false selects Basic Authentication (username + password), true selects Kerberos Authentication. The config editor only exposes Kerberos when useTNSNamesBasedConnection is true, though the backend also accepts Kerberos with a host + port connection.",
+              "type": "boolean"
+            },
+            "useTNSNamesBasedConnection": {
+              "description": "Connection-method discriminator: false selects 'Host with TCP Port' (host + port + database), true selects 'TNSNames Entry' (a tnsnames.ora entry). Written by the config editor's Connection methods selector.",
+              "type": "boolean"
+            },
+            "use_dst": {
+              "description": "Parsed by the backend into DBConnectionOptions.DSTEnabled (pkg/models/settings.go:23) but never read when building the connection string. Declared in the frontend OracleOptions type (src/types.ts:9) but not written by the config editor — use_dst is a per-query/annotation option (src/types.ts:30, src/datasource.ts:109), not a datasource-level setting.",
+              "type": "boolean"
+            },
+            "user": {
+              "description": "An Oracle username with access to the specified database.",
+              "type": "string",
+              "x-dsconfig-depends-on": "virtual_authType == 'basic'",
+              "x-dsconfig-required-when": "jsonData_useKerberosAuthentication != true"
+            }
+          }
+        },
+        "url": {
+          "description": "Hostname or IP Address with TCP port number.",
+          "type": "string",
+          "x-dsconfig-depends-on": "virtual_connectionType == 'tcp'",
+          "x-dsconfig-required-when": "jsonData_useTNSNamesBasedConnection != true"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password",
+        "description": "An Oracle password with access to the specified database."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: Host with TCP Port connection, Basic authentication, UTC session time zone, and the backend connection-pool/timeout/row-limit defaults. The user must still supply url, jsonData.user, jsonData.database, and secureJsonData.password to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "connectionPoolSize": 50,
+            "dataProxyTimeout": 120,
+            "database": "",
+            "rowLimit": 1000000,
+            "timezone_name": "UTC",
+            "useKerberosAuthentication": false,
+            "useTNSNamesBasedConnection": false,
+            "user": ""
+          },
+          "secureJsonData": {
+            "password": ""
+          },
+          "url": ""
+        }
+      },
+      "basicAuthTcp": {
+        "summary": "Basic auth over Host with TCP Port",
+        "description": "The typical setup: host+port in the root url, a database name, and a password-authenticated Oracle user. useTNSNamesBasedConnection and useKerberosAuthentication default to false.",
+        "value": {
+          "jsonData": {
+            "database": "ORCLPDB1",
+            "timezone_name": "UTC",
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "oracle.example.com:1521"
+        }
+      },
+      "basicAuthTns": {
+        "summary": "Basic auth over a TNSNames entry",
+        "description": "Connect using a tnsnames.ora entry (jsonData.tnsNamesEntry) with a password-authenticated user. No root url is needed. TNSNames connections are not supported in Grafana Cloud.",
+        "value": {
+          "jsonData": {
+            "timezone_name": "UTC",
+            "tnsNamesEntry": "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle-db1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=FREEPDB1)(SERVER=DEDICATED)))",
+            "useTNSNamesBasedConnection": true,
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          }
+        }
+      },
+      "kerberosTns": {
+        "summary": "Kerberos auth over a TNSNames entry",
+        "description": "Kerberos authentication uses no username or password (they come from the Kerberos ticket / tnsnames.ora). The editor only exposes Kerberos when useTNSNamesBasedConnection is true. Neither TNSNames nor Kerberos is supported in Grafana Cloud.",
+        "value": {
+          "jsonData": {
+            "timezone_name": "UTC",
+            "tnsNamesEntry": "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle-db1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=FREEPDB1)(SERVER=DEDICATED)))",
+            "useKerberosAuthentication": true,
+            "useTNSNamesBasedConnection": true
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "legacyTnsInUrl": {
+        "summary": "Legacy: TNSNames entry stored in the root url",
+        "description": "v3.3.0 stored the TNSNames entry in the root url before v3.3.2 moved it to jsonData.tnsNamesEntry. When useTNSNamesBasedConnection is true and jsonData.tnsNamesEntry is empty, the backend falls back to the root url (pkg/models/settings.go:82-84).",
+        "value": {
+          "jsonData": {
+            "timezone_name": "UTC",
+            "useTNSNamesBasedConnection": true,
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle-db1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=FREEPDB1)(SERVER=DEDICATED)))"
+        }
+      },
+      "tunedSettings": {
+        "summary": "Basic auth with tuned Additional Settings",
+        "description": "Override the optional performance knobs: a larger connection pool, a longer dataproxy timeout, driver row prefetching, a custom row limit, and a non-UTC display time zone.",
+        "value": {
+          "jsonData": {
+            "connectionPoolSize": 100,
+            "dataProxyTimeout": 200,
+            "database": "ORCLPDB1",
+            "prefetchRowsCount": 500,
+            "rowLimit": 500000,
+            "timezone_name": "Europe/Berlin",
+            "user": "grafana_reader"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "oracle.example.com:1521"
+        }
+      }
+    }
+  }
+}

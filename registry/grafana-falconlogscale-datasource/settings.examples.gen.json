@@ -1,0 +1,125 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: LogScale mode, LogScale personal-token authentication. Only root.url and secureJsonData.accessToken (empty here) need to be filled in.",
+      "value": {
+        "jsonData": {
+          "authenticateWithToken": true,
+          "mode": "LogScale"
+        },
+        "secureJsonData": {
+          "accessToken": ""
+        },
+        "url": "https://cloud.humio.com"
+      }
+    },
+    "logscaleBasicAuth": {
+      "summary": "LogScale mode with HTTP Basic authentication",
+      "description": "Send HTTP Basic credentials with each request. root.basicAuth toggles the method; root.basicAuthUser and secureJsonData.basicAuthPassword carry the credentials. The backend reads basicAuthUser at pkg/plugin/settings.go:59.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {
+          "mode": "LogScale"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://cloud.humio.com"
+      }
+    },
+    "logscaleOAuth2Client": {
+      "summary": "LogScale mode with OAuth2 client credentials",
+      "description": "Use the OAuth2 client-credentials grant against a LogScale server. jsonData.oauth2ClientId + secureJsonData.oauth2ClientSecret drive the token exchange; the plugin fetches and refreshes access tokens automatically.",
+      "value": {
+        "jsonData": {
+          "mode": "LogScale",
+          "oauth2": true,
+          "oauth2ClientId": "my-client-id"
+        },
+        "secureJsonData": {
+          "oauth2ClientSecret": "REPLACE_WITH_OAUTH2_CLIENT_SECRET"
+        },
+        "url": "https://cloud.humio.com"
+      }
+    },
+    "logscaleOAuthForward": {
+      "summary": "LogScale mode with Forward OAuth Identity",
+      "description": "Forward the signed-in Grafana user's upstream OAuth identity to LogScale. Sets only jsonData.oauthPassThru; there is no secret to configure.",
+      "value": {
+        "jsonData": {
+          "mode": "LogScale",
+          "oauthPassThru": true
+        },
+        "secureJsonData": {
+          "accessToken": ""
+        },
+        "url": "https://cloud.humio.com"
+      }
+    },
+    "logscaleToken": {
+      "summary": "LogScale token authentication",
+      "description": "Authenticate to a LogScale server with a personal token in secureJsonData.accessToken. The backend derives '\u003curl\u003e/humio/graphql' and '\u003curl\u003e/humio' as the client endpoints (pkg/plugin/settings.go:44-46).",
+      "value": {
+        "jsonData": {
+          "authenticateWithToken": true,
+          "defaultRepository": "example-repo",
+          "mode": "LogScale"
+        },
+        "secureJsonData": {
+          "accessToken": "REPLACE_WITH_LOGSCALE_TOKEN"
+        },
+        "url": "https://cloud.humio.com"
+      }
+    },
+    "logscaleWithDataLinks": {
+      "summary": "LogScale token auth with data links and incremental querying",
+      "description": "A fully-populated LogScale instance: token auth, custom default repository, two data links (one external URL template, one internal link to a Tempo datasource), incremental querying enabled with a 30-second overlap window.",
+      "value": {
+        "jsonData": {
+          "authenticateWithToken": true,
+          "dataLinks": [
+            {
+              "field": "requestId",
+              "label": "View request",
+              "matcherRegex": "req_id=(\\w+)",
+              "url": "https://requests.example.com/${__value.raw}"
+            },
+            {
+              "datasourceUid": "tempo",
+              "field": "traceId",
+              "label": "Trace",
+              "matcherRegex": "trace_id=(\\w+)",
+              "url": "${__value.raw}"
+            }
+          ],
+          "defaultRepository": "production",
+          "incrementalQueryOverlapWindow": "30s",
+          "incrementalQuerying": true,
+          "mode": "LogScale"
+        },
+        "secureJsonData": {
+          "accessToken": "REPLACE_WITH_LOGSCALE_TOKEN"
+        },
+        "url": "https://cloud.humio.com"
+      }
+    },
+    "ngsiemOAuth2": {
+      "summary": "NGSIEM mode with OAuth2 client credentials",
+      "description": "CrowdStrike NGSIEM tenant. Only OAuth2 client credentials is accepted; defaultRepository is auto-pinned to 'search-all' by the editor (ConfigEditor.tsx:127-137) and reflected here. The backend appends '/humio' to the base URL when Mode == NGSIEM (pkg/plugin/plugin.go:54-56); do not include '/humio' in the configured URL.",
+      "value": {
+        "jsonData": {
+          "defaultRepository": "search-all",
+          "mode": "NGSIEM",
+          "oauth2": true,
+          "oauth2ClientId": "my-ngsiem-client-id"
+        },
+        "secureJsonData": {
+          "oauth2ClientSecret": "REPLACE_WITH_NGSIEM_CLIENT_SECRET"
+        },
+        "url": "https://api.us-2.crowdstrike.com"
+      }
+    }
+  }
+}

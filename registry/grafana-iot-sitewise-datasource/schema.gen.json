@@ -1,0 +1,269 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "assumeRoleArn": {
+              "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+              "type": "string",
+              "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+              "x-dsconfig-depends-on": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') \u0026\u0026 jsonData_authType != 'grafana_assume_role'"
+            },
+            "authType": {
+              "description": "Specify which AWS credentials chain to use.",
+              "type": "string",
+              "default": "default",
+              "enum": [
+                "default",
+                "keys",
+                "credentials",
+                "ec2_iam_role",
+                "grafana_assume_role",
+                "arn"
+              ],
+              "x-dsconfig-depends-on": "jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default'"
+            },
+            "defaultRegion": {
+              "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",
+              "type": "string",
+              "enum": [
+                "us-east-2",
+                "us-east-1",
+                "us-west-2",
+                "ap-south-1",
+                "ap-northeast-2",
+                "ap-southeast-1",
+                "ap-southeast-2",
+                "ap-northeast-1",
+                "ca-central-1",
+                "eu-central-1",
+                "eu-west-1",
+                "us-gov-west-1",
+                "cn-north-1",
+                "Edge"
+              ]
+            },
+            "edgeAuthMode": {
+              "type": "string",
+              "default": "default",
+              "enum": [
+                "default",
+                "linux",
+                "ldap"
+              ],
+              "x-dsconfig-depends-on": "jsonData_defaultRegion == 'Edge'"
+            },
+            "edgeAuthUser": {
+              "description": "The username set to local authentication proxy",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_defaultRegion == 'Edge' \u0026\u0026 jsonData_edgeAuthMode != 'default'",
+              "x-dsconfig-required-when": "jsonData_defaultRegion == 'Edge' \u0026\u0026 jsonData_edgeAuthMode != 'default'"
+            },
+            "endpoint": {
+              "description": "Optionally, specify a custom endpoint for the service",
+              "type": "string",
+              "x-dsconfig-depends-on": "(jsonData_defaultRegion == 'Edge' \u0026\u0026 jsonData_edgeAuthMode != 'default') || jsonData_authType != 'grafana_assume_role'",
+              "x-dsconfig-required-when": "jsonData_defaultRegion == 'Edge'"
+            },
+            "externalId": {
+              "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') \u0026\u0026 jsonData_authType != 'grafana_assume_role'"
+            },
+            "profile": {
+              "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+              "type": "string",
+              "x-dsconfig-depends-on": "(jsonData_defaultRegion != 'Edge' || jsonData_edgeAuthMode == 'default') \u0026\u0026 jsonData_authType == 'credentials'"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accessKey"
+      },
+      {
+        "key": "secretKey"
+      },
+      {
+        "key": "sessionToken"
+      },
+      {
+        "key": "edgeAuthPass",
+        "description": "The password sent to local authentication proxy"
+      },
+      {
+        "key": "cert",
+        "description": "Certificate for SSL enabled authentication."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a fresh datasource starts with: AWS SDK Default credentials. defaultRegion still needs to be picked from the connected account before queries will run; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain.",
+        "value": {
+          "jsonData": {
+            "authType": "default"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "accessAndSecretKey": {
+        "summary": "Access \u0026 secret key",
+        "description": "IAM user credentials supplied directly via secureJsonData. Optionally include sessionToken for temporary STS credentials.",
+        "value": {
+          "jsonData": {
+            "authType": "keys",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "assumeRoleFromKeys": {
+        "summary": "Access \u0026 secret key + STS AssumeRole",
+        "description": "IAM user credentials that then assume a cross-account IAM role via STS. `externalId` is optional and only meaningful when `assumeRoleArn` is set.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/GrafanaSiteWise",
+            "authType": "keys",
+            "defaultRegion": "us-east-1",
+            "externalId": "external-id-abc123"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "awsSdkDefault": {
+        "summary": "AWS SDK Default",
+        "description": "Uses the AWS SDK default credential chain (env vars, shared config, EC2/ECS/EKS metadata). No secrets are set in secureJsonData; the placeholder accessKey is empty to signal that.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "credentialsFile": {
+        "summary": "Credentials file",
+        "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Leave `profile` blank to pick the default profile.",
+        "value": {
+          "jsonData": {
+            "authType": "credentials",
+            "defaultRegion": "us-east-1",
+            "profile": "my-sitewise-profile"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "edgeLdap": {
+        "summary": "Edge Kernel — LDAP authentication",
+        "description": "On-prem SiteWise Edge gateway with LDAP authentication proxy. edgeAuthUser + edgeAuthPass are the LDAP bind credentials; endpoint + cert connect to the gateway.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "defaultRegion": "Edge",
+            "edgeAuthMode": "ldap",
+            "edgeAuthUser": "cn=grafana,ou=users,dc=example,dc=com",
+            "endpoint": "https://edge.example.local:8443"
+          },
+          "secureJsonData": {
+            "cert": "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB...EXAMPLE...\n-----END CERTIFICATE-----\n",
+            "edgeAuthPass": "example-ldap-password"
+          }
+        }
+      },
+      "edgeLinux": {
+        "summary": "Edge Kernel — Linux authentication",
+        "description": "On-prem SiteWise Edge gateway with Linux PAM authentication proxy. edgeAuthUser + edgeAuthPass authenticate against the local user database; endpoint + cert connect to the gateway.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "defaultRegion": "Edge",
+            "edgeAuthMode": "linux",
+            "edgeAuthUser": "grafana",
+            "endpoint": "https://edge.example.local:8443"
+          },
+          "secureJsonData": {
+            "cert": "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB...EXAMPLE...\n-----END CERTIFICATE-----\n",
+            "edgeAuthPass": "example-linux-password"
+          }
+        }
+      },
+      "edgeStandard": {
+        "summary": "Edge Kernel — Standard (delegates to AWS provider)",
+        "description": "On-prem SiteWise Edge gateway with edgeAuthMode 'default' ('Standard'). The AWS auth provider configured above still authenticates; only endpoint + cert are required.",
+        "value": {
+          "jsonData": {
+            "authType": "keys",
+            "defaultRegion": "Edge",
+            "edgeAuthMode": "default",
+            "endpoint": "https://edge.example.local:8443"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "cert": "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB...EXAMPLE...\n-----END CERTIFICATE-----\n",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "grafanaAssumeRole": {
+        "summary": "Grafana Assume Role (Grafana Cloud only)",
+        "description": "Grafana Cloud's temporary-credentials broker. Feature-gated on the awsDatasourcesTempCredentials toggle; the editor hides assumeRoleArn/externalId/endpoint when this provider is selected because Grafana derives them itself.",
+        "value": {
+          "jsonData": {
+            "authType": "grafana_assume_role",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "legacyArnAuthType": {
+        "summary": "Legacy: authType = 'arn'",
+        "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The backend (awsds.AuthType.UnmarshalJSON) maps this to the modern 'default' at load time.",
+        "value": {
+          "jsonData": {
+            "authType": "arn",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "workspaceIamRole": {
+        "summary": "Workspace IAM Role (ec2_iam_role)",
+        "description": "Uses the IAM role attached to the Grafana workload (EC2 instance profile / ECS task role / EKS IRSA). Editor label is 'Workspace IAM Role'; storage value is 'ec2_iam_role'.",
+        "value": {
+          "jsonData": {
+            "authType": "ec2_iam_role",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      }
+    }
+  }
+}

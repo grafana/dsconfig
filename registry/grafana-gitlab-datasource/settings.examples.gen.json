@@ -1,0 +1,56 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the GitLab SaaS API base URL and a page limit of 5. Only secureJsonData.accessToken (empty here) needs to be filled in to get a working datasource — the backend rejects an empty token (pkg/models/settings.go:48-50).",
+      "value": {
+        "jsonData": {
+          "pageLimit": 5
+        },
+        "secureJsonData": {
+          "accessToken": ""
+        },
+        "url": "https://gitlab.com/api/v4"
+      }
+    },
+    "gitlabSaaS": {
+      "summary": "GitLab SaaS (gitlab.com)",
+      "description": "Authenticate against the hosted GitLab service. The root url is the default API base URL https://gitlab.com/api/v4; the personal access token is provided in secureJsonData.accessToken and sent as the PRIVATE-TOKEN header.",
+      "value": {
+        "jsonData": {
+          "pageLimit": 5
+        },
+        "secureJsonData": {
+          "accessToken": "\u003cgitlab-personal-access-token\u003e"
+        },
+        "url": "https://gitlab.com/api/v4"
+      }
+    },
+    "selfHosted": {
+      "summary": "Self-hosted GitLab",
+      "description": "Self-managed GitLab instance. The root url points at the instance base URL (must include an http/https scheme); go-gitlab appends api/v4/ automatically (go-gitlab gitlab.go:564-578), so no /api/v4 suffix is required here.",
+      "value": {
+        "jsonData": {
+          "pageLimit": 5
+        },
+        "secureJsonData": {
+          "accessToken": "\u003cgitlab-personal-access-token\u003e"
+        },
+        "url": "https://gitlab.example.com"
+      }
+    },
+    "selfHostedApiV4CustomPageLimit": {
+      "summary": "Self-hosted GitLab with explicit /api/v4 and custom page limit",
+      "description": "Self-managed GitLab with the API base URL given explicitly (already ending in /api/v4, so go-gitlab leaves it as-is) and a raised jsonData.pageLimit for queries that page through more results.",
+      "value": {
+        "jsonData": {
+          "pageLimit": 10
+        },
+        "secureJsonData": {
+          "accessToken": "\u003cgitlab-personal-access-token\u003e"
+        },
+        "url": "https://gitlab.example.com/api/v4"
+      }
+    }
+  }
+}

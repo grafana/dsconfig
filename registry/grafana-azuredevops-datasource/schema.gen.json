@@ -1,0 +1,90 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "authType": {
+              "type": "string",
+              "default": "patToken",
+              "enum": [
+                "patToken"
+              ]
+            },
+            "projectsLimit": {
+              "description": "Number of items to retrieve in projects list query",
+              "type": "number",
+              "default": 100
+            },
+            "url": {
+              "description": "Azure DevOps instance URL",
+              "type": "string"
+            },
+            "username": {
+              "description": "Username of the user that owns the Azure DevOps PAT. May be needed for some versions of Azure DevOps Server.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "patToken",
+        "description": "Azure DevOps personal access token"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: patToken authentication with a projects limit of 100. jsonData.url and secureJsonData.patToken (empty here) must both be filled in to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "authType": "patToken",
+            "projectsLimit": 100
+          },
+          "secureJsonData": {
+            "patToken": ""
+          }
+        }
+      },
+      "azureDevOpsServer": {
+        "summary": "Personal Access Token with username (Azure DevOps Server)",
+        "description": "On-prem Azure DevOps Server: setting jsonData.username makes the backend send an explicit HTTP Basic header CreateBasicAuthHeaderValue(username, patToken) with a normalized (lowercased, trailing-slash-trimmed) collection URL. Needed for some Azure DevOps Server versions.",
+        "value": {
+          "jsonData": {
+            "authType": "patToken",
+            "projectsLimit": 100,
+            "url": "https://azuredevops.example.com/DefaultCollection",
+            "username": "ado"
+          },
+          "secureJsonData": {
+            "patToken": "\u003cyour-azure-devops-pat\u003e"
+          }
+        }
+      },
+      "patToken": {
+        "summary": "Personal Access Token (Azure DevOps Services)",
+        "description": "Authenticate against Azure DevOps Services (dev.azure.com) with a personal access token in secureJsonData.patToken. The URL is the organization URL; the PAT is sent as HTTP Basic auth (empty username + PAT).",
+        "value": {
+          "jsonData": {
+            "authType": "patToken",
+            "projectsLimit": 100,
+            "url": "https://dev.azure.com/your-organization"
+          },
+          "secureJsonData": {
+            "patToken": "\u003cyour-azure-devops-pat\u003e"
+          }
+        }
+      }
+    }
+  }
+}

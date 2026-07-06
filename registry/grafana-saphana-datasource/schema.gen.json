@@ -1,0 +1,200 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "databaseName": {
+              "description": "Tenant database name (optional). If database name is set as well as the instance number, port is not required.",
+              "type": "string"
+            },
+            "defaultSchema": {
+              "description": "Default schema to be used. Can be empty.",
+              "type": "string"
+            },
+            "instance": {
+              "description": "SAP HANA tenant instance number (optional). If instance number is set, port is not required.",
+              "type": "string"
+            },
+            "port": {
+              "description": "SAP HANA server port (optional if database name filled). Typically this will be 443 for SAP HANA Cloud. For on-prem/multi-tenanted instances, use the corresponding port number",
+              "type": "number",
+              "x-dsconfig-required-when": "jsonData_instance == '' || jsonData_databaseName == ''"
+            },
+            "server": {
+              "description": "SAP HANA server address",
+              "type": "string",
+              "x-dsconfig-required-when": "true"
+            },
+            "timeout": {
+              "type": "string",
+              "default": "30"
+            },
+            "tlsAuth": {
+              "description": "TLS Client Auth",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "jsonData_tlsDisabled != true"
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying self-signed TLS Certs",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "jsonData_tlsDisabled != true"
+            },
+            "tlsDisabled": {
+              "description": "Enable TLS/SSL encryption for the connection to SAP HANA. Enabled by default. Disable only when your SAP HANA instance does not have TLS configured (plaintext connections).",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "description": "Skip TLS Verify",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "jsonData_tlsDisabled != true"
+            },
+            "username": {
+              "description": "SAP HANA username",
+              "type": "string",
+              "x-dsconfig-required-when": "jsonData_tlsAuth != true"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password",
+        "description": "SAP HANA password"
+      },
+      {
+        "key": "tlsClientCert"
+      },
+      {
+        "key": "tlsClientKey"
+      },
+      {
+        "key": "tlsCACert"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: basic authentication, TLS enabled (tlsDisabled false), and a 30-second timeout. The user must still supply jsonData.server, a port (or tenant instance + database name), jsonData.username, and secureJsonData.password to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "port": 0,
+            "server": "",
+            "timeout": "30",
+            "tlsDisabled": false,
+            "username": ""
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "basicAuthInstance": {
+        "summary": "Basic auth over a tenant instance (on-prem / multi-tenant)",
+        "description": "Connect to a tenant database by instance number + database name instead of an explicit port. The backend derives the port as 3\u003cinstance\u003e13 (e.g. instance '00' -\u003e 30013). instance is stored as a string.",
+        "value": {
+          "jsonData": {
+            "databaseName": "HXE",
+            "instance": "00",
+            "server": "hana.example.com",
+            "timeout": "30",
+            "username": "GRAFANA_READER"
+          },
+          "secureJsonData": {
+            "password": "\u003cyour-password\u003e"
+          }
+        }
+      },
+      "basicAuthPort": {
+        "summary": "Basic auth over host + port (SAP HANA Cloud)",
+        "description": "The typical SAP HANA Cloud setup: a server address, port 443, a username, and a password. TLS is enabled by default.",
+        "value": {
+          "jsonData": {
+            "port": 443,
+            "server": "hana.example.com",
+            "timeout": "30",
+            "username": "GRAFANA_READER"
+          },
+          "secureJsonData": {
+            "password": "\u003cyour-password\u003e"
+          }
+        }
+      },
+      "tlsClientAuth": {
+        "summary": "TLS client-certificate (X.509) authentication",
+        "description": "Mutual TLS: jsonData.tlsAuth=true authenticates with an X.509 client certificate and key instead of a username/password. Both secureJsonData.tlsClientCert and secureJsonData.tlsClientKey are required.",
+        "value": {
+          "jsonData": {
+            "port": 443,
+            "server": "hana.example.com",
+            "timeout": "30",
+            "tlsAuth": true
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n\u003credacted\u003e\n-----END RSA PRIVATE KEY-----"
+          }
+        }
+      },
+      "tlsDisabled": {
+        "summary": "Basic auth over a plaintext (non-TLS) connection",
+        "description": "jsonData.tlsDisabled=true turns TLS off entirely. Use only when the SAP HANA instance has no TLS configured. The editor clears the other TLS switches when TLS is disabled.",
+        "value": {
+          "jsonData": {
+            "port": 30015,
+            "server": "hana.example.com",
+            "timeout": "30",
+            "tlsDisabled": true,
+            "username": "GRAFANA_READER"
+          },
+          "secureJsonData": {
+            "password": "\u003cyour-password\u003e"
+          }
+        }
+      },
+      "tlsSkipVerify": {
+        "summary": "Basic auth skipping TLS verification (development only)",
+        "description": "jsonData.tlsSkipVerify=true accepts any server certificate. Use only for development against a server whose certificate cannot be verified.",
+        "value": {
+          "jsonData": {
+            "port": 443,
+            "server": "hana.example.com",
+            "timeout": "30",
+            "tlsSkipVerify": true,
+            "username": "GRAFANA_READER"
+          },
+          "secureJsonData": {
+            "password": "\u003cyour-password\u003e"
+          }
+        }
+      },
+      "tlsWithCACert": {
+        "summary": "Basic auth verifying the server against a custom CA",
+        "description": "jsonData.tlsAuthWithCACert=true verifies the SAP HANA server certificate against a custom / self-signed CA supplied in secureJsonData.tlsCACert, alongside basic authentication.",
+        "value": {
+          "jsonData": {
+            "port": 443,
+            "server": "hana.example.com",
+            "timeout": "30",
+            "tlsAuthWithCACert": true,
+            "username": "GRAFANA_READER"
+          },
+          "secureJsonData": {
+            "password": "\u003cyour-password\u003e",
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----"
+          }
+        }
+      }
+    }
+  }
+}

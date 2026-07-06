@@ -1,0 +1,128 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "assumeRoleArn": {
+            "description": "Optional. Specifying the ARN of a role will ensure that the\n                     selected authentication provider is used to assume the role rather than the\n                     credentials directly.",
+            "type": "string",
+            "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$"
+          },
+          "authType": {
+            "description": "Specify which AWS credentials chain to use.",
+            "type": "string",
+            "default": "default",
+            "enum": [
+              "default",
+              "keys",
+              "credentials",
+              "ec2_iam_role",
+              "grafana_assume_role",
+              "arn"
+            ]
+          },
+          "customMetricsNamespaces": {
+            "type": "string"
+          },
+          "defaultLogGroups": {
+            "description": "Deprecated. Use logGroups instead. Prior storage shape (array of log group names) for default log groups used in CloudWatch Logs queries.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "defaultRegion": {
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Optionally, specify a custom endpoint for the service",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+          },
+          "externalId": {
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+          },
+          "logGroups": {
+            "description": "Optionally, specify default log groups for CloudWatch Logs queries.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "arn",
+                "name"
+              ],
+              "properties": {
+                "accountId": {
+                  "type": "string"
+                },
+                "accountLabel": {
+                  "type": "string"
+                },
+                "arn": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "logsTimeout": {
+            "description": "Grafana will poll for Cloudwatch Logs results every second until Done status is returned from AWS or timeout is exceeded, in which case Grafana will return an error. Note: For Alerting, the timeout from Grafana config file will take precedence. Must be a valid duration string, such as \"30m\" (default) \"30s\" \"2000ms\" etc.",
+            "type": "string"
+          },
+          "profile": {
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'credentials'"
+          },
+          "proxyType": {
+            "description": "Specify the type of proxy to use. This should not be set if Secure Socks Proxy is enabled.",
+            "type": "string",
+            "default": "env",
+            "enum": [
+              "none",
+              "env",
+              "url"
+            ]
+          },
+          "proxyUrl": {
+            "description": "Proxy URL. Don't set the username or password here",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_proxyType == 'url'",
+            "x-dsconfig-required-when": "jsonData_proxyType == 'url'"
+          },
+          "proxyUsername": {
+            "description": "Optional: Proxy Username. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_proxyType == 'url'"
+          },
+          "tracingDatasourceUid": {
+            "description": "Application Signals data source containing traces",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accessKey"
+    },
+    {
+      "key": "secretKey"
+    },
+    {
+      "key": "sessionToken"
+    },
+    {
+      "key": "proxyPassword",
+      "description": "Optional: Proxy Password. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\""
+    }
+  ]
+}

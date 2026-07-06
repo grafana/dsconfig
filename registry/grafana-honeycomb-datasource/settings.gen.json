@@ -1,0 +1,38 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "environment": {
+            "description": "Optional. Specify the environment name. This will be useful in data links",
+            "type": "string"
+          },
+          "hostname": {
+            "description": "Customize the api URL. By default this will be https://api.honeycomb.io",
+            "type": "string",
+            "default": "https://api.honeycomb.io",
+            "pattern": "^https://",
+            "x-dsconfig-required-when": "true"
+          },
+          "retentionLimit": {
+            "description": "Optional. The maximum time window, in days. Queries will only return data from the last N days, where N is the retention limit. Default is 7 days, since that is the maximum retention limit normally supported by the Honeycomb API. Honeycomb API docs: https://api-docs.honeycomb.io/api/query-data",
+            "type": "number",
+            "default": 7
+          },
+          "team": {
+            "description": "Specify the team name. This will be useful in data links",
+            "type": "string",
+            "x-dsconfig-required-when": "true"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "apiKey"
+    }
+  ]
+}

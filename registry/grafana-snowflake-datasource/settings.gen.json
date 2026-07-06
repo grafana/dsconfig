@@ -1,0 +1,141 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "description": "The name of the snowflake account (\u003caccount\u003e.snowflakecomputing.com). If not on AWS us-west-2 region, include the region (e.g. \u003caccount\u003e.us-east-1). If not on AWS, include the platform as well (e.g. \u003caccount\u003e.us-east1.gcp)",
+            "type": "string",
+            "x-dsconfig-required-when": "true"
+          },
+          "authType": {
+            "description": "Authentication type of snowflake",
+            "type": "string",
+            "default": "password",
+            "enum": [
+              "password",
+              "keypair",
+              "pat",
+              "oauth"
+            ]
+          },
+          "database": {
+            "description": "The default database for queries sent by this datasource",
+            "type": "string"
+          },
+          "defaultInterpolation": {
+            "description": "The formatting of the variable interpolation. Choose None for default behavior. For best results and simplified experience, choose SQL String",
+            "type": "string",
+            "default": "",
+            "enum": [
+              "",
+              "raw",
+              "sqlstring",
+              "regex",
+              "csv",
+              "distributed",
+              "doublequote",
+              "glob",
+              "json",
+              "lucene",
+              "percentencode",
+              "pipe",
+              "singlequote",
+              "text",
+              "queryparam"
+            ]
+          },
+          "defaultQuery": {
+            "description": "Default query to be used when adding a new snowflake query to the panel",
+            "type": "string"
+          },
+          "defaultVariableQuery": {
+            "description": "Default query to be used when adding a new snowflake query to the dashboard variable",
+            "type": "string"
+          },
+          "loginTimeout": {
+            "description": "Connection timeout in seconds. Suggested value: 5 - 120",
+            "type": "number"
+          },
+          "oauthPassThru": {
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "type": "boolean",
+            "x-dsconfig-depends-on": "jsonData_authType == 'oauth'",
+            "x-dsconfig-required-when": "jsonData_authType == 'oauth'"
+          },
+          "region": {
+            "description": "Deprecated; prefer including the region in the 'Account' field",
+            "type": "string"
+          },
+          "requestTimeout": {
+            "description": "Request timeout in seconds. Suggested values: 30 - 120",
+            "type": "number"
+          },
+          "role": {
+            "description": "Assume a role other than the default role for queries sent by this datasource. The role specified here must still be granted to the user via 'GRANT ROLE'",
+            "type": "string"
+          },
+          "rowLimit": {
+            "description": "Limits the Max number of rows read from query results (applied by the plugin, not in the database). If unset, falls back to GF_DATAPROXY_ROW_LIMIT, or unlimited if not set.",
+            "type": "number"
+          },
+          "schema": {
+            "description": "The default schema for queries sent by this datasource",
+            "type": "string"
+          },
+          "settings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "secure": {
+                  "type": "boolean"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "timeInterval": {
+            "description": "A lower limit for the $__interval and $__interval_ms macros",
+            "type": "string"
+          },
+          "username": {
+            "description": "The username assigned to the Snowflake user (via CREATE USER)",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType != 'oauth'",
+            "x-dsconfig-required-when": "jsonData_authType != 'oauth'"
+          },
+          "warehouse": {
+            "description": "The default warehouse for queries sent by this datasource",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password",
+      "description": "The password assigned to the Snowflake account"
+    },
+    {
+      "key": "privateKey",
+      "description": "Private Key for the key pair Authentication"
+    },
+    {
+      "key": "privateKeyPassphrase",
+      "description": "Passphrase used to decrypt an encrypted private key. Leave empty if your private key is unencrypted."
+    },
+    {
+      "key": "patToken",
+      "description": "Programmatic Access Token secret"
+    }
+  ]
+}

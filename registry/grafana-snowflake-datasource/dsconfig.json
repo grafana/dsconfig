@@ -1,0 +1,530 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-snowflake-datasource",
+    "pluginName": "Snowflake",
+    "docURL": "https://grafana.com/docs/plugins/grafana-snowflake-datasource",
+    "fields": [
+        {
+            "id": "jsonData_account",
+            "key": "account",
+            "label": "Account",
+            "description": "The name of the snowflake account (<account>.snowflakecomputing.com). If not on AWS us-west-2 region, include the region (e.g. <account>.us-east-1). If not on AWS, include the platform as well (e.g. <account>.us-east1.gcp)",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Snowflake Account"
+            }
+        },
+        {
+            "id": "jsonData_region",
+            "key": "region",
+            "label": "Region",
+            "description": "Deprecated; prefer including the region in the 'Account' field",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default region"
+            }
+        },
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Type",
+            "description": "Authentication type of snowflake",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "password",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "password",
+                        "keypair",
+                        "pat",
+                        "oauth"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Password",
+                        "value": "password"
+                    },
+                    {
+                        "label": "Key Pair",
+                        "value": "keypair"
+                    },
+                    {
+                        "label": "Programmatic Access Token",
+                        "value": "pat"
+                    },
+                    {
+                        "label": "OAuth",
+                        "value": "oauth"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_username",
+            "key": "username",
+            "label": "Username",
+            "description": "The username assigned to the Snowflake user (via CREATE USER)",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_authType != 'oauth'",
+            "requiredWhen": "jsonData_authType != 'oauth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Snowflake Username"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "description": "The password assigned to the Snowflake account",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_authType == 'password'",
+            "requiredWhen": "jsonData_authType == 'password' || jsonData_authType == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Snowflake Password"
+            }
+        },
+        {
+            "id": "secureJsonData_privateKey",
+            "key": "privateKey",
+            "label": "Private key",
+            "description": "Private Key for the key pair Authentication",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.jwt.signingKey",
+            "dependsOn": "jsonData_authType == 'keypair'",
+            "requiredWhen": "jsonData_authType == 'keypair'",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "Begins with -----BEGIN PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "secureJsonData_privateKeyPassphrase",
+            "key": "privateKeyPassphrase",
+            "label": "Private key passphrase",
+            "description": "Passphrase used to decrypt an encrypted private key. Leave empty if your private key is unencrypted.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_authType == 'keypair'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Passphrase for encrypted private key"
+            }
+        },
+        {
+            "id": "secureJsonData_patToken",
+            "key": "patToken",
+            "label": "Token",
+            "description": "Programmatic Access Token secret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_authType == 'pat'",
+            "requiredWhen": "jsonData_authType == 'pat'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Programmatic access token secret"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "dependsOn": "jsonData_authType == 'oauth'",
+            "requiredWhen": "jsonData_authType == 'oauth'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_settings",
+            "key": "settings",
+            "label": "Connection settings",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_settings.item.name",
+                        "key": "name",
+                        "label": "Name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Name of the setting"
+                        }
+                    },
+                    {
+                        "id": "jsonData_settings.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Value of the setting"
+                        }
+                    },
+                    {
+                        "id": "jsonData_settings.item.secure",
+                        "key": "secure",
+                        "valueType": "boolean",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "switch"
+                        }
+                    }
+                ]
+            },
+            "help": {
+                "title": "Supported connection settings",
+                "markdown": "Session parameters can be added as a key/value pairs. List of all existing settings can be found in the [snowflake documentation](https://docs.snowflake.com/en/sql-reference/parameters.html#session-parameters)\n\nYou can also set secure connection parameters by checking the lock icon.",
+                "docURL": "https://docs.snowflake.com/en/sql-reference/parameters.html#session-parameters"
+            }
+        },
+        {
+            "id": "jsonData_role",
+            "key": "role",
+            "label": "Role",
+            "description": "Assume a role other than the default role for queries sent by this datasource. The role specified here must still be granted to the user via 'GRANT ROLE'",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default role"
+            }
+        },
+        {
+            "id": "jsonData_warehouse",
+            "key": "warehouse",
+            "label": "Warehouse",
+            "description": "The default warehouse for queries sent by this datasource",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default warehouse"
+            }
+        },
+        {
+            "id": "jsonData_database",
+            "key": "database",
+            "label": "Database",
+            "description": "The default database for queries sent by this datasource",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default database"
+            }
+        },
+        {
+            "id": "jsonData_schema",
+            "key": "schema",
+            "label": "Schema",
+            "description": "The default schema for queries sent by this datasource",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default schema"
+            }
+        },
+        {
+            "id": "jsonData_timeInterval",
+            "key": "timeInterval",
+            "label": "Min Interval",
+            "description": "A lower limit for the $__interval and $__interval_ms macros",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only"
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "10s"
+            }
+        },
+        {
+            "id": "jsonData_rowLimit",
+            "key": "rowLimit",
+            "label": "Row Limit",
+            "description": "Limits the Max number of rows read from query results (applied by the plugin, not in the database). If unset, falls back to GF_DATAPROXY_ROW_LIMIT, or unlimited if not set.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_loginTimeout",
+            "key": "loginTimeout",
+            "label": "Connection Timeout (sec)",
+            "description": "Connection timeout in seconds. Suggested value: 5 - 120",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "5"
+            }
+        },
+        {
+            "id": "jsonData_requestTimeout",
+            "key": "requestTimeout",
+            "label": "Request Timeout (sec)",
+            "description": "Request timeout in seconds. Suggested values: 30 - 120",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "120"
+            }
+        },
+        {
+            "id": "jsonData_defaultInterpolation",
+            "key": "defaultInterpolation",
+            "label": "Variable Interpolation Format",
+            "description": "The formatting of the variable interpolation. Choose None for default behavior. For best results and simplified experience, choose SQL String",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "",
+            "tags": [
+                "frontend-only"
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "None",
+                        "value": ""
+                    },
+                    {
+                        "label": "Raw",
+                        "value": "raw"
+                    },
+                    {
+                        "label": "Sql String",
+                        "value": "sqlstring"
+                    },
+                    {
+                        "label": "Regex",
+                        "value": "regex"
+                    },
+                    {
+                        "label": "CSV",
+                        "value": "csv"
+                    },
+                    {
+                        "label": "Distributed (OpenTSDB)",
+                        "value": "distributed"
+                    },
+                    {
+                        "label": "Double Quote",
+                        "value": "doublequote"
+                    },
+                    {
+                        "label": "Glob (Graphite)",
+                        "value": "glob"
+                    },
+                    {
+                        "label": "JSON",
+                        "value": "json"
+                    },
+                    {
+                        "label": "Lucene (Elasticsearch)",
+                        "value": "lucene"
+                    },
+                    {
+                        "label": "Percentencode",
+                        "value": "percentencode"
+                    },
+                    {
+                        "label": "Pipe",
+                        "value": "pipe"
+                    },
+                    {
+                        "label": "Single Quote",
+                        "value": "singlequote"
+                    },
+                    {
+                        "label": "Text",
+                        "value": "text"
+                    },
+                    {
+                        "label": "Query Param",
+                        "value": "queryparam"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_defaultQuery",
+            "key": "defaultQuery",
+            "label": "Default Query",
+            "description": "Default query to be used when adding a new snowflake query to the panel",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only"
+            ],
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 8,
+                "placeholder": "-- OPTIONAL: Default template to be used for new query.\n\nSELECT \n\t $__timeGroup(<time_column>, $__interval) as time,\n\t <value_column>\n FROM <metric_table>\n WHERE $__timeFilter(time)"
+            }
+        },
+        {
+            "id": "jsonData_defaultVariableQuery",
+            "key": "defaultVariableQuery",
+            "label": "Default Variable Query",
+            "description": "Default query to be used when adding a new snowflake query to the dashboard variable",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only"
+            ],
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 4,
+                "placeholder": "-- OPTIONAL: Default template to be used for new variable query.\n\nSELECT DISTINCT <column_name> FROM <metric_table> LIMIT 1000;"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_account",
+                "jsonData_region",
+                "jsonData_authType",
+                "jsonData_username",
+                "secureJsonData_password",
+                "secureJsonData_privateKey",
+                "secureJsonData_privateKeyPassphrase",
+                "secureJsonData_patToken",
+                "jsonData_oauthPassThru"
+            ]
+        },
+        {
+            "id": "connection-settings",
+            "title": "Connection settings",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_settings"
+            ]
+        },
+        {
+            "id": "environment",
+            "title": "Environment",
+            "order": 3,
+            "fieldRefs": [
+                "jsonData_role",
+                "jsonData_warehouse",
+                "jsonData_database",
+                "jsonData_schema"
+            ]
+        },
+        {
+            "id": "customization",
+            "title": "Customization",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeInterval",
+                "jsonData_rowLimit",
+                "jsonData_loginTimeout",
+                "jsonData_requestTimeout",
+                "jsonData_defaultInterpolation",
+                "jsonData_defaultQuery",
+                "jsonData_defaultVariableQuery"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "secureJsonData_privateKey",
+                "secureJsonData_privateKeyPassphrase"
+            ],
+            "description": "Key pair credentials — the private key and its optional passphrase, used together when authType is 'keypair'"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Four authentication methods are available, selected via jsonData.authType: 'password' (the default), 'keypair', 'pat' (programmatic access token), and 'oauth'. Configure exactly one; only the credentials of the selected method are used. A missing or empty authType is interpreted by the backend as 'password' (legacy configs). Common connection fields (jsonData.account, jsonData.username, jsonData.warehouse, jsonData.database, jsonData.schema, jsonData.role, jsonData.region) apply to every method except that jsonData.username is not shown for 'oauth'.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Password auth: set jsonData.authType to 'password' (or omit it) and put the password in secureJsonData.password. Minimal payload: {\"jsonData\":{\"authType\":\"password\",\"account\":\"<account>\",\"username\":\"<user>\"},\"secureJsonData\":{\"password\":\"<password>\"}}. The backend fails to load the datasource ('invalid password') when authType is password/empty and secureJsonData.password is missing.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Key Pair auth: set jsonData.authType to 'keypair' and put the RSA private key PEM in secureJsonData.privateKey (must be a PKCS#8 PEM whose header is '-----BEGIN PRIVATE KEY-----' or '-----BEGIN ENCRYPTED PRIVATE KEY-----'). For an encrypted key, also set secureJsonData.privateKeyPassphrase; leave it empty for an unencrypted key. Minimal payload: {\"jsonData\":{\"authType\":\"keypair\",\"account\":\"<account>\",\"username\":\"<user>\"},\"secureJsonData\":{\"privateKey\":\"<PEM>\"}}. A missing or non-PEM privateKey fails load with 'invalid private key'.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Programmatic Access Token auth: set jsonData.authType to 'pat' and put the token in secureJsonData.patToken. Minimal payload: {\"jsonData\":{\"authType\":\"pat\",\"account\":\"<account>\",\"username\":\"<user>\"},\"secureJsonData\":{\"patToken\":\"<token>\"}}. OAuth auth: set jsonData.authType to 'oauth' and jsonData.oauthPassThru to true — no secret is stored, the user's forwarded OAuth access token is used at query time. Load fails with 'you must enable Forward OAuth Identity' if oauthPassThru is not true.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (password, privateKey, privateKeyPassphrase, patToken) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.password == true). Session parameters marked secure (jsonData.settings[i].secure == true) store their value in secureJsonData under an arbitrary key equal to the setting's name — these dynamic secret keys are user-defined and not part of the fixed secure key set.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection: jsonData.account is required and identifies the Snowflake account (<account>.snowflakecomputing.com); include the region/platform in the account for non-AWS-us-west-2 deployments (e.g. <account>.us-east-1, <account>.us-east1.gcp). The separate jsonData.region field is deprecated — prefer encoding the region in account. jsonData.settings is an array of session parameters ({name, value, secure}) appended to the connection. Note: Snowflake GET and PUT (file transfer) statements are blocked by the plugin for security.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

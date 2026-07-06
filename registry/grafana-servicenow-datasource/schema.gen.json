@@ -1,0 +1,132 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "basicAuthUser": {
+          "description": "Username of the ServiceNow account",
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        },
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "authMethod": {
+              "description": "Type of authentication to use. Defaults to basic auth",
+              "type": "string",
+              "default": "basicAuth",
+              "enum": [
+                "basicAuth",
+                "serviceNowOAuth"
+              ]
+            },
+            "oauthClientID": {
+              "description": "Client ID for OAuth",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authMethod == 'serviceNowOAuth'",
+              "x-dsconfig-required-when": "jsonData_authMethod == 'serviceNowOAuth'"
+            },
+            "oauthEnabled": {
+              "description": "Deprecated legacy boolean that predates `authMethod`. Older plugin versions stored `oauthEnabled: true` to select ServiceNow OAuth. Not written by the current config editor, but still read for backwards compatibility by both the editor (initial auth-method derivation) and the backend (`GetAuthMethod`): when `authMethod` is empty, `oauthEnabled: true` selects `serviceNowOAuth`, otherwise `basicAuth`.",
+              "type": "boolean"
+            },
+            "queryTimeoutSeconds": {
+              "description": "Maximum time in seconds for queries to complete. Increase this for slow ServiceNow instances or large tables. Default is 30 seconds.",
+              "type": "number",
+              "default": 30
+            },
+            "useSysTables": {
+              "description": "Query sys tables for schema/meta lookups (requires elevated permissions)",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "url": {
+          "description": "Your access method is Server, this means the URL needs to be accessible from the grafana backend/server.",
+          "type": "string",
+          "x-dsconfig-required-when": "true"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "basicAuthPassword",
+        "description": "Password for the ServiceNow account"
+      },
+      {
+        "key": "oauthClientSecret",
+        "description": "Client Secret for OAuth"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: HTTP Basic authentication with a 30s query timeout. Fill in root.url, root.basicAuthUser and secureJsonData.basicAuthPassword to get a working datasource.",
+        "value": {
+          "basicAuthUser": "",
+          "jsonData": {
+            "authMethod": "basicAuth",
+            "queryTimeoutSeconds": 30
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://acme.service-now.com"
+        }
+      },
+      "basicAuth": {
+        "summary": "Basic authentication",
+        "description": "Authenticate with a ServiceNow username and password. The instance URL and username live at the datasource root; only the password is secret (secureJsonData.basicAuthPassword).",
+        "value": {
+          "basicAuthUser": "grafana_reader",
+          "jsonData": {
+            "authMethod": "basicAuth",
+            "queryTimeoutSeconds": 30,
+            "useSysTables": true
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "\u003cyour-servicenow-password\u003e"
+          },
+          "url": "https://acme.service-now.com"
+        }
+      },
+      "legacyOAuthEnabled": {
+        "summary": "Legacy: oauthEnabled instead of authMethod",
+        "description": "Datasources created before authMethod existed store jsonData.oauthEnabled=true (deprecated) with no authMethod; GetAuthMethod resolves them to serviceNowOAuth. The credential shape is otherwise identical to the ServiceNow OAuth example.",
+        "value": {
+          "basicAuthUser": "grafana_reader",
+          "jsonData": {
+            "oauthClientID": "\u003cyour-oauth-client-id\u003e",
+            "oauthEnabled": true
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "\u003cyour-servicenow-password\u003e",
+            "oauthClientSecret": "\u003cyour-oauth-client-secret\u003e"
+          },
+          "url": "https://acme.service-now.com"
+        }
+      },
+      "serviceNowOAuth": {
+        "summary": "ServiceNow OAuth",
+        "description": "ServiceNow OAuth is an OAuth2 resource-owner password grant, so it needs the account username/password AND the OAuth application's client id/secret. jsonData.oauthClientID is not secret; secureJsonData.oauthClientSecret is.",
+        "value": {
+          "basicAuthUser": "grafana_reader",
+          "jsonData": {
+            "authMethod": "serviceNowOAuth",
+            "oauthClientID": "\u003cyour-oauth-client-id\u003e",
+            "queryTimeoutSeconds": 30
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "\u003cyour-servicenow-password\u003e",
+            "oauthClientSecret": "\u003cyour-oauth-client-secret\u003e"
+          },
+          "url": "https://acme.service-now.com"
+        }
+      }
+    }
+  }
+}

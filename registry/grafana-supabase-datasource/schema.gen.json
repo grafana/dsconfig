@@ -1,0 +1,84 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "mgmt": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Supabase personal token",
+                          "type": "string",
+                          "default": "mgmt_bearer",
+                          "enum": [
+                            "mgmt_bearer"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "mgmt.token",
+        "description": "Token for accessing the datasource API"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the single service 'mgmt' preselects its only auth method, mgmt_bearer. Fill in the token (secureJsonData \"mgmt.token\", empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "mgmt": {
+                "auth": {
+                  "id": "mgmt_bearer"
+                }
+              }
+            }
+          },
+          "secureJsonData": {
+            "mgmt.token": ""
+          }
+        }
+      },
+      "token": {
+        "summary": "Personal token (bearer)",
+        "description": "Authenticate against https://api.supabase.com with a Supabase personal token provided as the write-only secret at secureJsonData \"mgmt.token\".",
+        "value": {
+          "jsonData": {
+            "services": {
+              "mgmt": {
+                "auth": {
+                  "id": "mgmt_bearer"
+                }
+              }
+            }
+          },
+          "secureJsonData": {
+            "mgmt.token": "\u003csupabase-personal-token\u003e"
+          }
+        }
+      }
+    }
+  }
+}
