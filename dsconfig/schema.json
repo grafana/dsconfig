@@ -14,7 +14,14 @@
     "additionalProperties": false,
     "properties": {
         "$schema": {
-            "const": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json"
+            "enum": [
+                "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+                "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/schema/v0.0.9/dsconfig/schema.json",
+                "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/schema/v0.0.10/dsconfig/schema.json",
+                "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/schema/v0.0.11/dsconfig/schema.json",
+                "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/schema/v0.0.12/dsconfig/schema.json",
+                "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/schema/v0.1.0/dsconfig/schema.json"
+            ]
         },
         "schemaVersion": {
             "type": "string",
