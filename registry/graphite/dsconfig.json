@@ -293,6 +293,64 @@
             "help": {
                 "markdown": "Mappings are currently supported only between Graphite and Loki queries.\n\nWhen you switch your data source from Graphite to Loki, your queries are mapped according to the mappings defined in the example below. To define a mapping, write the full path of the metric and replace nodes you want to map to label with the label name in parentheses. The value of the label is extracted from your Graphite query when you switch data sources.\n\nAll tags are automatically mapped to labels regardless of the mapping configuration. Graphite matching patterns (using `{}`) are converted to Loki's regular expressions matching patterns. When you use functions in your queries, the metrics, and tags are extracted to match them with defined mappings.\n\nExample: for a mapping = `servers.(cluster).(server).*`:\n\n| Graphite query | Mapped to Loki query |\n| --- | --- |\n| `alias(servers.west.001.cpu,1,2)` | `{cluster=\"west\", server=\"001\"}` |\n| `alias(servers.*.{001,002}.*,1,2)` | `{server=~\"(001|002)\"}` |\n| `interpolate(seriesByTag('foo=bar', 'server=002'), inf))` | `{foo=\"bar\", server=\"002\"}` |\n\nStorage shape: `importConfiguration.loki.mappings` is an array of objects `{ matchers: Array<{ value: string, labelName?: string }> }`. The editor stringifies a full metric path such as `servers.(cluster).(server).*` into a list of matchers where segments wrapped in parentheses become `{value: '*', labelName: '<name>'}` and other segments become `{value: '<segment>'}`. See `src/configuration/parseLokiLabelMappings.ts` and `src/types.ts:56-71`."
             }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>). Rendered by the @grafana/ui CustomHeadersSettings component (DataSourceHttpSettings.tsx:352) and forwarded to Graphite by the SDK's HTTPClientOptions.",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
         }
     ],
     "groups": [
@@ -303,7 +361,8 @@
             "fieldRefs": [
                 "root_url",
                 "jsonData_keepCookies",
-                "jsonData_timeout"
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
             ]
         },
         {
@@ -412,7 +471,7 @@
             ]
         },
         {
-            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. The @grafana/ui CustomHeadersSettings component also writes indexed httpHeaderName<N> (jsonData) / httpHeaderValue<N> (secureJsonData) pairs when the user configures custom HTTP headers — those keys are not modeled here (see README).",
+            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP headers are modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as the @grafana/ui CustomHeadersSettings component and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
             "tags": [
                 "llm",
                 "auth",
