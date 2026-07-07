@@ -4,6 +4,8 @@ _Last updated: 2026-07-06 · generated from o11y-bench job `anthropic-claude-son
 
 Benchmark of an LLM agent on the `datasource_config` task category (creating, editing, and explaining Grafana datasources via mcp-grafana tools).
 
+📊 [Full HTML report with transcripts](./report.html)
+
 ## Summary
 
 | Model | Tasks | pass^3 (consistent) | pass@3 (any) | Mean score | Cost | Steps/trial |
@@ -40,7 +42,4 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
 | `explain-postgres-tls-options` | 85% | — | — | $0.12 |
 | `explain-prometheus-type-and-auth` | 100% | ✅ | — | $0.07 |
 
-### Notes
-
-- `edit-*` tasks (modifying an existing datasource) are the strongest — several pass consistently across all 3 attempts.
-- `add-*` tasks (creating a datasource from scratch) are the weakest; none pass^3, with the agent frequently stalling at information-gathering instead of committing the `create_datasource` call.
+> Per-task **best score** is the highest of the 3 attempts (matches the HTML report). The summary **mean score** averages every trial.

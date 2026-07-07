@@ -1,4 +1,5 @@
 {
+  "generated": "2026-07-06",
   "job": "anthropic-claude-sonnet-4-6-off-k3",
   "model": "Sonnet 4.6",
   "shots_per_task": 3,
@@ -101,28 +102,5 @@
     "explain-influxdb-query-language": 0.05595119999999999,
     "explain-postgres-tls-options": 0.122682,
     "explain-prometheus-type-and-auth": 0.0705546
-  },
-  "categories": {
-    "add-prometheus": "datasource_config",
-    "explain-bigquery-auth": "datasource_config",
-    "explain-influxdb-query-language": "datasource_config",
-    "edit-clickhouse-protocol": "datasource_config",
-    "add-loki": "datasource_config",
-    "edit-postgres-enable-tls": "datasource_config",
-    "explain-clickhouse-protocol-choice": "datasource_config",
-    "add-infinity": "datasource_config",
-    "explain-postgres-tls-options": "datasource_config",
-    "add-postgres": "datasource_config",
-    "add-influxdb": "datasource_config",
-    "explain-prometheus-type-and-auth": "datasource_config",
-    "explain-infinity-config": "datasource_config",
-    "edit-loki-derived-fields": "datasource_config",
-    "edit-tempo-traces-to-logs": "datasource_config",
-    "add-mysql": "datasource_config",
-    "add-tempo": "datasource_config",
-    "add-bigquery": "datasource_config",
-    "add-clickhouse": "datasource_config",
-    "edit-prometheus-scrape-interval": "datasource_config",
-    "edit-influxdb-database": "datasource_config"
   }
 }
