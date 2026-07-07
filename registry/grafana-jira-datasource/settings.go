@@ -69,6 +69,16 @@ const (
 	// SecureJsonDataKeyOAuthClientSecret is the OAuth 2.0 client secret for the
 	// Jira service account (OAuth 2.0 auth).
 	SecureJsonDataKeyOAuthClientSecret SecureJsonDataKey = "oauthClientSecret"
+	// SecureJsonDataKeyTLSCACert is the PEM CA certificate used when
+	// tlsAuthWithCACert is enabled. Read by the SDK HTTP client, not by
+	// Jira-specific code.
+	SecureJsonDataKeyTLSCACert SecureJsonDataKey = "tlsCACert"
+	// SecureJsonDataKeyTLSClientCert is the PEM client certificate used for
+	// mutual TLS when tlsAuth is enabled.
+	SecureJsonDataKeyTLSClientCert SecureJsonDataKey = "tlsClientCert"
+	// SecureJsonDataKeyTLSClientKey is the PEM client key paired with
+	// tlsClientCert for mutual TLS when tlsAuth is enabled.
+	SecureJsonDataKeyTLSClientKey SecureJsonDataKey = "tlsClientKey"
 )
 
 // SecureJsonDataConfig lists the secret key names stored in secureJsonData.
@@ -79,6 +89,9 @@ type SecureJsonDataConfig []SecureJsonDataKey
 var SecureJsonDataKeys = SecureJsonDataConfig{
 	SecureJsonDataKeyToken,
 	SecureJsonDataKeyOAuthClientSecret,
+	SecureJsonDataKeyTLSCACert,
+	SecureJsonDataKeyTLSClientCert,
+	SecureJsonDataKeyTLSClientKey,
 }
 
 // Config is the fully loaded configuration of a Jira datasource instance.
@@ -88,9 +101,12 @@ var SecureJsonDataKeys = SecureJsonDataConfig{
 // scopedToken, cloudId, authMethod, oauthClientID. Note that url and user live
 // in jsonData (not at the datasource root). The plugin's Settings struct also
 // declares Token and OAuthClientSecret (plain fields populated from
-// secureSettings) plus HttpClientOptions; the two secrets are modeled here in
-// DecryptedSecureJSONData, and HttpClientOptions is not configuration storage,
-// so neither is carried as a struct field (see the README discrepancies section).
+// secureSettings) plus HttpClientOptions; the two auth secrets are modeled here
+// in DecryptedSecureJSONData. HttpClientOptions is not carried as a field, but
+// the standard TLS knobs it reads from storage (tlsAuth, tlsAuthWithCACert,
+// tlsSkipVerify, serverName in jsonData; tlsCACert, tlsClientCert, tlsClientKey
+// in secureJsonData) are modeled explicitly so the config editor's TLS settings
+// section has schema coverage and schema<->struct parity holds.
 //
 // Root-level datasource fields (settings.URL, BasicAuth, etc.) are NOT carried
 // on Config because the plugin never reads them: pkg/plugin.go:171-228 builds
@@ -107,8 +123,19 @@ type Config struct {
 	AuthMethod    AuthMethod `json:"authMethod"`
 	OAuthClientID string     `json:"oauthClientID"`
 
+	// Standard SDK TLS options stored in jsonData. The Jira editor renders the
+	// shared Grafana TLS settings section, and the plugin's Settings struct
+	// carries an HttpClientOptions the SDK HTTP client populates from these
+	// keys; they are modeled here as named fields so schema<->struct parity
+	// holds. The paired secrets live in DecryptedSecureJSONData (tlsCACert,
+	// tlsClientCert, tlsClientKey).
+	TLSAuth           bool   `json:"tlsAuth"`
+	TLSAuthWithCACert bool   `json:"tlsAuthWithCACert"`
+	TLSSkipVerify     bool   `json:"tlsSkipVerify"`
+	TLSServerName     string `json:"serverName"`
+
 	// DecryptedSecureJSONData holds the decrypted secure values by key
-	// (token, oauthClientSecret).
+	// (token, oauthClientSecret, tlsCACert, tlsClientCert, tlsClientKey).
 	DecryptedSecureJSONData map[SecureJsonDataKey]string `json:"-"`
 }
 

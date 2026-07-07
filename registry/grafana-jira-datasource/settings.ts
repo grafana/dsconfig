@@ -137,6 +137,20 @@ export type JsonDataConfig = {
    */
   oauthClientID?: string;
   /**
+   * Standard Grafana TLS settings rendered by the shared TLS panel
+   * (`@grafana/plugin-ui` `convertLegacyAuthProps`) in the editor's TLS section.
+   * Consumed by the SDK HTTP client via the plugin's `HttpClientOptions`, not by
+   * Jira-specific code. `tlsAuth` enables mutual TLS (paired with the
+   * `tlsClientCert` / `tlsClientKey` secrets and an optional `serverName`);
+   * `tlsAuthWithCACert` adds a self-signed CA (paired with the `tlsCACert`
+   * secret); `tlsSkipVerify` disables certificate validation. All default to
+   * `false` / empty.
+   */
+  tlsAuth?: boolean;
+  tlsAuthWithCACert?: boolean;
+  tlsSkipVerify?: boolean;
+  serverName?: string;
+  /**
    * Written by the Secure Socks Proxy checkbox
    * (`src/components/ConfigEditor.tsx:427-437`) and consumed transparently by the
    * SDK's `config.HTTPClientOptions(ctx)` call (`pkg/models/settings.go:75`). The
@@ -156,5 +170,9 @@ export type JsonDataConfig = {
  *   the HTTP Basic password, or as a Bearer token when `user` is empty.
  * - `oauthClientSecret` — the OAuth 2.0 client secret for the service account
  *   (OAuth 2.0 auth).
+ * - `tlsCACert` / `tlsClientCert` / `tlsClientKey` — standard TLS secrets read
+ *   by the SDK HTTP client when `tlsAuthWithCACert` / `tlsAuth` are enabled.
  */
-export type SecureJsonDataConfig = Array<'token' | 'oauthClientSecret'>;
+export type SecureJsonDataConfig = Array<
+  'token' | 'oauthClientSecret' | 'tlsCACert' | 'tlsClientCert' | 'tlsClientKey'
+>;
