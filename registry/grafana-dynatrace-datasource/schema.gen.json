@@ -6,6 +6,9 @@
       "properties": {
         "jsonData": {
           "type": "object",
+          "required": [
+            "environmentId"
+          ],
           "properties": {
             "apiType": {
               "type": "string",
@@ -23,8 +26,7 @@
             },
             "environmentId": {
               "description": "Get environment ID from your instance URL: [environmentId].live.dynatrace.com",
-              "type": "string",
-              "x-dsconfig-required-when": "true"
+              "type": "string"
             },
             "httpClientTimeout": {
               "description": "The timeout for the HTTP client in seconds. Default is 30 seconds.",

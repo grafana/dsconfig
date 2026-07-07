@@ -6,6 +6,9 @@
       "properties": {
         "jsonData": {
           "type": "object",
+          "required": [
+            "server"
+          ],
           "properties": {
             "databaseName": {
               "description": "Tenant database name (optional). If database name is set as well as the instance number, port is not required.",
@@ -26,8 +29,7 @@
             },
             "server": {
               "description": "SAP HANA server address",
-              "type": "string",
-              "x-dsconfig-required-when": "true"
+              "type": "string"
             },
             "timeout": {
               "type": "string",

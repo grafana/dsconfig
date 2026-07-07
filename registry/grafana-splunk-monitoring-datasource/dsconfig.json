@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.apiKey.value",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input"
             }

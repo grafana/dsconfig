@@ -4,11 +4,13 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "url"
+        ],
         "properties": {
           "url": {
             "description": "Jenkins URL, e.g. https://jenkins.example.com",
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "username": {
             "description": "The username to use for authentication",

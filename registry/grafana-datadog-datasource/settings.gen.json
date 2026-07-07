@@ -14,6 +14,9 @@
       },
       "jsonData": {
         "type": "object",
+        "required": [
+          "url"
+        ],
         "properties": {
           "disableDataLinks": {
             "description": "Data links take users directly to the relevant location in the Datadog app when they interact with panels.",
@@ -53,8 +56,7 @@
           "url": {
             "description": "A URL to the Datadog API (e.g.: https://api.datadoghq.com)",
             "type": "string",
-            "default": "https://api.datadoghq.com",
-            "x-dsconfig-required-when": "true"
+            "default": "https://api.datadoghq.com"
           }
         }
       }

@@ -48,7 +48,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "overrides": [
                 {
                     "when": "jsonData_apiType == 'url'",

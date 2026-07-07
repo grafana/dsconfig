@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.apiKey.value",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Honeycomb API Key"
@@ -32,7 +32,7 @@
             "target": "jsonData",
             "role": "endpoint.baseUrl",
             "defaultValue": "https://api.honeycomb.io",
-            "requiredWhen": "true",
+            "required": true,
             "validations": [
                 {
                     "type": "pattern",
@@ -52,7 +52,7 @@
             "description": "Specify the team name. This will be useful in data links",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input"
             }

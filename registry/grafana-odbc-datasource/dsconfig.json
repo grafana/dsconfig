@@ -12,7 +12,7 @@
             "description": "This field either accepts '{mydb2}' for driver connections or a absolute path to the odbc driver of your database of choice, for example '/home/driver/db2/libs2.so'.",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "DSN or path to ODBC Driver"

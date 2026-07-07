@@ -6,11 +6,13 @@
       "properties": {
         "jsonData": {
           "type": "object",
+          "required": [
+            "account"
+          ],
           "properties": {
             "account": {
               "description": "The name of the snowflake account (\u003caccount\u003e.snowflakecomputing.com). If not on AWS us-west-2 region, include the region (e.g. \u003caccount\u003e.us-east-1). If not on AWS, include the platform as well (e.g. \u003caccount\u003e.us-east1.gcp)",
-              "type": "string",
-              "x-dsconfig-required-when": "true"
+              "type": "string"
             },
             "authType": {
               "description": "Authentication type of snowflake",

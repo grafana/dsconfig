@@ -14,7 +14,7 @@
             "target": "jsonData",
             "role": "endpoint.baseUrl",
             "defaultValue": "https://try.wavefront.com",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "https://try.wavefront.com"
@@ -28,7 +28,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.bearer.token",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Wavefront token"

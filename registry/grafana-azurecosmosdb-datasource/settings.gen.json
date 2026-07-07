@@ -4,10 +4,12 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "accountEndpoint"
+        ],
         "properties": {
           "accountEndpoint": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           }
         }
       }
@@ -15,7 +17,8 @@
   },
   "secureValues": [
     {
-      "key": "accountKey"
+      "key": "accountKey",
+      "required": true
     }
   ]
 }

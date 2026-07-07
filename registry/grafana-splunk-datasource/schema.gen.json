@@ -3,6 +3,9 @@
   "settings": {
     "spec": {
       "type": "object",
+      "required": [
+        "url"
+      ],
       "properties": {
         "basicAuthUser": {
           "description": "The username of the data source account",
@@ -71,6 +74,25 @@
                 "quick",
                 "full"
               ]
+            },
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
             },
             "internalFieldPattern": {
               "description": "Regular expression defining the filter for filtering out internal fields",
@@ -177,8 +199,7 @@
         },
         "url": {
           "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         }
       }
     },

@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": ""
@@ -24,7 +24,7 @@
             "label": "Account Key",
             "valueType": "string",
             "target": "secureJsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Account Key"

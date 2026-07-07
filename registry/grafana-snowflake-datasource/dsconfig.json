@@ -12,7 +12,7 @@
             "description": "The name of the snowflake account (<account>.snowflakecomputing.com). If not on AWS us-west-2 region, include the region (e.g. <account>.us-east-1). If not on AWS, include the platform as well (e.g. <account>.us-east1.gcp)",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Snowflake Account"

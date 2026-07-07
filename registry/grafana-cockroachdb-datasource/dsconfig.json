@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "localhost:26257"
@@ -24,7 +24,7 @@
             "label": "Database",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "defaultdb"
@@ -73,7 +73,7 @@
             "target": "jsonData",
             "role": "auth.basic.username",
             "dependsOn": "jsonData_authType != ''",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "User"

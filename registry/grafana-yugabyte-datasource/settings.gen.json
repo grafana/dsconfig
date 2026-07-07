@@ -1,23 +1,27 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url",
+      "user"
+    ],
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "database"
+        ],
         "properties": {
           "database": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           }
         }
       },
       "url": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       },
       "user": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       }
     }
   },

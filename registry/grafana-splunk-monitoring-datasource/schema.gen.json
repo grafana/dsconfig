@@ -25,7 +25,8 @@
     },
     "secureValues": [
       {
-        "key": "accessToken"
+        "key": "accessToken",
+        "required": true
       }
     ]
   },

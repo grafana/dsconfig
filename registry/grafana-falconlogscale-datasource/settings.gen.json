@@ -1,6 +1,9 @@
 {
   "spec": {
     "type": "object",
+    "required": [
+      "url"
+    ],
     "properties": {
       "basicAuth": {
         "type": "boolean",
@@ -57,6 +60,25 @@
           "defaultRepository": {
             "type": "string"
           },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "incrementalQueryOverlapWindow": {
             "description": "Time window to re-fetch on each incremental query to catch late-arriving data (e.g. \"10m\", \"30s\", \"1h\"). Changes take effect after saving and reloading.",
             "type": "string",
@@ -105,8 +127,7 @@
         }
       },
       "url": {
-        "type": "string",
-        "x-dsconfig-required-when": "true"
+        "type": "string"
       }
     }
   },

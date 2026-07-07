@@ -52,6 +52,25 @@
             "type": "boolean",
             "default": false
           },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "oauthPassThru": {
             "type": "boolean",
             "default": false

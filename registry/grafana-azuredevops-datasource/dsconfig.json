@@ -46,7 +46,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.basic.password",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Azure DevOps PAT"

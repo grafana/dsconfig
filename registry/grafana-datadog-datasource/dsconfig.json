@@ -95,7 +95,7 @@
             "target": "jsonData",
             "role": "endpoint.baseUrl",
             "defaultValue": "https://api.datadoghq.com",
-            "requiredWhen": "true",
+            "required": true,
             "overrides": [
                 {
                     "when": "virtual_mode == 'hosted-metrics'",

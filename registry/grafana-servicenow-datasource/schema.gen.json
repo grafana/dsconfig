@@ -3,11 +3,14 @@
   "settings": {
     "spec": {
       "type": "object",
+      "required": [
+        "url",
+        "basicAuthUser"
+      ],
       "properties": {
         "basicAuthUser": {
           "description": "Username of the ServiceNow account",
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         },
         "jsonData": {
           "type": "object",
@@ -20,6 +23,25 @@
                 "basicAuth",
                 "serviceNowOAuth"
               ]
+            },
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
             },
             "oauthClientID": {
               "description": "Client ID for OAuth",
@@ -45,15 +67,15 @@
         },
         "url": {
           "description": "Your access method is Server, this means the URL needs to be accessible from the grafana backend/server.",
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         }
       }
     },
     "secureValues": [
       {
         "key": "basicAuthPassword",
-        "description": "Password for the ServiceNow account"
+        "description": "Password for the ServiceNow account",
+        "required": true
       },
       {
         "key": "oauthClientSecret",

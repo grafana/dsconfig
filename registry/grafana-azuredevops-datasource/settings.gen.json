@@ -35,7 +35,8 @@
   "secureValues": [
     {
       "key": "patToken",
-      "description": "Azure DevOps personal access token"
+      "description": "Azure DevOps personal access token",
+      "required": true
     }
   ]
 }

@@ -14,7 +14,7 @@
             "target": "jsonData",
             "role": "endpoint.baseUrl",
             "defaultValue": "https://api.sumologic.com/api/",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input"
             }

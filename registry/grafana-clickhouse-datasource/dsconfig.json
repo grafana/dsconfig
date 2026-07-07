@@ -13,7 +13,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.domain",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Server address"
@@ -27,7 +27,7 @@
             "valueType": "number",
             "target": "jsonData",
             "role": "endpoint.port",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input"
             }

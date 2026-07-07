@@ -26,7 +26,7 @@
             "description": "Sentry Org slug. Typically this will be the last segment of the URL: https://sentry.io/organizations/{organization_slug}/ - only the slug should be entered here",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Sentry org slug"
@@ -40,7 +40,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.bearer.token",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Sentry Authentication Token"

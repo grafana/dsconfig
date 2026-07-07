@@ -4,6 +4,9 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "base_url"
+        ],
         "properties": {
           "auth_type": {
             "description": "Looker authentication type",
@@ -15,8 +18,7 @@
           },
           "base_url": {
             "description": "Looker base URL. Example: https://00001234-1234-1ab2-1234-a1b2c3d4.looker.app",
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "client_id": {
             "description": "API credentials Looker client id",

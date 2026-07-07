@@ -13,7 +13,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Jenkins URL, e.g. https://jenkins.example.com"

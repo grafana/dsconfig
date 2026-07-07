@@ -39,11 +39,13 @@
     "secureValues": [
       {
         "key": "personalApiKey",
-        "description": "Used for NRQL queries"
+        "description": "Used for NRQL queries",
+        "required": true
       },
       {
         "key": "accountId",
-        "description": "Your New Relic Account ID"
+        "description": "Your New Relic Account ID",
+        "required": true
       }
     ]
   },

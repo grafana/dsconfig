@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input"
             }
@@ -387,6 +387,48 @@
                 "component": "input",
                 "placeholder": "Timeout in seconds"
             }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." }
+                        ],
+                        "ui": { "component": "input", "placeholder": "X-Custom-Header" }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": { "component": "input", "placeholder": "Header Value" }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" },
+                "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" },
+                "startIndex": 1
+            }
         }
     ],
     "groups": [
@@ -419,7 +461,8 @@
             "optional": true,
             "fieldRefs": [
                 "jsonData_keepCookies",
-                "jsonData_timeout"
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
             ]
         },
         {
@@ -511,6 +554,13 @@
             "tags": [
                 "llm",
                 "connection"
+            ]
+        },
+        {
+            "msg": "Custom HTTP headers ARE modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as @grafana/plugin-ui's CustomHeaders component (rendered by convertLegacyAuthProps in ConfigEditor.tsx:171-174) and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "settings"
             ]
         }
     ]

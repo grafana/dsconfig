@@ -6,6 +6,10 @@
       "properties": {
         "jsonData": {
           "type": "object",
+          "required": [
+            "host",
+            "port"
+          ],
           "properties": {
             "aliasTables": {
               "description": "Provide alias tables with a (`alias` String, `select` String, `type` String) schema to use as a source for column selection.",
@@ -98,8 +102,7 @@
             },
             "host": {
               "description": "ClickHouse host address",
-              "type": "string",
-              "x-dsconfig-required-when": "true"
+              "type": "string"
             },
             "httpHeaders": {
               "description": "Add Custom HTTP headers when querying the database",
@@ -192,8 +195,7 @@
             },
             "port": {
               "description": "ClickHouse server port",
-              "type": "number",
-              "x-dsconfig-required-when": "true"
+              "type": "number"
             },
             "protocol": {
               "description": "Native or HTTP for server protocol",

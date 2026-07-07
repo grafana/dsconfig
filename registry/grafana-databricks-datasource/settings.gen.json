@@ -4,6 +4,10 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "host",
+          "httpPath"
+        ],
         "properties": {
           "authType": {
             "description": "Authentication type of Databricks",
@@ -57,12 +61,10 @@
             "type": "boolean"
           },
           "host": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "httpPath": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "oauthPassThru": {
             "description": "Set to true automatically when authType is 'OauthPT' (OAuth Passthrough) or 'OauthOBO' (Azure On-Behalf-Of) so Grafana forwards the caller's OAuth identity to Databricks. The backend hard-fails On-Behalf-Of auth if this is not true (pkg/models/settings.go:141-143, ErrInvalidOAuth). No editor UI — written as a side-effect of selecting the auth type.",

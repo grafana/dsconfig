@@ -3,6 +3,9 @@
   "settings": {
     "spec": {
       "type": "object",
+      "required": [
+        "url"
+      ],
       "properties": {
         "basicAuth": {
           "type": "boolean",
@@ -17,6 +20,26 @@
         "jsonData": {
           "type": "object",
           "properties": {
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "x-dsconfig-depends-on": "jsonData_storage == 'http'"
+            },
             "keepCookies": {
               "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
               "type": "array",
@@ -75,8 +98,7 @@
         },
         "url": {
           "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
-          "type": "string",
-          "x-dsconfig-required-when": "true"
+          "type": "string"
         }
       }
     },

@@ -4,6 +4,11 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "url",
+          "database",
+          "user"
+        ],
         "properties": {
           "authType": {
             "type": "string",
@@ -31,8 +36,7 @@
             "x-dsconfig-required-when": "jsonData_authType == 'Kerberos Authentication'"
           },
           "database": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "kerberosServerName": {
             "description": "The Kerberos service name to use (optional). Default is 'postgres'.",
@@ -100,13 +104,11 @@
             "x-dsconfig-depends-on": "jsonData_authType == 'TLS/SSL Authentication' \u0026\u0026 jsonData_sslmode != 'disable'"
           },
           "url": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "user": {
             "type": "string",
-            "x-dsconfig-depends-on": "jsonData_authType != ''",
-            "x-dsconfig-required-when": "true"
+            "x-dsconfig-depends-on": "jsonData_authType != ''"
           }
         }
       }

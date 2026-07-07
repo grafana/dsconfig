@@ -4,6 +4,9 @@
     "properties": {
       "jsonData": {
         "type": "object",
+        "required": [
+          "uri"
+        ],
         "properties": {
           "clientID": {
             "description": "If not set, a random client ID is used.",
@@ -25,8 +28,7 @@
             "default": false
           },
           "uri": {
-            "type": "string",
-            "x-dsconfig-required-when": "true"
+            "type": "string"
           },
           "username": {
             "type": "string"

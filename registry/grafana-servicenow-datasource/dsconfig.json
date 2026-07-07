@@ -13,7 +13,7 @@
             "valueType": "string",
             "target": "root",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "https://<YOUR INSTANCE ID>.service-now.com"
@@ -59,7 +59,7 @@
             "valueType": "string",
             "target": "root",
             "role": "auth.basic.username",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "ServiceNow username"
@@ -78,7 +78,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.basic.password",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Password for the ServiceNow account"
@@ -140,6 +140,48 @@
             }
         },
         {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." }
+                        ],
+                        "ui": { "component": "input", "placeholder": "X-Custom-Header" }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": { "component": "input", "placeholder": "Header Value" }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" },
+                "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" },
+                "startIndex": 1
+            }
+        },
+        {
             "id": "jsonData_oauthEnabled",
             "key": "oauthEnabled",
             "description": "Deprecated legacy boolean that predates `authMethod`. Older plugin versions stored `oauthEnabled: true` to select ServiceNow OAuth. Not written by the current config editor, but still read for backwards compatibility by both the editor (initial auth-method derivation) and the backend (`GetAuthMethod`): when `authMethod` is empty, `oauthEnabled: true` selects `serviceNowOAuth`, otherwise `basicAuth`.",
@@ -178,7 +220,8 @@
             "optional": true,
             "fieldRefs": [
                 "jsonData_useSysTables",
-                "jsonData_queryTimeoutSeconds"
+                "jsonData_queryTimeoutSeconds",
+                "jsonData_httpHeaders"
             ]
         }
     ],
@@ -247,7 +290,7 @@
             ]
         },
         {
-            "msg": "Connection: root.url is required and must be the full instance URL, e.g. https://<INSTANCE_ID>.service-now.com; the backend rejects an empty URL (pkg/models/settings.go:109). The datasource's root basicAuth (enabled) boolean is ignored \u2014 the plugin derives Basic-auth enablement from authMethod, overwriting whatever value was provisioned (pkg/models/settings.go:87-96). Custom HTTP headers (httpHeaderName<N> in jsonData + httpHeaderValue<N> in secureJsonData) and jsonData.enableSecureSocksProxy are supported by the editor but are not modeled as first-class fields in this schema.",
+            "msg": "Connection: root.url is required and must be the full instance URL, e.g. https://<INSTANCE_ID>.service-now.com; the backend rejects an empty URL (pkg/models/settings.go:109). The datasource's root basicAuth (enabled) boolean is ignored \u2014 the plugin derives Basic-auth enablement from authMethod, overwriting whatever value was provisioned (pkg/models/settings.go:87-96). Custom HTTP headers ARE now modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as the editor's Custom HTTP Headers section (Add header) and the SDK HTTPClientOptions expect; the per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys. jsonData.enableSecureSocksProxy is supported by the editor but remains not modeled as a first-class field in this schema.",
             "tags": [
                 "llm",
                 "connection"

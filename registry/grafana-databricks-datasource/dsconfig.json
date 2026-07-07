@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "https://your-databricks-instance.com"
@@ -24,7 +24,7 @@
             "label": "Http Path",
             "valueType": "string",
             "target": "jsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "/sql/protocolv1/o/0/1234567890"

@@ -12,7 +12,7 @@
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.baseUrl",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "TCP (tcp://), TLS (tls://), or WebSocket (ws://)"

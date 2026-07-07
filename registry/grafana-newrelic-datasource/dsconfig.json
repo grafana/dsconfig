@@ -13,7 +13,7 @@
             "valueType": "string",
             "target": "secureJsonData",
             "role": "auth.apiKey.value",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Personal API Key"
@@ -26,7 +26,7 @@
             "description": "Your New Relic Account ID",
             "valueType": "string",
             "target": "secureJsonData",
-            "requiredWhen": "true",
+            "required": true,
             "ui": {
                 "component": "input",
                 "placeholder": "Account ID"
