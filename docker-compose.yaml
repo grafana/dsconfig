@@ -88,244 +88,244 @@ services:
         apiVersion: 1
         datasources:
           - name: prometheus - default
-            uid: prometheus-default
+            uid: prometheus
             type: prometheus
           - name: loki - default
-            uid: loki-default
+            uid: loki
             type: loki
           - name: tempo - default
-            uid: tempo-default
+            uid: tempo
             type: tempo
           - name: grafana-pyroscope-datasource - default
-            uid: grafana-pyroscope-datasource-default
+            uid: grafana-pyroscope-datasource
             type: grafana-pyroscope-datasource
           - name: cloudwatch - default
-            uid: cloudwatch-default
+            uid: cloudwatch
             type: cloudwatch
           - name: dlopes7-appdynamics-datasource - default
-            uid: dlopes7-appdynamics-datasource-default
+            uid: dlopes7-appdynamics-datasource
             type: dlopes7-appdynamics-datasource
           - name: elasticsearch - default
-            uid: elasticsearch-default
+            uid: elasticsearch
             type: elasticsearch
           - name: grafana-adobeanalytics-datasource - default
-            uid: grafana-adobeanalytics-datasource-default
+            uid: grafana-adobeanalytics-datasource
             type: grafana-adobeanalytics-datasource
           - name: grafana-amazonprometheus-datasource - default
-            uid: grafana-amazonprometheus-datasource-default
+            uid: grafana-amazonprometheus-datasource
             type: grafana-amazonprometheus-datasource
           - name: grafana-astradb-datasource - default
-            uid: grafana-astradb-datasource-default
+            uid: grafana-astradb-datasource
             type: grafana-astradb-datasource
           - name: grafana-athena-datasource - default
-            uid: grafana-athena-datasource-default
+            uid: grafana-athena-datasource
             type: grafana-athena-datasource
           - name: grafana-atlassianstatuspage-datasource - default
-            uid: grafana-atlassianstatuspage-datasource-default
+            uid: grafana-atlassianstatuspage-datasource
             type: grafana-atlassianstatuspage-datasource
           - name: grafana-aurora-datasource - default
-            uid: grafana-aurora-datasource-default
+            uid: grafana-aurora-datasource
             type: grafana-aurora-datasource
           - name: grafana-azure-data-explorer-datasource - default
-            uid: grafana-azure-data-explorer-datasource-default
+            uid: grafana-azure-data-explorer-datasource
             type: grafana-azure-data-explorer-datasource
           - name: grafana-azure-monitor-datasource - default
-            uid: grafana-azure-monitor-datasource-default
+            uid: grafana-azure-monitor-datasource
             type: grafana-azure-monitor-datasource
           - name: grafana-azurecosmosdb-datasource - default
-            uid: grafana-azurecosmosdb-datasource-default
+            uid: grafana-azurecosmosdb-datasource
             type: grafana-azurecosmosdb-datasource
           - name: grafana-azuredevops-datasource - default
-            uid: grafana-azuredevops-datasource-default
+            uid: grafana-azuredevops-datasource
             type: grafana-azuredevops-datasource
           - name: grafana-azureprometheus-datasource - default
-            uid: grafana-azureprometheus-datasource-default
+            uid: grafana-azureprometheus-datasource
             type: grafana-azureprometheus-datasource
           - name: grafana-bigquery-datasource - default
-            uid: grafana-bigquery-datasource-default
+            uid: grafana-bigquery-datasource
             type: grafana-bigquery-datasource
           - name: grafana-catchpoint-datasource - default
-            uid: grafana-catchpoint-datasource-default
+            uid: grafana-catchpoint-datasource
             type: grafana-catchpoint-datasource
           - name: grafana-clickhouse-datasource - default
-            uid: grafana-clickhouse-datasource-default
+            uid: grafana-clickhouse-datasource
             type: grafana-clickhouse-datasource
           - name: grafana-cloudflare-datasource - default
-            uid: grafana-cloudflare-datasource-default
+            uid: grafana-cloudflare-datasource
             type: grafana-cloudflare-datasource
           - name: grafana-cockroachdb-datasource - default
-            uid: grafana-cockroachdb-datasource-default
+            uid: grafana-cockroachdb-datasource
             type: grafana-cockroachdb-datasource
           - name: grafana-databricks-datasource - default
-            uid: grafana-databricks-datasource-default
+            uid: grafana-databricks-datasource
             type: grafana-databricks-datasource
           - name: grafana-datadog-datasource - default
-            uid: grafana-datadog-datasource-default
+            uid: grafana-datadog-datasource
             type: grafana-datadog-datasource
           - name: grafana-drone-datasource - default
-            uid: grafana-drone-datasource-default
+            uid: grafana-drone-datasource
             type: grafana-drone-datasource
           - name: grafana-dynamodb-datasource - default
-            uid: grafana-dynamodb-datasource-default
+            uid: grafana-dynamodb-datasource
             type: grafana-dynamodb-datasource
           - name: grafana-dynatrace-datasource - default
-            uid: grafana-dynatrace-datasource-default
+            uid: grafana-dynatrace-datasource
             type: grafana-dynatrace-datasource
           - name: grafana-falconlogscale-datasource - default
-            uid: grafana-falconlogscale-datasource-default
+            uid: grafana-falconlogscale-datasource
             type: grafana-falconlogscale-datasource
           - name: grafana-github-datasource - default
-            uid: grafana-github-datasource-default
+            uid: grafana-github-datasource
             type: grafana-github-datasource
           - name: grafana-gitlab-datasource - default
-            uid: grafana-gitlab-datasource-default
+            uid: grafana-gitlab-datasource
             type: grafana-gitlab-datasource
           - name: grafana-googlesheets-datasource - default
-            uid: grafana-googlesheets-datasource-default
+            uid: grafana-googlesheets-datasource
             type: grafana-googlesheets-datasource
           - name: grafana-hello-datasource - default
-            uid: grafana-hello-datasource-default
+            uid: grafana-hello-datasource
             type: grafana-hello-datasource
           - name: grafana-helloworld-datasource - default
-            uid: grafana-helloworld-datasource-default
+            uid: grafana-helloworld-datasource
             type: grafana-helloworld-datasource
           - name: grafana-honeycomb-datasource - default
-            uid: grafana-honeycomb-datasource-default
+            uid: grafana-honeycomb-datasource
             type: grafana-honeycomb-datasource
           - name: grafana-iot-sitewise-datasource - default
-            uid: grafana-iot-sitewise-datasource-default
+            uid: grafana-iot-sitewise-datasource
             type: grafana-iot-sitewise-datasource
           - name: grafana-iot-twinmaker-datasource - default
-            uid: grafana-iot-twinmaker-datasource-default
+            uid: grafana-iot-twinmaker-datasource
             type: grafana-iot-twinmaker-datasource
           - name: grafana-jenkins-datasource - default
-            uid: grafana-jenkins-datasource-default
+            uid: grafana-jenkins-datasource
             type: grafana-jenkins-datasource
           - name: grafana-jira-datasource - default
-            uid: grafana-jira-datasource-default
+            uid: grafana-jira-datasource
             type: grafana-jira-datasource
           - name: grafana-logicmonitor-datasource - default
-            uid: grafana-logicmonitor-datasource-default
+            uid: grafana-logicmonitor-datasource
             type: grafana-logicmonitor-datasource
           - name: grafana-looker-datasource - default
-            uid: grafana-looker-datasource-default
+            uid: grafana-looker-datasource
             type: grafana-looker-datasource
           - name: grafana-mock-datasource - default
-            uid: grafana-mock-datasource-default
+            uid: grafana-mock-datasource
             type: grafana-mock-datasource
           - name: grafana-mongodb-datasource - default
-            uid: grafana-mongodb-datasource-default
+            uid: grafana-mongodb-datasource
             type: grafana-mongodb-datasource
           - name: grafana-mqtt-datasource - default
-            uid: grafana-mqtt-datasource-default
+            uid: grafana-mqtt-datasource
             type: grafana-mqtt-datasource
           - name: grafana-netlify-datasource - default
-            uid: grafana-netlify-datasource-default
+            uid: grafana-netlify-datasource
             type: grafana-netlify-datasource
           - name: grafana-newrelic-datasource - default
-            uid: grafana-newrelic-datasource-default
+            uid: grafana-newrelic-datasource
             type: grafana-newrelic-datasource
           - name: grafana-odbc-datasource - default
-            uid: grafana-odbc-datasource-default
+            uid: grafana-odbc-datasource
             type: grafana-odbc-datasource
           - name: grafana-opensearch-datasource - default
-            uid: grafana-opensearch-datasource-default
+            uid: grafana-opensearch-datasource
             type: grafana-opensearch-datasource
           - name: grafana-oracle-datasource - default
-            uid: grafana-oracle-datasource-default
+            uid: grafana-oracle-datasource
             type: grafana-oracle-datasource
           - name: grafana-pagerduty-datasource - default
-            uid: grafana-pagerduty-datasource-default
+            uid: grafana-pagerduty-datasource
             type: grafana-pagerduty-datasource
           - name: grafana-postgresql-datasource - default
-            uid: grafana-postgresql-datasource-default
+            uid: grafana-postgresql-datasource
             type: grafana-postgresql-datasource
           - name: grafana-redshift-datasource - default
-            uid: grafana-redshift-datasource-default
+            uid: grafana-redshift-datasource
             type: grafana-redshift-datasource
           - name: grafana-salesforce-datasource - default
-            uid: grafana-salesforce-datasource-default
+            uid: grafana-salesforce-datasource
             type: grafana-salesforce-datasource
           - name: grafana-saphana-datasource - default
-            uid: grafana-saphana-datasource-default
+            uid: grafana-saphana-datasource
             type: grafana-saphana-datasource
           - name: grafana-sentry-datasource - default
-            uid: grafana-sentry-datasource-default
+            uid: grafana-sentry-datasource
             type: grafana-sentry-datasource
           - name: grafana-servicenow-datasource - default
-            uid: grafana-servicenow-datasource-default
+            uid: grafana-servicenow-datasource
             type: grafana-servicenow-datasource
           - name: grafana-snowflake-datasource - default
-            uid: grafana-snowflake-datasource-default
+            uid: grafana-snowflake-datasource
             type: grafana-snowflake-datasource
           - name: grafana-solarwinds-datasource - default
-            uid: grafana-solarwinds-datasource-default
+            uid: grafana-solarwinds-datasource
             type: grafana-solarwinds-datasource
           - name: grafana-splunk-datasource - default
-            uid: grafana-splunk-datasource-default
+            uid: grafana-splunk-datasource
             type: grafana-splunk-datasource
           - name: grafana-splunk-monitoring-datasource - default
-            uid: grafana-splunk-monitoring-datasource-default
+            uid: grafana-splunk-monitoring-datasource
             type: grafana-splunk-monitoring-datasource
           - name: grafana-sumologic-datasource - default
-            uid: grafana-sumologic-datasource-default
+            uid: grafana-sumologic-datasource
             type: grafana-sumologic-datasource
           - name: grafana-supabase-datasource - default
-            uid: grafana-supabase-datasource-default
+            uid: grafana-supabase-datasource
             type: grafana-supabase-datasource
           - name: grafana-timestream-datasource - default
-            uid: grafana-timestream-datasource-default
+            uid: grafana-timestream-datasource
             type: grafana-timestream-datasource
           - name: grafana-vercel-datasource - default
-            uid: grafana-vercel-datasource-default
+            uid: grafana-vercel-datasource
             type: grafana-vercel-datasource
           - name: grafana-wavefront-datasource - default
-            uid: grafana-wavefront-datasource-default
+            uid: grafana-wavefront-datasource
             type: grafana-wavefront-datasource
           - name: grafana-x-ray-datasource - default
-            uid: grafana-x-ray-datasource-default
+            uid: grafana-x-ray-datasource
             type: grafana-x-ray-datasource
           - name: grafana-yugabyte-datasource - default
-            uid: grafana-yugabyte-datasource-default
+            uid: grafana-yugabyte-datasource
             type: grafana-yugabyte-datasource
           - name: grafana-zendesk-datasource - default
-            uid: grafana-zendesk-datasource-default
+            uid: grafana-zendesk-datasource
             type: grafana-zendesk-datasource
           - name: graphite - default
-            uid: graphite-default
+            uid: graphite
             type: graphite
           - name: influxdb - default
-            uid: influxdb-default
+            uid: influxdb
             type: influxdb
           - name: jaeger - default
-            uid: jaeger-default
+            uid: jaeger
             type: jaeger
           - name: marcusolsson-csv-datasource - default
-            uid: marcusolsson-csv-datasource-default
+            uid: marcusolsson-csv-datasource
             type: marcusolsson-csv-datasource
           - name: mssql - default
-            uid: mssql-default
+            uid: mssql
             type: mssql
           - name: mysql - default
-            uid: mysql-default
+            uid: mysql
             type: mysql
           - name: opentsdb - default
-            uid: opentsdb-default
+            uid: opentsdb
             type: opentsdb
           - name: parca - default
-            uid: parca-default
+            uid: parca
             type: parca
           - name: stackdriver - default
-            uid: stackdriver-default
+            uid: stackdriver
             type: stackdriver
           - name: yesoreyeram-infinity-datasource - default
-            uid: yesoreyeram-infinity-datasource-default
+            uid: yesoreyeram-infinity-datasource
             type: yesoreyeram-infinity-datasource
           - name: zipkin - default
-            uid: zipkin-default
+            uid: zipkin
             type: zipkin
           - name: grafana-testdata-datasource - default
-            uid: grafana-testdata-datasource-default
+            uid: grafana-testdata-datasource
             type: grafana-testdata-datasource
         EOF
         exec /run.sh
