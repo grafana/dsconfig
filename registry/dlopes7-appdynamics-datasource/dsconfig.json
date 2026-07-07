@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "dlopes7-appdynamics-datasource",
     "pluginName": "AppDynamics",
@@ -117,9 +117,16 @@
                         "role": "http.header.name",
                         "required": true,
                         "validations": [
-                            { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." }
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
                         ],
-                        "ui": { "component": "input", "placeholder": "X-Custom-Header" }
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
                     },
                     {
                         "id": "jsonData_httpHeaders.item.value",
@@ -128,14 +135,23 @@
                         "valueType": "string",
                         "isItemField": true,
                         "role": "http.header.value",
-                        "ui": { "component": "input", "placeholder": "Header Value" }
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
                     }
                 ]
             },
             "storage": {
                 "type": "indexedPair",
-                "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" },
-                "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" },
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
                 "startIndex": 1
             }
         },

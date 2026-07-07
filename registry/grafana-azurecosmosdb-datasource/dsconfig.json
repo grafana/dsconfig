@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "grafana-azurecosmosdb-datasource",
     "pluginName": "Azure Cosmos DB",
@@ -62,10 +62,10 @@
         },
         {
             "msg": "Minimal working payload: {\"jsonData\":{\"accountEndpoint\":\"https://<account>.documents.azure.com:443/\"},\"secureJsonData\":{\"accountKey\":\"<primary or secondary key>\"}}. The key must be an Azure Cosmos DB account key (base64-encoded, ~88 chars ending in '=='), not an Azure AD credential. The backend calls azcosmos.NewKeyCredential(accountKey) + azcosmos.NewClientWithKey(accountEndpoint, cred, ...) at pkg/cosmos/client.go:24-52; an invalid endpoint or key surfaces as 'failed to create CosmosDB client, validate account key and endpoint' on health check.",
-                "tags": [
-                    "llm",
-                    "auth"
-                ]
+            "tags": [
+                "llm",
+                "auth"
+            ]
         },
         {
             "msg": "secureJsonData.accountKey is write-only: it can be set or reset but never read back. To check whether the key is already configured on an existing datasource, read secureJsonFields.accountKey (boolean) instead of secureJsonData.accountKey. The config editor (src/components/ConfigEditor.tsx:72-81) uses SecretInput with isConfigured={secureJsonFields.accountKey} for exactly this reason.",

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "grafana-timestream-datasource",
     "pluginName": "Amazon Timestream",
@@ -30,11 +30,26 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Workspace IAM Role", "value": "ec2_iam_role" },
-                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
-                    { "label": "AWS SDK Default", "value": "default" },
-                    { "label": "Access & secret key", "value": "keys" },
-                    { "label": "Credentials file", "value": "credentials" }
+                    {
+                        "label": "Workspace IAM Role",
+                        "value": "ec2_iam_role"
+                    },
+                    {
+                        "label": "Grafana Assume Role",
+                        "value": "grafana_assume_role"
+                    },
+                    {
+                        "label": "AWS SDK Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Access & secret key",
+                        "value": "keys"
+                    },
+                    {
+                        "label": "Credentials file",
+                        "value": "credentials"
+                    }
                 ]
             }
         },
@@ -143,15 +158,42 @@
                 "component": "select",
                 "allowCustom": true,
                 "options": [
-                    { "label": "us-east-1", "value": "us-east-1" },
-                    { "label": "us-east-2", "value": "us-east-2" },
-                    { "label": "us-west-2", "value": "us-west-2" },
-                    { "label": "eu-west-1", "value": "eu-west-1" },
-                    { "label": "eu-central-1", "value": "eu-central-1" },
-                    { "label": "ap-south-1", "value": "ap-south-1" },
-                    { "label": "ap-southeast-2", "value": "ap-southeast-2" },
-                    { "label": "ap-northeast-1", "value": "ap-northeast-1" },
-                    { "label": "us-gov-west-1", "value": "us-gov-west-1" }
+                    {
+                        "label": "us-east-1",
+                        "value": "us-east-1"
+                    },
+                    {
+                        "label": "us-east-2",
+                        "value": "us-east-2"
+                    },
+                    {
+                        "label": "us-west-2",
+                        "value": "us-west-2"
+                    },
+                    {
+                        "label": "eu-west-1",
+                        "value": "eu-west-1"
+                    },
+                    {
+                        "label": "eu-central-1",
+                        "value": "eu-central-1"
+                    },
+                    {
+                        "label": "ap-south-1",
+                        "value": "ap-south-1"
+                    },
+                    {
+                        "label": "ap-southeast-2",
+                        "value": "ap-southeast-2"
+                    },
+                    {
+                        "label": "ap-northeast-1",
+                        "value": "ap-northeast-1"
+                    },
+                    {
+                        "label": "us-gov-west-1",
+                        "value": "us-gov-west-1"
+                    }
                 ]
             }
         },

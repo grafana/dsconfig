@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "grafana-aurora-datasource",
     "pluginName": "Amazon Aurora",
@@ -30,11 +30,26 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Workspace IAM Role", "value": "ec2_iam_role" },
-                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
-                    { "label": "AWS SDK Default", "value": "default" },
-                    { "label": "Access & secret key", "value": "keys" },
-                    { "label": "Credentials file", "value": "credentials" }
+                    {
+                        "label": "Workspace IAM Role",
+                        "value": "ec2_iam_role"
+                    },
+                    {
+                        "label": "Grafana Assume Role",
+                        "value": "grafana_assume_role"
+                    },
+                    {
+                        "label": "AWS SDK Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Access & secret key",
+                        "value": "keys"
+                    },
+                    {
+                        "label": "Credentials file",
+                        "value": "credentials"
+                    }
                 ]
             }
         },
@@ -164,8 +179,14 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Aurora (PostgreSQL Compatible)", "value": "aurora-postgres" },
-                    { "label": "Aurora (MySQL Compatible)", "value": "aurora-mysql" }
+                    {
+                        "label": "Aurora (PostgreSQL Compatible)",
+                        "value": "aurora-postgres"
+                    },
+                    {
+                        "label": "Aurora (MySQL Compatible)",
+                        "value": "aurora-mysql"
+                    }
                 ]
             }
         },

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "influxdb",
     "pluginName": "InfluxDB",
@@ -216,11 +216,52 @@
             "item": {
                 "valueType": "object",
                 "fields": [
-                    { "id": "jsonData_httpHeaders.item.name", "key": "name", "label": "Header", "valueType": "string", "isItemField": true, "role": "http.header.name", "required": true, "validations": [ { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." } ], "ui": { "component": "input", "placeholder": "X-Custom-Header" } },
-                    { "id": "jsonData_httpHeaders.item.value", "key": "value", "label": "Value", "valueType": "string", "isItemField": true, "role": "http.header.value", "ui": { "component": "input", "placeholder": "Header Value" } }
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
                 ]
             },
-            "storage": { "type": "indexedPair", "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" }, "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" }, "startIndex": 1 }
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
         },
         {
             "id": "jsonData_version",
@@ -288,16 +329,46 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "InfluxDB Cloud Dedicated", "value": "InfluxDB Cloud Dedicated" },
-                    { "label": "InfluxDB Cloud Serverless", "value": "InfluxDB Cloud Serverless" },
-                    { "label": "InfluxDB Clustered", "value": "InfluxDB Clustered" },
-                    { "label": "InfluxDB Enterprise 1.x", "value": "InfluxDB Enterprise 1.x" },
-                    { "label": "InfluxDB Enterprise 3.x", "value": "InfluxDB Enterprise 3.x" },
-                    { "label": "InfluxDB Cloud (TSM)", "value": "InfluxDB Cloud (TSM)" },
-                    { "label": "InfluxDB Cloud 1", "value": "InfluxDB Cloud 1" },
-                    { "label": "InfluxDB OSS 1.x", "value": "InfluxDB OSS 1.x" },
-                    { "label": "InfluxDB OSS 2.x", "value": "InfluxDB OSS 2.x" },
-                    { "label": "InfluxDB OSS 3.x", "value": "InfluxDB OSS 3.x" }
+                    {
+                        "label": "InfluxDB Cloud Dedicated",
+                        "value": "InfluxDB Cloud Dedicated"
+                    },
+                    {
+                        "label": "InfluxDB Cloud Serverless",
+                        "value": "InfluxDB Cloud Serverless"
+                    },
+                    {
+                        "label": "InfluxDB Clustered",
+                        "value": "InfluxDB Clustered"
+                    },
+                    {
+                        "label": "InfluxDB Enterprise 1.x",
+                        "value": "InfluxDB Enterprise 1.x"
+                    },
+                    {
+                        "label": "InfluxDB Enterprise 3.x",
+                        "value": "InfluxDB Enterprise 3.x"
+                    },
+                    {
+                        "label": "InfluxDB Cloud (TSM)",
+                        "value": "InfluxDB Cloud (TSM)"
+                    },
+                    {
+                        "label": "InfluxDB Cloud 1",
+                        "value": "InfluxDB Cloud 1"
+                    },
+                    {
+                        "label": "InfluxDB OSS 1.x",
+                        "value": "InfluxDB OSS 1.x"
+                    },
+                    {
+                        "label": "InfluxDB OSS 2.x",
+                        "value": "InfluxDB OSS 2.x"
+                    },
+                    {
+                        "label": "InfluxDB OSS 3.x",
+                        "value": "InfluxDB OSS 3.x"
+                    }
                 ]
             }
         },
@@ -372,8 +443,14 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "GET", "value": "GET" },
-                    { "label": "POST", "value": "POST" }
+                    {
+                        "label": "GET",
+                        "value": "GET"
+                    },
+                    {
+                        "label": "POST",
+                        "value": "POST"
+                    }
                 ]
             }
         },

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "grafana-amazonprometheus-datasource",
     "pluginName": "Amazon Managed Service for Prometheus",
@@ -54,11 +54,26 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Workspace IAM Role", "value": "ec2_iam_role" },
-                    { "label": "Grafana Assume Role", "value": "grafana_assume_role" },
-                    { "label": "AWS SDK Default", "value": "default" },
-                    { "label": "Access & secret key", "value": "keys" },
-                    { "label": "Credentials file", "value": "credentials" }
+                    {
+                        "label": "Workspace IAM Role",
+                        "value": "ec2_iam_role"
+                    },
+                    {
+                        "label": "Grafana Assume Role",
+                        "value": "grafana_assume_role"
+                    },
+                    {
+                        "label": "AWS SDK Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Access & secret key",
+                        "value": "keys"
+                    },
+                    {
+                        "label": "Credentials file",
+                        "value": "credentials"
+                    }
                 ]
             }
         },
@@ -229,11 +244,52 @@
             "item": {
                 "valueType": "object",
                 "fields": [
-                    { "id": "jsonData_httpHeaders.item.name", "key": "name", "label": "Header", "valueType": "string", "isItemField": true, "role": "http.header.name", "required": true, "validations": [ { "type": "pattern", "pattern": "^[A-Za-z][A-Za-z0-9-]*$", "message": "Header name must start with a letter and contain only letters, digits, or hyphens." } ], "ui": { "component": "input", "placeholder": "X-Custom-Header" } },
-                    { "id": "jsonData_httpHeaders.item.value", "key": "value", "label": "Value", "valueType": "string", "isItemField": true, "role": "http.header.value", "ui": { "component": "input", "placeholder": "Header Value" } }
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
                 ]
             },
-            "storage": { "type": "indexedPair", "key": { "target": "jsonData", "pattern": "httpHeaderName{index}" }, "value": { "target": "secureJsonData", "pattern": "httpHeaderValue{index}" }, "startIndex": 1 }
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
         },
         {
             "id": "jsonData_keepCookies",
@@ -294,8 +350,14 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Builder", "value": "builder" },
-                    { "label": "Code", "value": "code" }
+                    {
+                        "label": "Builder",
+                        "value": "builder"
+                    },
+                    {
+                        "label": "Code",
+                        "value": "code"
+                    }
                 ]
             }
         },
@@ -364,10 +426,22 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "Low", "value": "Low" },
-                    { "label": "Medium", "value": "Medium" },
-                    { "label": "High", "value": "High" },
-                    { "label": "None", "value": "None" }
+                    {
+                        "label": "Low",
+                        "value": "Low"
+                    },
+                    {
+                        "label": "Medium",
+                        "value": "Medium"
+                    },
+                    {
+                        "label": "High",
+                        "value": "High"
+                    },
+                    {
+                        "label": "None",
+                        "value": "None"
+                    }
                 ]
             }
         },
@@ -441,8 +515,14 @@
             "ui": {
                 "component": "select",
                 "options": [
-                    { "label": "POST", "value": "POST" },
-                    { "label": "GET", "value": "GET" }
+                    {
+                        "label": "POST",
+                        "value": "POST"
+                    },
+                    {
+                        "label": "GET",
+                        "value": "GET"
+                    }
                 ]
             }
         },
