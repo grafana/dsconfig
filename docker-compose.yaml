@@ -11,9 +11,6 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_ENTERPRISE_LICENSE_TEXT: ${GF_ENTERPRISE_LICENSE_TEXT}
-      GF_PLUGINS_PREINSTALL: >-
-        elasticsearch,
-        zipkin
       GF_INSTALL_PLUGINS: >-
         dlopes7-appdynamics-datasource,
         grafana-adobeanalytics-datasource,
