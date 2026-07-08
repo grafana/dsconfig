@@ -1,0 +1,175 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "assumeRoleArn": {
+              "description": "Optional. Specifying the ARN of a role will ensure that the\n                     selected authentication provider is used to assume the role rather than the\n                     credentials directly.",
+              "type": "string",
+              "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$"
+            },
+            "authType": {
+              "description": "Specify which AWS credentials chain to use.",
+              "type": "string",
+              "default": "default",
+              "enum": [
+                "default",
+                "keys",
+                "credentials",
+                "ec2_iam_role",
+                "grafana_assume_role",
+                "arn"
+              ]
+            },
+            "defaultRegion": {
+              "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+              "type": "string"
+            },
+            "endpoint": {
+              "description": "Optionally, specify a custom endpoint for the service",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "externalId": {
+              "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "profile": {
+              "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'credentials'"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accessKey"
+      },
+      {
+        "key": "secretKey"
+      },
+      {
+        "key": "sessionToken"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a fresh datasource starts with: AWS SDK Default credentials. `defaultRegion` still needs to be set before queries will run; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain.",
+        "value": {
+          "jsonData": {
+            "authType": "default"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "accessAndSecretKey": {
+        "summary": "Access \u0026 secret key",
+        "description": "IAM user credentials supplied directly via secureJsonData. Optionally include sessionToken for temporary STS credentials.",
+        "value": {
+          "jsonData": {
+            "authType": "keys",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "assumeRoleFromKeys": {
+        "summary": "Access \u0026 secret key + STS AssumeRole",
+        "description": "IAM user credentials that then assume a cross-account IAM role via STS. `externalId` is optional and only meaningful when `assumeRoleArn` is set.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/GrafanaXRay",
+            "authType": "keys",
+            "defaultRegion": "us-east-1",
+            "externalId": "external-id-abc123"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "awsSdkDefault": {
+        "summary": "AWS SDK Default",
+        "description": "Uses the AWS SDK default credential chain (env vars, shared config, EC2/ECS/EKS metadata). No secrets are set; the placeholder accessKey is empty to signal that.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "credentialsFile": {
+        "summary": "Credentials file",
+        "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Leave `profile` blank to pick the default profile.",
+        "value": {
+          "jsonData": {
+            "authType": "credentials",
+            "defaultRegion": "us-east-1",
+            "profile": "my-xray-profile"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "grafanaAssumeRole": {
+        "summary": "Grafana Assume Role (Grafana Cloud only)",
+        "description": "Grafana Cloud's temporary-credentials broker. Feature-gated on the awsDatasourcesTempCredentials toggle; the editor hides externalId/endpoint when this provider is selected because Grafana derives them itself. Plugin v2.17.0 added sessionToken handling to support this flow.",
+        "value": {
+          "jsonData": {
+            "authType": "grafana_assume_role",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "legacyArnAuthType": {
+        "summary": "Legacy: authType = 'arn'",
+        "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The backend (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88) maps this to the modern 'default' at load time.",
+        "value": {
+          "jsonData": {
+            "authType": "arn",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "workspaceIamRole": {
+        "summary": "Workspace IAM Role (ec2_iam_role)",
+        "description": "Uses the IAM role attached to the Grafana workload (EC2 instance profile / ECS task role / EKS IRSA). Editor label is 'Workspace IAM Role'; storage value is 'ec2_iam_role'.",
+        "value": {
+          "jsonData": {
+            "authType": "ec2_iam_role",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      }
+    }
+  }
+}

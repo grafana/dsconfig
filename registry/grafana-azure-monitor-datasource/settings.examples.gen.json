@@ -1,0 +1,183 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with. Azure Monitor has no schema-side credential default (the config editor chooses one at load time based on Grafana's managedIdentityEnabled / workloadIdentityEnabled config), so a fresh datasource has an empty `azureCredentials` object and no secrets. Users must complete authentication before the datasource is usable.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    },
+    "clientCertificatePEM": {
+      "summary": "App Registration (Client Certificate — PEM)",
+      "description": "Authenticate via an Entra ID app registration and a PEM client certificate. Both `clientCertificate` (PEM body) and `privateKey` are stored write-only in secureJsonData.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientcertificate",
+            "azureCloud": "AzureCloud",
+            "certificateFormat": "pem",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "subscriptionId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "clientCertificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+        }
+      }
+    },
+    "clientCertificatePFX": {
+      "summary": "App Registration (Client Certificate — PFX)",
+      "description": "Authenticate via an Entra ID app registration and a base64-encoded PFX certificate bundle. `certificateFormat=pfx` requires `certificatePassword` and omits `privateKey`.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientcertificate",
+            "azureCloud": "AzureCloud",
+            "certificateFormat": "pfx",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "subscriptionId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "certificatePassword": "changeme",
+          "clientCertificate": "MIIKAwIBAzCCCcMGCSqGSIb3DQEHAaCCCbQ..."
+        }
+      }
+    },
+    "clientSecret": {
+      "summary": "App Registration (Client Secret)",
+      "description": "Authenticate via an Entra ID (Azure AD) app registration and client secret. The secret is stored write-only in `secureJsonData.azureClientSecret`; the rest of the credential lives in `jsonData.azureCredentials`.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "subscriptionId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        }
+      }
+    },
+    "currentUser": {
+      "summary": "Current User (with Client Secret fallback)",
+      "description": "Forward the signed-in Grafana user's OAuth token to Azure. Only available when Grafana's `azure.userIdentityEnabled` and the `azureMonitorEnableUserAuth` feature toggle are both on. Enabling `serviceCredentialsEnabled` lets user-context-less features (alerting, recorded queries, reporting) fall back to a service credential — here a `clientsecret` fallback, whose secret shares the `secureJsonData.azureClientSecret` key.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "currentuser",
+            "serviceCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "serviceCredentialsEnabled": true
+          },
+          "disableGrafanaCache": true,
+          "oauthPassThru": true,
+          "subscriptionId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        }
+      }
+    },
+    "customizedCloud": {
+      "summary": "Customized Azure Cloud (provisioning-only)",
+      "description": "Point the datasource at a non-standard sovereign Azure cloud by supplying the per-route URLs in `jsonData.customizedRoutes`. Requires legacy `jsonData.cloudName = customizedazuremonitor` (see `pkg/azuremonitor/routes.go:31-37`). The config editor cannot express this shape today — it is provisioning-only.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCustomizedCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "cloudName": "customizedazuremonitor",
+          "customizedRoutes": {
+            "Azure Log Analytics": {
+              "Scopes": [
+                "https://api.loganalytics.contoso.cloud/.default"
+              ],
+              "URL": "https://api.loganalytics.contoso.cloud"
+            },
+            "Azure Monitor": {
+              "Headers": {
+                "x-ms-app": "Grafana"
+              },
+              "Scopes": [
+                "https://management.contoso.cloud/.default"
+              ],
+              "URL": "https://management.contoso.cloud"
+            },
+            "Azure Resource Graph": {
+              "Scopes": [
+                "https://management.contoso.cloud/.default"
+              ],
+              "URL": "https://management.contoso.cloud"
+            }
+          }
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        }
+      }
+    },
+    "legacyClientSecret": {
+      "summary": "Legacy top-level Client Secret (pre-`azureCredentials`)",
+      "description": "Datasources provisioned before the credentials migration stored auth type + tenant/client at top level (`jsonData.{azureAuthType,cloudName,tenantId,clientId}`) and the secret in `secureJsonData.clientSecret`. Both frontend and backend still accept this shape via legacy fallbacks (`src/credentials.ts:33-64`, `pkg/azuremonitor/azmoncredentials/builder.go:33-116`). Opening the editor and saving migrates the datasource to the modern `jsonData.azureCredentials` shape.",
+      "value": {
+        "jsonData": {
+          "azureAuthType": "clientsecret",
+          "clientId": "00000000-0000-0000-0000-000000000000",
+          "cloudName": "azuremonitor",
+          "subscriptionId": "00000000-0000-0000-0000-000000000000",
+          "tenantId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "clientSecret": "changeme"
+        }
+      }
+    },
+    "managedIdentity": {
+      "summary": "Managed Identity",
+      "description": "Authenticate using the Grafana host's Azure Managed Identity. Only available when Grafana's `azure.managedIdentityEnabled` is true. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "msi"
+          },
+          "subscriptionId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    },
+    "workloadIdentity": {
+      "summary": "Workload Identity",
+      "description": "Authenticate using an Entra ID Workload Identity federated to the Kubernetes service account Grafana runs under. Only available when Grafana's `azure.workloadIdentityEnabled` is true. No secret required.",
+      "value": {
+        "jsonData": {
+          "azureCredentials": {
+            "authType": "workloadidentity"
+          },
+          "subscriptionId": "00000000-0000-0000-0000-000000000000"
+        },
+        "secureJsonData": {
+          "azureClientSecret": ""
+        }
+      }
+    }
+  }
+}

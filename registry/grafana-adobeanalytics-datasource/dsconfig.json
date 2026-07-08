@@ -1,0 +1,146 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-adobeanalytics-datasource",
+    "pluginName": "Adobe Analytics",
+    "docURL": "https://grafana.com/docs/plugins/grafana-adobeanalytics-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_global_company_id",
+            "key": "global_company_id",
+            "section": "variables",
+            "label": "Global Company ID",
+            "description": "Refer to [plugin documentation](http://grafana.com/docs/plugins/grafana-adobeanalytics-datasource/#connection) for more information on where to find your Global Company ID in Adobe portal.",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_services_adobe_analytics_auth_id",
+            "key": "id",
+            "section": "services.adobe_analytics.auth",
+            "label": "OAuth server to server authentication",
+            "description": "Authorization flow where application credentials are exchanged for an access token",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "oauth2_m2m",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "oauth2_m2m"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "OAuth server to server authentication",
+                        "value": "oauth2_m2m"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_services_adobe_analytics_auth_clientId",
+            "key": "clientId",
+            "section": "services.adobe_analytics.auth",
+            "label": "Client ID",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "dependsOn": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'",
+            "requiredWhen": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_adobe_analytics_clientSecret",
+            "key": "adobe_analytics.clientSecret",
+            "label": "Client Secret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'",
+            "requiredWhen": "jsonData_services_adobe_analytics_auth_id == 'oauth2_m2m'",
+            "ui": {
+                "component": "input"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_global_company_id"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_services_adobe_analytics_auth_id",
+                "jsonData_services_adobe_analytics_auth_clientId",
+                "secureJsonData_adobe_analytics_clientSecret"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_services_adobe_analytics_auth_clientId",
+                "secureJsonData_adobe_analytics_clientSecret"
+            ],
+            "description": "OAuth2 client-credentials pair for the Adobe Analytics service"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Adobe Analytics configuration is stored under a service-keyed jsonData shape: jsonData.services.adobe_analytics.* holds per-service settings and jsonData.variables.<name> holds connection variables, while secrets use flat dotted secureJsonData keys of the form \"adobe_analytics.<secret>\". There is a single service with id 'adobe_analytics'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses OAuth2 client credentials (server to server). Set jsonData.services.adobe_analytics.auth.id to 'oauth2_m2m' (the backend defaults to it), provide the client id in jsonData.services.adobe_analytics.auth.clientId, and the client secret as the write-only secret at secureJsonData key \"adobe_analytics.clientSecret\". The token URL and scopes are fixed by the plugin spec.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"adobe_analytics\":{\"auth\":{\"id\":\"oauth2_m2m\",\"clientId\":\"<client-id>\"}}},\"variables\":{\"global_company_id\":\"<global-company-id>\"}},\"secureJsonData\":{\"adobe_analytics.clientSecret\":\"<client-secret>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the API base URL is https://analytics.adobe.io/api/{global_company_id}, built from jsonData.variables.global_company_id. The single server is fixed, so no server selector is shown.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"adobe_analytics.clientSecret\" is write-only: it can be set or reset but never read back. To check whether it is already configured, read secureJsonFields[\"adobe_analytics.clientSecret\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

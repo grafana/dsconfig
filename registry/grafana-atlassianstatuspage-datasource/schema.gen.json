@@ -1,0 +1,53 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "variables": {
+              "type": "object",
+              "required": [
+                "url"
+              ],
+              "properties": {
+                "url": {
+                  "description": "The URL of the Atlassian Statuspage, including `https://` and without trailing `/`",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "A new datasource only needs the Statuspage URL (jsonData.variables.url, empty here). No authentication is required.",
+        "value": {
+          "jsonData": {
+            "variables": {
+              "url": ""
+            }
+          }
+        }
+      },
+      "configured": {
+        "summary": "Configured",
+        "description": "Query the public Statuspage API at {url}/api/v2. Set jsonData.variables.url to the Statuspage URL (e.g. https://www.githubstatus.com).",
+        "value": {
+          "jsonData": {
+            "variables": {
+              "url": "https://www.githubstatus.com"
+            }
+          }
+        }
+      }
+    }
+  }
+}

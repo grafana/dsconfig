@@ -1,0 +1,511 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "graphite",
+    "pluginName": "Graphite",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/graphite/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:8080"
+            }
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "label": "Basic auth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_withCredentials",
+            "key": "withCredentials",
+            "label": "With Credentials",
+            "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+            "valueType": "boolean",
+            "target": "root",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "user"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying self-signed TLS Certs",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "label": "ServerName",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_graphiteVersion",
+            "key": "graphiteVersion",
+            "label": "Version",
+            "description": "This option controls what functions are available in the Graphite query editor.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "1.1",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "0.9",
+                        "1.0",
+                        "1.1"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "0.9.x",
+                        "value": "0.9"
+                    },
+                    {
+                        "label": "1.0.x",
+                        "value": "1.0"
+                    },
+                    {
+                        "label": "1.1.x",
+                        "value": "1.1"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_graphiteType",
+            "key": "graphiteType",
+            "label": "Graphite backend type",
+            "description": "There are different types of Graphite compatible backends. Here you can specify the type you are using. For Metrictank, this will enable specific features, like query processing meta data. Metrictank\n        is a multi-tenant timeseries engine for Graphite and friends.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "metrictank"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Metrictank",
+                        "value": "metrictank"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_rollupIndicatorEnabled",
+            "key": "rollupIndicatorEnabled",
+            "label": "Rollup indicator",
+            "description": "Shows up as an info icon in panel headers when data is aggregated.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_graphiteType == 'metrictank'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_importConfiguration",
+            "key": "importConfiguration",
+            "label": "Label mappings",
+            "valueType": "object",
+            "target": "jsonData",
+            "help": {
+                "markdown": "Mappings are currently supported only between Graphite and Loki queries.\n\nWhen you switch your data source from Graphite to Loki, your queries are mapped according to the mappings defined in the example below. To define a mapping, write the full path of the metric and replace nodes you want to map to label with the label name in parentheses. The value of the label is extracted from your Graphite query when you switch data sources.\n\nAll tags are automatically mapped to labels regardless of the mapping configuration. Graphite matching patterns (using `{}`) are converted to Loki's regular expressions matching patterns. When you use functions in your queries, the metrics, and tags are extracted to match them with defined mappings.\n\nExample: for a mapping = `servers.(cluster).(server).*`:\n\n| Graphite query | Mapped to Loki query |\n| --- | --- |\n| `alias(servers.west.001.cpu,1,2)` | `{cluster=\"west\", server=\"001\"}` |\n| `alias(servers.*.{001,002}.*,1,2)` | `{server=~\"(001|002)\"}` |\n| `interpolate(seriesByTag('foo=bar', 'server=002'), inf))` | `{foo=\"bar\", server=\"002\"}` |\n\nStorage shape: `importConfiguration.loki.mappings` is an array of objects `{ matchers: Array<{ value: string, labelName?: string }> }`. The editor stringifies a full metric path such as `servers.(cluster).(server).*` into a list of matchers where segments wrapped in parentheses become `{value: '*', labelName: '<name>'}` and other segments become `{value: '<segment>'}`. See `src/configuration/parseLokiLabelMappings.ts` and `src/types.ts:56-71`."
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>). Rendered by the @grafana/ui CustomHeadersSettings component (DataSourceHttpSettings.tsx:352) and forwarded to Graphite by the SDK's HTTPClientOptions.",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "How to reach the Graphite server.",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "description": "How to authenticate requests to the Graphite server.",
+            "order": 2,
+            "fieldRefs": [
+                "root_basicAuth",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword",
+                "root_withCredentials",
+                "jsonData_oauthPassThru"
+            ]
+        },
+        {
+            "id": "network-tls",
+            "title": "Network & TLS",
+            "description": "TLS client authentication and certificate verification for the connection.",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey",
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert",
+                "jsonData_tlsSkipVerify"
+            ]
+        },
+        {
+            "id": "graphite-settings",
+            "title": "Graphite settings",
+            "description": "Graphite backend type and version.",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_graphiteVersion",
+                "jsonData_graphiteType",
+                "jsonData_rollupIndicatorEnabled"
+            ]
+        },
+        {
+            "id": "query-settings",
+            "title": "Query settings",
+            "description": "Query-time behaviour and cross-datasource query mappings.",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_importConfiguration"
+            ]
+        },
+        {
+            "id": "advanced",
+            "title": "Advanced settings",
+            "description": "Additional HTTP transport settings.",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeout",
+                "jsonData_keepCookies",
+                "jsonData_httpHeaders"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic auth credentials. Both fields are used together when root.basicAuth is true."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS mutual auth: enabling jsonData.tlsAuth reveals the ServerName input and the Client Cert / Client Key secret slots in @grafana/ui TLSAuthSettings.tsx. All three are required for a working mTLS handshake."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Self-signed / custom CA verification: enabling jsonData.tlsAuthWithCACert requires the CA certificate PEM in secureJsonData.tlsCACert."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_graphiteType",
+                "jsonData_rollupIndicatorEnabled"
+            ],
+            "description": "The Rollup indicator switch is only rendered by the editor when jsonData.graphiteType == 'metrictank' (ConfigEditor.tsx:95). Setting rollupIndicatorEnabled with a non-metrictank backend is stored but has no effect."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Graphite authentication is a direct-toggle model — not a discriminator field. root.basicAuth and root.withCredentials are independent boolean switches rendered by @grafana/ui DataSourceHttpSettings; jsonData.oauthPassThru is a third independent switch rendered by HttpProxySettings. All three can be true at once. Only when root.basicAuth is true does the editor render the User (root.basicAuthUser) + Password (secureJsonData.basicAuthPassword) inputs. There is no visible 'No Authentication' option — leaving every switch off is the No-auth mode. The Graphite plugin's Go backend never inspects these fields directly; it reads settings.URL and delegates everything else to the SDK's settings.HTTPClientOptions(ctx) (pkg/graphite/graphite.go:38-56).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal No-auth payload: {\"url\":\"http://localhost:8080\",\"jsonData\":{\"graphiteVersion\":\"1.1\"}}. Minimal Basic-auth payload: {\"url\":\"http://localhost:8080\",\"basicAuth\":true,\"basicAuthUser\":\"<user>\",\"jsonData\":{\"graphiteVersion\":\"1.1\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. Minimal OAuth-forward payload: {\"url\":\"http://localhost:8080\",\"jsonData\":{\"graphiteVersion\":\"1.1\",\"oauthPassThru\":true}}. root.url is required — the plugin's own admission handler (pkg/graphite/admission_handler.go:51) rejects a missing URL with a BadRequest, and CheckHealth issues a constantLine(100) render request against the URL to verify connectivity (pkg/graphite/healthcheck.go).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "TLS is independent of the auth toggles. jsonData.tlsAuth=true enables mTLS and reveals the ServerName input plus the Client Cert / Client Key secret textareas in @grafana/ui TLSAuthSettings; provisioning must supply jsonData.serverName, secureJsonData.tlsClientCert, and secureJsonData.tlsClientKey for the SDK to build a valid mTLS transport. jsonData.tlsAuthWithCACert=true enables server-cert verification against a custom CA and requires secureJsonData.tlsCACert. Both can be enabled together; the TLSAuthSettings block only renders when either is true. jsonData.tlsSkipVerify=true bypasses verification entirely and should only be used for testing. All TLS fields are consumed by settings.HTTPClientOptions(ctx) inside NewDatasource (pkg/graphite/graphite.go:43).",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP headers are modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as the @grafana/ui CustomHeadersSettings component and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Graphite-specific storage: jsonData.graphiteVersion (default '1.1' — the editor's componentDidMount writes DEFAULT_GRAPHITE_VERSION on load, ConfigEditor.tsx:43-45) drives the query editor's function library and must be one of '0.9', '1.0', '1.1'. jsonData.graphiteType selects the backend flavour ('default' or 'metrictank'); when 'metrictank' is selected the editor exposes jsonData.rollupIndicatorEnabled (a purely visual switch that shows an info icon on aggregated panels). Setting rollupIndicatorEnabled with a non-metrictank backend is stored but never rendered.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        },
+        {
+            "msg": "jsonData.importConfiguration is a frontend-only cross-datasource migration hint used when Explore switches a Graphite query to Loki. Shape: {\"loki\":{\"mappings\":[{\"matchers\":[{\"value\":\"...\",\"labelName\":\"...\"}, ...]}, ...]}}. The editor exposes these as free-form strings like 'servers.(cluster).(server).*' via MappingsConfiguration; parentheses mark segments that become Loki labels. Neither the Graphite backend nor the Loki backend read this field at query time — it is consumed exclusively by Explore's datasource-switch logic in @grafana/data. Legacy datasources may omit importConfiguration entirely; the editor tolerates missing loki.mappings via optional chaining (ConfigEditor.tsx:109).",
+            "tags": [
+                "llm",
+                "settings",
+                "legacy"
+            ]
+        }
+    ]
+}

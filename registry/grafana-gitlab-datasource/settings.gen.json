@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "pageLimit": {
+            "description": "The page limit is the maximum number of pages returned when creating a query. The default is 5.",
+            "type": "number",
+            "default": 5
+          }
+        }
+      },
+      "url": {
+        "description": "The URL for your GitLab instance (ex: gitlab.domain.com). Leave blank if you use gitlab.com",
+        "type": "string",
+        "default": "https://gitlab.com/api/v4"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accessToken",
+      "description": "Provide information to grant access to this data source. To learn more about access tokens, [click here.](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)",
+      "required": true
+    }
+  ]
+}

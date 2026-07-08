@@ -1,0 +1,120 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-gitlab-datasource",
+    "pluginName": "GitLab",
+    "docURL": "https://grafana.com/docs/plugins/grafana-gitlab-datasource",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "The URL for your GitLab instance (ex: gitlab.domain.com). Leave blank if you use gitlab.com",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "defaultValue": "https://gitlab.com/api/v4",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default: https://gitlab.com/api/v4"
+            }
+        },
+        {
+            "id": "secureJsonData_accessToken",
+            "key": "accessToken",
+            "label": "Access token",
+            "description": "Provide information to grant access to this data source. To learn more about access tokens, [click here.](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Access token"
+            }
+        },
+        {
+            "id": "jsonData_pageLimit",
+            "key": "pageLimit",
+            "label": "Page limit",
+            "description": "The page limit is the maximum number of pages returned when creating a query. The default is 5.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 5,
+            "ui": {
+                "component": "input",
+                "placeholder": "Page limit"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "secureJsonData_accessToken"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "description": "Additional settings are optional settings that can be configured for more control over your data source.",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_pageLimit"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "root_url",
+                "secureJsonData_accessToken"
+            ],
+            "description": "GitLab API connection: the instance base URL (root url, defaulting to https://gitlab.com/api/v4) and the personal access token (secureJsonData.accessToken) that the go-gitlab client sends as the PRIVATE-TOKEN header on every request."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The GitLab datasource has a single authentication method: a GitLab personal (or project/group) access token stored in secureJsonData.accessToken. The backend copies it from DecryptedSecureJSONData['accessToken'] (pkg/models/settings.go:47) and passes it to go-gitlab's gitlab.NewClient (pkg/gitlab/datasource.go:176), which sends it as the 'PRIVATE-TOKEN: <token>' header on every request (go-gitlab gitlab.go:855-858) \u2014 it is NOT an 'Authorization: Bearer' header. The token is required: an empty accessToken makes LoadSettings hard-fail with 'access token can not be blank' (pkg/models/settings.go:48-50).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"url\":\"https://gitlab.com/api/v4\",\"secureJsonData\":{\"accessToken\":\"<gitlab-personal-access-token>\"}}. The instance URL lives at the datasource ROOT url (NOT jsonData.url) \u2014 the backend reads config.URL and overwrites any jsonData.url (pkg/models/settings.go:30,34). url is optional: when the root url is empty the backend defaults it to https://gitlab.com/api/v4 (pkg/models/settings.go:35-37).",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "secureJsonData.accessToken is write-only: it can be set or reset but never read back. To check whether the token is already configured on an existing datasource, read secureJsonFields.accessToken (boolean) instead of secureJsonData.accessToken.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection/URL rules: the root url is the GitLab API base URL. go-gitlab appends 'api/v4/' when the URL does not already end with it, so both https://gitlab.example.com and https://gitlab.example.com/api/v4 work for a self-hosted instance (go-gitlab gitlab.go:564-578). The URL MUST include an http/https scheme \u2014 a bare host like 'gitlab.domain.com' (as the field tooltip suggests) fails the health check with 'unsupported scheme. Only HTTP and HTTPS are supported' (pkg/plugin/../gitlab/datasource.go:110-111). jsonData.pageLimit (optional, default 5 via pkg/models/settings.go:39-41) caps how many API pages a query fetches.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "catchpoint": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Catchpoint REST API v2 Key.",
+                        "type": "string",
+                        "default": "bearer_token",
+                        "enum": [
+                          "bearer_token"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "catchpoint.token",
+      "description": "Token for accessing the datasource API"
+    }
+  ]
+}

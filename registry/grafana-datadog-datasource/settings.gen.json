@@ -1,0 +1,79 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "basicAuth": {
+        "type": "boolean",
+        "default": false
+      },
+      "basicAuthUser": {
+        "description": "Your username is your Grafana Cloud Prometheus username. This can be found in the Prometheus details in your cloud portal.",
+        "type": "string",
+        "x-dsconfig-depends-on": "virtual_mode == 'hosted-metrics'",
+        "x-dsconfig-required-when": "jsonData_pluginMode == 'hosted-metrics'"
+      },
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "disableDataLinks": {
+            "description": "Data links take users directly to the relevant location in the Datadog app when they interact with panels.",
+            "type": "boolean",
+            "default": false
+          },
+          "logApiRateLimits": {
+            "description": "Show Datadog API limits for each queried endpoint. To view the API rate limits, go to the **Query Inspector**, select **JSON**, and set **select source** to **DataFrame structure**.",
+            "type": "boolean",
+            "default": false
+          },
+          "pluginMode": {
+            "type": "string",
+            "enum": [
+              "default",
+              "hosted-metrics"
+            ]
+          },
+          "rateLimitEnabled": {
+            "description": "Enable rate limit. Datadog query will stop once it reaches entered threshold.",
+            "type": "boolean",
+            "default": false
+          },
+          "rateLimitMetrics": {
+            "description": "Enter percentage of threshold. (If the API hit the % of rate limit, plugin will block subsequent requests till next reset)",
+            "type": "number",
+            "default": 100,
+            "maximum": 100,
+            "minimum": 0,
+            "x-dsconfig-depends-on": "jsonData_rateLimitEnabled == true"
+          },
+          "size": {
+            "description": "Set maximum number of items to retrieve in a single API request (default is 100).",
+            "type": "number",
+            "default": 100
+          },
+          "url": {
+            "description": "A URL to the Datadog API (e.g.: https://api.datadoghq.com)",
+            "type": "string",
+            "default": "https://api.datadoghq.com"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "apiKey",
+      "description": "An API key is unique to your organization. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-an-api-key-and-application-key-from-datadog)."
+    },
+    {
+      "key": "appKey",
+      "description": "An application key is used with the API key to give access to the Datadog API. By default, application keys have the permissions of the user who created them. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-api-key-and-application-key-from-datadog). You can also customize the scope of the application key in the [Datadog docs](https://docs.datadoghq.com/api/latest/scopes/)."
+    },
+    {
+      "key": "basicAuthPassword",
+      "description": "Your password is your Grafana Cloud API Key with read permissions. This can be found in the Prometheus details in your cloud portal."
+    }
+  ]
+}

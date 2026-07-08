@@ -1,0 +1,97 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Personal Access Token authentication with CloudFetch enabled. host, httpPath, and secureJsonData.token (empty here) still need to be filled in to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "authType": "Pat",
+          "cloudFetch": true
+        },
+        "secureJsonData": {
+          "token": ""
+        }
+      }
+    },
+    "azureM2M": {
+      "summary": "Azure Entra ID M2M",
+      "description": "Azure Entra ID service principal: jsonData.tenantId, jsonData.clientId, jsonData.azureCloud plus secureJsonData.clientSecret.",
+      "value": {
+        "jsonData": {
+          "authType": "AzureM2M",
+          "azureCloud": "AzureCloud",
+          "clientId": "11111111-1111-1111-1111-111111111111",
+          "host": "adb-1234567890123456.7.azuredatabricks.net",
+          "httpPath": "/sql/1.0/warehouses/abc123def456",
+          "tenantId": "22222222-2222-2222-2222-222222222222"
+        },
+        "secureJsonData": {
+          "clientSecret": "Abc8Q~exampleAzureClientSecretValue000000000"
+        }
+      }
+    },
+    "azureOBO": {
+      "summary": "Azure On-Behalf-Of",
+      "description": "Azure On-Behalf-Of: credentials in the jsonData.azureCredentials object plus secureJsonData.azureClientSecret. jsonData.oauthPassThru must be true or the backend rejects the datasource.",
+      "value": {
+        "jsonData": {
+          "authType": "OauthOBO",
+          "azureCredentials": {
+            "authType": "clientsecret-obo",
+            "azureCloud": "AzureCloud",
+            "clientId": "11111111-1111-1111-1111-111111111111",
+            "tenantId": "22222222-2222-2222-2222-222222222222"
+          },
+          "host": "adb-1234567890123456.7.azuredatabricks.net",
+          "httpPath": "/sql/1.0/warehouses/abc123def456",
+          "oauthPassThru": true
+        },
+        "secureJsonData": {
+          "azureClientSecret": "Abc8Q~exampleAzureClientSecretValue000000000"
+        }
+      }
+    },
+    "oauthM2M": {
+      "summary": "OAuth M2M (service principal)",
+      "description": "Databricks service-principal OAuth: jsonData.clientId plus secureJsonData.clientSecret.",
+      "value": {
+        "jsonData": {
+          "authType": "OauthM2M",
+          "clientId": "11111111-1111-1111-1111-111111111111",
+          "host": "dbc-a1b2c3d4-e5f6.cloud.databricks.com",
+          "httpPath": "/sql/1.0/warehouses/abc123def456"
+        },
+        "secureJsonData": {
+          "clientSecret": "dose_1234567890abcdef1234567890abcdef"
+        }
+      }
+    },
+    "oauthPassthrough": {
+      "summary": "OAuth Passthrough",
+      "description": "Forward the signed-in Grafana user's OAuth token to Databricks. jsonData.oauthPassThru is set to true automatically; no stored secret is required.",
+      "value": {
+        "jsonData": {
+          "authType": "OauthPT",
+          "host": "dbc-a1b2c3d4-e5f6.cloud.databricks.com",
+          "httpPath": "/sql/1.0/warehouses/abc123def456",
+          "oauthPassThru": true
+        },
+        "secureJsonData": {}
+      }
+    },
+    "personalAccessToken": {
+      "summary": "Personal Access Token",
+      "description": "Authenticate with a Databricks Personal Access Token provided in secureJsonData.token. host is the workspace server hostname and httpPath is the SQL warehouse HTTP path.",
+      "value": {
+        "jsonData": {
+          "authType": "Pat",
+          "host": "dbc-a1b2c3d4-e5f6.cloud.databricks.com",
+          "httpPath": "/sql/1.0/warehouses/abc123def456"
+        },
+        "secureJsonData": {
+          "token": "\u003cyour-databricks-personal-access-token\u003e"
+        }
+      }
+    }
+  }
+}

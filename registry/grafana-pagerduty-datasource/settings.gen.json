@@ -1,0 +1,30 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "auth": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "default": "api_key",
+                "enum": [
+                  "api_key"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "auth.api_key.apiKey",
+      "description": "PagerDuty REST API Key (prefer generating read-only key)"
+    }
+  ]
+}

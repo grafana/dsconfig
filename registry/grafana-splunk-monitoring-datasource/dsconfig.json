@@ -1,0 +1,121 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-splunk-monitoring-datasource",
+    "pluginName": "Splunk Infrastructure Monitoring",
+    "docURL": "https://grafana.com/docs/plugins/grafana-splunk-monitoring-datasource",
+    "fields": [
+        {
+            "id": "secureJsonData_accessToken",
+            "key": "accessToken",
+            "label": "Access Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_realmName",
+            "key": "realmName",
+            "label": "Realm Name",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "jsonData_urlMetricsMetadata == '' || jsonData_urlSignalflow == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "us1"
+            }
+        },
+        {
+            "id": "jsonData_urlMetricsMetadata",
+            "key": "url_metrics_metadata",
+            "label": "Metrics MetaData URL",
+            "description": "Optional Metrics MetaData URL.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://api.us1.signalfx.com"
+            }
+        },
+        {
+            "id": "jsonData_urlSignalflow",
+            "key": "url_signalflow",
+            "label": "SignalFlow URL",
+            "description": "Optional SignalFlow URL",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://stream.us1.signalfx.com"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "secureJsonData_accessToken",
+                "jsonData_realmName"
+            ]
+        },
+        {
+            "id": "custom-urls",
+            "title": "Custom URLs",
+            "description": "Optional URLs. Use this section only if you are using custom signalflow domains. Leave it blank for the default behavior",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_urlMetricsMetadata",
+                "jsonData_urlSignalflow"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_realmName",
+                "jsonData_urlMetricsMetadata",
+                "jsonData_urlSignalflow"
+            ],
+            "description": "Connection endpoints. The backend derives the metrics-metadata base URL (https://api.{realm}.signalfx.com) and the SignalFlow base URL (https://stream.{realm}.signalfx.com) from jsonData.realmName; jsonData.url_metrics_metadata and jsonData.url_signalflow override those per-API defaults when set (pkg/client/rest.go:339-353). jsonData.realmName is only unnecessary when both overrides are provided."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Splunk Infrastructure Monitoring (SignalFx) datasource authenticates with a single API access token stored in secureJsonData.accessToken. It is sent as the 'X-SF-TOKEN' header on every request (pkg/client/rest.go:225). There are no other auth methods. Minimal payload: {\"jsonData\":{\"realmName\":\"us1\"},\"secureJsonData\":{\"accessToken\":\"<your-access-token>\"}}. The access token is mandatory: LoadSettings returns 'invalid/empty access token' and the client constructor returns 'required access token is missing' when it is empty (pkg/models/settings.go:27-30; pkg/client/client.go:62-63).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "jsonData.realmName selects the Splunk Observability realm (e.g. us0, us1, eu0, jp0). The backend derives two base URLs from it: https://api.{realm}.signalfx.com for the metrics-metadata REST API and https://stream.{realm}.signalfx.com for the SignalFlow streaming API (pkg/client/rest.go:339-353). Find your realm in the Splunk Observability UI. The realm is not marked required in the editor, but an empty realm with no custom URLs produces the broken host 'https://api..signalfx.com' (note the double dot) — set the realm unless you provide both custom URLs.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Custom URLs are optional overrides for the two realm-derived endpoints, used only for custom SignalFlow domains: jsonData.url_metrics_metadata overrides the metrics-metadata base (default https://api.{realm}.signalfx.com) and jsonData.url_signalflow overrides the SignalFlow base (default https://stream.{realm}.signalfx.com) (pkg/client/rest.go:342-352). Leave both blank for the default realm-based behavior. If you set both, jsonData.realmName is not needed. Provide the scheme+host with no trailing path; the client appends '/v2/...' (metrics-metadata) and '/v2/signalflow/execute' (SignalFlow) onto the base.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "secureJsonData.accessToken is write-only: it can be set or reset but never read back. To check whether a token is already configured on an existing datasource, read secureJsonFields.accessToken (boolean) instead of secureJsonData.accessToken (src/components/ConfigEditor.tsx:24,35-48).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

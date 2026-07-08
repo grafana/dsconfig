@@ -1,0 +1,53 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authEndpoint": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authKind == 1",
+            "x-dsconfig-required-when": "jsonData_authKind == 1"
+          },
+          "authKind": {
+            "type": "number",
+            "default": 0,
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "grpcEndpoint": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authKind == 1",
+            "x-dsconfig-required-when": "jsonData_authKind == 1"
+          },
+          "secure": {
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_authKind == 1"
+          },
+          "uri": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authKind == 0",
+            "x-dsconfig-required-when": "jsonData_authKind == 0"
+          },
+          "user": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authKind == 1",
+            "x-dsconfig-required-when": "jsonData_authKind == 1"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "token"
+    },
+    {
+      "key": "password"
+    }
+  ]
+}

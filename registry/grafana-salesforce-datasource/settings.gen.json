@@ -1,0 +1,57 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authType": {
+            "type": "string",
+            "default": "user",
+            "enum": [
+              "user",
+              "jwt"
+            ]
+          },
+          "sandbox": {
+            "description": "Legacy boolean that selects the Salesforce login/token host when `tokenUrl` is empty (`true` → https://test.salesforce.com, `false` → https://login.salesforce.com). Deprecated in favor of `tokenUrl`; the config editor no longer writes it but reads it to derive the initial Environment selection, and the backend still honors it for backwards compatibility and provisioning.",
+            "type": "boolean",
+            "default": false
+          },
+          "tokenUrl": {
+            "type": "string",
+            "default": "https://login.salesforce.com",
+            "enum": [
+              "https://login.salesforce.com",
+              "https://test.salesforce.com"
+            ]
+          },
+          "user": {
+            "type": "string",
+            "x-dsconfig-required-when": "jsonData_authType == 'user'"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password"
+    },
+    {
+      "key": "securityToken"
+    },
+    {
+      "key": "clientID"
+    },
+    {
+      "key": "clientSecret"
+    },
+    {
+      "key": "cert"
+    },
+    {
+      "key": "privateKey"
+    }
+  ]
+}

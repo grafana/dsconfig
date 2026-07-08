@@ -1,0 +1,57 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "uri"
+        ],
+        "properties": {
+          "clientID": {
+            "description": "If not set, a random client ID is used.",
+            "type": "string"
+          },
+          "tlsAuth": {
+            "description": "Enables TLS authentication using client cert configured in secure json data.",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsAuthWithCACert": {
+            "description": "Needed for verifying servers with self-signed TLS Certs.",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "description": "When enabled, skips verification of the MQTT server's TLS certificate chain and host name.",
+            "type": "boolean",
+            "default": false
+          },
+          "uri": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password"
+    },
+    {
+      "key": "tlsCACert",
+      "description": "If a Certificate Authority certificate is required to verify the server's certificate, provide it here."
+    },
+    {
+      "key": "tlsClientCert",
+      "description": "To authenticate with an TLS client certificate, provide the client certificate here."
+    },
+    {
+      "key": "tlsClientKey",
+      "description": "To authenticate with a client TLS certificate, provide the private key here."
+    }
+  ]
+}

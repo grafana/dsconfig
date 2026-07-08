@@ -1,0 +1,583 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-falconlogscale-datasource",
+    "pluginName": "Falcon LogScale",
+    "docURL": "https://github.com/grafana/falconlogscale-datasource",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_mode",
+            "key": "mode",
+            "label": "Mode",
+            "description": "Select the data source mode. NGSIEM mode only supports OAuth2 client secret authentication.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "LogScale",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "LogScale",
+                        "NGSIEM"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "LogScale",
+                        "value": "LogScale"
+                    },
+                    {
+                        "label": "NGSIEM",
+                        "value": "NGSIEM"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "virtual_authMethod",
+            "key": "authMethod",
+            "label": "Authentication method",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "custom-token",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "custom-token",
+                        "custom-oauth-client-secret",
+                        "BasicAuth",
+                        "OAuthForward"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "LogScale Token Authentication",
+                        "value": "custom-token"
+                    },
+                    {
+                        "label": "OAuth2 Client Credentials",
+                        "value": "custom-oauth-client-secret"
+                    },
+                    {
+                        "label": "Basic authentication",
+                        "value": "BasicAuth"
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "OAuthForward"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "jsonData.oauth2 == true ? 'custom-oauth-client-secret' : (jsonData.authenticateWithToken == true ? 'custom-token' : (root.basicAuth == true ? 'BasicAuth' : (jsonData.oauthPassThru == true ? 'OAuthForward' : 'custom-token')))"
+            },
+            "effects": [
+                {
+                    "when": "value == 'custom-token'",
+                    "set": {
+                        "jsonData_authenticateWithToken": true,
+                        "jsonData_oauth2": false,
+                        "jsonData_oauthPassThru": false,
+                        "root_basicAuth": false
+                    }
+                },
+                {
+                    "when": "value == 'custom-oauth-client-secret'",
+                    "set": {
+                        "jsonData_authenticateWithToken": false,
+                        "jsonData_oauth2": true,
+                        "jsonData_oauthPassThru": false,
+                        "root_basicAuth": false
+                    }
+                },
+                {
+                    "when": "value == 'BasicAuth'",
+                    "set": {
+                        "jsonData_authenticateWithToken": false,
+                        "jsonData_oauth2": false,
+                        "jsonData_oauthPassThru": false,
+                        "root_basicAuth": true
+                    }
+                },
+                {
+                    "when": "value == 'OAuthForward'",
+                    "set": {
+                        "jsonData_authenticateWithToken": false,
+                        "jsonData_oauth2": false,
+                        "jsonData_oauthPassThru": true,
+                        "root_basicAuth": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "jsonData_authenticateWithToken",
+            "key": "authenticateWithToken",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_authMethod"
+            ]
+        },
+        {
+            "id": "jsonData_oauth2",
+            "key": "oauth2",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_authMethod"
+            ]
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_authMethod"
+            ]
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_authMethod"
+            ]
+        },
+        {
+            "id": "secureJsonData_accessToken",
+            "key": "accessToken",
+            "label": "Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "virtual_authMethod == 'custom-token'",
+            "requiredWhen": "jsonData_authenticateWithToken == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token"
+            }
+        },
+        {
+            "id": "jsonData_oauth2ClientId",
+            "key": "oauth2ClientId",
+            "label": "Client ID",
+            "description": "The OAuth2 client ID",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "dependsOn": "virtual_authMethod == 'custom-oauth-client-secret'",
+            "requiredWhen": "jsonData_oauth2 == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client ID"
+            }
+        },
+        {
+            "id": "secureJsonData_oauth2ClientSecret",
+            "key": "oauth2ClientSecret",
+            "label": "Client Secret",
+            "description": "The OAuth2 client secret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "virtual_authMethod == 'custom-oauth-client-secret'",
+            "requiredWhen": "jsonData_oauth2 == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Client Secret"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "virtual_authMethod == 'BasicAuth'",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "User"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "virtual_authMethod == 'BasicAuth'",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_baseUrl",
+            "key": "baseUrl",
+            "description": "Snapshot of the datasource URL written by the LogScale token authentication component (src/components/ConfigEditor/ConfigEditor.tsx:155). Never read by the backend, which always reads settings.URL (pkg/plugin/settings.go:38). Preserved for round-trip fidelity.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only"
+            ]
+        },
+        {
+            "id": "jsonData_defaultRepository",
+            "key": "defaultRepository",
+            "label": "Default Repository",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_dataLinks",
+            "key": "dataLinks",
+            "label": "Data links",
+            "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_dataLinks.item.field",
+                        "key": "field",
+                        "label": "Field",
+                        "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.label",
+                        "key": "label",
+                        "label": "Label",
+                        "description": "Use to provide a meaningful label to the data matched in the regex",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.matcherRegex",
+                        "key": "matcherRegex",
+                        "label": "Regex",
+                        "description": "Use to parse and capture some part of the log message. You can use the captured groups in the template.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.url",
+                        "key": "url",
+                        "label": "URL",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "http://example.com/${__value.raw}"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.datasourceUid",
+                        "key": "datasourceUid",
+                        "label": "Internal link data source",
+                        "description": "UID of a Grafana data source. When set, the derived data link is treated as an internal link to that data source and the URL field is interpreted as a Query.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_incrementalQuerying",
+            "key": "incrementalQuerying",
+            "label": "Incremental querying (experimental)",
+            "description": "Results may be incomplete or incorrect in some cases. On auto-refresh, query new data and merge it with the cached result. This applies only to relative time ranges without aggregation functions.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_incrementalQueryOverlapWindow",
+            "key": "incrementalQueryOverlapWindow",
+            "label": "Query overlap window",
+            "description": "Time window to re-fetch on each incremental query to catch late-arriving data (e.g. \"10m\", \"30s\", \"1h\"). Changes take effect after saving and reloading.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "10m",
+            "dependsOn": "jsonData_incrementalQuerying == true",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "New cookie (hit enter to add)"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url",
+                "jsonData_mode"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "virtual_authMethod",
+                "secureJsonData_accessToken",
+                "jsonData_oauth2ClientId",
+                "secureJsonData_oauth2ClientSecret",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ]
+        },
+        {
+            "id": "advanced-http",
+            "title": "Advanced settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_keepCookies",
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "description": "Additional settings are optional settings that can be configured for more control over your data source. This includes the default repository or data links.",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_defaultRepository",
+                "jsonData_dataLinks",
+                "jsonData_incrementalQuerying",
+                "jsonData_incrementalQueryOverlapWindow"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_oauth2ClientId",
+                "secureJsonData_oauth2ClientSecret"
+            ],
+            "description": "OAuth2 client credentials: both fields are required together when jsonData.oauth2 is true (custom-oauth-client-secret auth method)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "HTTP Basic auth credentials: both fields are used together when root.basicAuth is true."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_incrementalQuerying",
+                "jsonData_incrementalQueryOverlapWindow"
+            ],
+            "description": "Incremental querying feature: the overlap window is only meaningful when incrementalQuerying is true."
+        },
+        {
+            "type": "datasourceReference",
+            "fields": [
+                "jsonData_dataLinks.item.datasourceUid"
+            ],
+            "description": "Per-data-link internal navigation target: when set, the frontend treats the URL as a Query against the referenced data source."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Four authentication methods are exposed via visibleMethods in src/components/ConfigEditor/ConfigEditor.tsx:274-278. LogScale mode: 'custom-token' (default), 'BasicAuth', 'OAuthForward'. NGSIEM mode: 'custom-oauth-client-secret' only. There is no single discriminator field — the editor and backend read a combination of jsonData.authenticateWithToken, jsonData.oauth2, jsonData.oauthPassThru, and root.basicAuth. Only one of these should be true at a time; the editor's clearAuthSettings() (ConfigEditor.tsx:61-68) enforces mutual exclusivity by resetting all four before setting the newly-selected flag.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "LogScale token auth: set jsonData.authenticateWithToken=true and put the token in secureJsonData.accessToken. Minimal payload: {\"url\":\"https://cloud.humio.com\",\"jsonData\":{\"authenticateWithToken\":true},\"secureJsonData\":{\"accessToken\":\"<token>\"}}. The backend derives its GraphQL endpoint as '<url>/humio/graphql' and its REST endpoint as '<url>/humio' when authenticateWithToken is true (pkg/plugin/settings.go:44-50); without the token flag the endpoints are '<url>/graphql' and '<url>' respectively.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "OAuth2 client credentials (required for NGSIEM mode; also usable in LogScale mode): set jsonData.oauth2=true, provide jsonData.oauth2ClientId and secureJsonData.oauth2ClientSecret. Minimal NGSIEM payload: {\"url\":\"https://api.crowdstrike.com\",\"jsonData\":{\"mode\":\"NGSIEM\",\"oauth2\":true,\"oauth2ClientId\":\"<client-id>\",\"defaultRepository\":\"search-all\"},\"secureJsonData\":{\"oauth2ClientSecret\":\"<client-secret>\"}}. In NGSIEM mode the backend appends '/humio' to the base URL when constructing the client (pkg/plugin/plugin.go:54-56); do not include '/humio' in the configured URL.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Basic auth: set root.basicAuth=true with root.basicAuthUser and secureJsonData.basicAuthPassword. Forward OAuth Identity: set jsonData.oauthPassThru=true (no secret). Both methods are managed by @grafana/plugin-ui's Auth component (via convertLegacyAuthProps in ConfigEditor.tsx:171-174) and require the LogScale mode; they are hidden by the editor in NGSIEM mode.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (accessToken, oauth2ClientSecret, basicAuthPassword) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.accessToken == true) instead of secureJsonData. jsonData.baseUrl is written by the LogScale token authentication component (ConfigEditor.tsx:155) but never read by the backend — treat it as a frontend-only round-trip snapshot of root.url.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection rules: root.url is the datasource URL, read by the backend as config.URL (pkg/plugin/settings.go:38). It is required — the backend returns 'URL can not be blank' (pkg/plugin/settings.go:41) when empty. NGSIEM mode automatically sets jsonData.defaultRepository='search-all' (ConfigEditor.tsx:127-137,193-200) and locks the repository choice to one of ['search-all','investigate_view','third-party'] (src/types.ts:52). Health check uses OAuth2 client credentials in NGSIEM mode and lists repositories via GraphQL in LogScale mode (pkg/plugin/healthcheck.go:26-48).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Custom HTTP headers ARE modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as @grafana/plugin-ui's CustomHeaders component (rendered by convertLegacyAuthProps in ConfigEditor.tsx:171-174) and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The Hello World datasource requires no configuration. jsonData is empty and the placeholder secureJsonData.apiKey (which the plugin never reads) is left empty. This is a complete, working instance-settings payload.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "apiKey": ""
+        }
+      }
+    }
+  }
+}

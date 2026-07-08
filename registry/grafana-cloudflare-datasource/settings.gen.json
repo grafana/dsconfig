@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "cloudflare": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Cloudflare API Key. Provide relevant read-only permissions",
+                        "type": "string",
+                        "default": "bearer_token",
+                        "enum": [
+                          "bearer_token"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "cloudflare.token",
+      "description": "Token for accessing the datasource API"
+    }
+  ]
+}

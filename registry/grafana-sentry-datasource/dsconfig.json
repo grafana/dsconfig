@@ -1,0 +1,141 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-sentry-datasource",
+    "pluginName": "Sentry",
+    "docURL": "https://grafana.com/grafana/plugins/grafana-sentry-datasource/",
+    "fields": [
+        {
+            "id": "jsonData_url",
+            "key": "url",
+            "label": "Sentry URL",
+            "description": "Sentry URL to be used. If left blank, https://sentry.io will be used",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "defaultValue": "https://sentry.io",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://sentry.io"
+            }
+        },
+        {
+            "id": "jsonData_orgSlug",
+            "key": "orgSlug",
+            "label": "Sentry Org",
+            "description": "Sentry Org slug. Typically this will be the last segment of the URL: https://sentry.io/organizations/{organization_slug}/ - only the slug should be entered here",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Sentry org slug"
+            }
+        },
+        {
+            "id": "secureJsonData_authToken",
+            "key": "authToken",
+            "label": "Sentry Auth Token",
+            "description": "Sentry authentication token. Auth tokens can be created from https://sentry.io/settings/{organization_slug}/developer-settings",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Sentry Authentication Token"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "description": "Skip TLS certificate verification. Use this option for self-hosted Sentry instances with self-signed certificates.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "sentry-settings",
+            "title": "Sentry Settings",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_url",
+                "jsonData_orgSlug",
+                "secureJsonData_authToken"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tlsSkipVerify"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_url",
+                "jsonData_orgSlug",
+                "secureJsonData_authToken"
+            ],
+            "description": "Connection to a Sentry organization: the base URL, the org slug it identifies, and the Bearer auth token used against the Sentry API."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Sentry datasource authenticates against the Sentry API using a Bearer token stored in secureJsonData.authToken. Every outgoing request adds an 'Authorization: Bearer <authToken>' header (pkg/sentry/client.go:37-40). There are no other auth methods.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"url\":\"https://sentry.io\",\"orgSlug\":\"<org>\"},\"secureJsonData\":{\"authToken\":\"<token>\"}}. orgSlug and authToken are strictly required — pkg/plugin/settings.go:41-50 returns 'invalid or empty organization slug' or 'empty or invalid auth token found' otherwise. jsonData.url is optional: when omitted the backend defaults it to 'https://sentry.io' (pkg/plugin/settings.go:37-40).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Auth tokens are created in the Sentry UI at https://sentry.io/settings/<organization_slug>/developer-settings — either as user auth tokens or organization auth tokens with sufficient scopes to read the org's projects, issues, events, and stats.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.authToken is write-only: it can be set or reset but never read back. To check whether the token is already configured on an existing datasource, read secureJsonFields.authToken (boolean) instead of secureJsonData.authToken.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.orgSlug is the org slug (the last segment of https://sentry.io/organizations/{organization_slug}/), NOT the org display name or ID. It becomes part of every Sentry REST path the client builds (pkg/sentry/orgs.go, pkg/sentry/projects.go, etc.).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "jsonData.url must be the base URL of the Sentry instance, without a trailing slash. The client string-concatenates request paths onto it (pkg/sentry/sentry.go:54-56 — 'sc.BaseURL + path' where path starts with '/api/0/...'), so a trailing slash produces double-slash API URLs. For self-hosted Sentry with a private CA, set jsonData.tlsSkipVerify=true (pkg/plugin/plugin.go:57-63) — this disables server certificate verification entirely and should only be used with trusted self-signed certificates.",
+            "tags": [
+                "llm",
+                "connection",
+                "tls"
+            ]
+        }
+    ]
+}

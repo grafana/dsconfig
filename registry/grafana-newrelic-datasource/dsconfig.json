@@ -1,0 +1,164 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-newrelic-datasource",
+    "pluginName": "New Relic",
+    "docURL": "https://grafana.com/docs/plugins/grafana-newrelic-datasource",
+    "fields": [
+        {
+            "id": "secureJsonData_personalApiKey",
+            "key": "personalApiKey",
+            "label": "Personal API Key / User API key",
+            "description": "Used for NRQL queries",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Personal API Key"
+            }
+        },
+        {
+            "id": "secureJsonData_accountId",
+            "key": "accountId",
+            "label": "Account ID",
+            "description": "Your New Relic Account ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Account ID"
+            }
+        },
+        {
+            "id": "jsonData_region",
+            "key": "region",
+            "label": "Region",
+            "description": "Region hosting your service",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "placeholder": "default",
+                "options": [
+                    {
+                        "label": "EU",
+                        "value": "EU"
+                    },
+                    {
+                        "label": "US",
+                        "value": "US"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_timeoutInSeconds",
+            "key": "timeoutInSeconds",
+            "label": "Timeout in Seconds",
+            "description": "Enter the timeout in seconds. Defaults to 300",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "defaultValue": 300,
+            "ui": {
+                "component": "input",
+                "placeholder": "300"
+            }
+        },
+        {
+            "id": "jsonData_restBaseURL",
+            "key": "restBaseURL",
+            "description": "Backend-only override for the New Relic REST API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_infrastructureBaseURL",
+            "key": "infrastructureBaseURL",
+            "description": "Backend-only override for the New Relic Infrastructure API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_nerdGraphBaseURL",
+            "key": "nerdGraphBaseURL",
+            "description": "Backend-only override for the New Relic NerdGraph (GraphQL) API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "credentials",
+            "title": "New Relic API Credentials",
+            "order": 1,
+            "fieldRefs": [
+                "secureJsonData_personalApiKey",
+                "secureJsonData_accountId",
+                "jsonData_region",
+                "jsonData_timeoutInSeconds"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "secureJsonData_personalApiKey",
+                "secureJsonData_accountId"
+            ],
+            "description": "New Relic API credentials: the personal/user API key (secureJsonData.personalApiKey) authenticates every NerdGraph/REST request and the account ID (secureJsonData.accountId) scopes NRQL queries as the GraphQL $accountId. Both are required — the backend refuses to create the datasource instance without them (pkg/datasource/handler_checkhealth.go:139-145; pkg/datasource/insights/insights_client.go:24-46; pkg/datasource/newrelic_client.go:43)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The New Relic datasource has a single authentication method: a New Relic user/personal API key in secureJsonData.personalApiKey plus a numeric New Relic account ID in secureJsonData.accountId. There is no auth-type discriminator \u2014 both secrets are always required. The API key authenticates every NerdGraph/REST request (pkg/datasource/newrelic_client.go:43) and the account ID scopes NRQL queries as the GraphQL $accountId (pkg/datasource/insights/insights_client.go:24-46).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"region\":\"US\"},\"secureJsonData\":{\"personalApiKey\":\"<your-newrelic-api-key>\",\"accountId\":\"1234567\"}}. Both secrets are mandatory: the backend fails to create the datasource instance with 'Enter a personal API key.' when personalApiKey is empty or whitespace, and 'Enter an account ID. This must be a valid, positive number.' when accountId is missing or does not parse to a non-zero integer (pkg/datasource/handler_checkhealth.go:35-36,139-145; pkg/models/settings.go:42-46). Create a user key in New Relic (see https://docs.newrelic.com/docs/apis/get-started/intro-apis/types-new-relic-api-keys).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: older datasources stored the account ID in plaintext under jsonData.accountId (alongside jsonData.accountIdConfigured). The config editor migrates it into secureJsonData.accountId and deletes both jsonData keys the first time the config page is opened (src/components/ConfigEditor.tsx:20-40). The backend only ever reads secureJsonData.accountId (pkg/models/settings.go:36), so a legacy datasource that has not been re-saved through the editor will fail the account ID check until migrated.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (personalApiKey, accountId) are write-only: they can be set or reset but never read back. To check whether each is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.personalApiKey == true, secureJsonFields.accountId == true) instead of secureJsonData (src/components/ConfigEditor.tsx:60-61).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.region selects the New Relic data center and must be 'US' or 'EU' (src/types.ts:4,187-190); it is passed to the New Relic client's ConfigRegion only when non-empty (pkg/datasource/newrelic_client.go:47-49), and an empty or absent region falls back to the client default (US). jsonData.timeoutInSeconds is the HTTP timeout in seconds, defaulting to 300 when absent or less than 1 (pkg/models/settings.go:38-40). jsonData.restBaseURL, jsonData.infrastructureBaseURL, and jsonData.nerdGraphBaseURL are backend-only base-URL overrides for internal testing/mocking (pkg/models/settings.go:20-23) \u2014 leave them unset in normal use.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

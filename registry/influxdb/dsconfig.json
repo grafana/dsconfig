@@ -1,0 +1,753 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "influxdb",
+    "pluginName": "InfluxDB",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/influxdb/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:8086"
+            }
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "label": "Basic auth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_withCredentials",
+            "key": "withCredentials",
+            "label": "With Credentials",
+            "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+            "valueType": "boolean",
+            "target": "root",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "user"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying self-signed TLS Certs",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "label": "ServerName",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "New cookie (hit enter to add)"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds.",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_version",
+            "key": "version",
+            "label": "Query language",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "InfluxQL",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "InfluxQL",
+                        "SQL",
+                        "Flux"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "InfluxQL",
+                        "value": "InfluxQL",
+                        "description": "The InfluxDB SQL-like query language."
+                    },
+                    {
+                        "label": "SQL",
+                        "value": "SQL",
+                        "description": "Native SQL language. Supported in InfluxDB 3.0"
+                    },
+                    {
+                        "label": "Flux",
+                        "value": "Flux",
+                        "description": "Supported in InfluxDB 2.x and 1.8+"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_product",
+            "key": "product",
+            "label": "Product",
+            "description": "Use InfluxDB detection to identify the product",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "InfluxDB Cloud Dedicated",
+                        "InfluxDB Cloud Serverless",
+                        "InfluxDB Clustered",
+                        "InfluxDB Enterprise 1.x",
+                        "InfluxDB Enterprise 3.x",
+                        "InfluxDB Cloud (TSM)",
+                        "InfluxDB Cloud 1",
+                        "InfluxDB OSS 1.x",
+                        "InfluxDB OSS 2.x",
+                        "InfluxDB OSS 3.x"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "InfluxDB Cloud Dedicated",
+                        "value": "InfluxDB Cloud Dedicated"
+                    },
+                    {
+                        "label": "InfluxDB Cloud Serverless",
+                        "value": "InfluxDB Cloud Serverless"
+                    },
+                    {
+                        "label": "InfluxDB Clustered",
+                        "value": "InfluxDB Clustered"
+                    },
+                    {
+                        "label": "InfluxDB Enterprise 1.x",
+                        "value": "InfluxDB Enterprise 1.x"
+                    },
+                    {
+                        "label": "InfluxDB Enterprise 3.x",
+                        "value": "InfluxDB Enterprise 3.x"
+                    },
+                    {
+                        "label": "InfluxDB Cloud (TSM)",
+                        "value": "InfluxDB Cloud (TSM)"
+                    },
+                    {
+                        "label": "InfluxDB Cloud 1",
+                        "value": "InfluxDB Cloud 1"
+                    },
+                    {
+                        "label": "InfluxDB OSS 1.x",
+                        "value": "InfluxDB OSS 1.x"
+                    },
+                    {
+                        "label": "InfluxDB OSS 2.x",
+                        "value": "InfluxDB OSS 2.x"
+                    },
+                    {
+                        "label": "InfluxDB OSS 3.x",
+                        "value": "InfluxDB OSS 3.x"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_pdcInjected",
+            "key": "pdcInjected",
+            "description": "Backend-controlled indicator that a Private Datasource Connect (PDC) proxy has been injected into this datasource's HTTP transport. Not editor-writable; read by the v2 LeftSideBar to render PDC-specific section headers (LeftSideBar.tsx:12).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_dbName",
+            "key": "dbName",
+            "label": "Database",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_version == 'InfluxQL' || jsonData_version == 'SQL'",
+            "requiredWhen": "jsonData_version == 'InfluxQL' || jsonData_version == 'SQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "mydb"
+            }
+        },
+        {
+            "id": "root_user",
+            "key": "user",
+            "label": "User",
+            "description": "Legacy root-level user field written by the v1 InfluxQL editor. Distinct from root.basicAuthUser — the v1 editor writes options.user (SDK root User field) while the v2 editor writes options.basicAuthUser (SDK root BasicAuthUser field). Not consumed by the current backend or the SDK HTTPClientOptions auth handler; effectively a display-only echo unless the operator also enables root.basicAuth so the SDK reads basicAuthUser instead.",
+            "valueType": "string",
+            "target": "root",
+            "dependsOn": "jsonData_version == 'InfluxQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "myuser"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "description": "Legacy secure password paired with root.user for the v1 InfluxQL editor's User + Password inputs. Distinct from secureJsonData.basicAuthPassword. Not consumed by the current backend or SDK HTTP auth path.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_version == 'InfluxQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_httpMode",
+            "key": "httpMode",
+            "label": "HTTP Method",
+            "description": "You can use either GET or POST HTTP method to query your InfluxDB database. The POST method allows you to perform heavy requests (with a lots of WHERE clause) while the GET method will restrict you and return an error if the query is too large.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "GET",
+            "dependsOn": "jsonData_version == 'InfluxQL'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "GET",
+                        "POST"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "GET",
+                        "value": "GET"
+                    },
+                    {
+                        "label": "POST",
+                        "value": "POST"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_timeInterval",
+            "key": "timeInterval",
+            "label": "Min time interval",
+            "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_version == 'InfluxQL' || jsonData_version == 'Flux'",
+            "ui": {
+                "component": "input",
+                "placeholder": "10s"
+            }
+        },
+        {
+            "id": "jsonData_showTagTime",
+            "key": "showTagTime",
+            "label": "Autocomplete range",
+            "description": "This time range is used in the query editor's autocomplete to reduce the execution time of tag filter queries.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_version == 'InfluxQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "12h"
+            }
+        },
+        {
+            "id": "jsonData_organization",
+            "key": "organization",
+            "label": "Organization",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_version == 'Flux'",
+            "requiredWhen": "jsonData_version == 'Flux'",
+            "ui": {
+                "component": "input",
+                "placeholder": "myorg"
+            }
+        },
+        {
+            "id": "secureJsonData_token",
+            "key": "token",
+            "label": "Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_version == 'Flux' || jsonData_version == 'SQL'",
+            "requiredWhen": "jsonData_version == 'Flux' || jsonData_version == 'SQL'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token"
+            }
+        },
+        {
+            "id": "jsonData_defaultBucket",
+            "key": "defaultBucket",
+            "label": "Default Bucket",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_version == 'Flux'",
+            "requiredWhen": "jsonData_version == 'Flux'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default bucket"
+            }
+        },
+        {
+            "id": "jsonData_insecureGrpc",
+            "key": "insecureGrpc",
+            "label": "Insecure Connection",
+            "description": "Disable TLS for the FlightSQL gRPC connection used by the SQL query path.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_version == 'SQL'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_maxSeries",
+            "key": "maxSeries",
+            "label": "Max series",
+            "description": "Limit the number of series/tables that Grafana will process. Lower this number to prevent abuse, and increase it if you have lots of small time series and not all are shown. Defaults to 1000.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 1000,
+            "ui": {
+                "component": "input",
+                "placeholder": "1000"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "HTTP",
+            "order": 1,
+            "fieldRefs": [
+                "root_url",
+                "jsonData_keepCookies",
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Auth",
+            "order": 2,
+            "fieldRefs": [
+                "root_basicAuth",
+                "root_withCredentials",
+                "jsonData_tlsAuth",
+                "jsonData_tlsAuthWithCACert",
+                "jsonData_tlsSkipVerify",
+                "jsonData_oauthPassThru",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ]
+        },
+        {
+            "id": "tls-details",
+            "title": "TLS/SSL Auth Details",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_serverName",
+                "secureJsonData_tlsCACert",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ]
+        },
+        {
+            "id": "query-language",
+            "title": "Query language",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_version",
+                "jsonData_product"
+            ]
+        },
+        {
+            "id": "influxql-details",
+            "title": "InfluxDB Details (InfluxQL)",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_dbName",
+                "root_user",
+                "secureJsonData_password",
+                "jsonData_httpMode",
+                "jsonData_timeInterval",
+                "jsonData_showTagTime"
+            ]
+        },
+        {
+            "id": "flux-details",
+            "title": "InfluxDB Details (Flux)",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_organization",
+                "secureJsonData_token",
+                "jsonData_defaultBucket"
+            ]
+        },
+        {
+            "id": "sql-details",
+            "title": "InfluxDB Details (SQL)",
+            "order": 7,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_insecureGrpc"
+            ]
+        },
+        {
+            "id": "other-settings",
+            "title": "Other settings",
+            "order": 8,
+            "fieldRefs": [
+                "jsonData_maxSeries",
+                "jsonData_pdcInjected"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic auth credentials written by the v2 editor's Basic authentication method (AuthSettings.tsx:161-183). Both fields are used together when root.basicAuth is true; the SDK reads them via HTTPClientOptions."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "root_user",
+                "secureJsonData_password"
+            ],
+            "description": "Legacy v1 InfluxQL User + Password pair (InfluxInfluxQLConfig.tsx:84-108). Distinct from basicAuthUser/basicAuthPassword and not consumed by the current backend."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS mutual auth: enabling jsonData.tlsAuth reveals the ServerName input and the Client Cert / Client Key secret slots. All three are required for a working mTLS handshake."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Self-signed / custom CA verification: enabling jsonData.tlsAuthWithCACert requires the CA certificate PEM in secureJsonData.tlsCACert."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_version",
+                "jsonData_dbName",
+                "jsonData_httpMode",
+                "jsonData_showTagTime"
+            ],
+            "description": "InfluxQL storage group: jsonData.version='InfluxQL' selects the InfluxQL query path (pkg/influxdb/influxdb.go:100-101). dbName is written into the ?db= URL query param at pkg/influxdb/influxql/influxql.go:176; httpMode chooses GET vs POST (influxql.go:157-173); showTagTime becomes withTimeFilter on tag-filter metadata queries (src/datasource.ts:447)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_version",
+                "jsonData_organization",
+                "jsonData_defaultBucket",
+                "secureJsonData_token"
+            ],
+            "description": "Flux storage group: jsonData.version='Flux' selects the Flux query path (pkg/influxdb/influxdb.go:98-99). organization + defaultBucket + token are consumed by pkg/influxdb/flux."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_version",
+                "jsonData_dbName",
+                "jsonData_insecureGrpc",
+                "secureJsonData_token"
+            ],
+            "description": "SQL (FlightSQL) storage group: jsonData.version='SQL' selects the FlightSQL path (pkg/influxdb/influxdb.go:102-103). dbName + token + insecureGrpc flags feed the pkg/influxdb/fsql client."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "InfluxDB is a multi-modal datasource — the discriminator is jsonData.version ('InfluxQL' | 'SQL' | 'Flux'), which selects the query path in pkg/influxdb/influxdb.go:97-107. Auth is NOT a single method: InfluxQL uses root.user + secureJsonData.password (legacy 1.x direct DB auth, not currently wired to the HTTP client) OR HTTP Basic (root.basicAuth + root.basicAuthUser + secureJsonData.basicAuthPassword) for InfluxDB OSS 2.x; Flux and SQL use secureJsonData.token (Bearer). The v1 editor's onVersionChanged force-sets root.basicAuth=true + root.access='proxy' + jsonData.httpMode='POST' when Flux is picked (ConfigEditor.tsx:62-65). root.withCredentials is an independent cross-site cookie toggle. jsonData.oauthPassThru is an independent Forward-OAuth toggle usable with any version.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal InfluxQL 1.x payload: {\"url\":\"http://localhost:8086\",\"basicAuth\":true,\"basicAuthUser\":\"<user>\",\"jsonData\":{\"version\":\"InfluxQL\",\"dbName\":\"mydb\",\"httpMode\":\"GET\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. Minimal Flux payload: {\"url\":\"http://localhost:8086\",\"jsonData\":{\"version\":\"Flux\",\"organization\":\"myorg\",\"defaultBucket\":\"mybucket\",\"httpMode\":\"POST\"},\"secureJsonData\":{\"token\":\"<token>\"}}. Minimal SQL (InfluxDB 3.x FlightSQL) payload: {\"url\":\"https://us-east-1-1.aws.cloud2.influxdata.com\",\"jsonData\":{\"version\":\"SQL\",\"dbName\":\"mydb\"},\"secureJsonData\":{\"token\":\"<token>\"}}. root.url is required — the backend reads settings.URL directly (pkg/influxdb/influxdb.go:72). The backend also falls back to root.database (legacy) when jsonData.dbName is empty (pkg/influxdb/influxdb.go:58-61).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: pre-jsonData datasources stored the database as root.database and the InfluxQL user's password as secureJsonData.password paired with root.user. The v1 editor still reads options.user + secureJsonData.password (InfluxInfluxQLConfig.tsx:87,100) but writes any new database entry to jsonData.dbName while blanking root.database (InfluxInfluxQLConfig.tsx:65-72). The backend uses jsonData.dbName if set, else settings.Database (root) as fallback. The v2 editor drops root.user/secureJsonData.password entirely — Basic auth in v2 goes through root.basicAuthUser + secureJsonData.basicAuthPassword (AuthSettings.tsx:164-179).",
+            "tags": [
+                "llm",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "TLS is independent of the query language and auth method. jsonData.tlsAuth=true enables mTLS and requires jsonData.serverName plus secureJsonData.tlsClientCert and secureJsonData.tlsClientKey. jsonData.tlsAuthWithCACert=true enables server-cert verification against a custom CA and requires secureJsonData.tlsCACert. jsonData.tlsSkipVerify=true bypasses verification. All TLS fields are consumed by settings.HTTPClientOptions(ctx) at pkg/influxdb/influxdb.go:27. Note jsonData.insecureGrpc is a separate flag that disables TLS on the SQL (FlightSQL) gRPC transport only, not on the HTTP client used by InfluxQL/Flux.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (token, password, basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.token == true) instead of secureJsonData. Custom HTTP headers ARE now modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as the @grafana/ui CustomHeadersSettings component (rendered by the v2 editor's AdvancedHttpSettings.tsx:102) and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection quirks: the v1 editor rejects options.access='direct' (Browser mode) with a hard error banner and refuses queries (ConfigEditor.tsx:107-111 + datasource.ts:105-108); provisioning should always set access='proxy'. onVersionChanged for Flux forces access='proxy', basicAuth=true, httpMode='POST' in one shot and deletes root.user + root.database (ConfigEditor.tsx:62-73). jsonData.httpMode defaults to 'GET' via backend fallback (pkg/influxdb/influxdb.go:43-46). jsonData.maxSeries defaults to 1000 via backend fallback (pkg/influxdb/influxdb.go:48-51). URL should not include a trailing /query or /api segment — the backend joins those paths itself (influxql.go:153).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

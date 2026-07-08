@@ -1,0 +1,405 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-aurora-datasource",
+    "pluginName": "Amazon Aurora",
+    "docURL": "https://grafana.com/docs/plugins/grafana-aurora-datasource",
+    "fields": [
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Workspace IAM Role",
+                        "value": "ec2_iam_role"
+                    },
+                    {
+                        "label": "Grafana Assume Role",
+                        "value": "grafana_assume_role"
+                    },
+                    {
+                        "label": "AWS SDK Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Access & secret key",
+                        "value": "keys"
+                    },
+                    {
+                        "label": "Credentials file",
+                        "value": "credentials"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_profile",
+            "key": "profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "secureJsonData_accessKey",
+            "key": "accessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_secretKey",
+            "key": "secretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.sessionToken",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_assumeRoleArn",
+            "key": "assumeRoleArn",
+            "label": "Assume Role ARN",
+            "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+                    "message": "When set, must be a valid IAM role ARN, e.g. arn:aws:iam::123456789012:role/MyRole"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "arn:aws:iam:*"
+            }
+        },
+        {
+            "id": "jsonData_externalId",
+            "key": "externalId",
+            "label": "External ID",
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
+            "id": "jsonData_endpoint",
+            "key": "endpoint",
+            "label": "Endpoint",
+            "description": "Optionally, specify a custom endpoint for the service",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://{service}.{region}.amazonaws.com"
+            }
+        },
+        {
+            "id": "jsonData_defaultRegion",
+            "key": "defaultRegion",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_engine",
+            "key": "engine",
+            "label": "Engine",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "aurora-postgres",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "aurora-postgres",
+                        "aurora-mysql"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Aurora (PostgreSQL Compatible)",
+                        "value": "aurora-postgres"
+                    },
+                    {
+                        "label": "Aurora (MySQL Compatible)",
+                        "value": "aurora-mysql"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_dbName",
+            "key": "dbName",
+            "label": "Database Name",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Database"
+            }
+        },
+        {
+            "id": "jsonData_dbUser",
+            "key": "dbUser",
+            "label": "Database User",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "postgres"
+            }
+        },
+        {
+            "id": "jsonData_dbHost",
+            "key": "dbHost",
+            "label": "Database Host",
+            "description": "You can connect to all the read replicas on your Amazon Aurora cluster through a single reader endpoint. Read more about it here (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Reader).",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.domain",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Host"
+            }
+        },
+        {
+            "id": "jsonData_dbPort",
+            "key": "dbPort",
+            "label": "Database Port",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "endpoint.port",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "5432"
+            }
+        },
+        {
+            "id": "jsonData_dbHostAuth",
+            "key": "dbHostAuth",
+            "label": "Advanced: DB Host For Auth",
+            "description": "Optional, if not provided, the dbHost above will be used.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "separate host for generating auth token"
+            }
+        },
+        {
+            "id": "jsonData_dbPortAuth",
+            "key": "dbPortAuth",
+            "label": "Advanced: DB Port For Auth",
+            "description": "Optional, if not provided, the dbPort above will be used.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "separate port for generating auth token"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_profile",
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey",
+                "secureJsonData_sessionToken"
+            ]
+        },
+        {
+            "id": "assume-role",
+            "title": "Assume Role",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "order": 3,
+            "fieldRefs": [
+                "jsonData_endpoint",
+                "jsonData_defaultRegion"
+            ]
+        },
+        {
+            "id": "database-settings",
+            "title": "Database Settings",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_engine",
+                "jsonData_dbName",
+                "jsonData_dbUser",
+                "jsonData_dbHost",
+                "jsonData_dbPort"
+            ]
+        },
+        {
+            "id": "advanced-auth-endpoint",
+            "title": "Advanced: Separate Host and Port for Auth",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_dbHostAuth",
+                "jsonData_dbPortAuth"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey"
+            ],
+            "description": "AWS access key pair — supplied together when authType is 'keys'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ],
+            "description": "STS assume-role parameters — external ID is only meaningful when assumeRoleArn is set"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_dbHost",
+                "jsonData_dbPort",
+                "jsonData_dbHostAuth",
+                "jsonData_dbPortAuth"
+            ],
+            "description": "Aurora endpoint pair — dbHost/dbPort is used for query traffic; when dbHostAuth or dbPortAuth is set they are used instead for the RDS IAM auth-token endpoint (typical for setups where a load balancer sits between Grafana and the cluster)"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_engine",
+                "jsonData_dbPort"
+            ],
+            "description": "Aurora engine drives the default port hint in the editor: 5432 for aurora-postgres, 3306 for aurora-mysql (schema pins placeholder to 5432 — the default engine)"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Aurora authenticates to the database with an RDS IAM auth token — there is no password field. AWS credentials come from jsonData.authType (default 'default'): 'default' (AWS SDK Default), 'keys' (put accessKey/secretKey in secureJsonData), 'credentials' (optionally provide jsonData.profile), 'ec2_iam_role' (Workspace IAM Role), 'grafana_assume_role' (Grafana Cloud only). The sixth allowed value 'arn' is a legacy stored value the backend maps to 'default' via awsds.AuthType.UnmarshalJSON.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payload per (AWS auth × engine). Access & secret key + Aurora Postgres: {\"jsonData\":{\"authType\":\"keys\",\"defaultRegion\":\"us-east-1\",\"engine\":\"aurora-postgres\",\"dbHost\":\"my-cluster.cluster-xxx.us-east-1.rds.amazonaws.com\",\"dbPort\":5432,\"dbName\":\"mydb\",\"dbUser\":\"iam_user\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\"}}. AWS SDK Default + Aurora MySQL: {\"jsonData\":{\"authType\":\"default\",\"defaultRegion\":\"us-east-1\",\"engine\":\"aurora-mysql\",\"dbHost\":\"my-cluster.cluster-xxx.us-east-1.rds.amazonaws.com\",\"dbPort\":3306,\"dbName\":\"mydb\",\"dbUser\":\"iam_user\"}}. jsonData.dbUser, dbHost, and dbPort are always required (dbUser is the DB principal the IAM auth token will impersonate; the backend builds the token endpoint as `${dbHost}:${dbPort}`).",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Assume role: setting jsonData.assumeRoleArn (with optional jsonData.externalId) makes the chosen provider assume the given IAM role via STS instead of using the credentials directly. This works with every auth type except 'grafana_assume_role' (which manages its own trust flow). The assumed role must be granted `rds-db:connect` on the target database user for the auth token to be accepted.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy engine fallback: if jsonData.engine is missing or unrecognized, the backend falls back to 'aurora-postgres' at connect time (pkg/plugin/connect.go:83-85, 135-138) to keep two beta customers who used the plugin before the engine field existed working. New configs should always set jsonData.engine explicitly. Legacy AWS auth value 'arn' is normalised to 'default' by the shared awsds.AuthType.UnmarshalJSON.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (accessKey, secretKey, sessionToken) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.accessKey == true) instead of secureJsonData. Session token is backend-only — no editor UI writes it, but pkg/plugin/driver.go:112 still reads it from decrypted secure data. Pair it with authType == 'keys' for temporary AWS STS credentials via provisioning: {\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\",\"sessionToken\":\"<STS-TOKEN>\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Optional split-endpoint: when Grafana connects to Aurora through a load balancer, the RDS auth token must be signed with the primary cluster endpoint rather than the LB address. Populate jsonData.dbHostAuth and/or jsonData.dbPortAuth (both optional and independent — either falls back to dbHost/dbPort when empty) to use a separate host/port for the RDS `generate-db-auth-token` call. The backend still uses jsonData.dbHost/dbPort for the actual SQL connection (pkg/plugin/connect.go:56-67). jsonData.dbName is passed to the SQL driver DSN but does not affect the RDS auth token itself.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

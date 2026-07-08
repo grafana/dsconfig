@@ -1,0 +1,83 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "server"
+        ],
+        "properties": {
+          "databaseName": {
+            "description": "Tenant database name (optional). If database name is set as well as the instance number, port is not required.",
+            "type": "string"
+          },
+          "defaultSchema": {
+            "description": "Default schema to be used. Can be empty.",
+            "type": "string"
+          },
+          "instance": {
+            "description": "SAP HANA tenant instance number (optional). If instance number is set, port is not required.",
+            "type": "string"
+          },
+          "port": {
+            "description": "SAP HANA server port (optional if database name filled). Typically this will be 443 for SAP HANA Cloud. For on-prem/multi-tenanted instances, use the corresponding port number",
+            "type": "number",
+            "x-dsconfig-required-when": "jsonData_instance == '' || jsonData_databaseName == ''"
+          },
+          "server": {
+            "description": "SAP HANA server address",
+            "type": "string"
+          },
+          "timeout": {
+            "type": "string",
+            "default": "30"
+          },
+          "tlsAuth": {
+            "description": "TLS Client Auth",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_tlsDisabled != true"
+          },
+          "tlsAuthWithCACert": {
+            "description": "Needed for verifying self-signed TLS Certs",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_tlsDisabled != true"
+          },
+          "tlsDisabled": {
+            "description": "Enable TLS/SSL encryption for the connection to SAP HANA. Enabled by default. Disable only when your SAP HANA instance does not have TLS configured (plaintext connections).",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "description": "Skip TLS Verify",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_tlsDisabled != true"
+          },
+          "username": {
+            "description": "SAP HANA username",
+            "type": "string",
+            "x-dsconfig-required-when": "jsonData_tlsAuth != true"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password",
+      "description": "SAP HANA password"
+    },
+    {
+      "key": "tlsClientCert"
+    },
+    {
+      "key": "tlsClientKey"
+    },
+    {
+      "key": "tlsCACert"
+    }
+  ]
+}

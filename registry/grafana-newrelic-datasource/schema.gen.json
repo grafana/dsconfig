@@ -1,0 +1,109 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "infrastructureBaseURL": {
+              "description": "Backend-only override for the New Relic Infrastructure API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+              "type": "string"
+            },
+            "nerdGraphBaseURL": {
+              "description": "Backend-only override for the New Relic NerdGraph (GraphQL) API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+              "type": "string"
+            },
+            "region": {
+              "description": "Region hosting your service",
+              "type": "string",
+              "enum": [
+                "EU",
+                "US"
+              ]
+            },
+            "restBaseURL": {
+              "description": "Backend-only override for the New Relic REST API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+              "type": "string"
+            },
+            "timeoutInSeconds": {
+              "description": "Enter the timeout in seconds. Defaults to 300",
+              "type": "number",
+              "default": 300
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "personalApiKey",
+        "description": "Used for NRQL queries",
+        "required": true
+      },
+      {
+        "key": "accountId",
+        "description": "Your New Relic Account ID",
+        "required": true
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the 300s HTTP timeout and no region selected (the New Relic client falls back to US). Both secrets are empty here — secureJsonData.personalApiKey and secureJsonData.accountId must be filled in for the datasource to load (pkg/datasource/handler_checkhealth.go:139-145).",
+        "value": {
+          "jsonData": {
+            "timeoutInSeconds": 300
+          },
+          "secureJsonData": {
+            "accountId": "",
+            "personalApiKey": ""
+          }
+        }
+      },
+      "euRegion": {
+        "summary": "EU region with a custom timeout",
+        "description": "Connection to the New Relic EU data center with a 600s HTTP timeout. region must be 'US' or 'EU' (src/types.ts:4,187-190); it is passed to the New Relic client's ConfigRegion (pkg/datasource/newrelic_client.go:47-49).",
+        "value": {
+          "jsonData": {
+            "region": "EU",
+            "timeoutInSeconds": 600
+          },
+          "secureJsonData": {
+            "accountId": "1234567",
+            "personalApiKey": "\u003cyour-newrelic-api-key\u003e"
+          }
+        }
+      },
+      "legacyAccountIdInJsonData": {
+        "summary": "Legacy: account ID stored in jsonData",
+        "description": "A pre-migration datasource that stored the account ID in plaintext under jsonData.accountId. The backend reads only secureJsonData.accountId (pkg/models/settings.go:36), so this datasource fails the account-ID check until the config editor migrates it (src/components/ConfigEditor.tsx:20-40) — open and re-save the config page. personalApiKey is already in secureJsonData.",
+        "value": {
+          "jsonData": {
+            "accountId": "1234567",
+            "region": "US"
+          },
+          "secureJsonData": {
+            "personalApiKey": "\u003cyour-newrelic-api-key\u003e"
+          }
+        }
+      },
+      "usRegion": {
+        "summary": "US region",
+        "description": "Standard configuration against the New Relic US data center. timeoutInSeconds is omitted, so the backend applies the 300s default (pkg/models/settings.go:38-40). The API key authenticates requests and the numeric account ID scopes NRQL queries.",
+        "value": {
+          "jsonData": {
+            "region": "US"
+          },
+          "secureJsonData": {
+            "accountId": "1234567",
+            "personalApiKey": "\u003cyour-newrelic-api-key\u003e"
+          }
+        }
+      }
+    }
+  }
+}

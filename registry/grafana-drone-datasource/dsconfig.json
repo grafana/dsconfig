@@ -1,0 +1,124 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-drone-datasource",
+    "pluginName": "Drone",
+    "docURL": "https://grafana.com/docs/plugins/grafana-drone-datasource",
+    "fields": [
+        {
+            "id": "jsonData_variables_url",
+            "key": "url",
+            "section": "variables",
+            "label": "URL",
+            "description": "The URL of the Drone server, including `https://` and without trailing `/`",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "role": "endpoint.baseUrl",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_services_drone_auth_id",
+            "key": "id",
+            "section": "services.drone.auth",
+            "label": "Drone API token",
+            "description": "You can find your API token under <YOUR_DRONE_URL>/account",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "auth_bearer",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "auth_bearer"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Drone API token",
+                        "value": "auth_bearer"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_drone_token",
+            "key": "drone.token",
+            "label": "Token",
+            "description": "Token for accessing the datasource API",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_services_drone_auth_id == 'auth_bearer'",
+            "requiredWhen": "jsonData_services_drone_auth_id == 'auth_bearer'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "description": "Provide information to connect to the data source",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_variables_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_services_drone_auth_id",
+                "secureJsonData_drone_token"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Drone configuration is stored under a service-keyed jsonData shape: jsonData.services.drone.* holds per-service settings and jsonData.variables.<name> holds connection variables, while secrets use flat dotted secureJsonData keys of the form \"drone.<secret>\". There is a single service with id 'drone'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses a Drone API token (bearer). jsonData.services.drone.auth.id is 'auth_bearer' (the backend defaults to it) and the token is the write-only secret at secureJsonData key \"drone.token\". You can find your API token under <YOUR_DRONE_URL>/account.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"drone\":{\"auth\":{\"id\":\"auth_bearer\"}}},\"variables\":{\"url\":\"https://drone.example.com\"}},\"secureJsonData\":{\"drone.token\":\"<drone-api-token>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is built from the 'url' variable as {url}/api. Set jsonData.variables.url to the Drone server URL including https:// and without a trailing slash (e.g. https://drone.example.com). The single server is fixed, so no server selector is shown.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"drone.token\" is write-only: it can be set or reset but never read back. To check whether it is already configured, read secureJsonFields[\"drone.token\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

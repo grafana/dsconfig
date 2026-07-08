@@ -1,0 +1,445 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-databricks-datasource",
+    "pluginName": "Databricks",
+    "docURL": "https://grafana.com/docs/plugins/grafana-databricks-datasource",
+    "fields": [
+        {
+            "id": "jsonData_host",
+            "key": "host",
+            "label": "Host",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "https://your-databricks-instance.com"
+            }
+        },
+        {
+            "id": "jsonData_httpPath",
+            "key": "httpPath",
+            "label": "Http Path",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "/sql/protocolv1/o/0/1234567890"
+            }
+        },
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Type",
+            "description": "Authentication type of Databricks",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "Pat",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Pat",
+                        "OauthPT",
+                        "OauthM2M",
+                        "OauthOBO",
+                        "AzureM2M"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Personal Access Token",
+                        "value": "Pat"
+                    },
+                    {
+                        "label": "OAuth Passthrough",
+                        "value": "OauthPT"
+                    },
+                    {
+                        "label": "OAuth M2M",
+                        "value": "OauthM2M"
+                    },
+                    {
+                        "label": "Azure (On-Behalf-Of)",
+                        "value": "OauthOBO"
+                    },
+                    {
+                        "label": "Azure Entra ID M2M",
+                        "value": "AzureM2M"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_token",
+            "key": "token",
+            "label": "Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_authType == 'Pat' || jsonData_authType == ''",
+            "requiredWhen": "jsonData_authType == 'Pat' || jsonData_authType == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX"
+            }
+        },
+        {
+            "id": "jsonData_azureCredentials",
+            "key": "azureCredentials",
+            "description": "Discriminated-union credentials object written by the `@grafana/azure-sdk` `AzureCredentialsForm` when authType is 'OauthOBO'. Shape: `{ authType: 'clientsecret-obo', azureCloud, tenantId, clientId }` (the client secret is stored write-only in secureJsonData.azureClientSecret). Parsed by the backend via `azcredentials.FromDatasourceData` (pkg/models/settings.go:121-139).",
+            "valueType": "any",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'OauthOBO'",
+            "requiredWhen": "jsonData_authType == 'OauthOBO'",
+            "tags": [
+                "azure",
+                "sdk-managed"
+            ]
+        },
+        {
+            "id": "secureJsonData_azureClientSecret",
+            "key": "azureClientSecret",
+            "label": "Client Secret",
+            "description": "App Registration client secret for Azure On-Behalf-Of (authType 'OauthOBO'). Written write-only by `@grafana/azure-sdk`; check `secureJsonFields.azureClientSecret` on the read side.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_authType == 'OauthOBO'",
+            "requiredWhen": "jsonData_authType == 'OauthOBO'",
+            "tags": [
+                "azure",
+                "sdk-managed"
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "Client Secret"
+            }
+        },
+        {
+            "id": "jsonData_clientId",
+            "key": "clientId",
+            "label": "Client ID",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "dependsOn": "jsonData_authType == 'OauthM2M' || jsonData_authType == 'AzureM2M'",
+            "requiredWhen": "jsonData_authType == 'OauthM2M' || jsonData_authType == 'AzureM2M'",
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX-XXXXXXXX-XXXX-XXXXXXXXXXXX"
+            }
+        },
+        {
+            "id": "secureJsonData_clientSecret",
+            "key": "clientSecret",
+            "label": "Client Secret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "jsonData_authType == 'OauthM2M' || jsonData_authType == 'AzureM2M'",
+            "requiredWhen": "jsonData_authType == 'OauthM2M' || jsonData_authType == 'AzureM2M'",
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+            }
+        },
+        {
+            "id": "jsonData_tenantId",
+            "key": "tenantId",
+            "label": "Directory (tenant) ID",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'AzureM2M'",
+            "requiredWhen": "jsonData_authType == 'AzureM2M'",
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+            }
+        },
+        {
+            "id": "jsonData_azureCloud",
+            "key": "azureCloud",
+            "label": "Azure Cloud",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "AzureCloud",
+            "dependsOn": "jsonData_authType == 'AzureM2M'",
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Azure",
+                        "value": "AzureCloud"
+                    },
+                    {
+                        "label": "Azure China",
+                        "value": "AzureChinaCloud"
+                    },
+                    {
+                        "label": "Azure US Government",
+                        "value": "AzureUSGovernment"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "description": "Set to true automatically when authType is 'OauthPT' (OAuth Passthrough) or 'OauthOBO' (Azure On-Behalf-Of) so Grafana forwards the caller's OAuth identity to Databricks. The backend hard-fails On-Behalf-Of auth if this is not true (pkg/models/settings.go:141-143, ErrInvalidOAuth). No editor UI — written as a side-effect of selecting the auth type.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "tags": [
+                "sdk-managed"
+            ]
+        },
+        {
+            "id": "jsonData_retries",
+            "key": "retries",
+            "label": "Retries",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "5"
+            }
+        },
+        {
+            "id": "jsonData_pause",
+            "key": "pause",
+            "label": "Pause",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "0"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "60"
+            }
+        },
+        {
+            "id": "jsonData_rows",
+            "key": "rows",
+            "label": "Max Rows",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "10000"
+            }
+        },
+        {
+            "id": "jsonData_retryTimeout",
+            "key": "retryTimeout",
+            "label": "Retry Timeout",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "40"
+            }
+        },
+        {
+            "id": "jsonData_debug",
+            "key": "debug",
+            "label": "Debug",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "jsonData_enableUnitySupport",
+            "key": "enableUnitySupport",
+            "label": "Unity Catalog Support",
+            "description": "Enable Unity Catalog support for 3-level namespace (catalog.schema.table)",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "jsonData_defaultQueryFormat",
+            "key": "defaultQueryFormat",
+            "label": "Default Query Format",
+            "valueType": "number",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        0,
+                        1
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Timeseries",
+                        "value": 0
+                    },
+                    {
+                        "label": "Table",
+                        "value": 1
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_cloudFetch",
+            "key": "cloudFetch",
+            "description": "Enables Databricks CloudFetch (parallel result download) in the SQL connector. Not exposed in the configuration editor; the backend force-sets it to true on every load unless the `disableCloudFetch` Grafana feature toggle is enabled (pkg/models/settings.go:161-168).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": true,
+            "tags": [
+                "backend-only"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_host",
+                "jsonData_httpPath"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authType",
+                "secureJsonData_token",
+                "jsonData_azureCredentials",
+                "secureJsonData_azureClientSecret",
+                "jsonData_clientId",
+                "secureJsonData_clientSecret",
+                "jsonData_tenantId",
+                "jsonData_azureCloud"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 3,
+            "fieldRefs": [
+                "jsonData_retries",
+                "jsonData_pause",
+                "jsonData_timeout",
+                "jsonData_rows",
+                "jsonData_retryTimeout",
+                "jsonData_debug",
+                "jsonData_enableUnitySupport",
+                "jsonData_defaultQueryFormat"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_host",
+                "jsonData_httpPath"
+            ],
+            "description": "Databricks SQL warehouse connection target: server hostname (host) plus the warehouse/cluster HTTP path."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_clientId",
+                "secureJsonData_clientSecret"
+            ],
+            "description": "OAuth M2M / Azure Entra ID M2M service-principal credentials: client ID (jsonData) + client secret (secureJsonData)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_azureCloud",
+                "jsonData_tenantId",
+                "jsonData_clientId",
+                "secureJsonData_clientSecret"
+            ],
+            "description": "Azure Entra ID M2M credentials: azure cloud, directory (tenant) ID, application (client) ID, and client secret."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_azureCredentials",
+                "secureJsonData_azureClientSecret",
+                "jsonData_oauthPassThru"
+            ],
+            "description": "Azure On-Behalf-Of credentials: the azureCredentials object (tenant/client/cloud) plus the write-only azureClientSecret; oauthPassThru must be true for the backend to accept On-Behalf-Of auth."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Databricks datasource selects one of five authentication methods via jsonData.authType: 'Pat' (Personal Access Token — the default), 'OauthPT' (OAuth Passthrough — forwards the signed-in user's OAuth token), 'OauthM2M' (Databricks service-principal OAuth), 'OauthOBO' (Azure On-Behalf-Of), and 'AzureM2M' (Azure Entra ID service-principal). Configure exactly one method; only the selected method's fields are read. A missing/empty authType is treated as 'Pat' (legacy behavior). Every method also requires jsonData.host and jsonData.httpPath.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Personal Access Token: set jsonData.authType='Pat' and put the token in secureJsonData.token. Minimal payload: {\"jsonData\":{\"authType\":\"Pat\",\"host\":\"<host>\",\"httpPath\":\"<path>\"},\"secureJsonData\":{\"token\":\"<pat>\"}}. OAuth Passthrough: set jsonData.authType='OauthPT' (jsonData.oauthPassThru becomes true) and configure no secret — the backend uses the OAuth token forwarded from the signed-in user's Grafana session.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "OAuth M2M (Databricks service principal): set jsonData.authType='OauthM2M', jsonData.clientId, and secureJsonData.clientSecret. Minimal payload: {\"jsonData\":{\"authType\":\"OauthM2M\",\"host\":\"<host>\",\"httpPath\":\"<path>\",\"clientId\":\"<uuid>\"},\"secureJsonData\":{\"clientSecret\":\"<secret>\"}}. Both clientId and clientSecret are mandatory.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Azure Entra ID M2M: set jsonData.authType='AzureM2M', jsonData.tenantId, jsonData.clientId, jsonData.azureCloud (one of 'AzureCloud', 'AzureChinaCloud', 'AzureUSGovernment'; defaults to 'AzureCloud'), and secureJsonData.clientSecret. Minimal payload: {\"jsonData\":{\"authType\":\"AzureM2M\",\"host\":\"<host>\",\"httpPath\":\"<path>\",\"tenantId\":\"<uuid>\",\"clientId\":\"<uuid>\",\"azureCloud\":\"AzureCloud\"},\"secureJsonData\":{\"clientSecret\":\"<secret>\"}}. tenantId, clientId, and clientSecret are all mandatory. Note: the backend struct tags these clientID/tenantID but Go's case-insensitive JSON unmarshal reads the editor's clientId/tenantId keys.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Azure On-Behalf-Of: set jsonData.authType='OauthOBO' and store credentials in the jsonData.azureCredentials object plus secureJsonData.azureClientSecret. jsonData.oauthPassThru must be true or the backend rejects the datasource (ErrInvalidOAuth). Minimal payload: {\"jsonData\":{\"authType\":\"OauthOBO\",\"host\":\"<host>\",\"httpPath\":\"<path>\",\"oauthPassThru\":true,\"azureCredentials\":{\"authType\":\"clientsecret-obo\",\"azureCloud\":\"AzureCloud\",\"tenantId\":\"<uuid>\",\"clientId\":\"<uuid>\"}},\"secureJsonData\":{\"azureClientSecret\":\"<secret>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection & secrets: jsonData.host is the Databricks server hostname (the backend connects on port 443) and jsonData.httpPath is the SQL warehouse / cluster HTTP path; the editor strips leading and trailing slashes from httpPath. All secure values (token, clientSecret, azureClientSecret) are write-only — set or reset them but never read them back; check the secureJsonFields object (e.g. secureJsonFields.token == true) to detect whether a secret is already configured. Databricks Community Edition hosts only work with 'OauthM2M'.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure",
+                "connection"
+            ]
+        }
+    ]
+}

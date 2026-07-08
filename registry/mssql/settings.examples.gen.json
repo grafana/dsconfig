@@ -1,0 +1,169 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: SQL Server Authentication, encrypt='false'. The user must still supply url, user, jsonData.database, and secureJsonData.password.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "SQL Server Authentication",
+          "encrypt": "false"
+        },
+        "secureJsonData": {
+          "password": ""
+        },
+        "url": "",
+        "user": ""
+      }
+    },
+    "azureAdClientSecret": {
+      "summary": "Azure AD: Client Secret",
+      "description": "Azure AD service-principal authentication. The client secret is stored write-only as secureJsonData.azureClientSecret; the rest of the credential (tenant, client, cloud) lives in jsonData.azureCredentials.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "Azure AD Authentication",
+          "azureCredentials": {
+            "authType": "clientsecret",
+            "azureCloud": "AzureCloud",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "database": "metrics",
+          "encrypt": "true"
+        },
+        "secureJsonData": {
+          "azureClientSecret": "changeme"
+        },
+        "url": "mssql.database.windows.net:1433"
+      }
+    },
+    "azureAdManagedIdentity": {
+      "summary": "Azure AD: Managed Identity",
+      "description": "Azure AD authentication using the Grafana host's managed identity. No secret required.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "Azure AD Authentication",
+          "azureCredentials": {
+            "authType": "msi"
+          },
+          "database": "metrics",
+          "encrypt": "true"
+        },
+        "secureJsonData": {},
+        "url": "mssql.database.windows.net:1433"
+      }
+    },
+    "kerberosCredentialCache": {
+      "summary": "Windows AD: Credential cache",
+      "description": "Kerberos using a credential-cache path on disk.",
+      "value": {
+        "jsonData": {
+          "UDPConnectionLimit": 1,
+          "authenticationType": "Windows AD: Credential cache",
+          "configFilePath": "/etc/krb5.conf",
+          "credentialCache": "/tmp/krb5cc_1000",
+          "database": "metrics"
+        },
+        "secureJsonData": {},
+        "url": "mssql.internal:1433"
+      }
+    },
+    "kerberosCredentialCacheFile": {
+      "summary": "Windows AD: Credential cache file",
+      "description": "Kerberos using a credential-cache lookup file.",
+      "value": {
+        "jsonData": {
+          "UDPConnectionLimit": 1,
+          "authenticationType": "Windows AD: Credential cache file",
+          "configFilePath": "/etc/krb5.conf",
+          "credentialCacheLookupFile": "/home/grafana/cache.json",
+          "database": "metrics"
+        },
+        "secureJsonData": {},
+        "url": "mssql.internal:1433",
+        "user": "grafana_reader@EXAMPLE.COM"
+      }
+    },
+    "kerberosKeytab": {
+      "summary": "Windows AD: Keytab file",
+      "description": "Kerberos authenticating via a keytab file on the Grafana host.",
+      "value": {
+        "jsonData": {
+          "UDPConnectionLimit": 1,
+          "authenticationType": "Windows AD: Keytab",
+          "configFilePath": "/etc/krb5.conf",
+          "database": "metrics",
+          "keytabFilePath": "/etc/secrets/mssql.keytab"
+        },
+        "secureJsonData": {},
+        "url": "mssql.internal:1433",
+        "user": "grafana_reader@EXAMPLE.COM"
+      }
+    },
+    "kerberosUsernamePassword": {
+      "summary": "Windows AD: Username + password",
+      "description": "Kerberos with a UPN-formatted username and password. Requires MIT krb5 on the Grafana host.",
+      "value": {
+        "jsonData": {
+          "UDPConnectionLimit": 1,
+          "authenticationType": "Windows AD: Username + password",
+          "configFilePath": "/etc/krb5.conf",
+          "database": "metrics",
+          "enableDNSLookupKDC": "true"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "mssql.internal:1433",
+        "user": "grafana_reader@EXAMPLE.COM"
+      }
+    },
+    "sqlAuth": {
+      "summary": "SQL Server Authentication",
+      "description": "The typical setup: SQL Server login with encryption negotiated as 'false' (login packet only).",
+      "value": {
+        "jsonData": {
+          "authenticationType": "SQL Server Authentication",
+          "database": "metrics",
+          "encrypt": "false"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "mssql.internal:1433",
+        "user": "grafana_reader"
+      }
+    },
+    "tlsEncrypted": {
+      "summary": "Fully encrypted TLS connection",
+      "description": "encrypt='true' with TLS verification enabled — supply a root CA path and the server-cert Common Name.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "SQL Server Authentication",
+          "database": "metrics",
+          "encrypt": "true",
+          "serverName": "mssql.internal",
+          "sslRootCertFile": "/etc/secrets/mssql/ca.pem",
+          "tlsSkipVerify": false
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        },
+        "url": "mssql.internal:1433",
+        "user": "grafana_reader"
+      }
+    },
+    "windowsAuthentication": {
+      "summary": "Windows Authentication (SSO)",
+      "description": "Integrated Security — no credentials stored in the datasource; the Grafana process's Windows identity is used.",
+      "value": {
+        "jsonData": {
+          "authenticationType": "Windows Authentication",
+          "database": "metrics",
+          "encrypt": "false"
+        },
+        "secureJsonData": {},
+        "url": "mssql.internal:1433"
+      }
+    }
+  }
+}

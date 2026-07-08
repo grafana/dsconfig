@@ -1,0 +1,798 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-splunk-datasource",
+    "pluginName": "Splunk",
+    "docURL": "https://grafana.com/docs/plugins/grafana-splunk-datasource",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "URL"
+            }
+        },
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication method",
+            "description": "Choose an authentication method to access the data source",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "BasicAuth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "BasicAuth",
+                        "custom-splunk",
+                        "OAuthForward"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Basic authentication",
+                        "value": "BasicAuth",
+                        "description": "Authenticate with your data source username and password"
+                    },
+                    {
+                        "label": "Alternative authentication",
+                        "value": "custom-splunk",
+                        "description": "Use an authentication token generated in Splunk dashboard."
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "OAuthForward",
+                        "description": "Forward the OAuth access token (and if available: the OIDC ID token) of the user querying to the data source"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "description": "The username of the data source account",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_authType == 'BasicAuth' || jsonData_authType == ''",
+            "requiredWhen": "jsonData_authType == 'BasicAuth' || jsonData_authType == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "User"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "The password of the data source account",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_authType == 'BasicAuth' || jsonData_authType == ''",
+            "requiredWhen": "jsonData_authType == 'BasicAuth' || jsonData_authType == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "secureJsonData_authToken",
+            "key": "authToken",
+            "label": "Authentication token",
+            "description": "Instead of providing a username and password, use an authentication token generated in Splunk dashboard.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_authType == 'custom-splunk'",
+            "requiredWhen": "jsonData_authType == 'custom-splunk'",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Enter authentication token"
+            },
+            "help": {
+                "title": "Authentication token",
+                "markdown": "Authentication tokens are a method for authenticating Splunk platform users into the Splunk platform. Tokens let you provide access to environments without having to provide the standard types of credentials. Read more in [Splunk documentation](https://docs.splunk.com/Documentation/Splunk/9.0.4/Security/CreateAuthTokens).",
+                "docURL": "https://docs.splunk.com/Documentation/Splunk/9.0.4/Security/CreateAuthTokens"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "description": "Set to true only when the 'Forward OAuth Identity' (OAuthForward) authentication method is selected. Written by the config editor alongside jsonData.authType (SplunkAuthComponent.tsx:14-23); consumed by Grafana core to forward the user's OAuth token, not by the plugin backend. The OAuthForward method is only offered in the editor when the 'splunkEnableOAuthForwarding' feature toggle is enabled.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:jsonData_authType"
+            ]
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "Add self-signed certificate",
+            "description": "Add your own Certificate Authority (CA) certificate on top of one generated by the certificate authorities for additional security measures",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Certificate",
+            "description": "Your self-signed certificate",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 6,
+                "placeholder": "Begins with --- BEGIN CERTIFICATE ---"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Authentication",
+            "description": "Validate using TLS client authentication, in which the server authenticates the client",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "label": "ServerName",
+            "description": "A Servername is used to verify the hostname on the returned certificate",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Certificate",
+            "description": "The client certificate can be generated from a Certificate Authority or be self-signed",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 6,
+                "placeholder": "Begins with --- BEGIN CERTIFICATE ---"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "The client key can be generated from a Certificate Authority or be self-signed",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 6,
+                "placeholder": "Begins with --- RSA PRIVATE KEY CERTIFICATE ---"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS certificate validation",
+            "description": "Skipping TLS certificate validation is not recommended unless absolutely necessary or for testing",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "New cookie (hit enter to add)"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_maxResultCount",
+            "key": "maxResultCount",
+            "label": "Limit number of results",
+            "description": "Set the `count` limit for returned results from each data request. When set to 0, there is no limit.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 0,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_previewMode",
+            "key": "previewMode",
+            "label": "Enable preview mode",
+            "description": "Displays events as soon as the event is returned, instead of waiting until all of the events are returned.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_pollSearchResult",
+            "key": "pollSearchResult",
+            "label": "Enable async queries",
+            "description": "Run query and periodically check for results.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_minPollInterval",
+            "key": "minPollInterval",
+            "label": "Min",
+            "description": "Sets the bounds for async query poll interval. Each poll will run a random number milliseconds from [min, max).",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_pollSearchResult == true || jsonData_previewMode == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "500"
+            }
+        },
+        {
+            "id": "jsonData_maxPollInterval",
+            "key": "maxPollInterval",
+            "label": "Max",
+            "description": "Sets the bounds for async query poll interval. Each poll will run a random number milliseconds from [min, max).",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_pollSearchResult == true || jsonData_previewMode == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "3000"
+            }
+        },
+        {
+            "id": "jsonData_autoCancel",
+            "key": "autoCancel",
+            "label": "Auto cancel timeout",
+            "description": "Jobs automatically cancel after this many seconds of inactivity. Set to 0 to never auto cancel",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "30"
+            }
+        },
+        {
+            "id": "jsonData_timeoutInSeconds",
+            "key": "timeoutInSeconds",
+            "label": "Timeout in seconds",
+            "description": "Grafana request timeout. This is the maximum time in seconds that a query can run before it is killed. Minimum value is 1.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 30,
+            "ui": {
+                "component": "input",
+                "placeholder": "30"
+            }
+        },
+        {
+            "id": "jsonData_statusBuckets",
+            "key": "statusBuckets",
+            "label": "Set maximum status buckets",
+            "description": "Maximum number of timeline status buckets generated per query. Set to 0 to disable timelines",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "30"
+            }
+        },
+        {
+            "id": "jsonData_internalFieldsFiltration",
+            "key": "internalFieldsFiltration",
+            "label": "Internal fields filtration",
+            "description": "By default hides fields with names that start with ‘_’. This filter can be customized using the Internal field pattern option.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_internalFieldPattern",
+            "key": "internalFieldPattern",
+            "label": "Internal field pattern",
+            "description": "Regular expression defining the filter for filtering out internal fields",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_internalFieldsFiltration == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "^_.+"
+            }
+        },
+        {
+            "id": "jsonData_tsField",
+            "key": "tsField",
+            "label": "Set time stamp field",
+            "description": "Field used by Grafana to determine event timestamps",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "_time",
+            "ui": {
+                "component": "input",
+                "placeholder": "_time"
+            }
+        },
+        {
+            "id": "jsonData_fieldSearchType",
+            "key": "fieldSearchType",
+            "label": "Set fields search mode",
+            "description": "Set the Search Mode for Fields",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "quick",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "quick",
+                        "full"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "quick",
+                        "value": "quick"
+                    },
+                    {
+                        "label": "full",
+                        "value": "full"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_variableSearchLevel",
+            "key": "variableSearchLevel",
+            "label": "Set variables search mode",
+            "description": "Set the Search Mode for Variables",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "fast",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "fast",
+                        "smart",
+                        "verbose"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "fast",
+                        "value": "fast"
+                    },
+                    {
+                        "label": "smart",
+                        "value": "smart"
+                    },
+                    {
+                        "label": "verbose",
+                        "value": "verbose"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_defaultEarliestTime",
+            "key": "defaultEarliestTime",
+            "label": "Set default earliest time",
+            "description": "Earliest time for searches without time range (such as template variable queries)",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "-1hr"
+            }
+        },
+        {
+            "id": "jsonData_streamMode",
+            "key": "streamMode",
+            "description": "Legacy 'stream mode' flag no longer rendered by the config editor. The backend migrates a true value into previewMode (pkg/models/settings.go:103-105) and the frontend query builder also treats it as preview mode (src/datasource/query.ts:267). Preserved for round-trip fidelity with older datasources.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "legacy"
+            ]
+        },
+        {
+            "id": "jsonData_dataLinks",
+            "key": "dataLinks",
+            "label": "Data links",
+            "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_dataLinks.item.field",
+                        "key": "field",
+                        "label": "Field",
+                        "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.label",
+                        "key": "label",
+                        "label": "Label",
+                        "description": "Use to provide a meaningful label to the data matched in the regex",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.matcherRegex",
+                        "key": "matcherRegex",
+                        "label": "Regex",
+                        "description": "Use to parse and capture some part of the log message. You can use the captured groups in the template.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.url",
+                        "key": "url",
+                        "label": "URL",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "http://example.com/${__value.raw}"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.datasourceUid",
+                        "key": "datasourceUid",
+                        "label": "Internal link",
+                        "description": "UID of a Grafana data source. When set, the derived data link becomes an internal link to that data source and the URL is interpreted as a query.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authType",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword",
+                "secureJsonData_authToken"
+            ]
+        },
+        {
+            "id": "tls-settings",
+            "title": "TLS settings",
+            "description": "Additional security measures that can be applied on top of authentication",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert",
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey",
+                "jsonData_tlsSkipVerify"
+            ]
+        },
+        {
+            "id": "advanced-http",
+            "title": "Advanced HTTP settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_keepCookies",
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
+            ]
+        },
+        {
+            "id": "advanced-options",
+            "title": "Advanced options",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_maxResultCount",
+                "jsonData_previewMode",
+                "jsonData_pollSearchResult",
+                "jsonData_minPollInterval",
+                "jsonData_maxPollInterval",
+                "jsonData_autoCancel",
+                "jsonData_timeoutInSeconds",
+                "jsonData_statusBuckets",
+                "jsonData_internalFieldsFiltration",
+                "jsonData_internalFieldPattern",
+                "jsonData_tsField",
+                "jsonData_fieldSearchType",
+                "jsonData_variableSearchLevel",
+                "jsonData_defaultEarliestTime"
+            ]
+        },
+        {
+            "id": "data-links",
+            "title": "Data links",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_dataLinks"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_authType",
+                "jsonData_oauthPassThru"
+            ],
+            "description": "The auth method selector persists the chosen method verbatim in jsonData.authType and sets jsonData.oauthPassThru=true only when 'Forward OAuth Identity' (OAuthForward) is selected (SplunkAuthComponent.tsx:14-23)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "HTTP Basic auth credentials: both fields are used together when the BasicAuth method is selected (or when jsonData.authType is empty, which the backend treats as BasicAuth — pkg/models/settings.go:95)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Self-signed / custom CA verification: enabling jsonData.tlsAuthWithCACert requires the CA certificate PEM in secureJsonData.tlsCACert (@grafana/plugin-ui SelfSignedCertificate)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS mutual auth: enabling jsonData.tlsAuth requires serverName + client cert + client key (@grafana/plugin-ui TLSClientAuth)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_pollSearchResult",
+                "jsonData_previewMode",
+                "jsonData_minPollInterval",
+                "jsonData_maxPollInterval"
+            ],
+            "description": "Async/preview polling: the min/max poll interval inputs are only shown when async queries or preview mode is enabled (AdditionalSettingsEditor.tsx:208)."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_internalFieldsFiltration",
+                "jsonData_internalFieldPattern"
+            ],
+            "description": "Internal field filtering: the internal field pattern input is shown only when internalFieldsFiltration is enabled; the backend clears the pattern when filtration is off (pkg/models/settings.go:117-119)."
+        },
+        {
+            "type": "datasourceReference",
+            "fields": [
+                "jsonData_dataLinks.item.datasourceUid"
+            ],
+            "description": "Per-data-link internal navigation target: when set, the frontend treats the URL as a query against the referenced data source."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Authentication is selected via jsonData.authType: 'BasicAuth' (the default; an empty/missing authType is also treated as BasicAuth by the backend — pkg/models/settings.go:95), 'custom-splunk' (labelled 'Alternative authentication' — a Splunk auth token), and 'OAuthForward' ('Forward OAuth Identity', only offered in the editor when the 'splunkEnableOAuthForwarding' feature toggle is on). The backend sets BasicAuthEnabled = (authType=='BasicAuth' || authType=='') and, when basic auth is enabled, ignores any authToken. Configure exactly one method.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Basic auth payload: put the username at the root basicAuthUser and the password in secureJsonData.basicAuthPassword; do NOT set root.basicAuth (the editor's Splunk Auth component no longer writes it, and the backend derives it from authType). Minimal payload: {\"url\":\"https://splunk.example.com:8089\",\"basicAuthUser\":\"<splunk-username>\",\"jsonData\":{\"authType\":\"BasicAuth\"},\"secureJsonData\":{\"basicAuthPassword\":\"<your-splunk-password>\"}}. root.url must point at the Splunk management/REST API (default port 8089); the backend builds <url>/services/auth/login, <url>/services/server/info and <url>/services/search/... from it (pkg/splunk/client.go:67-68).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Alternative (token) auth payload: {\"url\":\"https://splunk.example.com:8089\",\"jsonData\":{\"authType\":\"custom-splunk\"},\"secureJsonData\":{\"authToken\":\"<splunk-authentication-token>\"}}. The backend reads secureJsonData.authToken and sends 'Authorization: Bearer <token>' (pkg/splunk/client.go:229-230). Forward OAuth Identity payload: {\"jsonData\":{\"authType\":\"OAuthForward\",\"oauthPassThru\":true}} with no secret — Grafana core forwards the signed-in user's OAuth token.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "TLS is independent of the auth method (rendered by @grafana/plugin-ui's Auth component). jsonData.tlsAuth=true enables mTLS and requires jsonData.serverName plus secureJsonData.tlsClientCert and secureJsonData.tlsClientKey. jsonData.tlsAuthWithCACert=true verifies the server against a custom CA and requires secureJsonData.tlsCACert. jsonData.tlsSkipVerify=true disables verification (testing only). All TLS values are consumed by the SDK via config.HTTPClientOptions(ctx) (pkg/models/settings.go:125), not read directly by the plugin.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, authToken, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.authToken == true) instead of secureJsonData. The backend additionally reads a legacy secureJsonData.APIKey key (pkg/models/settings.go:91) that no code path consumes — do not rely on it.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Settings defaulting mirrors the backend LoadSettings (pkg/models/settings.go:102-123): a true streamMode is migrated to previewMode; internalFieldPattern defaults to '^_.+' but is cleared to '' when internalFieldsFiltration is false; tsField defaults to '_time'; timeoutInSeconds below 1 is bumped to 30. jsonData.maxResultCount is the stored 'count' limit (0 means unlimited in the editor); the backend resolves 0 to 10000 and can be overridden by the GF_PLUGIN_GRAFANA_SPLUNK_DATASOURCE_MAX_RESULT_LIMIT env var (pkg/models/query_limits.go). autoCancel, statusBuckets, minPollInterval, maxPollInterval and defaultEarliestTime are frontend-only query defaults applied by the query builder, not read by the backend settings loader. Custom HTTP headers ARE now modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as @grafana/plugin-ui's CustomHeaders component and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "settings",
+                "legacy"
+            ]
+        }
+    ]
+}

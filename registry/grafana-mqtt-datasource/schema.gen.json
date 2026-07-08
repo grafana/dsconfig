@@ -1,0 +1,190 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "uri"
+          ],
+          "properties": {
+            "clientID": {
+              "description": "If not set, a random client ID is used.",
+              "type": "string"
+            },
+            "tlsAuth": {
+              "description": "Enables TLS authentication using client cert configured in secure json data.",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying servers with self-signed TLS Certs.",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "description": "When enabled, skips verification of the MQTT server's TLS certificate chain and host name.",
+              "type": "boolean",
+              "default": false
+            },
+            "uri": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password"
+      },
+      {
+        "key": "tlsCACert",
+        "description": "If a Certificate Authority certificate is required to verify the server's certificate, provide it here."
+      },
+      {
+        "key": "tlsClientCert",
+        "description": "To authenticate with an TLS client certificate, provide the client certificate here."
+      },
+      {
+        "key": "tlsClientKey",
+        "description": "To authenticate with a client TLS certificate, provide the private key here."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: every field at its Go zero value. jsonData.uri is empty — LoadConfig.Validate will reject this until a broker URI is supplied. The password placeholder is empty because secureJsonData values are write-only.",
+        "value": {
+          "jsonData": {
+            "tlsAuth": false,
+            "tlsAuthWithCACert": false,
+            "tlsSkipVerify": false
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "anonymousTCP": {
+        "summary": "Anonymous TCP broker",
+        "description": "Connect to a broker that does not require MQTT-level auth over plaintext TCP. Only jsonData.uri is set; the empty secureJsonData.password placeholder records that no password is configured.",
+        "value": {
+          "jsonData": {
+            "tlsAuth": false,
+            "tlsAuthWithCACert": false,
+            "tlsSkipVerify": false,
+            "uri": "tcp://broker.example.com:1883"
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "basicAuthTCP": {
+        "summary": "Basic auth over TCP",
+        "description": "MQTT basic auth with username in jsonData and password in secureJsonData. The backend calls paho.SetUsername / paho.SetPassword only when both are non-empty (pkg/mqtt/client.go:54-60).",
+        "value": {
+          "jsonData": {
+            "tlsAuth": false,
+            "tlsAuthWithCACert": false,
+            "tlsSkipVerify": false,
+            "uri": "tcp://broker.example.com:1883",
+            "username": "grafana"
+          },
+          "secureJsonData": {
+            "password": "s3cret"
+          }
+        }
+      },
+      "mutualTLSWithCA": {
+        "summary": "Mutual TLS with custom CA and basic auth",
+        "description": "Everything at once: private CA + client keypair + MQTT basic-auth username/password. Demonstrates that the three auth mechanisms compose freely and are gated only by which secrets are non-empty (pkg/mqtt/client.go:54-79).",
+        "value": {
+          "jsonData": {
+            "clientID": "grafana-mqtt-1",
+            "tlsAuth": true,
+            "tlsAuthWithCACert": true,
+            "tlsSkipVerify": false,
+            "uri": "tls://broker.internal.corp:8883",
+            "username": "grafana"
+          },
+          "secureJsonData": {
+            "password": "s3cret",
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\nMIIC...cacert...==\n-----END CERTIFICATE-----",
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\nMIIB...clientcert...==\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIE...clientkey...==\n-----END RSA PRIVATE KEY-----"
+          }
+        }
+      },
+      "selfSignedCA": {
+        "summary": "Self-signed server with custom CA",
+        "description": "TLS-encrypted broker whose server certificate is signed by a private CA. jsonData.tlsAuthWithCACert gates the editor input; the backend loads the CA cert pool (pkg/mqtt/client.go:75-79) whenever secureJsonData.tlsCACert is non-empty.",
+        "value": {
+          "jsonData": {
+            "tlsAuth": false,
+            "tlsAuthWithCACert": true,
+            "tlsSkipVerify": false,
+            "uri": "tls://broker.internal.corp:8883"
+          },
+          "secureJsonData": {
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\nMIIC...cacert...==\n-----END CERTIFICATE-----"
+          }
+        }
+      },
+      "tlsClientAuth": {
+        "summary": "TLS client certificate authentication",
+        "description": "Mutual TLS. jsonData.tlsAuth toggles the visibility of the TLS Client Certificate / TLS Client Key inputs in the editor, but the backend loads the keypair (pkg/mqtt/client.go:66-73) purely based on whether the secrets are non-empty. Both tlsClientCert and tlsClientKey must be provided.",
+        "value": {
+          "jsonData": {
+            "tlsAuth": true,
+            "tlsAuthWithCACert": false,
+            "tlsSkipVerify": false,
+            "uri": "tls://broker.example.com:8883"
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\nMIIB...clientcert...==\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\nMIIE...clientkey...==\n-----END RSA PRIVATE KEY-----"
+          }
+        }
+      },
+      "tlsSkipVerify": {
+        "summary": "TLS broker with certificate verification disabled",
+        "description": "Bypass server certificate verification via jsonData.tlsSkipVerify=true, which sets tls.Config.InsecureSkipVerify at pkg/mqtt/client.go:62-64. Only appropriate for trusted infrastructure — do NOT enable against public brokers.",
+        "value": {
+          "jsonData": {
+            "tlsAuth": false,
+            "tlsAuthWithCACert": false,
+            "tlsSkipVerify": true,
+            "uri": "tls://broker.example.com:8883"
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "webSocket": {
+        "summary": "WebSocket transport",
+        "description": "MQTT over WebSocket. paho maps the ws:// scheme to default port 80 and wss:// to 443 (pkg/mqtt/proxy.go:66-80) when no port is specified — this example uses wss:// on the default port for MQTT-over-WSS.",
+        "value": {
+          "jsonData": {
+            "tlsAuth": false,
+            "tlsAuthWithCACert": false,
+            "tlsSkipVerify": false,
+            "uri": "wss://broker.example.com:443/mqtt"
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      }
+    }
+  }
+}

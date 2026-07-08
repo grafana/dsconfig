@@ -1,0 +1,201 @@
+{
+  "spec": {
+    "type": "object",
+    "required": [
+      "url"
+    ],
+    "properties": {
+      "access": {
+        "type": "string",
+        "default": "proxy",
+        "enum": [
+          "proxy",
+          "direct"
+        ]
+      },
+      "basicAuth": {
+        "type": "boolean",
+        "default": false
+      },
+      "basicAuthUser": {
+        "type": "string",
+        "x-dsconfig-depends-on": "root_basicAuth == true",
+        "x-dsconfig-required-when": "root_basicAuth == true"
+      },
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "database",
+          "timeField",
+          "version"
+        ],
+        "properties": {
+          "dataLinks": {
+            "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field"
+              ],
+              "properties": {
+                "datasourceUid": {
+                  "type": "string"
+                },
+                "field": {
+                  "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "database": {
+            "type": "string"
+          },
+          "flavor": {
+            "type": "string",
+            "enum": [
+              "opensearch",
+              "elasticsearch"
+            ]
+          },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "Hourly",
+              "Daily",
+              "Weekly",
+              "Monthly",
+              "Yearly"
+            ]
+          },
+          "keepCookies": {
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-dsconfig-depends-on": "root_access == 'proxy'"
+          },
+          "logLevelField": {
+            "type": "string"
+          },
+          "logMessageField": {
+            "type": "string"
+          },
+          "maxConcurrentShardRequests": {
+            "type": "number",
+            "x-dsconfig-depends-on": "jsonData_serverless != true"
+          },
+          "oauthPassThru": {
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "root_access == 'proxy'"
+          },
+          "pplEnabled": {
+            "description": "Allow Piped Processing Language as an alternative query syntax in the OpenSearch query editor.",
+            "type": "boolean",
+            "default": true
+          },
+          "serverName": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+            "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+          },
+          "serverless": {
+            "description": "If this is a DataSource to query a serverless OpenSearch service.",
+            "type": "boolean",
+            "default": false
+          },
+          "sigV4Auth": {
+            "type": "boolean",
+            "default": false
+          },
+          "timeField": {
+            "type": "string",
+            "default": "@timestamp"
+          },
+          "timeInterval": {
+            "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "type": "string",
+            "pattern": "^\\d+(ms|[Mwdhmsy])$"
+          },
+          "timeout": {
+            "description": "HTTP request timeout in seconds",
+            "type": "number",
+            "x-dsconfig-depends-on": "root_access == 'proxy'"
+          },
+          "tlsAuth": {
+            "type": "boolean",
+            "default": false
+          },
+          "tlsAuthWithCACert": {
+            "description": "Needed for verifying self-signed TLS Certs",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "type": "boolean",
+            "default": false
+          },
+          "version": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_serverless != true"
+          },
+          "versionLabel": {
+            "type": "string"
+          }
+        }
+      },
+      "url": {
+        "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+        "type": "string"
+      },
+      "withCredentials": {
+        "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+        "type": "boolean",
+        "default": false
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "basicAuthPassword"
+    },
+    {
+      "key": "tlsClientCert"
+    },
+    {
+      "key": "tlsClientKey"
+    },
+    {
+      "key": "tlsCACert"
+    }
+  ]
+}

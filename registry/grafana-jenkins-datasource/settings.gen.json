@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "description": "Jenkins URL, e.g. https://jenkins.example.com",
+            "type": "string"
+          },
+          "username": {
+            "description": "The username to use for authentication",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password",
+      "description": "The password to use for authentication"
+    }
+  ]
+}

@@ -1,0 +1,301 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-dynamodb-datasource",
+    "pluginName": "DynamoDB",
+    "docURL": "https://grafana.com/docs/plugins/grafana-dynamodb-datasource",
+    "fields": [
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Workspace IAM Role",
+                        "value": "ec2_iam_role"
+                    },
+                    {
+                        "label": "AWS SDK Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Access & secret key",
+                        "value": "keys"
+                    },
+                    {
+                        "label": "Credentials file",
+                        "value": "credentials"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_profile",
+            "key": "profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "secureJsonData_accessKey",
+            "key": "accessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_secretKey",
+            "key": "secretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.sessionToken",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_endpoint",
+            "key": "endpoint",
+            "label": "Endpoint",
+            "description": "Optionally, specify a custom endpoint for the service",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://{service}.{region}.amazonaws.com"
+            }
+        },
+        {
+            "id": "jsonData_defaultRegion",
+            "key": "defaultRegion",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_isV2",
+            "key": "isV2",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": true,
+            "tags": [
+                "frontend-only",
+                "migration"
+            ]
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "60",
+            "tags": [
+                "backend-only",
+                "driver"
+            ]
+        },
+        {
+            "id": "jsonData_retries",
+            "key": "retries",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "5",
+            "tags": [
+                "backend-only",
+                "driver"
+            ]
+        },
+        {
+            "id": "jsonData_pause",
+            "key": "pause",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "5",
+            "tags": [
+                "backend-only",
+                "driver"
+            ]
+        },
+        {
+            "id": "jsonData_accessId",
+            "key": "accessId",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only",
+                "legacy"
+            ]
+        },
+        {
+            "id": "jsonData_region",
+            "key": "region",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only",
+                "legacy"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_profile",
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey",
+                "secureJsonData_sessionToken"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_endpoint",
+                "jsonData_defaultRegion"
+            ]
+        },
+        {
+            "id": "driver-settings",
+            "title": "Driver Settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeout",
+                "jsonData_retries",
+                "jsonData_pause"
+            ]
+        },
+        {
+            "id": "legacy-migration",
+            "title": "Legacy Migration",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_isV2",
+                "jsonData_accessId",
+                "jsonData_region"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey"
+            ],
+            "description": "AWS access key pair — supplied together when authType is 'keys'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_accessId",
+                "jsonData_region",
+                "jsonData_isV2"
+            ],
+            "description": "Legacy V1 storage — pre-V2 datasources stored the AWS access key ID as plain jsonData.accessId and the region as jsonData.region; jsonData.isV2 == false marks them for migration on load."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Four authentication values are editor-selectable in jsonData.authType (grafana-dynamodb-datasource is NOT in the @grafana/aws-sdk DS_TYPES_THAT_SUPPORT_TEMP_CREDS allow-list, so 'grafana_assume_role' never appears in the Select and is not in this schema's allowedValues): 'default' (AWS SDK Default — the default credential chain), 'keys' (Access & secret key — puts accessKey/secretKey in secureJsonData), 'credentials' (Credentials file — optionally provide jsonData.profile), and 'ec2_iam_role' (Workspace IAM Role — no extra credentials needed). A fifth stored value, 'arn', is a legacy value the backend (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88) maps to 'default'. The DynamoDB ConfigEditor also passes hideAssumeRoleArn={true}, so the STS AssumeRole subsection (jsonData.assumeRoleArn / jsonData.externalId) is never rendered and those fields are omitted from this schema.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payload per auth method (jsonData.defaultRegion is required in practice — pkg/models/settings.go:66-68 rejects an empty region). Access & secret key: {\"jsonData\":{\"authType\":\"keys\",\"isV2\":true,\"defaultRegion\":\"us-east-1\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\"}}. Credentials file: {\"jsonData\":{\"authType\":\"credentials\",\"isV2\":true,\"profile\":\"my-profile\",\"defaultRegion\":\"us-east-1\"}}. Workspace IAM Role: {\"jsonData\":{\"authType\":\"ec2_iam_role\",\"isV2\":true,\"defaultRegion\":\"us-east-1\"}}. AWS SDK Default: {\"jsonData\":{\"authType\":\"default\",\"isV2\":true,\"defaultRegion\":\"us-east-1\"}}. Always set jsonData.isV2 to true on new configs — the editor's useEffect writes it (src/components/ConfigEditor.tsx:28-42) and the backend's LoadSettings triggers V1 migration when it is false or missing.",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Legacy V1 → V2 migration (pkg/models/settings.go:43-55): when jsonData.isV2 is false or missing, the backend forces authType to 'keys' and treats storage keys differently. jsonData.accessId (plain text) is loaded as the AWS Access Key ID, and secureJsonData.accessKey (yes, the 'accessKey' secure key) is loaded as the AWS Secret Access Key — the V1 name is misleading. jsonData.region is copied into settings.DefaultRegion when defaultRegion is empty. secureJsonData.sessionToken is picked up from decrypted secure data. The frontend migrateOptions (src/utils.ts:4-22) rewrites the editor state on load to move accessId out of jsonData and set isV2=true, but nothing rewrites the stored config until the user saves. Legacy examples: {\"jsonData\":{\"region\":\"eu-north-1\",\"endpoint\":\"...\",\"accessId\":\"<AKID>\"},\"secureJsonData\":{\"accessKey\":\"<SECRET>\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "Session token: secureJsonData.sessionToken is written by provisioning only (ConnectionConfig never renders an input for it). The backend (pkg/models/settings.go:50,54) reads it for both V1 legacy loads and modern V2 keys-auth loads. Pair it with authType == 'keys' for temporary AWS STS credentials — {\"jsonData\":{\"authType\":\"keys\",\"isV2\":true,\"defaultRegion\":\"us-east-1\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\",\"sessionToken\":\"<STS-TOKEN>\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (accessKey, secretKey, sessionToken) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.accessKey == true) instead of secureJsonData. Backend-only secrets like sessionToken never surface in secureJsonFields until they are set. Under the V1 legacy shape, secureJsonData.accessKey held the secret (not the access ID); after V2 migration or a fresh save the naming becomes correct.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Backend-only driver settings (never rendered by the editor): jsonData.timeout (seconds, default '60'), jsonData.retries (default '5'), and jsonData.pause (default '5') are strings on the wire and are parsed with utils.ParseInt (pkg/utils/utils.go). They feed sqlds.DriverSettings for the DynamoDB SQL driver and only take effect at query time — provisioning them at datasource level is the only way to override the defaults.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

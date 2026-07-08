@@ -1,0 +1,165 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "authType": {
+              "description": "Legacy authentication type field. Older provisioning stored the auth type here; the backend copies its value into `authenticationType` on load. Prefer `authenticationType` for new configurations.",
+              "type": "string",
+              "enum": [
+                "key",
+                "jwt",
+                "gce"
+              ]
+            },
+            "authenticationType": {
+              "type": "string",
+              "default": "jwt",
+              "enum": [
+                "key",
+                "jwt",
+                "gce"
+              ]
+            },
+            "clientEmail": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+              "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
+            },
+            "defaultProject": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce'"
+            },
+            "defaultSheetID": {
+              "description": "Optional spreadsheet ID to use as default when creating new queries",
+              "type": "string"
+            },
+            "privateKeyPath": {
+              "description": "Paste private key or provide path to private file",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'"
+            },
+            "tokenUri": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+              "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "apiKey"
+      },
+      {
+        "key": "privateKey",
+        "description": "Paste private key or provide path to private file"
+      },
+      {
+        "key": "jwt",
+        "description": "Legacy write-only secret used by older versions of the plugin. The backend still copies its decrypted value into memory but no runtime code path depends on it; new configurations should use `privateKey` instead."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: Google JWT File authentication (jwt). The user must still supply defaultProject, clientEmail, tokenUri, and a private key (either inline or via privateKeyPath) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "authenticationType": "jwt"
+          },
+          "secureJsonData": {
+            "privateKey": ""
+          }
+        }
+      },
+      "apiKey": {
+        "summary": "API Key (public spreadsheets only)",
+        "description": "Authenticate to the Google Sheets API with an API key. Works only for spreadsheets that are shared publicly (anyone with the link can view). Enable the Google Sheets API for the project the key belongs to.",
+        "value": {
+          "jsonData": {
+            "authenticationType": "key"
+          },
+          "secureJsonData": {
+            "apiKey": "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      },
+      "gceDefaultServiceAccount": {
+        "summary": "GCE Default Service Account",
+        "description": "Grafana is running on a Google Compute Engine VM; credentials are retrieved from the GCE metadata server. No secret is stored in secureJsonData. Optionally set defaultProject.",
+        "value": {
+          "jsonData": {
+            "authenticationType": "gce",
+            "defaultProject": "my-gcp-project"
+          },
+          "secureJsonData": {}
+        }
+      },
+      "googleJWTFile": {
+        "summary": "Google JWT File (inline private key)",
+        "description": "Authenticate as a Google service account. defaultProject, clientEmail, and tokenUri come from the service-account JSON; the private key is supplied inline as secureJsonData.privateKey. Also enable both the Google Sheets and Google Drive APIs for the project.",
+        "value": {
+          "jsonData": {
+            "authenticationType": "jwt",
+            "clientEmail": "sheets-reader@my-gcp-project.iam.gserviceaccount.com",
+            "defaultProject": "my-gcp-project",
+            "tokenUri": "https://oauth2.googleapis.com/token"
+          },
+          "secureJsonData": {
+            "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+          }
+        }
+      },
+      "googleJWTFilePath": {
+        "summary": "Google JWT File (private key path)",
+        "description": "Same as googleJWTFile, but the private key is read from a file on the Grafana server via jsonData.privateKeyPath — no secret is stored in secureJsonData.privateKey. The referenced file may be a raw PEM key or a service-account JSON containing a private_key field.",
+        "value": {
+          "jsonData": {
+            "authenticationType": "jwt",
+            "clientEmail": "sheets-reader@my-gcp-project.iam.gserviceaccount.com",
+            "defaultProject": "my-gcp-project",
+            "privateKeyPath": "/etc/secrets/sheets-sa.json",
+            "tokenUri": "https://oauth2.googleapis.com/token"
+          },
+          "secureJsonData": {
+            "privateKey": ""
+          }
+        }
+      },
+      "legacyAuthType": {
+        "summary": "Legacy: authType instead of authenticationType",
+        "description": "Older provisioned datasources stored the auth type in jsonData.authType. The backend copies authType into authenticationType on load (pkg/models/settings.go:49-51). New configurations should write only authenticationType.",
+        "value": {
+          "jsonData": {
+            "authType": "key",
+            "defaultSheetID": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+          },
+          "secureJsonData": {
+            "apiKey": "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      },
+      "withDefaultSheetID": {
+        "summary": "API Key with default spreadsheet",
+        "description": "Same as apiKey but with a defaultSheetID pre-populated so new queries start with a spreadsheet selected. The backend loads defaultSheetID but does not consume it at query time; it is a UX hint.",
+        "value": {
+          "jsonData": {
+            "authenticationType": "key",
+            "defaultSheetID": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+          },
+          "secureJsonData": {
+            "apiKey": "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        }
+      }
+    }
+  }
+}

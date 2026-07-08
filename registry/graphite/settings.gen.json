@@ -1,0 +1,127 @@
+{
+  "spec": {
+    "type": "object",
+    "required": [
+      "url"
+    ],
+    "properties": {
+      "basicAuth": {
+        "type": "boolean",
+        "default": false
+      },
+      "basicAuthUser": {
+        "type": "string",
+        "x-dsconfig-depends-on": "root_basicAuth == true",
+        "x-dsconfig-required-when": "root_basicAuth == true"
+      },
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "graphiteType": {
+            "description": "There are different types of Graphite compatible backends. Here you can specify the type you are using. For Metrictank, this will enable specific features, like query processing meta data. Metrictank\n        is a multi-tenant timeseries engine for Graphite and friends.",
+            "type": "string",
+            "enum": [
+              "default",
+              "metrictank"
+            ]
+          },
+          "graphiteVersion": {
+            "description": "This option controls what functions are available in the Graphite query editor.",
+            "type": "string",
+            "default": "1.1",
+            "enum": [
+              "0.9",
+              "1.0",
+              "1.1"
+            ]
+          },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e). Rendered by the @grafana/ui CustomHeadersSettings component (DataSourceHttpSettings.tsx:352) and forwarded to Graphite by the SDK's HTTPClientOptions.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "importConfiguration": {
+            "type": "object"
+          },
+          "keepCookies": {
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oauthPassThru": {
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "type": "boolean",
+            "default": false
+          },
+          "rollupIndicatorEnabled": {
+            "description": "Shows up as an info icon in panel headers when data is aggregated.",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_graphiteType == 'metrictank'"
+          },
+          "serverName": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+            "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+          },
+          "timeout": {
+            "description": "HTTP request timeout in seconds",
+            "type": "number"
+          },
+          "tlsAuth": {
+            "type": "boolean",
+            "default": false
+          },
+          "tlsAuthWithCACert": {
+            "description": "Needed for verifying self-signed TLS Certs",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "url": {
+        "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+        "type": "string"
+      },
+      "withCredentials": {
+        "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+        "type": "boolean",
+        "default": false
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "basicAuthPassword"
+    },
+    {
+      "key": "tlsCACert"
+    },
+    {
+      "key": "tlsClientCert"
+    },
+    {
+      "key": "tlsClientKey"
+    }
+  ]
+}

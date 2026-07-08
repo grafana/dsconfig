@@ -1,0 +1,62 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "environmentId"
+        ],
+        "properties": {
+          "apiType": {
+            "type": "string",
+            "default": "saas",
+            "enum": [
+              "saas",
+              "managed",
+              "url"
+            ]
+          },
+          "domain": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_apiType == 'managed'",
+            "x-dsconfig-required-when": "jsonData_apiType == 'managed'"
+          },
+          "environmentId": {
+            "description": "Get environment ID from your instance URL: [environmentId].live.dynatrace.com",
+            "type": "string"
+          },
+          "httpClientTimeout": {
+            "description": "The timeout for the HTTP client in seconds. Default is 30 seconds.",
+            "type": "number",
+            "default": 30,
+            "minimum": 0
+          },
+          "tlsAuthWithCACert": {
+            "description": "Needed for verifying self-signed TLS Certificates",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "apiToken",
+      "description": "The API token for the Dynatrace API. This is required for Older api endpoints on Dynatrace like Metrics, Problems, Logs, etc."
+    },
+    {
+      "key": "platformToken",
+      "description": "The Platform token for the Dynatrace Platform API. This is required for Newer api endpoints on Dynatrace like Grail"
+    },
+    {
+      "key": "tlsCACert",
+      "description": "TLS/SSL Certs are encrypted and stored in the Grafana database."
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with (sslmode='require', tlsConfigurationMethod='file-content', pool defaults 5/2/300/30). The user must still choose authType and supply jsonData.url, jsonData.user, jsonData.database and (for non-Kerberos auth) secureJsonData.password.",
+      "value": {
+        "jsonData": {
+          "connMaxLifetime": 300,
+          "database": "",
+          "maxIdleConns": 2,
+          "maxOpenConns": 5,
+          "queryTimeout": 30,
+          "sslmode": "require",
+          "tlsConfigurationMethod": "file-content",
+          "url": "",
+          "user": ""
+        },
+        "secureJsonData": {
+          "password": ""
+        }
+      }
+    },
+    "kerberosAuth": {
+      "summary": "Kerberos Authentication",
+      "description": "Kerberos auth needs NO password. credentialCache is required; configFilePath defaults to /etc/krb5.conf; kerberosServerName (krbsrvname) is optional and defaults to 'postgres'. The backend always negotiates sslmode=require with authenticator=krb5.",
+      "value": {
+        "jsonData": {
+          "authType": "Kerberos Authentication",
+          "configFilePath": "/etc/krb5.conf",
+          "credentialCache": "/tmp/krb5cc_1000",
+          "database": "defaultdb",
+          "kerberosServerName": "postgres",
+          "url": "crdb.internal:26257",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {}
+      }
+    },
+    "sqlAuth": {
+      "summary": "SQL Authentication (username / password)",
+      "description": "The most common setup: username + password over the PostgreSQL wire protocol. All connection fields live in jsonData; the password is the only secret.",
+      "value": {
+        "jsonData": {
+          "authType": "SQL Authentication",
+          "database": "defaultdb",
+          "url": "localhost:26257",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    },
+    "tlsVerifyCAFileContent": {
+      "summary": "TLS/SSL Authentication, sslmode=verify-ca, inline PEM content",
+      "description": "TLS auth with certificates stored as encrypted content in secureJsonData; the backend writes them to Grafana's data path as files before connecting. All three inline PEMs are required. This is the editor's default TLS method (file-content).",
+      "value": {
+        "jsonData": {
+          "authType": "TLS/SSL Authentication",
+          "database": "defaultdb",
+          "sslmode": "verify-ca",
+          "tlsConfigurationMethod": "file-content",
+          "url": "crdb.internal:26257",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme",
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+        }
+      }
+    },
+    "tlsVerifyFullFilePath": {
+      "summary": "TLS/SSL Authentication, sslmode=verify-full, file-path certs",
+      "description": "TLS auth with certificate paths read from the Grafana host's local filesystem. All three paths (root/cert/key) are required. A password is still required.",
+      "value": {
+        "jsonData": {
+          "authType": "TLS/SSL Authentication",
+          "database": "defaultdb",
+          "sslCertFile": "/etc/secrets/cockroach/client.crt",
+          "sslKeyFile": "/etc/secrets/cockroach/client.key",
+          "sslRootCertFile": "/etc/secrets/cockroach/ca.crt",
+          "sslmode": "verify-full",
+          "tlsConfigurationMethod": "file-path",
+          "url": "crdb.internal:26257",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "changeme"
+        }
+      }
+    }
+  }
+}

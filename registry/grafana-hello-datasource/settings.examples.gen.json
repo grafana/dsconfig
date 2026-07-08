@@ -1,0 +1,24 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "Both services ('httpbin', 'postman_echo') use the 'none' auth method and fixed server URLs, so no configuration is required — an empty datasource works. The auth.id discriminators default to 'none'.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "httpbin": {
+              "auth": {
+                "id": "none"
+              }
+            },
+            "postman_echo": {
+              "auth": {
+                "id": "none"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

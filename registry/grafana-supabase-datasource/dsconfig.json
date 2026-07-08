@@ -1,0 +1,100 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-supabase-datasource",
+    "pluginName": "Supabase",
+    "fields": [
+        {
+            "id": "jsonData_services_mgmt_auth_id",
+            "key": "id",
+            "section": "services.mgmt.auth",
+            "label": "Supabase personal token",
+            "description": "Supabase personal token",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "mgmt_bearer",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "mgmt_bearer"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Supabase personal token",
+                        "value": "mgmt_bearer"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_mgmt_token",
+            "key": "mgmt.token",
+            "label": "Token",
+            "description": "Token for accessing the datasource API",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_services_mgmt_auth_id == 'mgmt_bearer'",
+            "requiredWhen": "jsonData_services_mgmt_auth_id == 'mgmt_bearer'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_services_mgmt_auth_id",
+                "secureJsonData_mgmt_token"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Supabase configuration is stored under a service-keyed jsonData shape: jsonData.services.mgmt.* holds per-service settings, while secrets use flat dotted secureJsonData keys of the form \"mgmt.<secret>\". There is a single service with id 'mgmt' (the Supabase Management APIs).",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses a Supabase personal token (bearer). jsonData.services.mgmt.auth.id is 'mgmt_bearer' (the backend defaults to it) and the token is the write-only secret at secureJsonData key \"mgmt.token\".",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"mgmt\":{\"auth\":{\"id\":\"mgmt_bearer\"}}}},\"secureJsonData\":{\"mgmt.token\":\"<supabase-personal-token>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is fixed at https://api.supabase.com (no server selector and no connection variables).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"mgmt.token\" is write-only: it can be set or reset but never read back. To check whether it is already configured, read secureJsonFields[\"mgmt.token\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

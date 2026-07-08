@@ -1,0 +1,98 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: no authentication, no TLS overrides. Only root.url needs to be filled in to get a working datasource pointed at a Parca server on localhost:7070.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://localhost:7070"
+      }
+    },
+    "advancedHttp": {
+      "summary": "Basic auth with an HTTP timeout and forwarded cookies",
+      "description": "Parca with Basic auth plus a 30-second request timeout and an explicit list of forwarded cookies. Both settings live in jsonData and are consumed by the SDK's HTTPClientOptions (pkg/parca/plugin.go:65).",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {
+          "keepCookies": [
+            "session_id"
+          ],
+          "timeout": 30
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://parca.example.com"
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic authentication",
+      "description": "Authenticate with a Parca that requires HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://parca.example.com"
+      }
+    },
+    "noAuth": {
+      "summary": "No authentication",
+      "description": "A public or network-isolated Parca with no HTTP-level auth. The Connect/gRPC-web profiling client wraps the SDK HTTP client and issues requests against settings.URL directly (pkg/parca/plugin.go:77).",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://parca.example.com:7070"
+      }
+    },
+    "oauthForward": {
+      "summary": "Forward OAuth Identity",
+      "description": "Forward the signed-in user's upstream OAuth identity to Parca. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+      "value": {
+        "jsonData": {
+          "oauthPassThru": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://parca.example.com"
+      }
+    },
+    "tlsMutualAuth": {
+      "summary": "TLS mutual auth (mTLS)",
+      "description": "Parca requiring mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+      "value": {
+        "jsonData": {
+          "serverName": "parca.example.com",
+          "tlsAuth": true
+        },
+        "secureJsonData": {
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        },
+        "url": "https://parca.example.com"
+      }
+    },
+    "tlsSelfSignedCA": {
+      "summary": "Self-signed CA verification",
+      "description": "Parca behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+      "value": {
+        "jsonData": {
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+        },
+        "url": "https://parca.internal.corp"
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-hello-datasource",
+    "pluginName": "Hello",
+    "fields": [
+        {
+            "id": "jsonData_services_httpbin_auth_id",
+            "key": "id",
+            "section": "services.httpbin.auth",
+            "label": "No Auth",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "none",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "none"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "No Auth",
+                        "value": "none"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_services_postman_echo_auth_id",
+            "key": "id",
+            "section": "services.postman_echo.auth",
+            "label": "No Auth",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "none",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "none"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "No Auth",
+                        "value": "none"
+                    }
+                ]
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_services_httpbin_auth_id",
+                "jsonData_services_postman_echo_auth_id"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Hello configuration is stored under a service-keyed jsonData shape: jsonData.services.<serviceId>.* holds per-service settings. There are two services: 'httpbin' (https://httpbin.org) and 'postman_echo' (https://postman-echo.com). This is an experimental plugin used for testing the framework.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Neither service requires authentication (auth method 'none'), so there are no secureJsonData secrets. jsonData.services.httpbin.auth.id and jsonData.services.postman_echo.auth.id are both 'none' (the backend defaults them). A working datasource needs no configuration at all: {} is valid.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: both services use fixed server URLs (https://httpbin.org and https://postman-echo.com) with no connection variables and no server selector.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

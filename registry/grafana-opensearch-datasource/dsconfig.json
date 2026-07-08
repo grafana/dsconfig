@@ -1,0 +1,721 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-opensearch-datasource",
+    "pluginName": "OpenSearch",
+    "docURL": "https://github.com/grafana/opensearch-datasource",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:9200"
+            }
+        },
+        {
+            "id": "root_access",
+            "key": "access",
+            "label": "Access",
+            "valueType": "string",
+            "target": "root",
+            "defaultValue": "proxy",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "proxy",
+                        "direct"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Server (default)",
+                        "value": "proxy"
+                    },
+                    {
+                        "label": "Browser",
+                        "value": "direct"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "label": "Basic auth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "user"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "root_withCredentials",
+            "key": "withCredentials",
+            "label": "With Credentials",
+            "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+            "valueType": "boolean",
+            "target": "root",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "dependsOn": "root_access == 'proxy'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_sigV4Auth",
+            "key": "sigV4Auth",
+            "label": "SigV4 auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.awsSigV4.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "label": "ServerName",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "Begins with -----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying self-signed TLS Certs",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "dependsOn": "root_access == 'proxy'",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "dependsOn": "root_access == 'proxy'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_database",
+            "key": "database",
+            "label": "Index name",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "es-index-name"
+            }
+        },
+        {
+            "id": "jsonData_interval",
+            "key": "interval",
+            "label": "Pattern",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Hourly",
+                        "Daily",
+                        "Weekly",
+                        "Monthly",
+                        "Yearly"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "No pattern",
+                        "value": ""
+                    },
+                    {
+                        "label": "Hourly",
+                        "value": "Hourly"
+                    },
+                    {
+                        "label": "Daily",
+                        "value": "Daily"
+                    },
+                    {
+                        "label": "Weekly",
+                        "value": "Weekly"
+                    },
+                    {
+                        "label": "Monthly",
+                        "value": "Monthly"
+                    },
+                    {
+                        "label": "Yearly",
+                        "value": "Yearly"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_timeField",
+            "key": "timeField",
+            "label": "Time field name",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "defaultValue": "@timestamp",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_serverless",
+            "key": "serverless",
+            "label": "Serverless",
+            "description": "If this is a DataSource to query a serverless OpenSearch service.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_flavor",
+            "key": "flavor",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "opensearch",
+                        "elasticsearch"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jsonData_version",
+            "key": "version",
+            "label": "Version",
+            "valueType": "string",
+            "target": "jsonData",
+            "required": true,
+            "dependsOn": "jsonData_serverless != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "version required"
+            }
+        },
+        {
+            "id": "jsonData_versionLabel",
+            "key": "versionLabel",
+            "valueType": "string",
+            "target": "jsonData"
+        },
+        {
+            "id": "jsonData_maxConcurrentShardRequests",
+            "key": "maxConcurrentShardRequests",
+            "label": "Max concurrent Shard Requests",
+            "valueType": "number",
+            "target": "jsonData",
+            "dependsOn": "jsonData_serverless != true",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_timeInterval",
+            "key": "timeInterval",
+            "label": "Min time interval",
+            "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^\\d+(ms|[Mwdhmsy])$",
+                    "message": "Value is not valid, you can use number with time unit specifier: y, M, w, d, h, m, s"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "10s"
+            }
+        },
+        {
+            "id": "jsonData_pplEnabled",
+            "key": "pplEnabled",
+            "label": "PPL enabled",
+            "description": "Allow Piped Processing Language as an alternative query syntax in the OpenSearch query editor.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": true,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_logMessageField",
+            "key": "logMessageField",
+            "label": "Message field name",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "_source"
+            }
+        },
+        {
+            "id": "jsonData_logLevelField",
+            "key": "logLevelField",
+            "label": "Level field name",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_dataLinks",
+            "key": "dataLinks",
+            "label": "Data links",
+            "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_dataLinks.item.field",
+                        "key": "field",
+                        "label": "Field",
+                        "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.title",
+                        "key": "title",
+                        "label": "Title",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.url",
+                        "key": "url",
+                        "label": "URL",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "http://example.com/${__value.raw}"
+                        }
+                    },
+                    {
+                        "id": "jsonData_dataLinks.item.datasourceUid",
+                        "key": "datasourceUid",
+                        "label": "Internal link",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "HTTP",
+            "order": 1,
+            "fieldRefs": [
+                "root_url",
+                "root_access"
+            ]
+        },
+        {
+            "id": "additional-http",
+            "title": "Additional HTTP settings",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_keepCookies",
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Auth",
+            "order": 3,
+            "fieldRefs": [
+                "root_basicAuth",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword",
+                "root_withCredentials",
+                "jsonData_sigV4Auth",
+                "jsonData_tlsAuth",
+                "jsonData_tlsAuthWithCACert",
+                "jsonData_tlsSkipVerify",
+                "jsonData_oauthPassThru"
+            ]
+        },
+        {
+            "id": "tls-settings",
+            "title": "TLS/SSL Auth Details",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey",
+                "secureJsonData_tlsCACert"
+            ]
+        },
+        {
+            "id": "opensearch-details",
+            "title": "OpenSearch details",
+            "order": 5,
+            "fieldRefs": [
+                "jsonData_database",
+                "jsonData_interval",
+                "jsonData_timeField",
+                "jsonData_serverless",
+                "jsonData_flavor",
+                "jsonData_version",
+                "jsonData_versionLabel",
+                "jsonData_maxConcurrentShardRequests",
+                "jsonData_timeInterval",
+                "jsonData_pplEnabled"
+            ]
+        },
+        {
+            "id": "logs",
+            "title": "Logs",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_logMessageField",
+                "jsonData_logLevelField"
+            ]
+        },
+        {
+            "id": "data-links",
+            "title": "Data links",
+            "order": 7,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_dataLinks"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic auth credentials. Both fields are used together when root.basicAuth is true (client.go:288-292)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS mutual auth: enabling jsonData.tlsAuth requires serverName + client cert + client key. See @grafana/ui TLSAuthSettings."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Self-signed / custom CA verification: enabling jsonData.tlsAuthWithCACert requires the CA certificate PEM in secureJsonData.tlsCACert."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_flavor",
+                "jsonData_version"
+            ],
+            "description": "Flavor + version are both set together by the editor's 'Get Version and Save' button (OpenSearchDetails.tsx:29-57). The backend hard-fails on health check when either is missing (opensearch.go:56-68)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "OpenSearch authentication uses @grafana/ui's DataSourceHttpSettings with independent boolean toggles (no discriminator): 'Basic auth' sets root.basicAuth=true (plus root.basicAuthUser and secureJsonData.basicAuthPassword); 'With Credentials' sets root.withCredentials=true (cross-site cookie forwarding, editor-only affects the browser fetch and is ignored by the backend); 'SigV4 auth' sets jsonData.sigV4Auth=true and is only offered when the Grafana instance has sigV4AuthEnabled=true (ConfigEditor.tsx:60); 'TLS Client Auth' sets jsonData.tlsAuth=true (plus serverName + tlsClientCert + tlsClientKey); 'With CA Cert' sets jsonData.tlsAuthWithCACert=true (plus tlsCACert); 'Skip TLS Verify' sets jsonData.tlsSkipVerify=true; 'Forward OAuth Identity' sets jsonData.oauthPassThru=true (only shown when access='proxy') and the backend uses it to set httpClientOptions.ForwardHTTPHeaders=true (client.go:45-47). Toggles are independent — any combination is legal on the wire.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payloads. Anonymous OpenSearch 1.x: {\"url\":\"http://opensearch:9200\",\"jsonData\":{\"flavor\":\"opensearch\",\"version\":\"1.0.0\",\"timeField\":\"@timestamp\",\"database\":\"<index>\",\"pplEnabled\":true}}. BasicAuth: {\"url\":\"https://opensearch.example.com\",\"basicAuth\":true,\"basicAuthUser\":\"<user>\",\"jsonData\":{\"flavor\":\"opensearch\",\"version\":\"1.0.0\",\"timeField\":\"@timestamp\",\"database\":\"<index>\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. SigV4 (AWS Managed OpenSearch): {\"url\":\"https://vpc-...es.amazonaws.com\",\"jsonData\":{\"flavor\":\"opensearch\",\"version\":\"1.0.0\",\"sigV4Auth\":true,\"sigV4AuthType\":\"default\",\"sigV4Region\":\"us-east-1\",\"timeField\":\"@timestamp\",\"database\":\"<index>\"}}. SigV4 (AWS OpenSearch Serverless): same as SigV4 above plus \"jsonData.serverless\":true (backend swaps the SigV4 service namespace from \"es\" to \"aoss\" at client.go:49-53). Forward OAuth: {\"url\":\"https://opensearch.example.com\",\"access\":\"proxy\",\"jsonData\":{\"oauthPassThru\":true,\"flavor\":\"opensearch\",\"version\":\"1.0.0\",\"timeField\":\"@timestamp\",\"database\":\"<index>\"}}. root.url, jsonData.flavor, jsonData.version, and jsonData.timeField are always required — the health check hard-fails with 'No version set' if flavor/version is unset (opensearch.go:56-68) and 'time field name is required' if timeField is empty (opensearch.go:70-74).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. @grafana/ui's CustomHeadersSettings component writes indexed httpHeaderName<N> (jsonData) / httpHeaderValue<N> (secureJsonData) pairs when custom HTTP headers are configured — these are modeled by the jsonData_httpHeaders field (indexedPair storage). The backend also honors legacy secureJsonData.password (used when root.user is set and root.basicAuth is false, client.go:294-298); that pairing is not exposed in the editor and is not modeled here.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "SigV4 fields (sigV4Auth, sigV4AuthType, sigV4Region, sigV4Profile, sigV4AssumeRoleArn, sigV4ExternalId, and secure sigV4AccessKey/sigV4SecretKey) are contributed by @grafana/aws-sdk's SIGV4ConnectionConfig — not defined by this plugin — and are only writable through the editor when the Grafana instance sets sigV4AuthEnabled (ConfigEditor.tsx:60-61). Provisioning bypasses that gate and can set jsonData.sigV4Auth=true at any time. The backend sets httpCliOpts.SigV4.Service='es' by default; when jsonData.serverless is true the service becomes 'aoss' (client.go:49-53).",
+            "tags": [
+                "llm",
+                "auth",
+                "settings"
+            ]
+        },
+        {
+            "msg": "OpenSearch-specific storage. jsonData.database holds the concrete index name or index prefix and is required by the editor (OpenSearchDetails.tsx:105-113); the backend treats it as optional (client.go:120-124) but health checks report 'Index not set' when it is empty. jsonData.interval selects a time pattern ('Hourly'/'Daily'/'Weekly'/'Monthly'/'Yearly'), or is omitted for 'No pattern'. When interval is set, the editor's intervalHandler auto-fills root.database (not jsonData.database) with a bracketed template (e.g. '[logstash-]YYYY.MM.DD') — a latent upstream inconsistency; the backend index-pattern generator reads jsonData.database regardless. jsonData.timeField defaults to '@timestamp' via coerceOptions (utils.ts:20). jsonData.flavor and jsonData.version are set together by the 'Get Version and Save' button (which HTTPs the cluster and reads its version); the health check rejects the datasource when either is missing. jsonData.pplEnabled defaults to true and gates the PPL query editor and the '_plugins/_ppl' endpoint routing (client.go:557-560).",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        },
+        {
+            "msg": "jsonData.serverless=true is the toggle for AWS OpenSearch Serverless: enabling it hard-codes flavor='opensearch', version='1.0.0', maxConcurrentShardRequests=5, pplEnabled=true (OpenSearchDetails.tsx:66-80), swaps the SigV4 service namespace from 'es' to 'aoss' (client.go:49-53), and adds the required x-amz-content-sha256 header on every non-GET request (client.go:300-302). jsonData.maxConcurrentShardRequests defaults to 5 for OpenSearch and Elasticsearch >=7.0.0, and to 256 for Elasticsearch <7.0.0; the backend also enforces those fallbacks (client.go:411-433). The editor hides the Max concurrent Shard Requests field for Elasticsearch <5.6.0 and for serverless. jsonData.dataLinks is consumed exclusively by the frontend log row viewer; the backend never reads it.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

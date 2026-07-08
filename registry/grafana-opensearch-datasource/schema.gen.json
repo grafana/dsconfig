@@ -1,0 +1,432 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "access": {
+          "type": "string",
+          "default": "proxy",
+          "enum": [
+            "proxy",
+            "direct"
+          ]
+        },
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "type": "string",
+          "x-dsconfig-depends-on": "root_basicAuth == true",
+          "x-dsconfig-required-when": "root_basicAuth == true"
+        },
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "database",
+            "timeField",
+            "version"
+          ],
+          "properties": {
+            "dataLinks": {
+              "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "field"
+                ],
+                "properties": {
+                  "datasourceUid": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "database": {
+              "type": "string"
+            },
+            "flavor": {
+              "type": "string",
+              "enum": [
+                "opensearch",
+                "elasticsearch"
+              ]
+            },
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "interval": {
+              "type": "string",
+              "enum": [
+                "Hourly",
+                "Daily",
+                "Weekly",
+                "Monthly",
+                "Yearly"
+              ]
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "x-dsconfig-depends-on": "root_access == 'proxy'"
+            },
+            "logLevelField": {
+              "type": "string"
+            },
+            "logMessageField": {
+              "type": "string"
+            },
+            "maxConcurrentShardRequests": {
+              "type": "number",
+              "x-dsconfig-depends-on": "jsonData_serverless != true"
+            },
+            "oauthPassThru": {
+              "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+              "type": "boolean",
+              "default": false,
+              "x-dsconfig-depends-on": "root_access == 'proxy'"
+            },
+            "pplEnabled": {
+              "description": "Allow Piped Processing Language as an alternative query syntax in the OpenSearch query editor.",
+              "type": "boolean",
+              "default": true
+            },
+            "serverName": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+              "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+            },
+            "serverless": {
+              "description": "If this is a DataSource to query a serverless OpenSearch service.",
+              "type": "boolean",
+              "default": false
+            },
+            "sigV4Auth": {
+              "type": "boolean",
+              "default": false
+            },
+            "timeField": {
+              "type": "string",
+              "default": "@timestamp"
+            },
+            "timeInterval": {
+              "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+              "type": "string",
+              "pattern": "^\\d+(ms|[Mwdhmsy])$"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number",
+              "x-dsconfig-depends-on": "root_access == 'proxy'"
+            },
+            "tlsAuth": {
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying self-signed TLS Certs",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "type": "boolean",
+              "default": false
+            },
+            "version": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_serverless != true"
+            },
+            "versionLabel": {
+              "type": "string"
+            }
+          }
+        },
+        "url": {
+          "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+          "type": "string"
+        },
+        "withCredentials": {
+          "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "basicAuthPassword"
+      },
+      {
+        "key": "tlsClientCert"
+      },
+      {
+        "key": "tlsClientKey"
+      },
+      {
+        "key": "tlsCACert"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new OpenSearch datasource ends up with after `coerceOptions` runs: timeField '@timestamp', maxConcurrentShardRequests 5 (OpenSearch flavor), pplEnabled true, and a placeholder index. Fill in root.url + a concrete jsonData.database + jsonData.flavor + jsonData.version to get a working datasource.",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "es-index-name",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "version": "1.0.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://localhost:9200"
+        }
+      },
+      "basicAuth": {
+        "summary": "Basic authentication",
+        "description": "Authenticate with an OpenSearch cluster that requires HTTP Basic. `basicAuth` and `basicAuthUser` live at the datasource root; only `basicAuthPassword` is secret.",
+        "value": {
+          "access": "proxy",
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "database": "grafana-logs",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://opensearch.example.com:9200"
+        }
+      },
+      "elasticsearchLegacy": {
+        "summary": "Elasticsearch \u003c7.0.0 (legacy flavor)",
+        "description": "OpenSearch's data source also supports Elasticsearch clusters running the Open Distro plugins. Setting flavor='elasticsearch' switches the PPL endpoint from '_plugins/_ppl' to '_opendistro/_ppl' (client.go:557-560) and, for version \u003c7.0.0, sets the default maxConcurrentShardRequests to 256 (client.go:411-416).",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "logstash-*",
+            "flavor": "elasticsearch",
+            "maxConcurrentShardRequests": 256,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "version": "6.8.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://es.internal.corp:9200"
+        }
+      },
+      "logsWithDataLinks": {
+        "summary": "Logs configuration with data links",
+        "description": "Log-oriented configuration with an explicit log message / log level field and two data link entries: one external URL and one internal Grafana link (datasourceUid) that treats jsonData.dataLinks[*].url as a query for the linked data source.",
+        "value": {
+          "access": "proxy",
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "dataLinks": [
+              {
+                "datasourceUid": "tempo",
+                "field": "traceID",
+                "title": "View trace",
+                "url": "${__value.raw}"
+              },
+              {
+                "field": "requestID",
+                "title": "Open request",
+                "url": "https://requests.example.com/${__value.raw}"
+              }
+            ],
+            "database": "[app-logs-]YYYY.MM.DD",
+            "flavor": "opensearch",
+            "interval": "Daily",
+            "logLevelField": "level",
+            "logMessageField": "message",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "timeInterval": "10s",
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://opensearch.example.com:9200"
+        }
+      },
+      "noAuth": {
+        "summary": "OpenSearch 1.x, no authentication",
+        "description": "A network-isolated OpenSearch cluster with no HTTP-level auth. Index uses a daily logstash-style time pattern.",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "[logstash-]YYYY.MM.DD",
+            "flavor": "opensearch",
+            "interval": "Daily",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "http://opensearch.example.com:9200"
+        }
+      },
+      "oauthForward": {
+        "summary": "Forward OAuth Identity",
+        "description": "Forward the signed-in user's upstream OAuth identity to OpenSearch. The editor writes `jsonData.oauthPassThru=true` and the backend enables `ForwardHTTPHeaders` on the HTTP client (client.go:45-47). Only available when access='proxy'.",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "grafana-logs",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "oauthPassThru": true,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://opensearch.example.com:9200"
+        }
+      },
+      "sigV4Managed": {
+        "summary": "SigV4 authentication (AWS Managed OpenSearch)",
+        "description": "AWS SigV4-signed requests to an AWS-managed OpenSearch domain. The sigV4* jsonData fields are contributed by @grafana/aws-sdk's SIGV4ConnectionConfig; the backend forces `httpCliOpts.SigV4.Service='es'` when serverless is false (client.go:49-53). Requires the Grafana instance to have `sigV4AuthEnabled=true` for the editor to expose the toggle.",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "grafana-logs",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "sigV4Auth": true,
+            "sigV4AuthType": "default",
+            "sigV4Region": "us-east-1",
+            "timeField": "@timestamp",
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://vpc-example.us-east-1.es.amazonaws.com"
+        }
+      },
+      "sigV4Serverless": {
+        "summary": "SigV4 authentication (AWS OpenSearch Serverless)",
+        "description": "AWS OpenSearch Serverless (`aoss`). Setting `jsonData.serverless=true` hard-codes flavor='opensearch', version='1.0.0', maxConcurrentShardRequests=5, pplEnabled=true, swaps the SigV4 service namespace from 'es' to 'aoss' (client.go:49-53), and adds the required `x-amz-content-sha256` header on every non-GET request (client.go:300-302).",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "grafana-logs",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "serverless": true,
+            "sigV4Auth": true,
+            "sigV4AuthType": "default",
+            "sigV4Region": "us-east-1",
+            "timeField": "@timestamp",
+            "version": "1.0.0"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": ""
+          },
+          "url": "https://\u003ccollection\u003e.us-east-1.aoss.amazonaws.com"
+        }
+      },
+      "tlsMutualAuth": {
+        "summary": "TLS mutual auth (mTLS)",
+        "description": "OpenSearch cluster requiring mTLS. jsonData.tlsAuth=true triggers @grafana/ui's TLSAuthSettings to expose serverName + client cert + client key inputs; the SDK's HTTPClientOptions builds a client-authenticated transport.",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "grafana-logs",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "serverName": "opensearch.example.com",
+            "timeField": "@timestamp",
+            "tlsAuth": true,
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+          },
+          "url": "https://opensearch.example.com:9200"
+        }
+      },
+      "tlsSelfSignedCA": {
+        "summary": "Self-signed CA verification",
+        "description": "OpenSearch behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+        "value": {
+          "access": "proxy",
+          "jsonData": {
+            "database": "grafana-logs",
+            "flavor": "opensearch",
+            "maxConcurrentShardRequests": 5,
+            "pplEnabled": true,
+            "timeField": "@timestamp",
+            "tlsAuthWithCACert": true,
+            "version": "2.11.0"
+          },
+          "secureJsonData": {
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+          },
+          "url": "https://opensearch.internal.corp:9200"
+        }
+      }
+    }
+  }
+}

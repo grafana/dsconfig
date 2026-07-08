@@ -1,0 +1,98 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: SaaS connection type. Fill in jsonData.environmentId and at least one of secureJsonData.apiToken (classic API) or secureJsonData.platformToken (Grail) — apiToken is empty here — to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "apiType": "saas"
+        },
+        "secureJsonData": {
+          "apiToken": ""
+        }
+      }
+    },
+    "managed": {
+      "summary": "Managed Cluster",
+      "description": "Dynatrace Managed cluster. jsonData.domain is the cluster host and is required in this mode; the base URL becomes https://\u003cdomain\u003e/e/\u003cenvironmentId\u003e/api/...",
+      "value": {
+        "jsonData": {
+          "apiType": "managed",
+          "domain": "dynatrace.example.com",
+          "environmentId": "abc12345"
+        },
+        "secureJsonData": {
+          "apiToken": "\u003cyour-dynatrace-api-token\u003e"
+        }
+      }
+    },
+    "rawUrl": {
+      "summary": "Raw URL",
+      "description": "Raw URL connection type: jsonData.environmentId holds the full base URL (the editor relabels the field to 'URL'), and the backend appends /api/... The URL must include the scheme.",
+      "value": {
+        "jsonData": {
+          "apiType": "url",
+          "environmentId": "https://abc12345.live.dynatrace.com"
+        },
+        "secureJsonData": {
+          "apiToken": "\u003cyour-dynatrace-api-token\u003e"
+        }
+      }
+    },
+    "saasApiToken": {
+      "summary": "SaaS with API token (classic API)",
+      "description": "SaaS environment authenticating the classic API endpoints (Metrics, Problems, Logs, USQL, audit logs) with a Dynatrace API token sent as 'Api-Token \u003ctoken\u003e'. The base URL becomes https://\u003cenvironmentId\u003e.live.dynatrace.com/api/...",
+      "value": {
+        "jsonData": {
+          "apiType": "saas",
+          "environmentId": "abc12345"
+        },
+        "secureJsonData": {
+          "apiToken": "\u003cyour-dynatrace-api-token\u003e"
+        }
+      }
+    },
+    "saasBothTokens": {
+      "summary": "SaaS with both tokens (classic + Grail)",
+      "description": "SaaS environment with both an API token (classic API endpoints) and a platform token (Grail). Set both to query classic and Grail endpoints from the same datasource.",
+      "value": {
+        "jsonData": {
+          "apiType": "saas",
+          "environmentId": "abc12345"
+        },
+        "secureJsonData": {
+          "apiToken": "\u003cyour-dynatrace-api-token\u003e",
+          "platformToken": "\u003cyour-dynatrace-platform-token\u003e"
+        }
+      }
+    },
+    "saasPlatformToken": {
+      "summary": "SaaS with platform token (Grail)",
+      "description": "SaaS environment authenticating the Grail platform API with a Dynatrace platform token sent as 'Bearer \u003ctoken\u003e'. For SaaS Grail the backend switches the host to https://\u003cenvironmentId\u003e.apps.dynatrace.com automatically.",
+      "value": {
+        "jsonData": {
+          "apiType": "saas",
+          "environmentId": "abc12345"
+        },
+        "secureJsonData": {
+          "platformToken": "\u003cyour-dynatrace-platform-token\u003e"
+        }
+      }
+    },
+    "tlsCACert": {
+      "summary": "SaaS with custom CA certificate",
+      "description": "SaaS environment with a custom CA certificate for TLS verification: jsonData.tlsAuthWithCACert=true enables the secureJsonData.tlsCACert PEM, which the backend validates as a parseable certificate.",
+      "value": {
+        "jsonData": {
+          "apiType": "saas",
+          "environmentId": "abc12345",
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "apiToken": "\u003cyour-dynatrace-api-token\u003e",
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n\u003cyour-ca-certificate-pem\u003e\n-----END CERTIFICATE-----"
+        }
+      }
+    }
+  }
+}

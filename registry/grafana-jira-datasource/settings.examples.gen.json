@@ -1,0 +1,107 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Basic Auth against Jira Cloud. jsonData.url and secureJsonData.token (empty here) must be filled in — pkg/models/settings.go:39-71 requires a URL and, for Basic Auth, a token.",
+      "value": {
+        "jsonData": {
+          "authMethod": "basicAuth",
+          "hosting": "cloud"
+        },
+        "secureJsonData": {
+          "token": ""
+        }
+      }
+    },
+    "basicAuthCloud": {
+      "summary": "Basic Auth (Jira Cloud)",
+      "description": "Atlassian Cloud with an account email + API token, sent as HTTP Basic auth. jsonData.url is the Atlassian site URL; secureJsonData.token is the API token created at https://id.atlassian.com/manage-profile/security/api-tokens.",
+      "value": {
+        "jsonData": {
+          "authMethod": "basicAuth",
+          "hosting": "cloud",
+          "url": "https://mycompany.atlassian.net",
+          "user": "user@example.com"
+        },
+        "secureJsonData": {
+          "token": "\u003cyour-jira-api-token\u003e"
+        }
+      }
+    },
+    "basicAuthScopedToken": {
+      "summary": "Basic Auth with scoped token (Jira Cloud)",
+      "description": "A scoped Atlassian API token (scopedToken=true) routes requests through https://api.atlassian.com/ex/jira/\u003ccloudId\u003e, so jsonData.cloudId is required (pkg/plugin.go:221-226).",
+      "value": {
+        "jsonData": {
+          "authMethod": "basicAuth",
+          "cloudId": "\u003cyour-jira-cloud-id\u003e",
+          "hosting": "cloud",
+          "scopedToken": true,
+          "url": "https://mycompany.atlassian.net",
+          "user": "user@example.com"
+        },
+        "secureJsonData": {
+          "token": "\u003cyour-scoped-api-token\u003e"
+        }
+      }
+    },
+    "basicAuthServer": {
+      "summary": "Basic Auth (Jira Data Center / Jira Server)",
+      "description": "Self-hosted Jira Data Center / Server (hosting='server' -\u003e REST API v2, pkg/plugin.go:177-180) with an account email + token, sent as HTTP Basic auth.",
+      "value": {
+        "jsonData": {
+          "authMethod": "basicAuth",
+          "hosting": "server",
+          "url": "https://jira.example.com",
+          "user": "user@example.com"
+        },
+        "secureJsonData": {
+          "token": "\u003cyour-jira-api-token\u003e"
+        }
+      }
+    },
+    "bearerTokenServer": {
+      "summary": "Bearer token / PAT (Jira Data Center, no user)",
+      "description": "Jira Data Center personal access token: leave jsonData.user empty so the backend sends the token as a Bearer token instead of HTTP Basic auth (pkg/plugin.go:253-264).",
+      "value": {
+        "jsonData": {
+          "authMethod": "basicAuth",
+          "hosting": "server",
+          "url": "https://jira.example.com"
+        },
+        "secureJsonData": {
+          "token": "\u003cyour-jira-personal-access-token\u003e"
+        }
+      }
+    },
+    "legacyBasicAuthNoAuthMethod": {
+      "summary": "Legacy: Basic Auth without an authMethod",
+      "description": "Datasources created before jsonData.authMethod existed store only url + user + secureJsonData.token; the backend resolves the missing authMethod to basicAuth (pkg/models/auth_method.go:11-15). LoadConfig.ApplyDefaults fills it in on load.",
+      "value": {
+        "jsonData": {
+          "url": "https://mycompany.atlassian.net",
+          "user": "user@example.com"
+        },
+        "secureJsonData": {
+          "token": "\u003cyour-jira-api-token\u003e"
+        }
+      }
+    },
+    "oauth2": {
+      "summary": "OAuth 2.0 — Service Account (Jira Cloud)",
+      "description": "OAuth 2.0 client-credentials grant against https://auth.atlassian.com/oauth/token, targeting https://api.atlassian.com/ex/jira/\u003ccloudId\u003e. jsonData.oauthClientID, jsonData.cloudId and secureJsonData.oauthClientSecret are all required (pkg/models/settings.go:56-64). OAuth 2.0 is Jira Cloud only.",
+      "value": {
+        "jsonData": {
+          "authMethod": "oauth2",
+          "cloudId": "\u003cyour-jira-cloud-id\u003e",
+          "hosting": "cloud",
+          "oauthClientID": "\u003cyour-oauth-client-id\u003e",
+          "url": "https://mycompany.atlassian.net"
+        },
+        "secureJsonData": {
+          "oauthClientSecret": "\u003cyour-oauth-client-secret\u003e"
+        }
+      }
+    }
+  }
+}

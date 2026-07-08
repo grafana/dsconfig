@@ -1,0 +1,120 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-wavefront-datasource",
+    "pluginName": "Wavefront",
+    "docURL": "https://grafana.com/docs/plugins/grafana-wavefront-datasource",
+    "fields": [
+        {
+            "id": "jsonData_url",
+            "key": "url",
+            "label": "API URL",
+            "description": "URL to Wavefront API",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "defaultValue": "https://try.wavefront.com",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "https://try.wavefront.com"
+            }
+        },
+        {
+            "id": "secureJsonData_token",
+            "key": "token",
+            "label": "Token",
+            "description": "Wavefront token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Wavefront token"
+            }
+        },
+        {
+            "id": "jsonData_requestTimeout",
+            "key": "requestTimeout",
+            "label": "Request timeout in seconds",
+            "description": "Request timeout in seconds. Defaults to 30",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "defaultValue": 30,
+            "ui": {
+                "component": "input",
+                "placeholder": "30"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "wavefront-settings",
+            "title": "Wavefront settings",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_url",
+                "secureJsonData_token"
+            ]
+        },
+        {
+            "id": "customization",
+            "title": "Customization",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_requestTimeout"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_url",
+                "secureJsonData_token"
+            ],
+            "description": "Connection to a Wavefront (VMware Aria Operations for Applications) cluster: the API base URL and the Bearer token used against it. Both are required — pkg/models/settings.go:32-37 rejects an empty url ('invalid url') or empty token ('invalid credentials')."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Wavefront (VMware Aria Operations for Applications) datasource authenticates against the Wavefront API with a single API token stored in secureJsonData.token. Every outgoing request adds an 'Authorization: Bearer <token>' header (pkg/datasource/datasource.go:45-47; pkg/wavefront/client.go:39-44). There are no other authentication methods.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"url\":\"https://try.wavefront.com\"},\"secureJsonData\":{\"token\":\"<your-wavefront-api-token>\"}}. Both jsonData.url and secureJsonData.token are strictly required — pkg/models/settings.go:32-37 returns 'invalid url' when url is empty and 'invalid credentials' when token is empty. Generate an API token from your Wavefront / Aria Operations for Applications user profile.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.token is write-only: it can be set or reset but never read back. To check whether the token is already configured on an existing datasource, read secureJsonFields.token (boolean) instead of secureJsonData.token (src/components/ConfigEditor.tsx:77-81).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.url is the Wavefront cluster / API base URL (for example https://try.wavefront.com or https://<your-cluster>.wavefront.com), without a trailing slash. The backend trims one trailing '/' (pkg/datasource/datasource.go:42; pkg/wavefront/wavefront.go:40) and then joins API paths such as '/api/v2/accesspolicy' onto it (pkg/datasource/handler_healthcheck.go:20). The editor pre-fills https://try.wavefront.com, but the backend does NOT default an empty url — it is required.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "jsonData.requestTimeout is the per-request timeout in seconds (optional; defaults to 30). It is stored under jsonData, not at the datasource root. A missing, null, or non-positive value falls back to 30 — pkg/models/settings.go:23-24 seeds the default before unmarshal and pkg/datasource/client.go:20-22 coerces any value <= 0 to 30 when building the HTTP client.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

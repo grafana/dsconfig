@@ -1,0 +1,178 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-sumologic-datasource",
+    "pluginName": "Sumo Logic",
+    "docURL": "https://grafana.com/docs/plugins/grafana-sumologic-datasource",
+    "fields": [
+        {
+            "id": "jsonData_apiUrl",
+            "key": "apiUrl",
+            "label": "API region / URL",
+            "description": "SumoLogic API URL. [Read how to find your deployment.](https://help.sumologic.com/docs/api/getting-started/#which-endpoint-should-i-should-use)",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "defaultValue": "https://api.sumologic.com/api/",
+            "required": true,
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "Timeout in seconds for the data requests",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "defaultValue": 30,
+            "validations": [
+                {
+                    "type": "range",
+                    "min": 1
+                }
+            ],
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_interval",
+            "key": "interval",
+            "label": "Interval",
+            "description": "Interval in milliseconds for the log polling requests. Min value is 200.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 1000,
+            "validations": [
+                {
+                    "type": "range",
+                    "min": 200
+                }
+            ],
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_authMethod",
+            "key": "authMethod",
+            "description": "Authentication method discriminator. The only supported value is 'accessKey' (HTTP basic auth with an access ID + access key). The configuration editor never writes this key \u2014 it renders a single fixed authentication method whose selector handler is a no-op \u2014 and the backend defaults it to 'accessKey' when empty and rejects any other value.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "accessKey",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "accessKey"
+                    ]
+                }
+            ],
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_accessId",
+            "key": "accessId",
+            "label": "AccessID",
+            "description": "Sumo Logic Access Id",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "requiredWhen": "jsonData_authMethod == 'accessKey'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Sumo Logic Access Id"
+            }
+        },
+        {
+            "id": "secureJsonData_accessKey",
+            "key": "accessKey",
+            "label": "AccessKey",
+            "description": "Sumo Logic Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "requiredWhen": "jsonData_authMethod == 'accessKey'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Access key"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "apiRegion",
+            "title": "API Region",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_apiUrl",
+                "jsonData_timeout",
+                "jsonData_interval"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_accessId",
+                "secureJsonData_accessKey"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_accessId",
+                "secureJsonData_accessKey"
+            ],
+            "description": "Sumo Logic access credentials used as HTTP basic auth: jsonData.accessId is the basic-auth username and secureJsonData.accessKey the basic-auth password (pkg/sumo/client.go:51-55). Both are required when jsonData.authMethod == 'accessKey' (pkg/models/settings.go:64-70)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Sumo Logic supports a single authentication method, selected via jsonData.authMethod whose only valid value is 'accessKey' (HTTP basic auth). The backend defaults authMethod to 'accessKey' when it is empty and returns an 'incorrect authentication method selected' error for any other value (pkg/models/settings.go:40-42; pkg/sumo/client.go:51-58). Credentials are jsonData.accessId (the basic-auth username) and secureJsonData.accessKey (the basic-auth password). The config editor never writes authMethod: it renders one fixed method with a no-op selector handler.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure the datasource, set jsonData.authMethod to 'accessKey' (or leave it unset to accept the default), jsonData.apiUrl to your regional Sumo Logic API endpoint, jsonData.accessId to the access ID, and put the access key in secureJsonData.accessKey. Minimal payload: {\"jsonData\":{\"authMethod\":\"accessKey\",\"apiUrl\":\"https://api.sumologic.com/api/\",\"accessId\":\"<your-access-id>\"},\"secureJsonData\":{\"accessKey\":\"<your-access-key>\"}}. Both accessId and accessKey are mandatory; without them Validate returns 'invalid access id' / 'invalid access key' (pkg/models/settings.go:64-70).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData.accessKey is write-only: it can be set or reset but never read back. To check whether the access key is already configured on an existing datasource, read secureJsonFields.accessKey == true instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Defaulting/legacy interpretation: on load the backend applies defaults for empty/zero values \u2014 authMethod becomes 'accessKey', apiUrl becomes https://api.sumologic.com/api/, timeout becomes 30 (seconds), and interval becomes 1000 (milliseconds) (pkg/models/settings.go:40-51). A datasource with no authMethod is therefore treated as access-key auth; do not assume a missing authMethod means the datasource is unconfigured.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "jsonData.apiUrl is the regional Sumo Logic API endpoint; pick the one matching your deployment (custom values are allowed): https://api.sumologic.com/api/ (US1 / Default), https://api.us2.sumologic.com/api/ (US2), https://api.eu.sumologic.com/api/ (EU), https://api.au.sumologic.com/api/ (AU), https://api.ca.sumologic.com/api/ (CA), https://api.de.sumologic.com/api/ (DE), https://api.in.sumologic.com/api/ (IN), https://api.jp.sumologic.com/api/ (JP), https://api.fed.sumologic.com/api/ (FED). It defaults to https://api.sumologic.com/api/ when empty. The backend trims one trailing slash before appending the API path (pkg/sumo/client.go:145), so a trailing slash is safe.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

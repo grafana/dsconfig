@@ -1,0 +1,52 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "driver"
+        ],
+        "properties": {
+          "DSN": {
+            "description": "Optional Data Source Name. Read only by the backend (pkg/database/connect.go:76-78): when non-empty, the connection string is built as 'DSN=\u003cvalue\u003e;' instead of 'Driver=\u003cdriver\u003e;'. Not written by the configuration editor.",
+            "type": "string"
+          },
+          "driver": {
+            "description": "This field either accepts '{mydb2}' for driver connections or a absolute path to the odbc driver of your database of choice, for example '/home/driver/db2/libs2.so'.",
+            "type": "string"
+          },
+          "settings": {
+            "description": "These settings will be parsed into key value pairs and concatenated to create the Connection string the plugin will use. For additional settings, please check the keys match exactly what your database requires in a connection string.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "secure": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "timeout": {
+            "type": "string",
+            "default": "10"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "pwd",
+      "description": "Representative secret for a driver setting whose 'secure' flag is enabled. Secret keys are dynamic and equal to the secure setting's Name; 'pwd' is the conventional password key from the plugin README's driver-settings table. There is no fixed secret key."
+    }
+  ]
+}

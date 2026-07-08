@@ -1,0 +1,723 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-azureprometheus-datasource",
+    "pluginName": "Azure Monitor Managed Service for Prometheus",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/prometheus/configure-prometheus-data-source/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "Prometheus server URL",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:9090"
+            }
+        },
+        {
+            "id": "jsonData_azureCredentials",
+            "key": "azureCredentials",
+            "label": "Authentication",
+            "description": "Choose the type of authentication to Azure services",
+            "valueType": "any",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "help": {
+                "markdown": "Discriminated-union object written by the `@grafana/azure-sdk` `AzureCredentialsForm` (`src/configuration/AzureCredentialsForm.tsx`). Shape depends on `authType`:\n\n- `clientsecret` — `{ authType: 'clientsecret', azureCloud, tenantId, clientId }` (secret in `secureJsonData.azureClientSecret`). Rendered as **App Registration** — always available.\n- `msi` — `{ authType: 'msi' }`. Rendered as **Managed Identity** — only when Grafana has `azure.managedIdentityEnabled`.\n- `workloadidentity` — `{ authType: 'workloadidentity' }`. Rendered as **Workload Identity** — only when `azure.workloadIdentityEnabled`.\n- `currentuser` — `{ authType: 'currentuser', serviceCredentialsEnabled?: boolean, serviceCredentials?: { authType: 'msi' | 'workloadidentity' | 'clientsecret', ... } }`. Rendered as **Current User** — only when `azure.userIdentityEnabled`.\n\nOnly `App Registration (clientsecret)` exposes the tenant/client/secret inputs directly in this plugin's editor; the other authTypes have no additional sub-fields. See `src/configuration/AzureCredentialsForm.tsx:34-66` for the option list and `src/configuration/AppRegistrationCredentials.tsx:57-150` for the App Registration inputs. Backend parse is delegated to `github.com/grafana/grafana-azure-sdk-go/v2/azcredentials.FromDatasourceData` (invoked at `pkg/azureauth/azure.go:23`)."
+            },
+            "tags": [
+                "azure",
+                "sdk-managed"
+            ]
+        },
+        {
+            "id": "secureJsonData_azureClientSecret",
+            "key": "azureClientSecret",
+            "label": "Client Secret",
+            "description": "Client secret of the App Registration. Written write-only by `@grafana/azure-sdk`'s `AzureCredentialsForm`; check `secureJsonFields.azureClientSecret` on the read side. Used when `jsonData.azureCredentials.authType` is `clientsecret` or `currentuser` with a `clientsecret` service-credentials fallback.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "tags": [
+                "azure",
+                "sdk-managed"
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+            }
+        },
+        {
+            "id": "secureJsonData_clientSecret",
+            "key": "clientSecret",
+            "description": "Legacy client secret key. Preserved for backward compatibility with datasources provisioned before the credential migration to `azureClientSecret`. The backend reads it as a fallback via `grafana-azure-sdk-go/v2` `azcredentials/builder.go` `getFromCredentialsObject` when `secureJsonData.azureClientSecret` is missing.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "tags": [
+                "azure",
+                "legacy"
+            ]
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "description": "Set to `true` by `@grafana/azure-sdk`'s `updateDatasourceCredentials` when the selected auth type is `currentuser`. `DataSourceHttpSettingsOverhaul.onAuthMethodSelect` (`src/configuration/DataSourceHttpSettingsOverhaul.tsx:121-131`) also always clears this to `false` on every save because the plugin's `visibleMethods=[azureAuthId]` locks the user to Azure auth. Consumed by the SDK's shared HTTP client and by `pkg/promlib` (`OauthPassThru` on PromOptions).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "tags": [
+                "sdk-managed"
+            ]
+        },
+        {
+            "id": "jsonData_azureEndpointResourceId",
+            "key": "azureEndpointResourceId",
+            "description": "Optional override of the Azure resource ID (audience) used to build the OAuth scope for Prometheus queries. Defined on `AzurePromDataSourceOptions` (`src/configuration/AzureCredentialsConfig.ts:68`) and cleared by `resetCredentials` (`AzureCredentialsConfig.ts:57-64`). Not rendered by the config editor — provisioning-only. If unset, the backend derives the scope from the resolved Azure cloud's `prometheusResourceId` property (`pkg/azureauth/azure.go:58-63`).",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_prometheusTypeMigration",
+            "key": "prometheus-type-migration",
+            "description": "Sentinel flag set by the migration path when a vanilla Prometheus data source is migrated to Azure Monitor Managed Service for Prometheus. When true, `DataSourceHttpSettingsOverhaul.tsx:101-117` renders the 'Data source migrated' warning banner. Storage key uses a hyphen — the field ID is camelCased. Never rendered as an input; provisioning may set it to suppress or trigger the banner.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only",
+                "migration"
+            ]
+        },
+        {
+            "id": "jsonData_manageAlerts",
+            "key": "manageAlerts",
+            "label": "Manage alerts via Alerting UI",
+            "description": "Manage alert rules for this data source. To manage other alerting resources, add an Alertmanager data source.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_allowAsRecordingRulesTarget",
+            "key": "allowAsRecordingRulesTarget",
+            "label": "Allow as recording rules target",
+            "description": "Allow this data source to be selected as a target for writing recording rules.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "New cookie (hit enter to add)"
+            }
+        },
+        {
+            "id": "jsonData_timeInterval",
+            "key": "timeInterval",
+            "label": "Scrape interval",
+            "description": "This interval is how frequently Prometheus scrapes targets. Set this to the typical scrape and evaluation interval configured in your Prometheus config file. If you set this to a greater value than your Prometheus config file interval, Grafana will evaluate the data according to this interval and you will see less data points. Defaults to 15s.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "15s"
+            }
+        },
+        {
+            "id": "jsonData_queryTimeout",
+            "key": "queryTimeout",
+            "label": "Query timeout",
+            "description": "Set the Prometheus query timeout.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "60s"
+            }
+        },
+        {
+            "id": "jsonData_defaultEditor",
+            "key": "defaultEditor",
+            "label": "Default editor",
+            "description": "Set default editor option for all users of this data source.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "builder",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "builder",
+                        "code"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Builder",
+                        "value": "builder"
+                    },
+                    {
+                        "label": "Code",
+                        "value": "code"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_disableMetricsLookup",
+            "key": "disableMetricsLookup",
+            "label": "Disable metrics lookup",
+            "description": "Checking this option will disable the metrics chooser and metric/label support in the query field's autocomplete. This helps if you have performance issues with bigger Prometheus instances.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_prometheusType",
+            "key": "prometheusType",
+            "label": "Prometheus type",
+            "description": "Set this to the type of your prometheus database, e.g. Prometheus, Cortex, Mimir or Thanos. Changing this field will save your current settings. Certain types of Prometheus supports or does not support various APIs. For example, some types support regex matching for label queries to improve performance. Some types have an API for metadata. If you set this incorrectly you may experience odd behavior when querying metrics and labels. Please check your Prometheus documentation to ensure you enter the correct type.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Prometheus",
+                        "Cortex",
+                        "Mimir",
+                        "Thanos"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Prometheus",
+                        "value": "Prometheus"
+                    },
+                    {
+                        "label": "Cortex",
+                        "value": "Cortex"
+                    },
+                    {
+                        "label": "Mimir",
+                        "value": "Mimir"
+                    },
+                    {
+                        "label": "Thanos",
+                        "value": "Thanos"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_prometheusVersion",
+            "key": "prometheusVersion",
+            "label": "Version",
+            "description": "Use this to set the version of your Prometheus instance if it is not automatically configured. The option list depends on the selected Prometheus type (see PromFlavorVersions.ts in @grafana/prometheus).",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_prometheusType != ''",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_cacheLevel",
+            "key": "cacheLevel",
+            "label": "Cache level",
+            "description": "Sets the browser caching level for editor queries. Higher cache settings are recommended for high cardinality data sources.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "Low",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "Low",
+                        "Medium",
+                        "High",
+                        "None"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Low",
+                        "value": "Low"
+                    },
+                    {
+                        "label": "Medium",
+                        "value": "Medium"
+                    },
+                    {
+                        "label": "High",
+                        "value": "High"
+                    },
+                    {
+                        "label": "None",
+                        "value": "None"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_incrementalQuerying",
+            "key": "incrementalQuerying",
+            "label": "Incremental querying (beta)",
+            "description": "This feature will change the default behavior of relative queries to always request fresh data from the prometheus instance, instead query results will be cached, and only new records are requested. Turn this on to decrease database and network load.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_incrementalQueryOverlapWindow",
+            "key": "incrementalQueryOverlapWindow",
+            "label": "Query overlap window",
+            "description": "Set a duration like 10m or 120s or 0s. Default of 10m. This duration will be added to the duration of each incremental request.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "10m",
+            "dependsOn": "jsonData_incrementalQuerying == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "10m"
+            }
+        },
+        {
+            "id": "jsonData_disableRecordingRules",
+            "key": "disableRecordingRules",
+            "label": "Disable recording rules (beta)",
+            "description": "This feature will disable recording rules. Turn this on to improve dashboard performance",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_customQueryParameters",
+            "key": "customQueryParameters",
+            "label": "Custom query parameters",
+            "description": "Add custom parameters to the Prometheus query URL. For example timeout, partial_response, dedup, or max_source_resolution. Multiple parameters should be concatenated together with '&'.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Example: max_source_resolution=5m&timeout=10"
+            }
+        },
+        {
+            "id": "jsonData_httpMethod",
+            "key": "httpMethod",
+            "label": "HTTP method",
+            "description": "You can use either POST or GET HTTP method to query your Prometheus data source. POST is the recommended method as it allows bigger queries. Change this to GET if you have a Prometheus version older than 2.1 or if POST requests are restricted in your network.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "POST",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "POST",
+                        "GET"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "POST",
+                        "value": "POST"
+                    },
+                    {
+                        "label": "GET",
+                        "value": "GET"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_seriesLimit",
+            "key": "seriesLimit",
+            "label": "Series limit",
+            "description": "The limit applies to all resources (metrics, labels, and values) for both endpoints (series and labels). Leave the field empty to use the default limit (40000). Set to 0 to disable the limit and fetch everything — this may cause performance issues. Default limit is 40000.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "40000"
+            }
+        },
+        {
+            "id": "jsonData_seriesEndpoint",
+            "key": "seriesEndpoint",
+            "label": "Use series endpoint",
+            "description": "Checking this option will favor the series endpoint with match[] parameter over the label values endpoint with match[] parameter. While the label values endpoint is considered more performant, some users may prefer the series because it has a POST method while the label values endpoint only has a GET method.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_exemplarTraceIdDestinations",
+            "key": "exemplarTraceIdDestinations",
+            "label": "Exemplars",
+            "description": "Exemplar trace ID destinations. For each configured destination, the plugin renders a link on exemplar labels — either to an internal Grafana tracing data source (datasourceUid) or an external URL. The label whose value carries the trace ID is 'name' (defaults to 'traceID' when new entries are added).",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.name",
+                        "key": "name",
+                        "label": "Label name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "traceID"
+                        }
+                    },
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.url",
+                        "key": "url",
+                        "label": "URL",
+                        "description": "The URL of the trace backend the user would go to see its trace",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "https://example.com/${__value.raw}"
+                        }
+                    },
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.urlDisplayLabel",
+                        "key": "urlDisplayLabel",
+                        "label": "URL Label",
+                        "description": "Use to override the button label on the exemplar traceID field.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Go to example.com"
+                        }
+                    },
+                    {
+                        "id": "jsonData_exemplarTraceIdDestinations.item.datasourceUid",
+                        "key": "datasourceUid",
+                        "label": "Data source",
+                        "description": "The tracing data source the exemplar link should navigate to. Setting this makes the exemplar an internal link and takes precedence over url.",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "ui": {
+                            "component": "input"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_maxSamplesProcessedWarningThreshold",
+            "key": "maxSamplesProcessedWarningThreshold",
+            "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_warning_threshold URL parameter. Not exposed in the Azure Prometheus config editor (the PromSettings component only renders this input when its showQuerySamplesProcessedThresholdFields prop is true — this plugin never passes it), but the field is parsed by `pkg/promlib/models/settings.go:41` (backend-only).",
+            "valueType": "number",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_maxSamplesProcessedErrorThreshold",
+            "key": "maxSamplesProcessedErrorThreshold",
+            "description": "When set, Grafana appends this value to Prometheus query requests as the max_samples_processed_error_threshold URL parameter. Not exposed in the Azure Prometheus config editor (feature-flagged off — see maxSamplesProcessedWarningThreshold).",
+            "valueType": "number",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_azureCredentials",
+                "secureJsonData_azureClientSecret",
+                "secureJsonData_clientSecret",
+                "jsonData_oauthPassThru",
+                "jsonData_azureEndpointResourceId"
+            ]
+        },
+        {
+            "id": "alerting",
+            "title": "Alerting",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_manageAlerts",
+                "jsonData_allowAsRecordingRulesTarget"
+            ]
+        },
+        {
+            "id": "advanced-http",
+            "title": "Advanced HTTP settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeout",
+                "jsonData_httpHeaders",
+                "jsonData_keepCookies"
+            ]
+        },
+        {
+            "id": "interval-behaviour",
+            "title": "Interval behaviour",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_timeInterval",
+                "jsonData_queryTimeout"
+            ]
+        },
+        {
+            "id": "query-editor",
+            "title": "Query editor",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_defaultEditor",
+                "jsonData_disableMetricsLookup"
+            ]
+        },
+        {
+            "id": "performance",
+            "title": "Performance",
+            "order": 7,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_prometheusType",
+                "jsonData_prometheusVersion",
+                "jsonData_cacheLevel",
+                "jsonData_incrementalQuerying",
+                "jsonData_incrementalQueryOverlapWindow",
+                "jsonData_disableRecordingRules"
+            ]
+        },
+        {
+            "id": "other",
+            "title": "Other",
+            "order": 8,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_customQueryParameters",
+                "jsonData_httpMethod",
+                "jsonData_seriesLimit",
+                "jsonData_seriesEndpoint"
+            ]
+        },
+        {
+            "id": "exemplars",
+            "title": "Exemplars",
+            "order": 9,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_exemplarTraceIdDestinations"
+            ]
+        },
+        {
+            "id": "migration",
+            "title": "Migration",
+            "order": 10,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_prometheusTypeMigration"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_azureCredentials",
+                "secureJsonData_azureClientSecret",
+                "secureJsonData_clientSecret"
+            ],
+            "description": "Discriminated-union Azure credentials — `jsonData.azureCredentials.authType` selects which secret keys are populated. Managed atomically by `@grafana/azure-sdk`'s `AzureCredentialsForm`. `secureJsonData.clientSecret` is the legacy pre-migration key that the backend still reads as a fallback."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Azure Monitor Managed Service for Prometheus authenticates through the discriminated-union object at `jsonData.azureCredentials`, written by the `@grafana/azure-sdk` `AzureCredentialsForm`. `visibleMethods=[azureAuthId]` (`src/configuration/DataSourceHttpSettingsOverhaul.tsx:134`) locks the editor's auth picker to Azure auth only — Basic auth, OAuth Forward and mTLS are NOT selectable from the UI. Supported `authType` values: `clientsecret` (App Registration — always available), `msi` (Managed Identity — only when Grafana has `azure.managedIdentityEnabled`), `workloadidentity` (only when `azure.workloadIdentityEnabled`), `currentuser` (only when `azure.userIdentityEnabled`). Backend parse is delegated to `github.com/grafana/grafana-azure-sdk-go/v2/azcredentials.FromDatasourceData` (`pkg/azureauth/azure.go:23`).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "App Registration (clientsecret) minimal payload: `{\"url\":\"https://<workspace>.prometheus.monitor.azure.com\",\"jsonData\":{\"azureCredentials\":{\"authType\":\"clientsecret\",\"azureCloud\":\"AzureCloud\",\"tenantId\":\"<uuid>\",\"clientId\":\"<uuid>\"},\"httpMethod\":\"POST\"},\"secureJsonData\":{\"azureClientSecret\":\"<secret>\"}}`. `azureCloud` values: `AzureCloud`, `AzureChinaCloud`, `AzureUSGovernment` (from `grafana-azure-sdk-go/v2/azsettings/clouds.go`). The backend derives the OAuth scope from the resolved cloud's `prometheusResourceId` property (`pkg/azureauth/azure.go:58-63`); missing this property in the cloud config produces `\"the Azure cloud '%s' doesn't have configuration for Prometheus\"`.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Managed Identity, Workload Identity, and Current User: minimal payload is `{\"url\":\"https://<workspace>.prometheus.monitor.azure.com\",\"jsonData\":{\"azureCredentials\":{\"authType\":\"msi\"},\"httpMethod\":\"POST\"}}` (or `workloadidentity` / `currentuser`). No `secureJsonData` required for MSI/Workload. Current User (`authType: 'currentuser'`) may optionally set `serviceCredentialsEnabled: true` plus `serviceCredentials` (an inner `AzureCredentials` object for `clientsecret`, `msi`, or `workloadidentity`) to provide fallback credentials for alerting / recorded queries / reporting; when the fallback is `clientsecret` the secret is stored in the same `secureJsonData.azureClientSecret` key.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy migration: pre-migration datasources may still store credentials under `secureJsonData.clientSecret` instead of the new `secureJsonData.azureClientSecret`. The backend reads `clientSecret` as a fallback via `grafana-azure-sdk-go/v2` `azcredentials/builder.go`. Datasources migrated from vanilla Prometheus additionally carry `jsonData['prometheus-type-migration'] = true` (`src/configuration/DataSourceHttpSettingsOverhaul.tsx:37,101-117`), which makes the editor render a `'Data source migrated'` warning banner until the operator dismisses/replaces it.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "Secure values (`secureJsonData.azureClientSecret`, `secureJsonData.clientSecret`) are write-only: set/reset them but never read them back. To detect whether a secret is configured on an existing datasource, read the `secureJsonFields` object (e.g. `secureJsonFields.azureClientSecret == true`). The Azure-SDK form renders the input as a masked 'configured' / 'Reset' control when `secureJsonFields.azureClientSecret` is true (`src/configuration/AppRegistrationCredentials.tsx:110-127`).",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection rules: `root.url` is required and must point at the Azure-hosted Prometheus workspace query endpoint (typically `https://<workspace>.prometheus.monitor.azure.com`). `options.access === 'direct'` (Browser mode) is rejected inline with an error banner (`src/configuration/ConfigEditor.tsx:41-48`) — always use `access: 'proxy'` (Server). `jsonData.httpMethod` defaults to POST (uppercased on load by the backend, `pkg/promlib/models/settings.go:82-87`) and must be POST or GET; the backend rejects anything else. `jsonData.azureEndpointResourceId` may override the OAuth scope audience derived from the cloud config — provisioning-only, no editor UI.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Custom HTTP headers ARE modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as @grafana/plugin-ui's CustomHeaders component and the SDK HTTPClientOptions expect. The legacy editor renders these under an 'HTTP headers' section with an 'Add header' button. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "settings",
+                "legacy"
+            ]
+        }
+    ]
+}

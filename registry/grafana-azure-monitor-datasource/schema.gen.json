@@ -1,0 +1,302 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "appInsightsAppId": {
+              "description": "Deprecated. App ID of the Application Insights resource still parsed by the backend (`pkg/azuremonitor/types/types.go:31` `AzureMonitorSettings.AppInsightsAppId`) for provisioned datasources migrated from the old Application Insights integration. The config editor no longer renders this field (Application Insights was folded into Log Analytics — see `docs/deprecated-application-insights/`).",
+              "type": "string"
+            },
+            "azureAuthType": {
+              "description": "Legacy top-level auth-type field written by the pre-2023 Azure Monitor config editor before credentials were nested under `jsonData.azureCredentials`. Read by the backend legacy fallback in `pkg/azuremonitor/azmoncredentials/builder.go:34-56` (`getFromLegacy`) and by the frontend at `src/credentials.ts:40-57` when no `azureCredentials` object is present. `updateDatasourceCredentials` in `@grafana/azure-sdk` unsets this field whenever the editor saves.",
+              "type": "string"
+            },
+            "azureCredentials": {
+              "description": "Choose the type of authentication to Azure services"
+            },
+            "azureLogAnalyticsSameAs": {
+              "description": "Deprecated. When set to `false`, the backend hard-fails Log Analytics queries with 'credentials for Log Analytics are no longer supported. Go to the data source configuration to update Azure Monitor credentials' (`pkg/azuremonitor/loganalytics/azure-log-analytics-datasource.go:415-432`). Accepts a bool or a string that `strconv.ParseBool` can parse."
+            },
+            "basicLogsEnabled": {
+              "description": "Enabling this feature incurs Azure Monitor per-query costs on dashboard panels that query tables configured for Basic Logs.",
+              "type": "boolean",
+              "default": false
+            },
+            "clientId": {
+              "description": "Legacy top-level client ID (paired with legacy `tenantId`/`clientSecret`). Preserved so pre-migration datasources continue to authenticate; the current `AzureCredentialsForm` writes client inside `jsonData.azureCredentials.clientId` and clears this field.",
+              "type": "string"
+            },
+            "cloudName": {
+              "description": "Legacy Azure cloud discriminator (values `azuremonitor` / `chinaazuremonitor` / `govazuremonitor` / `customizedazuremonitor`). Read by `pkg/azuremonitor/azmoncredentials/builder.go:126-142` `resolveLegacyCloudName` and by `resolveLegacyCloudName` in `@grafana/azure-sdk` (`src/clouds.ts:32-47`). Also gates `customizedRoutes` — `azureCloud == 'AzureCustomizedCloud'` (derived from `cloudName == 'customizedazuremonitor'`) is the only way the backend consults `jsonData.customizedRoutes`.",
+              "type": "string"
+            },
+            "customizedRoutes": {
+              "description": "Map of route name → `{ URL, Scopes, Headers }` overriding the default Azure Monitor / Log Analytics / Resource Graph endpoints. Only consulted by the backend when the resolved cloud is `AzureCustomizedCloud` (`pkg/azuremonitor/routes.go:31-37,93-106`). Not rendered by the config editor — configured via provisioning YAML.",
+              "type": "object",
+              "additionalProperties": true
+            },
+            "disableGrafanaCache": {
+              "description": "Set to `true` by `@grafana/azure-sdk`'s `updateDatasourceCredentials` when `currentuser` authentication is selected (`grafana-azure-sdk-react/src/credentials/AzureCredentialsConfig.ts:424`) to prevent user-scoped results from leaking across users. No editor UI.",
+              "type": "boolean"
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "logAnalyticsClientId": {
+              "description": "Deprecated. Legacy Log Analytics client ID. Marked `@deprecated` in `src/types/types.ts:41`. Frontend-only (no backend reader).",
+              "type": "string"
+            },
+            "logAnalyticsDefaultWorkspace": {
+              "description": "Deprecated. Default Log Analytics workspace, still parsed by the backend (`pkg/azuremonitor/types/types.go:30` `AzureMonitorSettings.LogAnalyticsDefaultWorkspace`) for legacy datasources. Marked `@deprecated` in `src/types/types.ts:45`.",
+              "type": "string"
+            },
+            "logAnalyticsSubscriptionId": {
+              "description": "Deprecated. Legacy Log Analytics subscription ID. Marked `@deprecated` in `src/types/types.ts:43`. Frontend-only (no backend reader).",
+              "type": "string"
+            },
+            "logAnalyticsTenantId": {
+              "description": "Deprecated. Legacy Log Analytics tenant ID. Marked `@deprecated` in `src/types/types.ts:39`. Frontend-only (no backend reader).",
+              "type": "string"
+            },
+            "oauthPassThru": {
+              "description": "Set to `true` by `@grafana/azure-sdk`'s `updateDatasourceCredentials` whenever the selected auth type is `clientsecret-obo` or `currentuser`. Consumed by Grafana's shared HTTP client to forward the caller's OAuth token.",
+              "type": "boolean"
+            },
+            "subscriptionId": {
+              "type": "string"
+            },
+            "tenantId": {
+              "description": "Legacy top-level tenant ID (paired with legacy `clientId`/`clientSecret`). Preserved so pre-migration datasources continue to authenticate; the current `AzureCredentialsForm` writes tenant inside `jsonData.azureCredentials.tenantId` and clears this field.",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "azureClientSecret",
+        "description": "Client secret of the App Registration. Written write-only by `@grafana/azure-sdk`'s `AzureCredentialsForm`; check `secureJsonFields.azureClientSecret` on the read side. Used when `jsonData.azureCredentials.authType` is `clientsecret`, `clientsecret-obo`, or `currentuser` with a `clientsecret` fallback."
+      },
+      {
+        "key": "clientCertificate",
+        "description": "Client certificate body (PEM text or base64-encoded PFX depending on `azureCredentials.certificateFormat`). Written by `@grafana/azure-sdk`."
+      },
+      {
+        "key": "privateKey",
+        "description": "Private key paired with the PEM client certificate. Only used when `azureCredentials.certificateFormat == 'pem'`. Written by `@grafana/azure-sdk`."
+      },
+      {
+        "key": "certificatePassword",
+        "description": "Password protecting the PFX client certificate bundle. Only used when `azureCredentials.certificateFormat == 'pfx'`. Written by `@grafana/azure-sdk`."
+      },
+      {
+        "key": "clientSecret",
+        "description": "Legacy client secret key. Preserved for backward compatibility with datasources provisioned before the credential migration to `azureClientSecret`. The backend reads it as a fallback when `secureJsonData.azureClientSecret` is missing (grafana-azure-sdk-go v2 `azcredentials/builder.go` `getFromCredentialsObject` case `clientsecret` and `clientsecret-obo`, and the plugin's own `azmoncredentials/builder.go` `getFromLegacy`)."
+      },
+      {
+        "key": "password",
+        "description": "Entra password used only when the backend `azcredentials` builder encounters `authType == 'ad-password'`. The Azure Monitor config editor does not expose this authentication type today; the field is only reachable through provisioning YAML."
+      },
+      {
+        "key": "appInsightsApiKey",
+        "description": "Deprecated. Application Insights API key preserved on migrated datasources. Present in `src/types/types.ts:56` (`AzureMonitorDataSourceSecureJsonData.appInsightsApiKey`); no editor UI renders it, and the backend no longer authenticates against Application Insights directly."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with. Azure Monitor has no schema-side credential default (the config editor chooses one at load time based on Grafana's managedIdentityEnabled / workloadIdentityEnabled config), so a fresh datasource has an empty `azureCredentials` object and no secrets. Users must complete authentication before the datasource is usable.",
+        "value": {
+          "jsonData": {},
+          "secureJsonData": {
+            "azureClientSecret": ""
+          }
+        }
+      },
+      "clientCertificatePEM": {
+        "summary": "App Registration (Client Certificate — PEM)",
+        "description": "Authenticate via an Entra ID app registration and a PEM client certificate. Both `clientCertificate` (PEM body) and `privateKey` are stored write-only in secureJsonData.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientcertificate",
+              "azureCloud": "AzureCloud",
+              "certificateFormat": "pem",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "subscriptionId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "clientCertificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+            "privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+          }
+        }
+      },
+      "clientCertificatePFX": {
+        "summary": "App Registration (Client Certificate — PFX)",
+        "description": "Authenticate via an Entra ID app registration and a base64-encoded PFX certificate bundle. `certificateFormat=pfx` requires `certificatePassword` and omits `privateKey`.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientcertificate",
+              "azureCloud": "AzureCloud",
+              "certificateFormat": "pfx",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "subscriptionId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "certificatePassword": "changeme",
+            "clientCertificate": "MIIKAwIBAzCCCcMGCSqGSIb3DQEHAaCCCbQ..."
+          }
+        }
+      },
+      "clientSecret": {
+        "summary": "App Registration (Client Secret)",
+        "description": "Authenticate via an Entra ID (Azure AD) app registration and client secret. The secret is stored write-only in `secureJsonData.azureClientSecret`; the rest of the credential lives in `jsonData.azureCredentials`.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "subscriptionId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          }
+        }
+      },
+      "currentUser": {
+        "summary": "Current User (with Client Secret fallback)",
+        "description": "Forward the signed-in Grafana user's OAuth token to Azure. Only available when Grafana's `azure.userIdentityEnabled` and the `azureMonitorEnableUserAuth` feature toggle are both on. Enabling `serviceCredentialsEnabled` lets user-context-less features (alerting, recorded queries, reporting) fall back to a service credential — here a `clientsecret` fallback, whose secret shares the `secureJsonData.azureClientSecret` key.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "currentuser",
+              "serviceCredentials": {
+                "authType": "clientsecret",
+                "azureCloud": "AzureCloud",
+                "clientId": "00000000-0000-0000-0000-000000000000",
+                "tenantId": "00000000-0000-0000-0000-000000000000"
+              },
+              "serviceCredentialsEnabled": true
+            },
+            "disableGrafanaCache": true,
+            "oauthPassThru": true,
+            "subscriptionId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          }
+        }
+      },
+      "customizedCloud": {
+        "summary": "Customized Azure Cloud (provisioning-only)",
+        "description": "Point the datasource at a non-standard sovereign Azure cloud by supplying the per-route URLs in `jsonData.customizedRoutes`. Requires legacy `jsonData.cloudName = customizedazuremonitor` (see `pkg/azuremonitor/routes.go:31-37`). The config editor cannot express this shape today — it is provisioning-only.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "clientsecret",
+              "azureCloud": "AzureCustomizedCloud",
+              "clientId": "00000000-0000-0000-0000-000000000000",
+              "tenantId": "00000000-0000-0000-0000-000000000000"
+            },
+            "cloudName": "customizedazuremonitor",
+            "customizedRoutes": {
+              "Azure Log Analytics": {
+                "Scopes": [
+                  "https://api.loganalytics.contoso.cloud/.default"
+                ],
+                "URL": "https://api.loganalytics.contoso.cloud"
+              },
+              "Azure Monitor": {
+                "Headers": {
+                  "x-ms-app": "Grafana"
+                },
+                "Scopes": [
+                  "https://management.contoso.cloud/.default"
+                ],
+                "URL": "https://management.contoso.cloud"
+              },
+              "Azure Resource Graph": {
+                "Scopes": [
+                  "https://management.contoso.cloud/.default"
+                ],
+                "URL": "https://management.contoso.cloud"
+              }
+            }
+          },
+          "secureJsonData": {
+            "azureClientSecret": "changeme"
+          }
+        }
+      },
+      "legacyClientSecret": {
+        "summary": "Legacy top-level Client Secret (pre-`azureCredentials`)",
+        "description": "Datasources provisioned before the credentials migration stored auth type + tenant/client at top level (`jsonData.{azureAuthType,cloudName,tenantId,clientId}`) and the secret in `secureJsonData.clientSecret`. Both frontend and backend still accept this shape via legacy fallbacks (`src/credentials.ts:33-64`, `pkg/azuremonitor/azmoncredentials/builder.go:33-116`). Opening the editor and saving migrates the datasource to the modern `jsonData.azureCredentials` shape.",
+        "value": {
+          "jsonData": {
+            "azureAuthType": "clientsecret",
+            "clientId": "00000000-0000-0000-0000-000000000000",
+            "cloudName": "azuremonitor",
+            "subscriptionId": "00000000-0000-0000-0000-000000000000",
+            "tenantId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "clientSecret": "changeme"
+          }
+        }
+      },
+      "managedIdentity": {
+        "summary": "Managed Identity",
+        "description": "Authenticate using the Grafana host's Azure Managed Identity. Only available when Grafana's `azure.managedIdentityEnabled` is true. No secret required.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "msi"
+            },
+            "subscriptionId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "azureClientSecret": ""
+          }
+        }
+      },
+      "workloadIdentity": {
+        "summary": "Workload Identity",
+        "description": "Authenticate using an Entra ID Workload Identity federated to the Kubernetes service account Grafana runs under. Only available when Grafana's `azure.workloadIdentityEnabled` is true. No secret required.",
+        "value": {
+          "jsonData": {
+            "azureCredentials": {
+              "authType": "workloadidentity"
+            },
+            "subscriptionId": "00000000-0000-0000-0000-000000000000"
+          },
+          "secureJsonData": {
+            "azureClientSecret": ""
+          }
+        }
+      }
+    }
+  }
+}

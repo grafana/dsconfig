@@ -1,0 +1,490 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "cloudwatch",
+    "pluginName": "CloudWatch",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/aws-cloudwatch/",
+    "fields": [
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication Provider",
+            "description": "Specify which AWS credentials chain to use.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "default",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "default",
+                        "keys",
+                        "credentials",
+                        "ec2_iam_role",
+                        "grafana_assume_role",
+                        "arn"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Workspace IAM Role",
+                        "value": "ec2_iam_role"
+                    },
+                    {
+                        "label": "Grafana Assume Role",
+                        "value": "grafana_assume_role"
+                    },
+                    {
+                        "label": "AWS SDK Default",
+                        "value": "default"
+                    },
+                    {
+                        "label": "Access & secret key",
+                        "value": "keys"
+                    },
+                    {
+                        "label": "Credentials file",
+                        "value": "credentials"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_profile",
+            "key": "profile",
+            "label": "Credentials Profile Name",
+            "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'credentials'",
+            "ui": {
+                "component": "input",
+                "placeholder": "default"
+            }
+        },
+        {
+            "id": "secureJsonData_accessKey",
+            "key": "accessKey",
+            "label": "Access Key ID",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.accessKeyId",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_secretKey",
+            "key": "secretKey",
+            "label": "Secret Access Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.secretAccessKey",
+            "dependsOn": "jsonData_authType == 'keys'",
+            "requiredWhen": "jsonData_authType == 'keys'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_sessionToken",
+            "key": "sessionToken",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.aws.sessionToken",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_assumeRoleArn",
+            "key": "assumeRoleArn",
+            "label": "Assume Role ARN",
+            "description": "Optional. Specifying the ARN of a role will ensure that the\n                     selected authentication provider is used to assume the role rather than the\n                     credentials directly.",
+            "valueType": "string",
+            "target": "jsonData",
+            "validations": [
+                {
+                    "type": "pattern",
+                    "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+                    "message": "When set, must be a valid IAM role ARN, e.g. arn:aws:iam::123456789012:role/MyRole"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "arn:aws:iam:*"
+            }
+        },
+        {
+            "id": "jsonData_externalId",
+            "key": "externalId",
+            "label": "External ID",
+            "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
+            "id": "jsonData_proxyType",
+            "key": "proxyType",
+            "label": "Proxy Type",
+            "description": "Specify the type of proxy to use. This should not be set if Secure Socks Proxy is enabled.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "env",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "none",
+                        "env",
+                        "url"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Environment (default)",
+                        "value": "env"
+                    },
+                    {
+                        "label": "None",
+                        "value": "none"
+                    },
+                    {
+                        "label": "URL",
+                        "value": "url"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_proxyUrl",
+            "key": "proxyUrl",
+            "label": "Proxy URL",
+            "description": "Proxy URL. Don't set the username or password here",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_proxyType == 'url'",
+            "requiredWhen": "jsonData_proxyType == 'url'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Example: https://localhost:3004"
+            }
+        },
+        {
+            "id": "jsonData_proxyUsername",
+            "key": "proxyUsername",
+            "label": "Proxy Username",
+            "description": "Optional: Proxy Username. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_proxyType == 'url'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "secureJsonData_proxyPassword",
+            "key": "proxyPassword",
+            "label": "Proxy Password",
+            "description": "Optional: Proxy Password. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_proxyType == 'url'",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_endpoint",
+            "key": "endpoint",
+            "label": "Endpoint",
+            "description": "Optionally, specify a custom endpoint for the service",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType != 'grafana_assume_role'",
+            "ui": {
+                "component": "input",
+                "placeholder": "https://{service}.{region}.amazonaws.com"
+            }
+        },
+        {
+            "id": "jsonData_defaultRegion",
+            "key": "defaultRegion",
+            "label": "Default Region",
+            "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "select",
+                "allowCustom": true
+            }
+        },
+        {
+            "id": "jsonData_customMetricsNamespaces",
+            "key": "customMetricsNamespaces",
+            "label": "Namespaces of Custom Metrics",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Namespace1,Namespace2"
+            }
+        },
+        {
+            "id": "jsonData_logsTimeout",
+            "key": "logsTimeout",
+            "label": "Query Result Timeout",
+            "description": "Grafana will poll for Cloudwatch Logs results every second until Done status is returned from AWS or timeout is exceeded, in which case Grafana will return an error. Note: For Alerting, the timeout from Grafana config file will take precedence. Must be a valid duration string, such as \"30m\" (default) \"30s\" \"2000ms\" etc.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "30m"
+            }
+        },
+        {
+            "id": "jsonData_logGroups",
+            "key": "logGroups",
+            "label": "Default Log Groups",
+            "description": "Optionally, specify default log groups for CloudWatch Logs queries.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_logGroups.item.arn",
+                        "key": "arn",
+                        "label": "ARN",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true
+                    },
+                    {
+                        "id": "jsonData_logGroups.item.name",
+                        "key": "name",
+                        "label": "Name",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "required": true
+                    },
+                    {
+                        "id": "jsonData_logGroups.item.accountId",
+                        "key": "accountId",
+                        "label": "Account ID",
+                        "valueType": "string",
+                        "isItemField": true
+                    },
+                    {
+                        "id": "jsonData_logGroups.item.accountLabel",
+                        "key": "accountLabel",
+                        "label": "Account Label",
+                        "valueType": "string",
+                        "isItemField": true
+                    }
+                ]
+            },
+            "tags": [
+                "frontend-only"
+            ]
+        },
+        {
+            "id": "jsonData_defaultLogGroups",
+            "key": "defaultLogGroups",
+            "label": "Default Log Groups",
+            "description": "Deprecated. Use logGroups instead. Prior storage shape (array of log group names) for default log groups used in CloudWatch Logs queries.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "tags": [
+                "frontend-only",
+                "legacy"
+            ]
+        },
+        {
+            "id": "jsonData_tracingDatasourceUid",
+            "key": "tracingDatasourceUid",
+            "label": "Data source",
+            "description": "Application Signals data source containing traces",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_profile",
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey",
+                "secureJsonData_sessionToken"
+            ]
+        },
+        {
+            "id": "assume-role",
+            "title": "Assume Role",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ]
+        },
+        {
+            "id": "proxy-configuration",
+            "title": "Proxy Configuration",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_proxyType",
+                "jsonData_proxyUrl",
+                "jsonData_proxyUsername",
+                "secureJsonData_proxyPassword"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_endpoint",
+                "jsonData_defaultRegion",
+                "jsonData_customMetricsNamespaces"
+            ]
+        },
+        {
+            "id": "cloudwatch-logs",
+            "title": "Cloudwatch Logs",
+            "order": 5,
+            "fieldRefs": [
+                "jsonData_logsTimeout",
+                "jsonData_logGroups",
+                "jsonData_defaultLogGroups"
+            ]
+        },
+        {
+            "id": "application-signals-trace-link",
+            "title": "Application Signals trace link",
+            "description": "Grafana will automatically create a link to a trace in Application Signals (formerly X-ray) data source if logs contain @xrayTraceId field",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tracingDatasourceUid"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_accessKey",
+                "secureJsonData_secretKey"
+            ],
+            "description": "AWS access key pair — supplied together when authType is 'keys'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_assumeRoleArn",
+                "jsonData_externalId"
+            ],
+            "description": "STS assume-role parameters — external ID is only meaningful when assumeRoleArn is set"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_proxyType",
+                "jsonData_proxyUrl",
+                "jsonData_proxyUsername",
+                "secureJsonData_proxyPassword"
+            ],
+            "description": "HTTP proxy configuration — proxyUrl/Username/Password only apply when proxyType is 'url'"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_logGroups",
+                "jsonData_defaultLogGroups"
+            ],
+            "description": "Default log groups selection — logGroups (new, object array) supersedes defaultLogGroups (legacy, name array); the editor migrates the legacy array to logGroups on first load."
+        },
+        {
+            "type": "datasourceReference",
+            "fields": [
+                "jsonData_tracingDatasourceUid"
+            ],
+            "targetPluginType": "grafana-x-ray-datasource",
+            "description": "UID of the Application Signals (X-Ray) datasource used to create trace links from log entries containing an @xrayTraceId field."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Six authentication values are stored in jsonData.authType. The five editor-selectable ones are: 'default' (AWS SDK Default — the default credential chain), 'keys' (Access & secret key — puts accessKey/secretKey in secureJsonData), 'credentials' (Credentials file — optionally provide jsonData.profile), 'ec2_iam_role' (Workspace IAM Role — no extra credentials needed), and 'grafana_assume_role' (Grafana Assume Role — Grafana Cloud only; visible only when the awsDatasourcesTempCredentials feature toggle is on). The sixth is 'arn' (deprecated legacy value; the backend maps it to 'default'). The editor also shows a warning when authType is 'arn' or when 'credentials' is chosen without a profile.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payload per auth method (jsonData.defaultRegion is required in practice — the backend copies it into Region when Region is empty). Access & secret key: {\"jsonData\":{\"authType\":\"keys\",\"defaultRegion\":\"us-east-1\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\"}}. Credentials file: {\"jsonData\":{\"authType\":\"credentials\",\"profile\":\"my-profile\",\"defaultRegion\":\"us-east-1\"}}. Workspace IAM Role: {\"jsonData\":{\"authType\":\"ec2_iam_role\",\"defaultRegion\":\"us-east-1\"}}. AWS SDK Default: {\"jsonData\":{\"authType\":\"default\",\"defaultRegion\":\"us-east-1\"}}. Grafana Assume Role: {\"jsonData\":{\"authType\":\"grafana_assume_role\",\"defaultRegion\":\"us-east-1\"}}.",
+            "tags": [
+                "llm",
+                "auth",
+                "connection"
+            ]
+        },
+        {
+            "msg": "Legacy auth interpretation: a provisioned config with jsonData.authType == 'arn' is treated as 'default' by the backend (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88); the editor surfaces a warning banner (ARN_DEPRECATION_WARNING_MESSAGE) but does not rewrite the stored value. A provisioned config with authType == 'sharedCreds' is normalized to 'credentials' the same way but is NOT in this schema's allowedValues — the schema will reject it even though the backend still loads it.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "Session token: secureJsonData.sessionToken is written by provisioning only (the ConnectionConfig editor never renders an input for it). The backend (awsds/settings.go:137) still reads it, so pair it with authType == 'keys' for temporary AWS STS credentials: {\"jsonData\":{\"authType\":\"keys\",\"defaultRegion\":\"us-east-1\"},\"secureJsonData\":{\"accessKey\":\"<AKID>\",\"secretKey\":\"<SECRET>\",\"sessionToken\":\"<STS-TOKEN>\"}}. Same is true for secureJsonData.proxyPassword — the editor only renders it when both showHttpProxySettings and the awsPerDatasourceHTTPProxyEnabled runtime toggle are on.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (accessKey, secretKey, sessionToken, proxyPassword) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.accessKey == true) instead of secureJsonData. Backend-only secrets like sessionToken never surface in secureJsonFields until they are set.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection quirks: jsonData.logsTimeout is a duration string parsed by Go's time.ParseDuration (e.g. '30m', '2000ms', '1.5s'); the backend also accepts a raw number (nanoseconds). Empty / unset / an empty string all default to 30m (pkg/cloudwatch/models/settings.go:42). jsonData.logGroups is an array of {arn, name, accountId?, accountLabel?} objects consumed at query time, not by CloudWatchSettings; jsonData.defaultLogGroups is the deprecated string-name form the editor migrates from. jsonData.tracingDatasourceUid points to a grafana-x-ray-datasource UID and is never read by the CloudWatch backend — it powers a frontend link only.",
+            "tags": [
+                "llm",
+                "connection",
+                "settings"
+            ]
+        }
+    ]
+}

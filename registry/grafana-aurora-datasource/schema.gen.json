@@ -1,0 +1,283 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "dbUser",
+            "dbHost",
+            "dbPort"
+          ],
+          "properties": {
+            "assumeRoleArn": {
+              "description": "Optional. Specifying the ARN of a role will ensure that the selected authentication provider is used to assume the role rather than the credentials directly.",
+              "type": "string",
+              "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "authType": {
+              "description": "Specify which AWS credentials chain to use.",
+              "type": "string",
+              "default": "default",
+              "enum": [
+                "default",
+                "keys",
+                "credentials",
+                "ec2_iam_role",
+                "grafana_assume_role",
+                "arn"
+              ]
+            },
+            "dbHost": {
+              "description": "You can connect to all the read replicas on your Amazon Aurora cluster through a single reader endpoint. Read more about it here (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html#Aurora.Endpoints.Reader).",
+              "type": "string"
+            },
+            "dbHostAuth": {
+              "description": "Optional, if not provided, the dbHost above will be used.",
+              "type": "string"
+            },
+            "dbName": {
+              "type": "string"
+            },
+            "dbPort": {
+              "type": "number"
+            },
+            "dbPortAuth": {
+              "description": "Optional, if not provided, the dbPort above will be used.",
+              "type": "number"
+            },
+            "dbUser": {
+              "type": "string"
+            },
+            "defaultRegion": {
+              "description": "Specify the region, such as for US West (Oregon) use `us-west-2` as the region.",
+              "type": "string"
+            },
+            "endpoint": {
+              "description": "Optionally, specify a custom endpoint for the service",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "engine": {
+              "type": "string",
+              "default": "aurora-postgres",
+              "enum": [
+                "aurora-postgres",
+                "aurora-mysql"
+              ]
+            },
+            "externalId": {
+              "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "profile": {
+              "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'credentials'"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accessKey"
+      },
+      {
+        "key": "secretKey"
+      },
+      {
+        "key": "sessionToken"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a fresh datasource starts with: AWS SDK Default credentials and the Aurora Postgres engine. The Aurora selectors (defaultRegion, dbHost, dbPort, dbUser) still need to be filled in before queries will run; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain and Aurora authenticates to the database with a generated RDS IAM auth token rather than a password.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "engine": "aurora-postgres"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "accessAndSecretKeyMysql": {
+        "summary": "Access \u0026 secret key + Aurora (MySQL Compatible)",
+        "description": "IAM user credentials supplied directly via secureJsonData against an Aurora MySQL-compatible cluster on port 3306. Optionally include sessionToken for temporary STS credentials.",
+        "value": {
+          "jsonData": {
+            "authType": "keys",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 3306,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-mysql"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "assumeRoleFromKeys": {
+        "summary": "Access \u0026 secret key + STS AssumeRole",
+        "description": "IAM user credentials that then assume a cross-account IAM role via STS. `externalId` is optional and only meaningful when `assumeRoleArn` is set. The assumed role must be granted `rds-db:connect` on the target database user.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/GrafanaAurora",
+            "authType": "keys",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres",
+            "externalId": "external-id-abc123"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "awsSdkDefaultPostgres": {
+        "summary": "AWS SDK Default + Aurora (PostgreSQL Compatible)",
+        "description": "Uses the AWS SDK default credential chain (env vars, shared config, EC2/ECS/EKS metadata) against an Aurora PostgreSQL-compatible cluster on port 5432. No secrets are set in secureJsonData; the placeholder accessKey is empty to signal that.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "credentialsFile": {
+        "summary": "Credentials file",
+        "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Leave `profile` blank to pick the default profile.",
+        "value": {
+          "jsonData": {
+            "authType": "credentials",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres",
+            "profile": "my-aurora-profile"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "grafanaAssumeRole": {
+        "summary": "Grafana Assume Role (Grafana Cloud only)",
+        "description": "Grafana Cloud's temporary-credentials broker. Feature-gated on the awsDatasourcesTempCredentials toggle; the editor hides assumeRoleArn/externalId/endpoint when this provider is selected because Grafana derives them itself.",
+        "value": {
+          "jsonData": {
+            "authType": "grafana_assume_role",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "legacyArnAuthType": {
+        "summary": "Legacy: authType = 'arn'",
+        "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The shared awsds layer (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88) maps this to the modern 'default' at load time.",
+        "value": {
+          "jsonData": {
+            "authType": "arn",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "legacyMissingEngine": {
+        "summary": "Legacy: missing engine (pre-multi-engine beta)",
+        "description": "Aurora's original beta shipped without an engine field. The backend falls back to aurora-postgres at connect time (pkg/plugin/connect.go:83-85, 135-138) to keep those datasources working. New configurations should always set jsonData.engine explicitly; LoadConfig's ApplyDefaults sets it to aurora-postgres for the same reason.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "splitAuthEndpoint": {
+        "summary": "Split auth-token endpoint (behind a load balancer)",
+        "description": "Grafana connects to Aurora through a load balancer. jsonData.dbHost/dbPort is the LB address used for SQL traffic; jsonData.dbHostAuth (and optionally dbPortAuth) points at the primary cluster endpoint so the RDS `generate-db-auth-token` call is signed with the endpoint AWS recognises. Backend picks up the override at pkg/plugin/connect.go:59-66.",
+        "value": {
+          "jsonData": {
+            "authType": "ec2_iam_role",
+            "dbHost": "aurora-lb.internal",
+            "dbHostAuth": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbPortAuth": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "workspaceIamRole": {
+        "summary": "Workspace IAM Role (ec2_iam_role)",
+        "description": "Uses the IAM role attached to the Grafana workload (EC2 instance profile / ECS task role / EKS IRSA). Editor label is 'Workspace IAM Role'; storage value is 'ec2_iam_role'. The role must have `rds-db:connect` on the target database user for the RDS auth token to be accepted.",
+        "value": {
+          "jsonData": {
+            "authType": "ec2_iam_role",
+            "dbHost": "my-cluster.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com",
+            "dbName": "mydb",
+            "dbPort": 5432,
+            "dbUser": "iam_user",
+            "defaultRegion": "us-east-1",
+            "engine": "aurora-postgres"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      }
+    }
+  }
+}

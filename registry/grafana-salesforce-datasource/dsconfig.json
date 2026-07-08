@@ -1,0 +1,269 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-salesforce-datasource",
+    "pluginName": "Salesforce",
+    "docURL": "https://grafana.com/docs/plugins/grafana-salesforce-datasource",
+    "fields": [
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "user",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "user",
+                        "jwt"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Credentials",
+                        "value": "user"
+                    },
+                    {
+                        "label": "JWT",
+                        "value": "jwt"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_user",
+            "key": "user",
+            "label": "User Name",
+            "valueType": "string",
+            "target": "jsonData",
+            "requiredWhen": "jsonData_authType == 'user'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Salesforce User"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_authType == 'user'",
+            "requiredWhen": "jsonData_authType == 'user'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Salesforce Password"
+            }
+        },
+        {
+            "id": "secureJsonData_securityToken",
+            "key": "securityToken",
+            "label": "Security Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_authType == 'user'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Salesforce Security Token"
+            }
+        },
+        {
+            "id": "secureJsonData_clientID",
+            "key": "clientID",
+            "label": "Consumer Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientId",
+            "requiredWhen": "jsonData_authType == 'user'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Connected App Consumer Key"
+            }
+        },
+        {
+            "id": "secureJsonData_clientSecret",
+            "key": "clientSecret",
+            "label": "Consumer Secret",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "jsonData_authType == 'user'",
+            "requiredWhen": "jsonData_authType == 'user'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Connected App Consumer Secret"
+            }
+        },
+        {
+            "id": "secureJsonData_cert",
+            "key": "cert",
+            "label": "Certificate",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_authType == 'jwt'",
+            "requiredWhen": "jsonData_authType == 'jwt'",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "-----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_privateKey",
+            "key": "privateKey",
+            "label": "Private Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.jwtPrivateKey",
+            "dependsOn": "jsonData_authType == 'jwt'",
+            "requiredWhen": "jsonData_authType == 'jwt'",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "-----BEGIN PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_tokenUrl",
+            "key": "tokenUrl",
+            "label": "Environment",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.tokenUrl",
+            "defaultValue": "https://login.salesforce.com",
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Production",
+                        "value": "https://login.salesforce.com"
+                    },
+                    {
+                        "label": "SandBox",
+                        "value": "https://test.salesforce.com"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_sandbox",
+            "key": "sandbox",
+            "description": "Legacy boolean that selects the Salesforce login/token host when `tokenUrl` is empty (`true` \u2192 https://test.salesforce.com, `false` \u2192 https://login.salesforce.com). Deprecated in favor of `tokenUrl`; the config editor no longer writes it but reads it to derive the initial Environment selection, and the backend still honors it for backwards compatibility and provisioning.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "legacy"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection-settings",
+            "title": "Connection Settings",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authType",
+                "jsonData_user",
+                "secureJsonData_password",
+                "secureJsonData_securityToken",
+                "secureJsonData_clientID",
+                "secureJsonData_clientSecret",
+                "secureJsonData_cert",
+                "secureJsonData_privateKey"
+            ]
+        },
+        {
+            "id": "optional-settings",
+            "title": "Optional Settings",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tokenUrl"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_user",
+                "secureJsonData_password",
+                "secureJsonData_securityToken",
+                "secureJsonData_clientID",
+                "secureJsonData_clientSecret"
+            ],
+            "description": "Username-password OAuth credentials (authType='user'): the Salesforce username, password, security token, and the connected app's consumer key and secret used in the OAuth2 password grant."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_user",
+                "secureJsonData_clientID",
+                "secureJsonData_cert",
+                "secureJsonData_privateKey"
+            ],
+            "description": "JWT bearer credentials (authType='jwt'): the connected app's consumer key (JWT issuer), the Salesforce username (JWT subject), and the certificate and private key of the connected app's digital signature used to sign the JWT assertion."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_sandbox",
+                "jsonData_tokenUrl"
+            ],
+            "description": "Environment selection: the legacy sandbox boolean and the tokenUrl it falls back to when tokenUrl is empty."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Two authentication methods are available, selected via jsonData.authType: 'user' (username-password OAuth, the default) and 'jwt' (OAuth JWT bearer flow). Configure exactly one method; only the credentials of the selected method are validated/used. When jsonData.authType is empty the backend defaults it to 'user' (pkg/models/settings.go:82-90).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure username-password auth, set jsonData.authType='user' and provide jsonData.user plus secureJsonData.password, secureJsonData.clientID (connected app consumer key) and secureJsonData.clientSecret (connected app consumer secret). Minimal payload: {\"jsonData\":{\"authType\":\"user\",\"tokenUrl\":\"https://login.salesforce.com\"},\"secureJsonData\":{\"password\":\"<password>\",\"clientID\":\"<consumer-key>\",\"clientSecret\":\"<consumer-secret>\"}}. secureJsonData.securityToken is optional and, when set, is concatenated onto the password before the token request (pkg/plugin/client.go:104); user, password, clientID and clientSecret are all required (pkg/models/settings.go:112-123).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure JWT bearer auth, set jsonData.authType='jwt' and provide secureJsonData.cert and secureJsonData.privateKey (the connected app's digital-signature certificate and RSA private key). Minimal payload: {\"jsonData\":{\"authType\":\"jwt\",\"user\":\"<username>\",\"tokenUrl\":\"https://login.salesforce.com\"},\"secureJsonData\":{\"clientID\":\"<consumer-key>\",\"cert\":\"<PEM cert>\",\"privateKey\":\"<PEM key>\"}}. Only cert and privateKey are enforced by settings validation (pkg/models/settings.go:103-110), but jsonData.user (JWT subject) and secureJsonData.clientID (JWT issuer) are also required for the token request to succeed (pkg/plugin/client.go:96, pkg/jwt/jwt.go:57-64) \u2014 a JWT config missing either loads successfully but fails at connect time.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy auth interpretation: datasources created before authType was mandatory store no jsonData.authType. The backend's normalizeAuthType (pkg/models/settings.go:82-90) can in principle infer 'jwt' from cert+privateKey being set and password empty, but it inspects the jsonData-level struct fields, which are empty because these secrets live in secureJsonData and are copied only after normalization runs \u2014 so in practice a missing authType always resolves to 'user'. The config editor does the real detection from secureJsonFields (cert && privateKey && !password => 'jwt', else 'user'; src/views/SFConfigEditor.tsx:29-37). Do not assume a missing authType means unconfigured.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (password, securityToken, clientID, clientSecret, cert, privateKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.privateKey == true) instead of secureJsonData. Note the plugin stores clientID/clientSecret as secrets (secureJsonData), not jsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.tokenUrl selects the Salesforce OAuth host: 'https://login.salesforce.com' (Production, the default) or 'https://test.salesforce.com' (SandBox). When tokenUrl is empty the backend derives it from the legacy jsonData.sandbox boolean (pkg/models/settings.go:92-100). The token endpoint is <tokenUrl>/services/oauth2/token (pkg/plugin/client.go:92); the actual data API base URL is NOT tokenUrl but the instance_url returned in the token response (pkg/plugin/client.go:143-144,368-379). The datasource's own root url field is unused.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

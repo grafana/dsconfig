@@ -1,0 +1,49 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "infrastructureBaseURL": {
+            "description": "Backend-only override for the New Relic Infrastructure API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+            "type": "string"
+          },
+          "nerdGraphBaseURL": {
+            "description": "Backend-only override for the New Relic NerdGraph (GraphQL) API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+            "type": "string"
+          },
+          "region": {
+            "description": "Region hosting your service",
+            "type": "string",
+            "enum": [
+              "EU",
+              "US"
+            ]
+          },
+          "restBaseURL": {
+            "description": "Backend-only override for the New Relic REST API base URL. Used for internal testing and mocking; not exposed in the configuration editor.",
+            "type": "string"
+          },
+          "timeoutInSeconds": {
+            "description": "Enter the timeout in seconds. Defaults to 300",
+            "type": "number",
+            "default": 300
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "personalApiKey",
+      "description": "Used for NRQL queries",
+      "required": true
+    },
+    {
+      "key": "accountId",
+      "description": "Your New Relic Account ID",
+      "required": true
+    }
+  ]
+}

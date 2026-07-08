@@ -1,0 +1,336 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "stackdriver",
+    "pluginName": "Google Cloud Monitoring",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/",
+    "fields": [
+        {
+            "id": "jsonData_authenticationType",
+            "key": "authenticationType",
+            "label": "Authentication type",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "jwt",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "jwt",
+                        "gce",
+                        "workloadIdentityFederation",
+                        "forwardOAuthIdentity"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Google JWT File",
+                        "value": "jwt"
+                    },
+                    {
+                        "label": "GCE Default Service Account",
+                        "value": "gce"
+                    },
+                    {
+                        "label": "Workload Identity Federation",
+                        "value": "workloadIdentityFederation"
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "forwardOAuthIdentity"
+                    }
+                ]
+            },
+            "help": {
+                "title": "How to configure Google Cloud Monitoring datasource?",
+                "markdown": "Don't know how to get a service account key file or create a service account? Read more [in the documentation](https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/google-authentication/)."
+            }
+        },
+        {
+            "id": "virtual_jwtUpload",
+            "key": "jwtUpload",
+            "label": "JWT token",
+            "description": "Upload or paste a Google service-account JWT key file (.json). Its project_id, client_email, token_uri, and private_key are distributed into the JWT fields below. Mirrors the legacy JWTConfig 'Upload or paste Google JWT token' control (ConfigEditor.tsx JWT Key Details).",
+            "valueType": "string",
+            "kind": "virtual",
+            "dependsOn": "jsonData_authenticationType == 'jwt'",
+            "ui": {
+                "component": "fileUpload",
+                "accept": [
+                    ".json"
+                ],
+                "fileMapping": {
+                    "project_id": "jsonData.defaultProject",
+                    "client_email": "jsonData.clientEmail",
+                    "token_uri": "jsonData.tokenUri",
+                    "private_key": "secureJsonData.privateKey"
+                }
+            }
+        },
+        {
+            "id": "jsonData_defaultProject",
+            "key": "defaultProject",
+            "label": "Default project",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce' || jsonData_authenticationType == 'workloadIdentityFederation' || jsonData_authenticationType == 'forwardOAuthIdentity'",
+            "requiredWhen": "jsonData_authenticationType == 'forwardOAuthIdentity' || jsonData_authenticationType == 'workloadIdentityFederation'",
+            "ui": {
+                "component": "input",
+                "placeholder": "my-gcp-project"
+            }
+        },
+        {
+            "id": "jsonData_clientEmail",
+            "key": "clientEmail",
+            "label": "Client email",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authenticationType == 'jwt'",
+            "requiredWhen": "jsonData_authenticationType == 'jwt' && jsonData_privateKeyPath == ''",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_tokenUri",
+            "key": "tokenUri",
+            "label": "Token URI",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authenticationType == 'jwt'",
+            "requiredWhen": "jsonData_authenticationType == 'jwt' && jsonData_privateKeyPath == ''",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_privateKeyPath",
+            "key": "privateKeyPath",
+            "label": "Private key path",
+            "description": "Paste private key or provide path to private key file",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authenticationType == 'jwt'",
+            "ui": {
+                "component": "input",
+                "placeholder": "File location of your private key (e.g. /etc/secrets/gce.pem)"
+            }
+        },
+        {
+            "id": "secureJsonData_privateKey",
+            "key": "privateKey",
+            "label": "Private key",
+            "description": "Paste private key or provide path to private key file",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.jwt.signingKey",
+            "dependsOn": "jsonData_authenticationType == 'jwt'",
+            "requiredWhen": "jsonData_authenticationType == 'jwt' && jsonData_privateKeyPath == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Enter Private key"
+            }
+        },
+        {
+            "id": "jsonData_usingImpersonation",
+            "key": "usingImpersonation",
+            "label": "Enable",
+            "description": "Read more about service account impersonation here: https://cloud.google.com/iam/docs/service-account-impersonation",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serviceAccountToImpersonate",
+            "key": "serviceAccountToImpersonate",
+            "label": "Service account to impersonate",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "(jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce') && jsonData_usingImpersonation == true",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_workloadIdentityPoolProvider",
+            "key": "workloadIdentityPoolProvider",
+            "label": "Workload Identity Pool Provider",
+            "description": "Full resource name of the workload identity pool provider (e.g. projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider)",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authenticationType == 'workloadIdentityFederation'",
+            "requiredWhen": "jsonData_authenticationType == 'workloadIdentityFederation'",
+            "ui": {
+                "component": "input",
+                "placeholder": "projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>"
+            }
+        },
+        {
+            "id": "jsonData_wifServiceAccountEmail",
+            "key": "wifServiceAccountEmail",
+            "label": "Service account email",
+            "description": "Optional. If set, the federated identity impersonates this service account when calling Google APIs.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authenticationType == 'workloadIdentityFederation'",
+            "ui": {
+                "component": "input",
+                "placeholder": "name@project.iam.gserviceaccount.com"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "description": "Automatically set to true when authenticationType is 'forwardOAuthIdentity' or 'workloadIdentityFederation'; otherwise false. Written by AuthConfig.tsx:73-74 as a side-effect of the auth-type radio, not by a direct UI toggle.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "tags": [
+                "editor-managed"
+            ]
+        },
+        {
+            "id": "jsonData_universeDomain",
+            "key": "universeDomain",
+            "label": "Universe Domain",
+            "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). Empty string is treated as 'googleapis.com' by the backend (pkg/cloudmonitoring/httpclient.go:79-83). Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "googleapis.com"
+            }
+        },
+        {
+            "id": "jsonData_gceDefaultProject",
+            "key": "gceDefaultProject",
+            "description": "Frontend-managed cache of the GCE metadata server's default project ID, populated at runtime by ensureGCEDefaultProject (src/datasource.ts:186-191) via the /gceDefaultProject resource endpoint. The backend never reads this key — it always calls utils.GCEDefaultProject fresh for GCE auth (pkg/cloudmonitoring/cloudmonitoring.go:666-675). Do not populate this in provisioning payloads; leave it empty and let the frontend fill it in.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only",
+                "runtime-cache"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_authenticationType",
+                "virtual_jwtUpload",
+                "jsonData_defaultProject",
+                "jsonData_clientEmail",
+                "jsonData_tokenUri",
+                "jsonData_privateKeyPath",
+                "secureJsonData_privateKey",
+                "jsonData_workloadIdentityPoolProvider",
+                "jsonData_wifServiceAccountEmail",
+                "jsonData_usingImpersonation",
+                "jsonData_serviceAccountToImpersonate"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 2,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_universeDomain"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_defaultProject",
+                "jsonData_clientEmail",
+                "jsonData_tokenUri",
+                "jsonData_privateKeyPath",
+                "secureJsonData_privateKey"
+            ],
+            "description": "Google JWT File credentials — required as a set for jwt auth"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_privateKeyPath",
+                "secureJsonData_privateKey"
+            ],
+            "description": "Alternative sources for the JWT private key: either supply the key inline as a secret (privateKey) or point at a file path on the Grafana server (privateKeyPath). Exactly one of the two must be configured for jwt auth; privateKeyPath takes precedence when both are set (grafana-google-sdk-go/pkg/utils/utils.go:62-89)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_usingImpersonation",
+                "jsonData_serviceAccountToImpersonate"
+            ],
+            "description": "Service account impersonation: setting serviceAccountToImpersonate is only effective when usingImpersonation is true (pkg/cloudmonitoring/httpclient.go:54-73)"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_workloadIdentityPoolProvider",
+                "jsonData_wifServiceAccountEmail"
+            ],
+            "description": "Workload Identity Federation credentials — workloadIdentityPoolProvider is required for WIF auth (pkg/cloudmonitoring/httpclient.go:87-89); wifServiceAccountEmail is optional impersonation"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Four authentication methods are available, selected via jsonData.authenticationType: 'jwt' (Google JWT File, the default), 'gce' (GCE Default Service Account, only works when Grafana runs on a Google Compute Engine VM), 'workloadIdentityFederation' (only visible in Grafana Cloud, but the backend accepts it anywhere), and 'forwardOAuthIdentity' (forward the caller's OAuth token to Cloud Monitoring; alerting queries are not supported with this method). Configure exactly one method; the backend switches on this discriminator (pkg/cloudmonitoring/httpclient.go:41-77) and only the credentials of the selected method are used.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Google JWT File authentication, set jsonData.authenticationType to 'jwt' and provide jsonData.defaultProject, jsonData.clientEmail, jsonData.tokenUri, and the service account's private key. The private key may be supplied inline as secureJsonData.privateKey OR by pointing jsonData.privateKeyPath at a file on the Grafana server (the file may be a raw PEM or a service-account JSON containing a private_key field). Minimal inline payload: {\"jsonData\":{\"authenticationType\":\"jwt\",\"defaultProject\":\"<project>\",\"clientEmail\":\"<sa email>\",\"tokenUri\":\"https://oauth2.googleapis.com/token\"},\"secureJsonData\":{\"privateKey\":\"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n\"}}. Grant the service account the 'Monitoring Viewer' role on the project and enable the Cloud Monitoring API.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure GCE Default Service Account authentication, set jsonData.authenticationType to 'gce'. Minimal payload: {\"jsonData\":{\"authenticationType\":\"gce\"}}. The backend obtains credentials from the GCE metadata server; this only works when Grafana runs on a Google Compute Engine VM whose default service account has been granted the 'Monitoring Viewer' role on the target project. defaultProject may be omitted — the backend resolves it via utils.GCEDefaultProject (pkg/cloudmonitoring/cloudmonitoring.go:666-675). The runtime-populated cache jsonData.gceDefaultProject is a frontend concern only; do not set it in provisioning payloads.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Workload Identity Federation authentication, set jsonData.authenticationType to 'workloadIdentityFederation' and provide jsonData.workloadIdentityPoolProvider (mandatory; missing it makes the backend fail at pkg/cloudmonitoring/httpclient.go:87-89) and jsonData.defaultProject (required for the CheckHealth call and any query that doesn't specify a project explicitly — the token-forwarding auth types can't infer a project from credentials). Optionally set jsonData.wifServiceAccountEmail to have the federated identity impersonate a specific service account. To configure Forward OAuth Identity, set jsonData.authenticationType to 'forwardOAuthIdentity' and jsonData.defaultProject (the backend refuses to CheckHealth without it — pkg/cloudmonitoring/cloudmonitoring.go:121-125). Alerting rules are not supported with either token-forwarding method (pkg/cloudmonitoring/cloudmonitoring.go:412-418).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (privateKey) are write-only: they can be set or reset but never read back. To check whether the private key is already configured on an existing datasource, read secureJsonFields.privateKey (true/false) instead of secureJsonData.privateKey. The backend resolves the effective key via grafana-google-sdk-go's GetPrivateKey (pkg/utils/utils.go:62-89): if jsonData.privateKeyPath is set it reads from that file (accepts raw PEM or a service-account JSON with a private_key field), otherwise it reads secureJsonData.privateKey and normalizes escaped newlines.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Optional connection settings: jsonData.universeDomain overrides the default 'googleapis.com' host suffix — the backend builds every Google URL as 'monitoring.<universeDomain>' / 'cloudresourcemanager.<universeDomain>' (pkg/cloudmonitoring/httpclient.go:79-83). Leave it empty for the standard Google Cloud, set it (for example) to 'googleapis.mtls.google.com' for TLS mutual auth. The editor only surfaces this field when the Grafana instance has secure_socks_datasource_proxy enabled (ConfigEditor.tsx:78), but provisioning payloads may set it anytime. jsonData.gceDefaultProject is populated by the frontend at runtime from the /gceDefaultProject resource endpoint (src/datasource.ts:186-191); do not set it in provisioning payloads. The plugin's legacy id is 'stackdriver' (src/plugin.json:4) — the current product is named Google Cloud Monitoring.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

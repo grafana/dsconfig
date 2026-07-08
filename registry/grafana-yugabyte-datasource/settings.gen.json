@@ -1,0 +1,33 @@
+{
+  "spec": {
+    "type": "object",
+    "required": [
+      "url",
+      "user"
+    ],
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "database"
+        ],
+        "properties": {
+          "database": {
+            "type": "string"
+          }
+        }
+      },
+      "url": {
+        "type": "string"
+      },
+      "user": {
+        "type": "string"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password"
+    }
+  ]
+}

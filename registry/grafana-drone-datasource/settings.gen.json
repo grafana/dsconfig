@@ -1,0 +1,53 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "type": "object",
+            "properties": {
+              "drone": {
+                "type": "object",
+                "properties": {
+                  "auth": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "You can find your API token under \u003cYOUR_DRONE_URL\u003e/account",
+                        "type": "string",
+                        "default": "auth_bearer",
+                        "enum": [
+                          "auth_bearer"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "variables": {
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "description": "The URL of the Drone server, including `https://` and without trailing `/`",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "drone.token",
+      "description": "Token for accessing the datasource API"
+    }
+  ]
+}

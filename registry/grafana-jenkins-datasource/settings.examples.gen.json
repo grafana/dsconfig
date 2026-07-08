@@ -1,0 +1,67 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: an empty URL and an empty password placeholder. jsonData.url must be filled in for the datasource to load — pkg/plugin/settings.go:23-25 rejects an empty URL with DownstreamError(\"URL is missing\"). Username and password are optional.",
+      "value": {
+        "jsonData": {
+          "url": ""
+        },
+        "secureJsonData": {
+          "password": ""
+        }
+      }
+    },
+    "anonymous": {
+      "summary": "Anonymous access",
+      "description": "Configuration for a Jenkins instance that permits anonymous read access. jsonData.username is omitted, so pkg/plugin/datasource.go:66-71 skips the BasicAuth wiring and the client issues unauthenticated requests. secureJsonData.password is present but empty because the field is declared in the plugin's secure JSON schema.",
+      "value": {
+        "jsonData": {
+          "url": "https://jenkins.example.com"
+        },
+        "secureJsonData": {
+          "password": ""
+        }
+      }
+    },
+    "apiToken": {
+      "summary": "HTTP Basic auth with a Jenkins API token",
+      "description": "Same shape as HTTP Basic auth, but the value in secureJsonData.password is a Jenkins API token (recommended over a user password). Jenkins accepts an API token in the Basic-auth password position, so no discriminator is needed — the plugin treats password and API token identically.",
+      "value": {
+        "jsonData": {
+          "url": "https://jenkins.example.com",
+          "username": "grafana"
+        },
+        "secureJsonData": {
+          "password": "11a1b2c3d4e5f60718293a4b5c6d7e8f90"
+        }
+      }
+    },
+    "basicAuth": {
+      "summary": "HTTP Basic auth",
+      "description": "Standard configuration: jsonData.username plus secureJsonData.password. Because jsonData.username is non-empty, pkg/plugin/datasource.go:66-71 configures httpclient.BasicAuthOptions and every outgoing request sets the Authorization: Basic header (pkg/jenkins/client.go:498-500).",
+      "value": {
+        "jsonData": {
+          "url": "https://jenkins.example.com",
+          "username": "grafana"
+        },
+        "secureJsonData": {
+          "password": "hunter2"
+        }
+      }
+    },
+    "legacyUsernameOnly": {
+      "summary": "Legacy: username without a password",
+      "description": "A legacy configuration that has jsonData.username set but never had secureJsonData.password provided. Because a username is set, pkg/plugin/datasource.go:66-71 still wires BasicAuth — with an empty password — and Jenkins decides whether the resulting empty-password request is authorised.",
+      "value": {
+        "jsonData": {
+          "url": "https://jenkins.example.com",
+          "username": "grafana"
+        },
+        "secureJsonData": {
+          "password": ""
+        }
+      }
+    }
+  }
+}

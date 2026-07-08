@@ -1,0 +1,136 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a fresh datasource starts with under ApplyDefaults: AWS SDK Default credentials, isV2 marker unset (a fresh save from the editor would flip it to true; the schema-side default keeps it minimal). `defaultRegion` still needs to be set before queries will run; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain.",
+      "value": {
+        "jsonData": {
+          "authType": "default"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "accessAndSecretKey": {
+      "summary": "Access \u0026 secret key",
+      "description": "IAM user credentials supplied directly via secureJsonData. Optionally include sessionToken for temporary STS credentials. This is what a fresh datasource looks like after the editor's useEffect writes `authType: 'keys'` and `isV2: true` and the user fills in an access key pair.",
+      "value": {
+        "jsonData": {
+          "authType": "keys",
+          "defaultRegion": "us-east-1",
+          "endpoint": "https://dynamodb.us-east-1.amazonaws.com",
+          "isV2": true
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    },
+    "awsSdkDefault": {
+      "summary": "AWS SDK Default",
+      "description": "Uses the AWS SDK default credential chain (env vars, shared config, EC2/ECS/EKS metadata). No secrets are set; the placeholder accessKey is empty to signal that.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "defaultRegion": "us-east-1",
+          "isV2": true
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "credentialsFile": {
+      "summary": "Credentials file",
+      "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Leave `profile` blank to pick the default profile.",
+      "value": {
+        "jsonData": {
+          "authType": "credentials",
+          "defaultRegion": "us-east-1",
+          "isV2": true,
+          "profile": "my-dynamodb-profile"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "driverSettings": {
+      "summary": "Driver settings overrides",
+      "description": "Overrides the default query timeout / retry count / retry pause. Values are stored as strings and parsed with utils.ParseInt server-side. There is no editor UI for these — they can only be set via provisioning.",
+      "value": {
+        "jsonData": {
+          "authType": "default",
+          "defaultRegion": "us-east-1",
+          "isV2": true,
+          "pause": "2",
+          "retries": "10",
+          "timeout": "120"
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "keysWithSessionToken": {
+      "summary": "Access \u0026 secret key + STS session token",
+      "description": "Temporary AWS STS credentials. sessionToken is backend-only (no editor UI); provisioning is the only way to set it. Included here so consumers can see the payload shape.",
+      "value": {
+        "jsonData": {
+          "authType": "keys",
+          "defaultRegion": "us-east-1",
+          "isV2": true
+        },
+        "secureJsonData": {
+          "accessKey": "AKIAIOSFODNN7EXAMPLE",
+          "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+          "sessionToken": "FQoGZXIvYXdzEExampleSTSSessionToken"
+        }
+      }
+    },
+    "legacyArnAuthType": {
+      "summary": "Legacy: authType = 'arn'",
+      "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The backend (awsds.AuthType.UnmarshalJSON, awsds/settings.go:87-88) maps this to the modern 'default' at load time.",
+      "value": {
+        "jsonData": {
+          "authType": "arn",
+          "defaultRegion": "us-east-1",
+          "isV2": true
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    },
+    "legacyV1Shape": {
+      "summary": "Legacy V1 storage shape (pre-migration)",
+      "description": "The pre-V2 storage layout carried by datasources provisioned before src/components/ConfigEditor.tsx:28-42 started writing isV2=true. The plain-text `accessId` in jsonData is the AWS Access Key ID; the `accessKey` key inside secureJsonData is actually the AWS Secret Access Key (a V1 naming quirk fixed at V2). `region` is used as the region because `defaultRegion` isn't set. On load the backend (pkg/models/settings.go:44-55) forces authType to 'keys', folds accessId into AccessKey, and treats secureJsonData.accessKey as the secret.",
+      "value": {
+        "jsonData": {
+          "accessId": "AKIAIOSFODNN7EXAMPLE",
+          "endpoint": "https://dynamodb.eu-north-1.amazonaws.com",
+          "region": "eu-north-1"
+        },
+        "secureJsonData": {
+          "accessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+      }
+    },
+    "workspaceIamRole": {
+      "summary": "Workspace IAM Role (ec2_iam_role)",
+      "description": "Uses the IAM role attached to the Grafana workload (EC2 instance profile / ECS task role / EKS IRSA). Editor label is 'Workspace IAM Role'; storage value is 'ec2_iam_role'.",
+      "value": {
+        "jsonData": {
+          "authType": "ec2_iam_role",
+          "defaultRegion": "us-east-1",
+          "isV2": true
+        },
+        "secureJsonData": {
+          "accessKey": ""
+        }
+      }
+    }
+  }
+}

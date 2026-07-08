@@ -1,0 +1,705 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "type": "string",
+          "x-dsconfig-depends-on": "jsonData_authMethod == 'basicAuth' || jsonData_authMethod == 'digestAuth'",
+          "x-dsconfig-required-when": "jsonData_authMethod == 'basicAuth' || jsonData_authMethod == 'digestAuth'"
+        },
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "allowDangerousHTTPMethods": {
+              "description": "By default Infinity only allows GET and POST HTTP methods to reduce the risk of accidental and potentially destructive payloads. If you need PUT, PATCH or DELETE methods, make use of this setting with caution. Note: Infinity does not evaluate any permissions against the underlying API",
+              "type": "boolean",
+              "default": false
+            },
+            "allowedHosts": {
+              "description": "List of allowed host names. Enter the base URL names. ex: https://example.com",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "x-dsconfig-depends-on": "jsonData_authMethod != 'none' \u0026\u0026 jsonData_authMethod != 'azureBlob'"
+            },
+            "apiKeyKey": {
+              "description": "api key key",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authMethod == 'apiKey'",
+              "x-dsconfig-required-when": "jsonData_authMethod == 'apiKey'"
+            },
+            "apiKeyType": {
+              "description": "Add api key to header/query params.",
+              "type": "string",
+              "default": "header",
+              "enum": [
+                "header",
+                "query"
+              ],
+              "x-dsconfig-depends-on": "jsonData_authMethod == 'apiKey'"
+            },
+            "auth_method": {
+              "type": "string",
+              "default": "none",
+              "enum": [
+                "none",
+                "basicAuth",
+                "bearerToken",
+                "apiKey",
+                "digestAuth",
+                "oauthPassThru",
+                "oauth2",
+                "aws",
+                "azureBlob"
+              ]
+            },
+            "aws": {
+              "type": "object",
+              "properties": {
+                "authType": {
+                  "type": "string",
+                  "default": "keys",
+                  "enum": [
+                    "keys"
+                  ],
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'aws'"
+                },
+                "region": {
+                  "type": "string",
+                  "enum": [
+                    "af-south-1",
+                    "ap-east-1",
+                    "ap-northeast-1",
+                    "ap-northeast-2",
+                    "ap-northeast-3",
+                    "ap-south-1",
+                    "ap-southeast-1",
+                    "ap-southeast-2",
+                    "ap-southeast-3",
+                    "ca-central-1",
+                    "cn-north-1",
+                    "cn-northwest-1",
+                    "eu-central-1",
+                    "eu-north-1",
+                    "eu-south-1",
+                    "eu-west-1",
+                    "eu-west-2",
+                    "eu-west-3",
+                    "me-south-1",
+                    "sa-east-1",
+                    "us-east-1",
+                    "us-east-2",
+                    "us-gov-east-1",
+                    "us-gov-west-1",
+                    "us-iso-east-1",
+                    "us-west-1",
+                    "us-west-2"
+                  ],
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'aws'",
+                  "x-dsconfig-required-when": "jsonData_authMethod == 'aws'"
+                },
+                "service": {
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'aws'",
+                  "x-dsconfig-required-when": "jsonData_authMethod == 'aws'"
+                }
+              }
+            },
+            "azureBlobAccountName": {
+              "description": "Azure blob storage account name",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authMethod == 'azureBlob'",
+              "x-dsconfig-required-when": "jsonData_authMethod == 'azureBlob'"
+            },
+            "azureBlobAccountUrl": {
+              "description": "Azure Blob account URL template. Not exposed in the configuration editor; the backend fills it from azureBlobCloudType on load.",
+              "type": "string"
+            },
+            "azureBlobCloudType": {
+              "description": "Azure cloud type",
+              "type": "string",
+              "default": "AzureCloud",
+              "enum": [
+                "AzureCloud",
+                "AzureUSGovernment",
+                "AzureChinaCloud"
+              ],
+              "x-dsconfig-depends-on": "jsonData_authMethod == 'azureBlob'"
+            },
+            "customHealthCheckEnabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "customHealthCheckUrl": {
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_customHealthCheckEnabled == true",
+              "x-dsconfig-required-when": "jsonData_customHealthCheckEnabled == true"
+            },
+            "global_queries": {
+              "description": "Named datasource-level saved queries that other queries can reference via type='global'. The individual InfinityQuery shape is defined by the query editor and is intentionally opaque at the datasource-config level.",
+              "type": "array",
+              "items": {}
+            },
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "ignoreStatusCodeCheck": {
+              "description": "When enabled, the datasource will process response body even for HTTP error status codes (4xx, 5xx). This is useful for APIs that return useful data in error responses, such as detailed error messages or partial data during service degradation.",
+              "type": "boolean",
+              "default": false
+            },
+            "is_mock": {
+              "description": "When true, the plugin swaps in the in-memory mock client (used only by the plugin's own tests). Not exposed in the configuration editor.",
+              "type": "boolean",
+              "default": false
+            },
+            "keepCookies": {
+              "description": "List of cookies to forward. Enter the cookie keys. ex: access_token or grafana_session_expiry",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "oauth2": {
+              "type": "object",
+              "properties": {
+                "authHeader": {
+                  "description": "Once the token retrieved, the same will be sent to subsequent request's header with the key \"Authorization\". If the API require different key, provide the key here. Defaults to Authorization",
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 (jsonData_oauth2Type == 'client_credentials' || jsonData_oauth2Type == 'jwt')"
+                },
+                "authStyle": {
+                  "type": "number",
+                  "default": 0,
+                  "enum": [
+                    0,
+                    1,
+                    2
+                  ],
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'client_credentials'"
+                },
+                "client_id": {
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'client_credentials'",
+                  "x-dsconfig-required-when": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'client_credentials'"
+                },
+                "email": {
+                  "description": "Email is the OAuth client identifier used when communicating with the configured OAuth provider.",
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'jwt'",
+                  "x-dsconfig-required-when": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'jwt'"
+                },
+                "oauth2_type": {
+                  "description": "This refers to OAuth2 grant type",
+                  "type": "string",
+                  "default": "client_credentials",
+                  "enum": [
+                    "client_credentials",
+                    "jwt",
+                    "others"
+                  ],
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2'"
+                },
+                "private_key_id": {
+                  "description": "PrivateKeyID contains an optional hint indicating which key is being used",
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'jwt'"
+                },
+                "scopes": {
+                  "description": "Scopes optionally specifies a list of requested permission scopes. Enter comma separated values",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 (jsonData_oauth2Type == 'client_credentials' || jsonData_oauth2Type == 'jwt')"
+                },
+                "subject": {
+                  "description": "Subject is the optional user to impersonate.",
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 jsonData_oauth2Type == 'jwt'"
+                },
+                "tokenTemplate": {
+                  "description": "Token Template allows you to customize the token value using the template. This will be Authorization header value. String ${__oauth2.access_token} will be replaced with actual access token",
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 (jsonData_oauth2Type == 'client_credentials' || jsonData_oauth2Type == 'jwt')"
+                },
+                "token_url": {
+                  "type": "string",
+                  "x-dsconfig-depends-on": "jsonData_authMethod == 'oauth2' \u0026\u0026 (jsonData_oauth2Type == 'client_credentials' || jsonData_oauth2Type == 'jwt')",
+                  "x-dsconfig-required-when": "jsonData_authMethod == 'oauth2' \u0026\u0026 (jsonData_oauth2Type == 'client_credentials' || jsonData_oauth2Type == 'jwt')"
+                }
+              }
+            },
+            "oauthPassThru": {
+              "type": "boolean",
+              "default": false
+            },
+            "pathEncodedUrlsEnabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "proxy_type": {
+              "type": "string",
+              "default": "env",
+              "enum": [
+                "none",
+                "env",
+                "url"
+              ]
+            },
+            "proxy_url": {
+              "description": "Proxy URL. Don't set the username or password here",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_proxyType == 'url'",
+              "x-dsconfig-required-when": "jsonData_proxyType == 'url'"
+            },
+            "proxy_username": {
+              "description": "Optional: Proxy Username. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\"",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_proxyType == 'url'"
+            },
+            "refData": {
+              "description": "Named inline datasets reusable in queries via source='reference'.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "secureQuery": {
+              "description": "URL query parameters appended to every request. Names are stored in jsonData (secureQueryName\u003cN\u003e); values are write-only in secureJsonData (secureQueryValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "serverName": {
+              "description": "Server Name",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_tlsAuth == true",
+              "x-dsconfig-required-when": "jsonData_tlsAuth == true"
+            },
+            "timeoutInSeconds": {
+              "type": "number",
+              "default": 60,
+              "maximum": 300,
+              "minimum": 0
+            },
+            "tlsAuth": {
+              "description": "TLS Client Auth",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsAuthWithCACert": {
+              "description": "Needed for verifying self-signed TLS Certs",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsSkipVerify": {
+              "description": "Skip TLS Verify",
+              "type": "boolean",
+              "default": false
+            },
+            "unsecuredQueryHandling": {
+              "description": "Option to handle insecure query content such as sensitive headers in the dashboard query",
+              "type": "string",
+              "default": "warn",
+              "enum": [
+                "allow",
+                "warn",
+                "deny"
+              ]
+            }
+          }
+        },
+        "url": {
+          "description": "Base URL of the query. Leave blank if you want to handle it in the query editor.",
+          "type": "string"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "basicAuthPassword",
+        "description": "password"
+      },
+      {
+        "key": "bearerToken",
+        "description": "bearer token"
+      },
+      {
+        "key": "apiKeyValue",
+        "description": "api key value"
+      },
+      {
+        "key": "awsAccessKey",
+        "description": "aws access key"
+      },
+      {
+        "key": "awsSecretKey",
+        "description": "aws secret key"
+      },
+      {
+        "key": "oauth2ClientSecret"
+      },
+      {
+        "key": "oauth2JWTPrivateKey",
+        "description": "PrivateKey contains the contents of an RSA private key or the contents of a PEM file that contains a private key. The provided private key is used to sign JWT payloads"
+      },
+      {
+        "key": "azureBlobAccountKey",
+        "description": "Azure blob storage account key"
+      },
+      {
+        "key": "tlsCACert"
+      },
+      {
+        "key": "tlsClientCert"
+      },
+      {
+        "key": "tlsClientKey"
+      },
+      {
+        "key": "proxyUserPassword",
+        "description": "Optional: Proxy Password. This functionality should only be used with legacy web sites. RFC 2396 warns that interpreting Userinfo this way \"is NOT RECOMMENDED, because the passing of authentication information in clear text (such as URI) has proven to be a security risk in almost every case where it has been used.\""
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: no auth, no base URL, proxy_type='env', timeoutInSeconds=60, unsecuredQueryHandling='warn'. Fully functional — every query is expected to carry its own URL.",
+        "value": {
+          "jsonData": {
+            "apiKeyType": "header",
+            "auth_method": "none",
+            "proxy_type": "env",
+            "timeoutInSeconds": 60,
+            "unsecuredQueryHandling": "warn"
+          },
+          "secureJsonData": {
+            "bearerToken": ""
+          }
+        }
+      },
+      "apiKeyHeader": {
+        "summary": "API key (header)",
+        "description": "API key sent as an HTTP request header (apiKeyType='header'). apiKeyKey is the header name, apiKeyValue is the secret value.",
+        "value": {
+          "jsonData": {
+            "apiKeyKey": "X-API-Key",
+            "apiKeyType": "header",
+            "auth_method": "apiKey"
+          },
+          "secureJsonData": {
+            "apiKeyValue": "REPLACE_WITH_API_KEY"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "apiKeyQuery": {
+        "summary": "API key (query param)",
+        "description": "API key sent as a URL query-string parameter (apiKeyType='query').",
+        "value": {
+          "jsonData": {
+            "apiKeyKey": "apiKey",
+            "apiKeyType": "query",
+            "auth_method": "apiKey"
+          },
+          "secureJsonData": {
+            "apiKeyValue": "REPLACE_WITH_API_KEY"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "awsSigV4": {
+        "summary": "AWS SigV4 (access key + secret)",
+        "description": "AWS Signature v4 signing with static access-key + secret-key credentials. jsonData.aws.authType='keys'; the credentials live in secureJsonData. jsonData.aws.service is the AWS service name used for signing (e.g. 'monitoring' for CloudWatch).",
+        "value": {
+          "jsonData": {
+            "auth_method": "aws",
+            "aws": {
+              "authType": "keys",
+              "region": "us-east-1",
+              "service": "monitoring"
+            }
+          },
+          "secureJsonData": {
+            "awsAccessKey": "AKIAIOSFODNN7EXAMPLE",
+            "awsSecretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          },
+          "url": "https://monitoring.us-east-1.amazonaws.com"
+        }
+      },
+      "azureBlob": {
+        "summary": "Azure Blob storage",
+        "description": "Read data from Azure Blob storage. jsonData.azureBlobCloudType picks the cloud environment; the backend derives azureBlobAccountUrl from it on load (pkg/models/settings.go:406-415). No base URL, and jsonData.allowedHosts is not required for azureBlob auth (pkg/models/settings.go:169-177).",
+        "value": {
+          "jsonData": {
+            "auth_method": "azureBlob",
+            "azureBlobAccountName": "myaccount",
+            "azureBlobCloudType": "AzureCloud"
+          },
+          "secureJsonData": {
+            "azureBlobAccountKey": "REPLACE_WITH_ACCOUNT_KEY"
+          }
+        }
+      },
+      "basicAuth": {
+        "summary": "Basic authentication",
+        "description": "HTTP Basic auth. root.basicAuth=true and root.basicAuthUser live at datasource root; only basicAuthPassword is secret. auth_method='basicAuth' keeps the modern discriminator in sync with the legacy root.basicAuth flag.",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "auth_method": "basicAuth"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "bearerToken": {
+        "summary": "Bearer token",
+        "description": "Static bearer token added as an Authorization header. The token itself is write-only in secureJsonData.bearerToken.",
+        "value": {
+          "jsonData": {
+            "auth_method": "bearerToken"
+          },
+          "secureJsonData": {
+            "bearerToken": "REPLACE_WITH_TOKEN"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "customHeadersAndQueryParams": {
+        "summary": "Custom headers and URL query params",
+        "description": "Datasource with a custom HTTP header and a custom URL query param configured through the shared SecureFieldsEditor. Each editor row writes a jsonData.httpHeaderName\u003cN\u003e/secureJsonData.httpHeaderValue\u003cN\u003e or jsonData.secureQueryName\u003cN\u003e/secureJsonData.secureQueryValue\u003cN\u003e pair (src/components/config/SecureFieldsEditor.tsx:98-113).",
+        "value": {
+          "jsonData": {
+            "auth_method": "none",
+            "httpHeaderName1": "X-Tenant",
+            "secureQueryName1": "trace"
+          },
+          "secureJsonData": {
+            "httpHeaderValue1": "REPLACE_WITH_TENANT",
+            "secureQueryValue1": "REPLACE_WITH_TRACE_ID"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "customHealthCheck": {
+        "summary": "Custom health check URL",
+        "description": "Override the plugin's default health check with an HTTP GET against jsonData.customHealthCheckUrl.",
+        "value": {
+          "jsonData": {
+            "auth_method": "none",
+            "customHealthCheckEnabled": true,
+            "customHealthCheckUrl": "https://api.example.com/health"
+          },
+          "secureJsonData": {
+            "bearerToken": ""
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "customProxy": {
+        "summary": "Custom HTTP proxy",
+        "description": "Route outgoing requests through a custom proxy URL. proxy_type='url' turns on proxy_url + optional proxy_username / proxyUserPassword. Use with caution — RFC 2396 discourages passing credentials in URL userinfo.",
+        "value": {
+          "jsonData": {
+            "auth_method": "none",
+            "proxy_type": "url",
+            "proxy_url": "https://proxy.internal.corp:3128",
+            "proxy_username": "grafana"
+          },
+          "secureJsonData": {
+            "proxyUserPassword": "REPLACE_WITH_PROXY_PASSWORD"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "digestAuth": {
+        "summary": "Digest authentication",
+        "description": "HTTP Digest auth (RFC 7616). Same credential shape as basicAuth but discriminated by auth_method='digestAuth'; root.basicAuth stays false.",
+        "value": {
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "auth_method": "digestAuth"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "forwardOAuth": {
+        "summary": "Forward OAuth identity",
+        "description": "Forward the signed-in Grafana user's upstream OAuth identity to the API. No secret is stored on the datasource; jsonData.oauthPassThru mirrors root.basicAuth's discriminator role.",
+        "value": {
+          "jsonData": {
+            "auth_method": "oauthPassThru",
+            "oauthPassThru": true
+          },
+          "secureJsonData": {
+            "bearerToken": ""
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "legacyBasicAuthWithoutMethod": {
+        "summary": "Legacy: root.basicAuth without auth_method",
+        "description": "Pre-auth_method datasource: only root.basicAuth is set. LoadSettings back-fills the effective auth method to 'basicAuth' at load time (pkg/models/settings.go:393-401).",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {},
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "oauth2ClientCredentials": {
+        "summary": "OAuth2 client credentials",
+        "description": "OAuth2 client-credentials grant. jsonData.oauth2.oauth2_type='client_credentials', client_id + token_url in jsonData, client secret in secureJsonData.oauth2ClientSecret. authStyle=0 = auto-detect where the client_id/secret are sent.",
+        "value": {
+          "jsonData": {
+            "allowedHosts": [
+              "https://api.example.com"
+            ],
+            "auth_method": "oauth2",
+            "oauth2": {
+              "authStyle": 0,
+              "client_id": "REPLACE_WITH_CLIENT_ID",
+              "oauth2_type": "client_credentials",
+              "scopes": [
+                "read"
+              ],
+              "token_url": "https://auth.example.com/oauth/token"
+            }
+          },
+          "secureJsonData": {
+            "oauth2ClientSecret": "REPLACE_WITH_CLIENT_SECRET"
+          },
+          "url": "https://api.example.com"
+        }
+      },
+      "oauth2JWT": {
+        "summary": "OAuth2 JWT (service account)",
+        "description": "OAuth2 JWT grant (2-legged, e.g. Google service account). jsonData.oauth2.oauth2_type='jwt' with email + token_url + optional subject; the RSA private key PEM lives in secureJsonData.oauth2JWTPrivateKey.",
+        "value": {
+          "jsonData": {
+            "allowedHosts": [
+              "https://monitoring.googleapis.com"
+            ],
+            "auth_method": "oauth2",
+            "oauth2": {
+              "email": "sa@project.iam.gserviceaccount.com",
+              "oauth2_type": "jwt",
+              "scopes": [
+                "https://www.googleapis.com/auth/monitoring.read"
+              ],
+              "token_url": "https://oauth2.googleapis.com/token"
+            }
+          },
+          "secureJsonData": {
+            "oauth2JWTPrivateKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+          },
+          "url": "https://monitoring.googleapis.com"
+        }
+      },
+      "referenceData": {
+        "summary": "Reference (inline) data",
+        "description": "Datasource-level named inline datasets that queries can reference via source='reference'. Each entry is { name, data }; the data string is parsed by the query editor per query.",
+        "value": {
+          "jsonData": {
+            "auth_method": "none",
+            "refData": [
+              {
+                "data": "code,name\nUS,United States\nDE,Germany",
+                "name": "countries"
+              }
+            ]
+          },
+          "secureJsonData": {
+            "bearerToken": ""
+          }
+        }
+      },
+      "tlsCustomCA": {
+        "summary": "Self-signed / custom CA",
+        "description": "Endpoint behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM in secureJsonData.tlsCACert.",
+        "value": {
+          "jsonData": {
+            "auth_method": "none",
+            "tlsAuthWithCACert": true
+          },
+          "secureJsonData": {
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+          },
+          "url": "https://api.internal.corp"
+        }
+      },
+      "tlsMutualAuth": {
+        "summary": "TLS mutual auth (mTLS)",
+        "description": "Endpoint requiring mTLS. jsonData.tlsAuth=true triggers client-cert authentication; serverName + client cert + client key are all mandatory when tlsAuth is enabled.",
+        "value": {
+          "jsonData": {
+            "auth_method": "none",
+            "serverName": "api.internal.corp",
+            "tlsAuth": true
+          },
+          "secureJsonData": {
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+          },
+          "url": "https://api.internal.corp"
+        }
+      }
+    }
+  }
+}

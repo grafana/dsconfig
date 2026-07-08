@@ -1,0 +1,109 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "host",
+          "httpPath"
+        ],
+        "properties": {
+          "authType": {
+            "description": "Authentication type of Databricks",
+            "type": "string",
+            "default": "Pat",
+            "enum": [
+              "Pat",
+              "OauthPT",
+              "OauthM2M",
+              "OauthOBO",
+              "AzureM2M"
+            ]
+          },
+          "azureCloud": {
+            "type": "string",
+            "default": "AzureCloud",
+            "enum": [
+              "AzureCloud",
+              "AzureChinaCloud",
+              "AzureUSGovernment"
+            ],
+            "x-dsconfig-depends-on": "jsonData_authType == 'AzureM2M'"
+          },
+          "azureCredentials": {
+            "description": "Discriminated-union credentials object written by the `@grafana/azure-sdk` `AzureCredentialsForm` when authType is 'OauthOBO'. Shape: `{ authType: 'clientsecret-obo', azureCloud, tenantId, clientId }` (the client secret is stored write-only in secureJsonData.azureClientSecret). Parsed by the backend via `azcredentials.FromDatasourceData` (pkg/models/settings.go:121-139).",
+            "x-dsconfig-depends-on": "jsonData_authType == 'OauthOBO'",
+            "x-dsconfig-required-when": "jsonData_authType == 'OauthOBO'"
+          },
+          "clientId": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'OauthM2M' || jsonData_authType == 'AzureM2M'",
+            "x-dsconfig-required-when": "jsonData_authType == 'OauthM2M' || jsonData_authType == 'AzureM2M'"
+          },
+          "cloudFetch": {
+            "description": "Enables Databricks CloudFetch (parallel result download) in the SQL connector. Not exposed in the configuration editor; the backend force-sets it to true on every load unless the `disableCloudFetch` Grafana feature toggle is enabled (pkg/models/settings.go:161-168).",
+            "type": "boolean",
+            "default": true
+          },
+          "debug": {
+            "type": "boolean"
+          },
+          "defaultQueryFormat": {
+            "type": "number",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "enableUnitySupport": {
+            "description": "Enable Unity Catalog support for 3-level namespace (catalog.schema.table)",
+            "type": "boolean"
+          },
+          "host": {
+            "type": "string"
+          },
+          "httpPath": {
+            "type": "string"
+          },
+          "oauthPassThru": {
+            "description": "Set to true automatically when authType is 'OauthPT' (OAuth Passthrough) or 'OauthOBO' (Azure On-Behalf-Of) so Grafana forwards the caller's OAuth identity to Databricks. The backend hard-fails On-Behalf-Of auth if this is not true (pkg/models/settings.go:141-143, ErrInvalidOAuth). No editor UI — written as a side-effect of selecting the auth type.",
+            "type": "boolean"
+          },
+          "pause": {
+            "type": "string"
+          },
+          "retries": {
+            "type": "string"
+          },
+          "retryTimeout": {
+            "type": "string"
+          },
+          "rows": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'AzureM2M'",
+            "x-dsconfig-required-when": "jsonData_authType == 'AzureM2M'"
+          },
+          "timeout": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "token"
+    },
+    {
+      "key": "azureClientSecret",
+      "description": "App Registration client secret for Azure On-Behalf-Of (authType 'OauthOBO'). Written write-only by `@grafana/azure-sdk`; check `secureJsonFields.azureClientSecret` on the read side."
+    },
+    {
+      "key": "clientSecret"
+    }
+  ]
+}

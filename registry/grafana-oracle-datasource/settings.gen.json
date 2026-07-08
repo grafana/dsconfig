@@ -1,0 +1,78 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "connectionPoolSize": {
+            "description": "Choose the maximum number of connections in the connection pool. Defaults to 50. Takes precedence over environment variable 'GF_PLUGINS_ORACLE_DATASOURCE_POOLSIZE' if set.",
+            "type": "number",
+            "default": 50
+          },
+          "dataProxyTimeout": {
+            "description": "Choose the maximum time in seconds to wait for a response. Defaults to 120 seconds. Takes precedence over environment variable 'GF_DATAPROXY_TIMEOUT' if set.",
+            "type": "number",
+            "default": 120
+          },
+          "database": {
+            "description": "Name of database",
+            "type": "string",
+            "x-dsconfig-depends-on": "virtual_connectionType == 'tcp'",
+            "x-dsconfig-required-when": "jsonData_useTNSNamesBasedConnection != true"
+          },
+          "prefetchRowsCount": {
+            "description": "Row Prefetching allow you to set the number of rows to prefetch into the client while a result set is being populated during a query. This feature reduces the number of round trips to the server.",
+            "type": "number"
+          },
+          "rowLimit": {
+            "description": "Maximum number of rows returned per query. Defaults to 1,000,000.",
+            "type": "number",
+            "default": 1000000
+          },
+          "timezone_name": {
+            "description": "Choose the default timezone of the Oracle server. Typically this is UTC.",
+            "type": "string",
+            "default": "UTC"
+          },
+          "tnsNamesEntry": {
+            "description": "Use connection config specified in tnsnames.ora",
+            "type": "string",
+            "x-dsconfig-depends-on": "virtual_connectionType == 'tns'",
+            "x-dsconfig-required-when": "jsonData_useTNSNamesBasedConnection == true"
+          },
+          "useKerberosAuthentication": {
+            "description": "Authentication discriminator: false selects Basic Authentication (username + password), true selects Kerberos Authentication. The config editor only exposes Kerberos when useTNSNamesBasedConnection is true, though the backend also accepts Kerberos with a host + port connection.",
+            "type": "boolean"
+          },
+          "useTNSNamesBasedConnection": {
+            "description": "Connection-method discriminator: false selects 'Host with TCP Port' (host + port + database), true selects 'TNSNames Entry' (a tnsnames.ora entry). Written by the config editor's Connection methods selector.",
+            "type": "boolean"
+          },
+          "use_dst": {
+            "description": "Parsed by the backend into DBConnectionOptions.DSTEnabled (pkg/models/settings.go:23) but never read when building the connection string. Declared in the frontend OracleOptions type (src/types.ts:9) but not written by the config editor — use_dst is a per-query/annotation option (src/types.ts:30, src/datasource.ts:109), not a datasource-level setting.",
+            "type": "boolean"
+          },
+          "user": {
+            "description": "An Oracle username with access to the specified database.",
+            "type": "string",
+            "x-dsconfig-depends-on": "virtual_authType == 'basic'",
+            "x-dsconfig-required-when": "jsonData_useKerberosAuthentication != true"
+          }
+        }
+      },
+      "url": {
+        "description": "Hostname or IP Address with TCP port number.",
+        "type": "string",
+        "x-dsconfig-depends-on": "virtual_connectionType == 'tcp'",
+        "x-dsconfig-required-when": "jsonData_useTNSNamesBasedConnection != true"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password",
+      "description": "An Oracle password with access to the specified database."
+    }
+  ]
+}

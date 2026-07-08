@@ -1,0 +1,98 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: personal access token authentication against GitHub.com (Free, Pro \u0026 Team). Only secureJsonData.accessToken (empty here) needs to be filled in to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "githubPlan": "github-basic",
+          "selectedAuthType": "personal-access-token"
+        },
+        "secureJsonData": {
+          "accessToken": ""
+        }
+      }
+    },
+    "enterpriseCloud": {
+      "summary": "Personal Access Token (GitHub Enterprise Cloud)",
+      "description": "GitHub Enterprise Cloud uses the same API endpoints as GitHub.com, so no URL is configured; githubPlan only drives the config editor. The token is provided in secureJsonData.accessToken.",
+      "value": {
+        "jsonData": {
+          "githubPlan": "github-enterprise-cloud",
+          "selectedAuthType": "personal-access-token"
+        },
+        "secureJsonData": {
+          "accessToken": "github_pat_XXXXXXXXXXXXXXXXXXXXXX"
+        }
+      }
+    },
+    "enterpriseServer": {
+      "summary": "Personal Access Token (GitHub Enterprise Server)",
+      "description": "On-prem GitHub Enterprise Server: the backend derives \u003cgithubUrl\u003e/api/v3 (REST) and \u003cgithubUrl\u003e/api/graphql (GraphQL). The token is provided in secureJsonData.accessToken.",
+      "value": {
+        "jsonData": {
+          "githubPlan": "github-enterprise-server",
+          "githubUrl": "https://github.example.com",
+          "selectedAuthType": "personal-access-token"
+        },
+        "secureJsonData": {
+          "accessToken": "github_pat_XXXXXXXXXXXXXXXXXXXXXX"
+        }
+      }
+    },
+    "githubApp": {
+      "summary": "GitHub App (GitHub.com)",
+      "description": "Authenticate against GitHub.com as a GitHub App installation. appId and installationId may be JSON strings or numbers; secureJsonData.privateKey is the app's complete private key PEM including the BEGIN/END lines.",
+      "value": {
+        "jsonData": {
+          "appId": "123456",
+          "githubPlan": "github-basic",
+          "installationId": "12345678",
+          "selectedAuthType": "github-app"
+        },
+        "secureJsonData": {
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        }
+      }
+    },
+    "githubAppEnterpriseServer": {
+      "summary": "GitHub App (GitHub Enterprise Server)",
+      "description": "GitHub App installation on an on-prem GitHub Enterprise Server, with the app's private key PEM in secureJsonData.privateKey.",
+      "value": {
+        "jsonData": {
+          "appId": "123456",
+          "githubPlan": "github-enterprise-server",
+          "githubUrl": "https://github.example.com",
+          "installationId": "12345678",
+          "selectedAuthType": "github-app"
+        },
+        "secureJsonData": {
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        }
+      }
+    },
+    "legacyAccessTokenOnly": {
+      "summary": "Legacy: access token without an auth type",
+      "description": "Datasources created before selectedAuthType existed store only secureJsonData.accessToken; the backend defaults them to personal-access-token.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "accessToken": "github_pat_XXXXXXXXXXXXXXXXXXXXXX"
+        }
+      }
+    },
+    "personalAccessToken": {
+      "summary": "Personal Access Token (GitHub.com)",
+      "description": "Authenticate against GitHub.com (Free, Pro \u0026 Team) with a fine grained personal access token provided in secureJsonData.accessToken.",
+      "value": {
+        "jsonData": {
+          "githubPlan": "github-basic",
+          "selectedAuthType": "personal-access-token"
+        },
+        "secureJsonData": {
+          "accessToken": "github_pat_XXXXXXXXXXXXXXXXXXXXXX"
+        }
+      }
+    }
+  }
+}

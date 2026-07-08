@@ -1,0 +1,346 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-saphana-datasource",
+    "pluginName": "SAP HANA®",
+    "docURL": "https://grafana.com/docs/plugins/grafana-saphana-datasource",
+    "fields": [
+        {
+            "id": "jsonData_server",
+            "key": "server",
+            "label": "Server address",
+            "description": "SAP HANA server address",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.domain",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Server address"
+            }
+        },
+        {
+            "id": "jsonData_port",
+            "key": "port",
+            "label": "Server port",
+            "description": "SAP HANA server port (optional if database name filled). Typically this will be 443 for SAP HANA Cloud. For on-prem/multi-tenanted instances, use the corresponding port number",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "endpoint.port",
+            "requiredWhen": "jsonData_instance == '' || jsonData_databaseName == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Server port"
+            }
+        },
+        {
+            "id": "jsonData_username",
+            "key": "username",
+            "label": "Username",
+            "description": "SAP HANA username",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "requiredWhen": "jsonData_tlsAuth != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Username"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "description": "SAP HANA password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "requiredWhen": "jsonData_tlsAuth != true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_tlsDisabled",
+            "key": "tlsDisabled",
+            "label": "TLS",
+            "description": "Enable TLS/SSL encryption for the connection to SAP HANA. Enabled by default. Disable only when your SAP HANA instance does not have TLS configured (plaintext connections).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            },
+            "effects": [
+                {
+                    "when": "value == true",
+                    "set": {
+                        "jsonData_tlsSkipVerify": false,
+                        "jsonData_tlsAuth": false,
+                        "jsonData_tlsAuthWithCACert": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "description": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "dependsOn": "jsonData_tlsDisabled != true",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "description": "TLS Client Auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_tlsDisabled != true",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsDisabled != true && jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "Client Cert. Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsDisabled != true && jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "Client Key. Begins with -----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying self-signed TLS Certs",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_tlsDisabled != true",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsDisabled != true && jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 7,
+                "placeholder": "CA Cert. Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "jsonData_databaseName",
+            "key": "databaseName",
+            "label": "Tenant database name",
+            "description": "Tenant database name (optional). If database name is set as well as the instance number, port is not required.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Tenant database name"
+            }
+        },
+        {
+            "id": "jsonData_instance",
+            "key": "instance",
+            "label": "Tenant instance number",
+            "description": "SAP HANA tenant instance number (optional). If instance number is set, port is not required.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Tenant instance number"
+            }
+        },
+        {
+            "id": "jsonData_defaultSchema",
+            "key": "defaultSchema",
+            "label": "Default schema",
+            "description": "Default schema to be used. Can be empty.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Default schema"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "defaultValue": "30",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout for connections"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "http",
+            "title": "HTTP",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_server",
+                "jsonData_port"
+            ]
+        },
+        {
+            "id": "auth",
+            "title": "Auth",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_username",
+                "secureJsonData_password"
+            ]
+        },
+        {
+            "id": "tls",
+            "title": "TLS / SSL Settings",
+            "order": 3,
+            "fieldRefs": [
+                "jsonData_tlsDisabled",
+                "jsonData_tlsSkipVerify",
+                "jsonData_tlsAuth",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey",
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ]
+        },
+        {
+            "id": "tenant-properties",
+            "title": "Tenant Properties",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_databaseName",
+                "jsonData_instance"
+            ]
+        },
+        {
+            "id": "additional-properties",
+            "title": "Additional Properties",
+            "order": 5,
+            "fieldRefs": [
+                "jsonData_defaultSchema",
+                "jsonData_timeout"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_instance",
+                "jsonData_databaseName"
+            ],
+            "description": "Tenant instance number and tenant database name — supplied together they derive the connection port (3<instance>13) and replace the explicit server port"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_username",
+                "secureJsonData_password"
+            ],
+            "description": "Basic authentication credentials — supplied together unless TLS Client Auth (tlsAuth) is enabled"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS client key-pair — supplied together when TLS Client Auth (tlsAuth) is enabled"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Two authentication methods are available, both configured in jsonData. Basic authentication (the default) uses jsonData.username + secureJsonData.password. TLS client-certificate authentication is selected with jsonData.tlsAuth=true (X.509): the backend authenticates with secureJsonData.tlsClientCert + secureJsonData.tlsClientKey and ignores username/password. When tlsAuth is true, username and password are not required; otherwise both are mandatory.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payloads. Basic auth over host+port: {\"jsonData\":{\"server\":\"<host>\",\"port\":443,\"username\":\"<user>\"},\"secureJsonData\":{\"password\":\"<your-password>\"}}. Basic auth over a tenant instance (no port): {\"jsonData\":{\"server\":\"<host>\",\"instance\":\"<nn>\",\"databaseName\":\"<tenant>\",\"username\":\"<user>\"},\"secureJsonData\":{\"password\":\"<your-password>\"}}. TLS client-cert auth: {\"jsonData\":{\"server\":\"<host>\",\"port\":443,\"tlsAuth\":true},\"secureJsonData\":{\"tlsClientCert\":\"<PEM>\",\"tlsClientKey\":\"<PEM>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection target: jsonData.server is always required. Provide EITHER jsonData.port, OR both jsonData.instance (tenant instance number) and jsonData.databaseName (tenant database name). With instance+databaseName the backend derives the port as 3<instance>13 (e.g. instance '00' -> 30013) instead of using an explicit port. jsonData.instance is stored as a STRING even though the config editor renders it with a number input. jsonData.defaultSchema is optional.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "TLS is enabled by default. jsonData.tlsDisabled=true turns TLS off (plaintext) and the editor then clears tlsSkipVerify/tlsAuth/tlsAuthWithCACert. With TLS on: jsonData.tlsSkipVerify=true accepts any server certificate (development only); jsonData.tlsAuthWithCACert=true verifies the server certificate against secureJsonData.tlsCACert (a custom/self-signed CA); jsonData.tlsAuth=true enables mutual TLS with secureJsonData.tlsClientCert + tlsClientKey. The TLS ServerName is derived from jsonData.server — there is no separate server-name field.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (password, tlsClientCert, tlsClientKey, tlsCACert) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.password == true) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Interpretation notes. jsonData.timeout is a string number of connection seconds (default '30'). The editor's 'TLS' switch is inverted relative to storage: switch ON = TLS enabled = jsonData.tlsDisabled false. When no password is supplied and tlsAuth is false, the backend short-circuits and returns a validation error without applying the timeout default or copying TLS certs. Grant the SAP HANA user only the privileges Grafana needs — the backend does not sandbox statements, so any SQL will run.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,101 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-catchpoint-datasource",
+    "pluginName": "Catchpoint",
+    "docURL": "https://grafana.com/docs/plugins/grafana-catchpoint-datasource",
+    "fields": [
+        {
+            "id": "jsonData_services_catchpoint_auth_id",
+            "key": "id",
+            "section": "services.catchpoint.auth",
+            "label": "API v2 Key",
+            "description": "Catchpoint REST API v2 Key.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "bearer_token",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "bearer_token"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "API v2 Key",
+                        "value": "bearer_token"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_catchpoint_token",
+            "key": "catchpoint.token",
+            "label": "Token",
+            "description": "Token for accessing the datasource API",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_services_catchpoint_auth_id == 'bearer_token'",
+            "requiredWhen": "jsonData_services_catchpoint_auth_id == 'bearer_token'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_services_catchpoint_auth_id",
+                "secureJsonData_catchpoint_token"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Catchpoint configuration is stored under a service-keyed jsonData shape: jsonData.services.catchpoint.* holds per-service settings, while secrets use flat dotted secureJsonData keys of the form \"catchpoint.<secret>\". There is a single service with id 'catchpoint'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses a Catchpoint REST API v2 Key (bearer). jsonData.services.catchpoint.auth.id is 'bearer_token' (the backend defaults to it) and the key is the write-only secret at secureJsonData key \"catchpoint.token\".",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"catchpoint\":{\"auth\":{\"id\":\"bearer_token\"}}}},\"secureJsonData\":{\"catchpoint.token\":\"<catchpoint-api-v2-key>\"}}.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is fixed at https://io.catchpoint.com/api/v2 (no server selector and no connection variables).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"catchpoint.token\" is write-only: it can be set or reset but never read back. To check whether it is already configured, read secureJsonFields[\"catchpoint.token\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

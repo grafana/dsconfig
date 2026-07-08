@@ -1,0 +1,51 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "apiUrl"
+        ],
+        "properties": {
+          "accessId": {
+            "description": "Sumo Logic Access Id",
+            "type": "string",
+            "x-dsconfig-required-when": "jsonData_authMethod == 'accessKey'"
+          },
+          "apiUrl": {
+            "description": "SumoLogic API URL. [Read how to find your deployment.](https://help.sumologic.com/docs/api/getting-started/#which-endpoint-should-i-should-use)",
+            "type": "string",
+            "default": "https://api.sumologic.com/api/"
+          },
+          "authMethod": {
+            "description": "Authentication method discriminator. The only supported value is 'accessKey' (HTTP basic auth with an access ID + access key). The configuration editor never writes this key — it renders a single fixed authentication method whose selector handler is a no-op — and the backend defaults it to 'accessKey' when empty and rejects any other value.",
+            "type": "string",
+            "default": "accessKey",
+            "enum": [
+              "accessKey"
+            ]
+          },
+          "interval": {
+            "description": "Interval in milliseconds for the log polling requests. Min value is 200.",
+            "type": "number",
+            "default": 1000,
+            "minimum": 200
+          },
+          "timeout": {
+            "description": "Timeout in seconds for the data requests",
+            "type": "number",
+            "default": 30,
+            "minimum": 1
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accessKey",
+      "description": "Sumo Logic Access Key"
+    }
+  ]
+}

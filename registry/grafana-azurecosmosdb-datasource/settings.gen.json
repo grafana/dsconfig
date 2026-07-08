@@ -1,0 +1,24 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "accountEndpoint"
+        ],
+        "properties": {
+          "accountEndpoint": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "accountKey",
+      "required": true
+    }
+  ]
+}

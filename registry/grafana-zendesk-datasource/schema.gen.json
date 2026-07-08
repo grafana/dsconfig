@@ -1,0 +1,110 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "zendesk": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Identifier of the selected authentication method for the Tickets service. The Zendesk API server exposes a single method, `basic_auth`; the backend defaults to it when unset.",
+                          "type": "string",
+                          "default": "basic_auth",
+                          "enum": [
+                            "basic_auth"
+                          ]
+                        },
+                        "username": {
+                          "description": "Email address used to login to Zendesk",
+                          "type": "string",
+                          "x-dsconfig-depends-on": "jsonData_services_zendesk_auth_id == 'basic_auth'",
+                          "x-dsconfig-required-when": "jsonData_services_zendesk_auth_id == 'basic_auth'"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "variables": {
+              "type": "object",
+              "required": [
+                "subdomain"
+              ],
+              "properties": {
+                "subdomain": {
+                  "description": "If your Zendesk URL is \"grafana.zendesk.com\", the subdomain would be \"grafana\".",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "zendesk.password",
+        "description": "API Token generated from Zendesk. Visit the [docs](https://support.zendesk.com/hc/en-us/articles/4408889192858-Managing-access-to-the-Zendesk-API) to learn how"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the single service 'zendesk' preselects its only auth method, basic_auth. Fill in the login email (jsonData.services.zendesk.auth.username), the subdomain (jsonData.variables.subdomain), and the API token (secureJsonData \"zendesk.password\", empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "zendesk": {
+                "auth": {
+                  "id": "basic_auth",
+                  "username": ""
+                }
+              }
+            },
+            "variables": {
+              "subdomain": ""
+            }
+          },
+          "secureJsonData": {
+            "zendesk.password": ""
+          }
+        }
+      },
+      "basicAuth": {
+        "summary": "Basic auth (email + API token)",
+        "description": "Authenticate against https://{subdomain}.zendesk.com/api/v2/ with the account login email and a Zendesk API token. The token is the write-only secret at secureJsonData \"zendesk.password\".",
+        "value": {
+          "jsonData": {
+            "services": {
+              "zendesk": {
+                "auth": {
+                  "id": "basic_auth",
+                  "username": "agent@example.com"
+                }
+              }
+            },
+            "variables": {
+              "subdomain": "mycompany"
+            }
+          },
+          "secureJsonData": {
+            "zendesk.password": "\u003czendesk-api-token\u003e"
+          }
+        }
+      }
+    }
+  }
+}

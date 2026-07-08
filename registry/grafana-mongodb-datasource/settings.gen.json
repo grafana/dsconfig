@@ -1,0 +1,143 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "basicAuth": {
+        "description": "Standard Grafana basic-auth enabled flag. The backend initializes BasicAuthEnabled from this value and also forces it on when a username or password is present (pkg/models/settings.go). Set by datasource provisioning and by the config editor's on-load migration of legacy datasources, not by selecting the Credentials method in the current editor.",
+        "type": "boolean"
+      },
+      "basicAuthUser": {
+        "description": "The username assigned to the MongoDB account.",
+        "type": "string",
+        "x-dsconfig-depends-on": "jsonData_authType == 'BasicAuth'"
+      },
+      "jsonData": {
+        "type": "object",
+        "required": [
+          "connection"
+        ],
+        "properties": {
+          "authType": {
+            "description": "Choose an authentication method to access the data source",
+            "type": "string",
+            "default": "BasicAuth",
+            "enum": [
+              "NoAuth",
+              "BasicAuth",
+              "custom-Kerberos"
+            ]
+          },
+          "ccacheLookupFile": {
+            "description": "Absolute file path to  the JSON file that provides the Kerberos compiler cache (ccache) based on username principal and connection string. If present will ignore password. Enabled when connection string includes query string authMethod=GSSAPI",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'custom-Kerberos'"
+          },
+          "connection": {
+            "description": "A connection string contains the parameters required to connect to MongoDB.",
+            "type": "string"
+          },
+          "credentials": {
+            "description": "Legacy frontend-only flag used by the config editor's on-load migration to detect pre-v1.9.0 basic-auth datasources. Never read by the backend.",
+            "type": "boolean"
+          },
+          "globalCcacheFilePath": {
+            "description": "Absolute file path to global compiler cache (ccache) file. If present will ignore password. Enabled when connection string includes query string authMethod=GSSAPI",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'custom-Kerberos'"
+          },
+          "httpHeaders": {
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "kerberosUser": {
+            "description": "The client principal's username. Enabled when connection string includes query string authMethod=GSSAPI",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'custom-Kerberos'"
+          },
+          "keyTabFilePath": {
+            "description": "Absolute file path KeyTab for keytab file. If present will ignore password. Enabled when connection string includes query string authMethod=GSSAPI",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authType == 'custom-Kerberos'"
+          },
+          "responseRowsLimit": {
+            "description": "Increasing this too much may lead to performance issues for larger queries",
+            "type": "string"
+          },
+          "serverName": {
+            "description": "TLS server name used to verify the hostname on the server's certificate when tlsAuth is enabled. Not exposed in the configuration editor; set via datasource provisioning.",
+            "type": "string"
+          },
+          "skipTLSValidation": {
+            "description": "Legacy flag; the backend copies it to tlsSkipVerify (InsecureSkipVerify) at load time (pkg/models/settings.go). New configurations use tlsSkipVerify.",
+            "type": "boolean"
+          },
+          "tlsAuth": {
+            "description": "Enables TLS client-certificate authentication; the backend supplies tlsClientCert and tlsClientKey to the server. Not exposed in the configuration editor; set via datasource provisioning.",
+            "type": "boolean"
+          },
+          "tlsAuthWithCACert": {
+            "description": "Enables verification of the server's TLS certificate against a custom CA (tlsCACert). Not exposed in the configuration editor; set via datasource provisioning.",
+            "type": "boolean"
+          },
+          "tlsSkipVerify": {
+            "description": "Skips verification of the server's TLS certificate chain and host name (applied by the backend when tlsAuthWithCACert is enabled). Not exposed in the configuration editor; set via datasource provisioning.",
+            "type": "boolean"
+          },
+          "user": {
+            "description": "Legacy username field. Datasources created before v1.9.0 stored the MongoDB username here; the backend migrates it to the root basicAuthUser and enables basic auth (pkg/models/settings.go). New configurations use the root basicAuthUser field.",
+            "type": "string"
+          },
+          "validate": {
+            "description": "Enable real time query syntax validation. MongoDB BSON syntax will be validated as you type and show contextual errors.",
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "basicAuthPassword",
+      "description": "The password assigned to the MongoDB account."
+    },
+    {
+      "key": "kerberosPassword",
+      "description": "The client principal password that will be used to authenticate. Optional if a keytab or cache file is present."
+    },
+    {
+      "key": "tlsCertificateKeyFilePassword",
+      "description": "Password"
+    },
+    {
+      "key": "tlsCACert",
+      "description": "CA certificate PEM used to verify the server's TLS certificate when tlsAuthWithCACert is enabled. Not exposed in the configuration editor; set via datasource provisioning."
+    },
+    {
+      "key": "tlsClientCert",
+      "description": "Client certificate PEM used when tlsAuth is enabled. Not exposed in the configuration editor; set via datasource provisioning."
+    },
+    {
+      "key": "tlsClientKey",
+      "description": "Client private key PEM used when tlsAuth is enabled. Not exposed in the configuration editor; set via datasource provisioning."
+    },
+    {
+      "key": "password",
+      "description": "Legacy secure password. Datasources created before v1.9.0 stored the MongoDB password here; the backend migrates it to the basic-auth password (pkg/models/settings.go). New configurations use basicAuthPassword."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The empty state a new datasource starts with. The plugin defines no config defaults, so both jsonData.realmName and secureJsonData.accessToken must be filled in for the datasource to load — an empty access token is rejected (pkg/models/settings.go:27-30) and an empty realm with no custom URLs yields the broken host https://api..signalfx.com.",
+      "value": {
+        "jsonData": {
+          "realmName": ""
+        },
+        "secureJsonData": {
+          "accessToken": ""
+        }
+      }
+    },
+    "customUrls": {
+      "summary": "Realm plus custom URL overrides",
+      "description": "A realm is set, but the two derived endpoints are overridden with custom SignalFlow domains via jsonData.url_metrics_metadata and jsonData.url_signalflow. When set, these override the realm-derived defaults (pkg/client/rest.go:342-352).",
+      "value": {
+        "jsonData": {
+          "realmName": "us1",
+          "url_metrics_metadata": "https://api.custom.example.com",
+          "url_signalflow": "https://stream.custom.example.com"
+        },
+        "secureJsonData": {
+          "accessToken": "\u003cyour-access-token\u003e"
+        }
+      }
+    },
+    "customUrlsWithoutRealm": {
+      "summary": "Custom URLs without a realm",
+      "description": "Fully custom SignalFlow domains with no realm. Valid because both jsonData.url_metrics_metadata and jsonData.url_signalflow are set, so the backend never falls through to the realm-derived defaults (pkg/client/rest.go:342-352).",
+      "value": {
+        "jsonData": {
+          "url_metrics_metadata": "https://api.custom.example.com",
+          "url_signalflow": "https://stream.custom.example.com"
+        },
+        "secureJsonData": {
+          "accessToken": "\u003cyour-access-token\u003e"
+        }
+      }
+    },
+    "realm": {
+      "summary": "Realm-based (default URLs)",
+      "description": "Standard configuration. The realm (e.g. us1) drives both derived endpoints: https://api.us1.signalfx.com (metrics-metadata) and https://stream.us1.signalfx.com (SignalFlow). The access token is provided in secureJsonData.accessToken and sent as the X-SF-TOKEN header.",
+      "value": {
+        "jsonData": {
+          "realmName": "us1"
+        },
+        "secureJsonData": {
+          "accessToken": "\u003cyour-access-token\u003e"
+        }
+      }
+    }
+  }
+}

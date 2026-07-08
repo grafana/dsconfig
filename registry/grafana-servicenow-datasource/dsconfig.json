@@ -1,0 +1,316 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-servicenow-datasource",
+    "pluginName": "ServiceNow",
+    "docURL": "https://grafana.com/docs/plugins/grafana-servicenow-datasource",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Your access method is Server, this means the URL needs to be accessible from the grafana backend/server.",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "https://<YOUR INSTANCE ID>.service-now.com"
+            }
+        },
+        {
+            "id": "jsonData_authMethod",
+            "key": "authMethod",
+            "label": "Authentication Type",
+            "description": "Type of authentication to use. Defaults to basic auth",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "basicAuth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "basicAuth",
+                        "serviceNowOAuth"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Basic auth",
+                        "value": "basicAuth"
+                    },
+                    {
+                        "label": "ServiceNow OAuth",
+                        "value": "serviceNowOAuth"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "Username",
+            "description": "Username of the ServiceNow account",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "ServiceNow username"
+            },
+            "help": {
+                "title": "Instructions to set permissions in servicenow",
+                "markdown": "The ServiceNow user provided requires read only access to the following tables/fields via ACL rules\n\n| Table | ACL Rules | Details |\n| --- | --- | --- |\n| sys_db_object | `sys_db_object`, `sys_db_object.name`, `sys_db_object.label`, `sys_db_object.sys_name`/ Display Name, `sys_db_object.super_class`/ Extends Table | This table is used to populate the list of available tables/fields. |\n| sys_dictionary, sys_glide_object | `sys_dictionary`, `sys_dictionary.*`, `sys_glide_object`, `sys_glide_object.*` | This table is used to populate the list of selectable fields per table, and is used as a schema for data responses. |\n| sys_choice | `sys_choice`, `sys_choice.*` | This table is used to populate the available options when filtering using a `choice` type field. |\n| incident | `incident` | This table is used in the health check to ensure that the plugin is able to communicate with ServiceNow. |\n\n#### Limited permissions\n\n> It is highly recommended that the service account being used only has access to the necessary tables\n\nIf the service account has access to too many tables, then you may encounter performance issues in the query editor. Please ensure that the ServiceNow account provided only has access to the necessary tables",
+                "docURL": "https://grafana.com/docs/plugins/grafana-servicenow-datasource/latest/configure/#configure-servicenow-permissions"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "Password for the ServiceNow account",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "Password for the ServiceNow account"
+            }
+        },
+        {
+            "id": "jsonData_oauthClientID",
+            "key": "oauthClientID",
+            "label": "Client ID",
+            "description": "Client ID for OAuth",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.oauth2.clientId",
+            "dependsOn": "jsonData_authMethod == 'serviceNowOAuth'",
+            "requiredWhen": "jsonData_authMethod == 'serviceNowOAuth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "OAuth Client ID"
+            }
+        },
+        {
+            "id": "secureJsonData_oauthClientSecret",
+            "key": "oauthClientSecret",
+            "label": "Client Secret",
+            "description": "Client Secret for OAuth",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.oauth2.clientSecret",
+            "dependsOn": "jsonData_authMethod == 'serviceNowOAuth'",
+            "requiredWhen": "jsonData_authMethod == 'serviceNowOAuth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "OAuth Client Secret"
+            }
+        },
+        {
+            "id": "jsonData_useSysTables",
+            "key": "useSysTables",
+            "label": "Use Sys Tables?",
+            "description": "Query sys tables for schema/meta lookups (requires elevated permissions)",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_queryTimeoutSeconds",
+            "key": "queryTimeoutSeconds",
+            "label": "Query Timeout",
+            "description": "Maximum time in seconds for queries to complete. Increase this for slow ServiceNow instances or large tables. Default is 30 seconds.",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 30,
+            "ui": {
+                "component": "input",
+                "placeholder": "30"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_oauthEnabled",
+            "key": "oauthEnabled",
+            "description": "Deprecated legacy boolean that predates `authMethod`. Older plugin versions stored `oauthEnabled: true` to select ServiceNow OAuth. Not written by the current config editor, but still read for backwards compatibility by both the editor (initial auth-method derivation) and the backend (`GetAuthMethod`): when `authMethod` is empty, `oauthEnabled: true` selects `serviceNowOAuth`, otherwise `basicAuth`.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "legacy"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authMethod",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword",
+                "jsonData_oauthClientID",
+                "secureJsonData_oauthClientSecret"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_useSysTables",
+                "jsonData_queryTimeoutSeconds",
+                "jsonData_httpHeaders"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "ServiceNow account credentials (username/password). Used by both auth methods: directly as HTTP Basic auth (authMethod='basicAuth') and as the resource-owner username/password of the OAuth2 password grant (authMethod='serviceNowOAuth')."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_oauthClientID",
+                "secureJsonData_oauthClientSecret"
+            ],
+            "description": "ServiceNow OAuth application credentials (authMethod='serviceNowOAuth'): the OAuth Client ID and Client Secret sent as client_id/client_secret in the OAuth2 password grant, in addition to the account username/password."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_authMethod",
+                "jsonData_oauthEnabled"
+            ],
+            "description": "Authentication discriminator and its deprecated predecessor: when authMethod is empty, the legacy oauthEnabled=true boolean selects serviceNowOAuth (otherwise basicAuth)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Two authentication methods are available, selected via jsonData.authMethod: 'basicAuth' (HTTP Basic auth, the default) and 'serviceNowOAuth' (OAuth2 resource-owner password grant). Configure exactly one. When jsonData.authMethod is empty the backend defaults it to 'basicAuth' (pkg/models/auth_method.go:12-22); the legacy jsonData.oauthEnabled=true boolean (deprecated) also selects 'serviceNowOAuth' when authMethod is empty.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Basic auth, set jsonData.authMethod='basicAuth' and provide the instance URL at the datasource root url, the account username at the datasource root basicAuthUser, and the password in secureJsonData.basicAuthPassword. Minimal payload: {\"url\":\"https://<INSTANCE_ID>.service-now.com\",\"basicAuthUser\":\"<username>\",\"jsonData\":{\"authMethod\":\"basicAuth\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. The username lives at root.basicAuthUser (NOT in jsonData) and the password uses the standard Grafana secure key basicAuthPassword.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure ServiceNow OAuth, set jsonData.authMethod='serviceNowOAuth'. Because it is an OAuth2 password grant (pkg/httputil/auth.go:23-36), it needs ALL of: root url, root basicAuthUser, secureJsonData.basicAuthPassword, jsonData.oauthClientID and secureJsonData.oauthClientSecret. Minimal payload: {\"url\":\"https://<INSTANCE_ID>.service-now.com\",\"basicAuthUser\":\"<username>\",\"jsonData\":{\"authMethod\":\"serviceNowOAuth\",\"oauthClientID\":\"<client-id>\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\",\"oauthClientSecret\":\"<client-secret>\"}}. Caveat: the backend IsValid (pkg/models/settings.go:108-134) is inconsistent \u2014 without custom headers it only checks username+password (never oauthClientID), and with custom headers it only checks oauthClientID \u2014 but a working token request still requires all five values.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy auth interpretation: datasources created before authMethod existed store jsonData.oauthEnabled=true (deprecated) instead of jsonData.authMethod='serviceNowOAuth'. The backend GetAuthMethod (pkg/models/auth_method.go:12-22) resolves the effective method as: authMethod=='serviceNowOAuth' -> OAuth; else oauthEnabled==true -> OAuth; else basicAuth. Do not assume a missing authMethod means the datasource is unconfigured \u2014 it means basicAuth (or OAuth if oauthEnabled is set).",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, oauthClientSecret) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Note the account username is stored at root.basicAuthUser (not jsonData) and the OAuth Client ID at jsonData.oauthClientID (not a secret), while the OAuth Client Secret is secret.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection: root.url is required and must be the full instance URL, e.g. https://<INSTANCE_ID>.service-now.com; the backend rejects an empty URL (pkg/models/settings.go:109). The datasource's root basicAuth (enabled) boolean is ignored \u2014 the plugin derives Basic-auth enablement from authMethod, overwriting whatever value was provisioned (pkg/models/settings.go:87-96). Custom HTTP headers ARE now modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as the editor's Custom HTTP Headers section (Add header) and the SDK HTTPClientOptions expect; the per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys. jsonData.enableSecureSocksProxy is supported by the editor but remains not modeled as a first-class field in this schema.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

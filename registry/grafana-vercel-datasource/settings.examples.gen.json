@@ -1,0 +1,43 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the single service 'vercel' preselects its only auth method, vercelApiKey. Fill in the access token (secureJsonData \"vercel.token\", empty here) to get a working datasource; set jsonData.variables.team_id only for team-scoped tokens.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "vercel": {
+              "auth": {
+                "id": "vercelApiKey"
+              }
+            }
+          }
+        },
+        "secureJsonData": {
+          "vercel.token": ""
+        }
+      }
+    },
+    "accessToken": {
+      "summary": "Access token (bearer)",
+      "description": "Authenticate against https://api.vercel.com with a Vercel Access Token provided as the write-only secret at secureJsonData \"vercel.token\". team_id is set here for a team-scoped token.",
+      "value": {
+        "jsonData": {
+          "services": {
+            "vercel": {
+              "auth": {
+                "id": "vercelApiKey"
+              }
+            }
+          },
+          "variables": {
+            "team_id": "team_1a2b3c4d5e6f7g8h9i0j1k2l"
+          }
+        },
+        "secureJsonData": {
+          "vercel.token": "\u003cvercel-access-token\u003e"
+        }
+      }
+    }
+  }
+}

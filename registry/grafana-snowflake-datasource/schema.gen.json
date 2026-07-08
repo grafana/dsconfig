@@ -1,0 +1,274 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "account"
+          ],
+          "properties": {
+            "account": {
+              "description": "The name of the snowflake account (\u003caccount\u003e.snowflakecomputing.com). If not on AWS us-west-2 region, include the region (e.g. \u003caccount\u003e.us-east-1). If not on AWS, include the platform as well (e.g. \u003caccount\u003e.us-east1.gcp)",
+              "type": "string"
+            },
+            "authType": {
+              "description": "Authentication type of snowflake",
+              "type": "string",
+              "default": "password",
+              "enum": [
+                "password",
+                "keypair",
+                "pat",
+                "oauth"
+              ]
+            },
+            "database": {
+              "description": "The default database for queries sent by this datasource",
+              "type": "string"
+            },
+            "defaultInterpolation": {
+              "description": "The formatting of the variable interpolation. Choose None for default behavior. For best results and simplified experience, choose SQL String",
+              "type": "string",
+              "default": "",
+              "enum": [
+                "",
+                "raw",
+                "sqlstring",
+                "regex",
+                "csv",
+                "distributed",
+                "doublequote",
+                "glob",
+                "json",
+                "lucene",
+                "percentencode",
+                "pipe",
+                "singlequote",
+                "text",
+                "queryparam"
+              ]
+            },
+            "defaultQuery": {
+              "description": "Default query to be used when adding a new snowflake query to the panel",
+              "type": "string"
+            },
+            "defaultVariableQuery": {
+              "description": "Default query to be used when adding a new snowflake query to the dashboard variable",
+              "type": "string"
+            },
+            "loginTimeout": {
+              "description": "Connection timeout in seconds. Suggested value: 5 - 120",
+              "type": "number"
+            },
+            "oauthPassThru": {
+              "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+              "type": "boolean",
+              "x-dsconfig-depends-on": "jsonData_authType == 'oauth'",
+              "x-dsconfig-required-when": "jsonData_authType == 'oauth'"
+            },
+            "region": {
+              "description": "Deprecated; prefer including the region in the 'Account' field",
+              "type": "string"
+            },
+            "requestTimeout": {
+              "description": "Request timeout in seconds. Suggested values: 30 - 120",
+              "type": "number"
+            },
+            "role": {
+              "description": "Assume a role other than the default role for queries sent by this datasource. The role specified here must still be granted to the user via 'GRANT ROLE'",
+              "type": "string"
+            },
+            "rowLimit": {
+              "description": "Limits the Max number of rows read from query results (applied by the plugin, not in the database). If unset, falls back to GF_DATAPROXY_ROW_LIMIT, or unlimited if not set.",
+              "type": "number"
+            },
+            "schema": {
+              "description": "The default schema for queries sent by this datasource",
+              "type": "string"
+            },
+            "settings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "secure": {
+                    "type": "boolean"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "timeInterval": {
+              "description": "A lower limit for the $__interval and $__interval_ms macros",
+              "type": "string"
+            },
+            "username": {
+              "description": "The username assigned to the Snowflake user (via CREATE USER)",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'oauth'",
+              "x-dsconfig-required-when": "jsonData_authType != 'oauth'"
+            },
+            "warehouse": {
+              "description": "The default warehouse for queries sent by this datasource",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password",
+        "description": "The password assigned to the Snowflake account"
+      },
+      {
+        "key": "privateKey",
+        "description": "Private Key for the key pair Authentication"
+      },
+      {
+        "key": "privateKeyPassphrase",
+        "description": "Passphrase used to decrypt an encrypted private key. Leave empty if your private key is unencrypted."
+      },
+      {
+        "key": "patToken",
+        "description": "Programmatic Access Token secret"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: password authentication. Only secureJsonData.password (empty here), plus jsonData.account and jsonData.username, need to be filled in to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "authType": "password"
+          },
+          "secureJsonData": {
+            "password": ""
+          }
+        }
+      },
+      "keyPair": {
+        "summary": "Key-pair authentication",
+        "description": "Authenticate with an unencrypted RSA key pair (JWT). secureJsonData.privateKey is the PKCS#8 PEM including the BEGIN/END PRIVATE KEY lines.",
+        "value": {
+          "jsonData": {
+            "account": "myorg-myaccount",
+            "authType": "keypair",
+            "database": "ANALYTICS",
+            "schema": "PUBLIC",
+            "username": "GRAFANA_READER",
+            "warehouse": "COMPUTE_WH"
+          },
+          "secureJsonData": {
+            "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDsW28nNNl51DGc\nYxMrmW/6FiFBWkECH1VF63yaDft/RVcgd039pWnQcwUx6Bcnblx6c9nf0dTspO3O\ngeEh5fv4p7HvUmeJkT2023MiYgxy2IqeGuP/Vd/wBdK9/9srTI6uQjnQyotAspjI\nsQ8On51LpR8Au5Og81sEpWd0gQ05In6yciQJX2V+8aSqdxftrOGRYmx7UfTlM3yx\nEuznUQ4z3bRVlLD7A2xxBT+1ZpHyBarMphwGDebG0L6WqHnk0d6AlPmpeO0Y/kc2\nChA6pdrH8HuJtwlgdHsjgmz+cWD+7hpjd4yQNls0KAgSnXQn/n77ew7Qu4Ka4LVy\nLhtl0O9zAgMBAAECggEANXKnvBHza91UKq0s1Jsp+z+t3X1vXe9/9QO/dYbb7Hfd\nr/XKqSUSvJSGBDcbpUsLlpVEG5zzrV/Odvhf1K6RQDWLwza7Oxyg+5j0fD332rCl\nCAPEsyTUMw7eDSEiirQRP86yDEkBHGxGqHuBkCkABO8eB6hjRe5CEtbkgi/8sYJw\nGvLSXHnQhz62ht7La0P/Eqict+yn2UV6Lt6Fa6BpKca48970Iw1btV+gJcRToUu6\ncO+dPSQdCJrNds1Jle2V0q6oQ7eSUvAaBnC8iq4DHdDEXucFPqNVjzDGdxXW27FQ\nVZf8CxEUUpb00fwDE1wrOB9YTzdvGS66b8KGwxvbgQKBgQD+oh8B4Z+347S6d9t/\nb9EgfYpwXOkfoBnHOmbbh1pSjlDKXg3vHPqo+94ugZcwFf1VGaU9aQnH0s1JXa/H\niakkQ62WKOFva+ZOShl/r5HRjcsu8CShhu5wwOKxEymlABFrFC3Y4tL2cHLJeBPc\n22Saj43GkFoEYPx8uyDjeD9RowKBgQDtoDNlVBrvtnmM5BeVRxNWAJJHJcdt3ooR\nbJJtplc/B3YQr1Korooh3UqgEYfGXaraSFphVF9/QqW6bchA+8CJCXz/0zuySKfQ\nLiemzV268c3soaqn33SxsROUQq5gjinu90EbD5+EfDTOPNRD6VLRNTpRDS9tfoqK\nsFUsOPnn8QKBgQDsu8lcNGoLyxYBruFRT6H8NPt6j8blcjHFOhTa0LI2wr12B4+o\n2SZp6RCd6DmpqSgH8Hnh6EABmYjmRsXgG6o3XvyJ+KPutUA/VUDzp0VIsC1RDE7i\nJdKU3Z9kxc4X60JGbVJarDc6iz0M9ihxUz/rOr+y9g3auFjFlixzjx4/RQKBgQDr\n/KYuImmh2Ik8N6WIFY8JYQXkbIty/IgHp9h/1qtcqA9DoKopZTU/TmJ3NxGtGYa8\nwxAnCsDQRKML000F5D8gmPCvq9rkQq2N3Nh6GgfUyaElOKSflRZyBZaZLeO5dlYE\nwT7CHjDgRO24R8bSLtyVchQZPEv2pK338AiWI3tkMQKBgQC7e99+3GOUmEjlbuYw\nu0neWJ//1SxUjVVvFCtqTHJfqKfi8RLqYaVxLVmtfQV8+JFqhpZRumPhIzl/c6Ka\nMF+mwAvv1PaUqe8w26qZcp3c21uw76z8SqfWc9Gdt/p8A3qN7ZaPPLyb+loJU3FE\nxvC4BjAdMQhnCly9mzST9KcfHQ==\n-----END PRIVATE KEY-----\n"
+          }
+        }
+      },
+      "keyPairEncrypted": {
+        "summary": "Key-pair authentication (encrypted key)",
+        "description": "Authenticate with an encrypted RSA key pair. secureJsonData.privateKey is an ENCRYPTED PRIVATE KEY PEM and secureJsonData.privateKeyPassphrase is its passphrase.",
+        "value": {
+          "jsonData": {
+            "account": "myorg-myaccount",
+            "authType": "keypair",
+            "database": "ANALYTICS",
+            "schema": "PUBLIC",
+            "username": "GRAFANA_READER",
+            "warehouse": "COMPUTE_WH"
+          },
+          "secureJsonData": {
+            "privateKey": "-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIIFNTBfBgkqhkiG9w0BBQ0wUjAxBgkqhkiG9w0BBQwwJAQQB9yTdeXRg6eG2IzI\ns7gd2gICCAAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEBYoqUyN5bCx5KaP\n+mTlWO0EggTQvRYs+1hfVAmAetx7nu0AbXevzkDC4KOA0Yt75stgR0xBr2B+GgP9\nZ/pIrke2S/85MttrPuBHJoxXRvSUIF/gg+0YytptvIXC+2+FWCnjH0TWp78MwYXT\n7afGdRu9azCj81VXr1/9+pIBmURLh1MuP6dQb+R+wG3u4i7LirDPUi5p/uosQ5Md\n93HE5l7yoKFJDcoACkg2t27Q1nwQi5qL4oIABlWgPOygtGao2CUku96XsOtMdxR6\nuOxe4U6KaQw9mCnFkFO+SYfmMJkOMhZuKQidFTSk6cVo08eGfVUqFwCzYmeVPJTc\nXQy9587uQT/Gn1OkHuXddrsQajhWgoLKeQQ6zptxiCU3zi6lNQ87nBb7Y3MLOjjG\nqMD3+N3WyCmM+vrl2ZisOTo0vSnR3BXZ98L2i4X4dOQ2nOnbR7GVKWPEFmg/GO1G\nLtfcPRHrkkKhBRMTuZZicbMfMV21oKsIXE3ROD3HqZmda62QXvpZ6ACRhQyKMUbV\nXvaw1HijNmzaZihlHBP8Ji1Fdbaw5lzTp2Cd2hLpM0dHJpVmpRSoxeM324uH4ERL\nMiIt551JplKjs4NgW1TZ8P6m0LFLvpBGU69bmOFHISupgMqOobymRGprpJxASltZ\ndITG1gSXbT7VWJ//zf3V95I2Y7AR4BQO3x9AU/BwmMm8XCIUBDfZoVjAvY0/Ufyq\nhMhFs1KcsRNUcmYnSouJC42+cm2RiFuPq4kqhQ4kYEeddI0rPBrmOy0NFGsHnHmM\nqHvYcCgtb76MhzI/jRvybCSHMNfY2c4xUkhE0Q5UaKOpxk3VfmraYHmtgDAPYBsq\nyR7BbqPR8xyC2ZMpriflh5b4SOxdEuGsBQ9IRgktVghNN31l7k5RN6XT8JPVyA/v\nxNRw+8oK3OK9QSkbtsAmLGVKBb5yoSSOVvRFgkp2Lq5W4of0OVWX14+De1e8jDXx\nJ65MUZw4py2duNZINTEi6exrqmuMRtiU3xVXsGbTRXHPuAzDolPowXIfXAim9ks4\ngOwpVvBra7C6Nb2+3ZMcsmwk9YyjuqGX8W0Q0OJTyavdVFqHvsVPseAFvvOsUfye\nP/WHCMbj7uHZP57VgxHbiO7BzbmI8Hkv7ol5iqKpOh4bgKOfVxAdBr9z/QRZpK8F\nk1/pNRNd6rPssL2xeCEb74cVpoq3G7GkDWCCKfdttzBuMmFxoF26hbpYZO7UWQdn\n+VUhOAqo72zqaIU4EPPdm/SUE7RGjDbFVj+RHUVYsT9tA5bAWLpLPzuHE/cA/pct\nyocor9eQFmy/sDMy9u4rrENjJuD1bcRKIUKMmxfLAX+VqBFTNduU/QygXWs+8rqU\nQivIR8TTTnM4fiCm3i3Em6Ifi0dGCunoBX/vHi4FjNwJWuQv+DEKOMnm2r8bECcL\nc9H61u6RLBWfB/LQlOioYu0akGQ6gG5sMUCmZFdFsqKBjhk6HJIwNAXeAY+Z/X21\n3s1db9n/fIEGQ/7lwYX3DwGDBDPMv20vzJgL2XqLcVbpQEajheSvca0ZV3G90uTQ\nIcVEvstCbxzR60QwLLobA7Sesi0WSvtDMhaxLuyzoR7B7mKMPUoP0TUV2caYq59y\nAtSkfKB2NHKNJ6yML5X4Q4Z4pmdSmJvjtMHEk27BvNuOUNvd5lyGFIw=\n-----END ENCRYPTED PRIVATE KEY-----\n",
+            "privateKeyPassphrase": "changeme"
+          }
+        }
+      },
+      "oauth": {
+        "summary": "OAuth (forward identity)",
+        "description": "Authenticate by forwarding the user's upstream OAuth identity. Requires jsonData.oauthPassThru=true; no secret is stored (the access token is taken from the forwarded request at query time).",
+        "value": {
+          "jsonData": {
+            "account": "myorg-myaccount",
+            "authType": "oauth",
+            "database": "ANALYTICS",
+            "oauthPassThru": true,
+            "schema": "PUBLIC",
+            "warehouse": "COMPUTE_WH"
+          },
+          "secureJsonData": {}
+        }
+      },
+      "passwordAuth": {
+        "summary": "Password authentication",
+        "description": "Authenticate with a Snowflake username and password. The password is provided in secureJsonData.password.",
+        "value": {
+          "jsonData": {
+            "account": "myorg-myaccount",
+            "authType": "password",
+            "database": "ANALYTICS",
+            "role": "GRAFANA_ROLE",
+            "schema": "PUBLIC",
+            "username": "GRAFANA_READER",
+            "warehouse": "COMPUTE_WH"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          }
+        }
+      },
+      "programmaticAccessToken": {
+        "summary": "Programmatic Access Token (PAT)",
+        "description": "Authenticate with a Snowflake programmatic access token provided in secureJsonData.patToken.",
+        "value": {
+          "jsonData": {
+            "account": "myorg-myaccount",
+            "authType": "pat",
+            "database": "ANALYTICS",
+            "schema": "PUBLIC",
+            "username": "GRAFANA_READER",
+            "warehouse": "COMPUTE_WH"
+          },
+          "secureJsonData": {
+            "patToken": "snowflake-pat-XXXXXXXXXXXX"
+          }
+        }
+      },
+      "sessionParameters": {
+        "summary": "Password auth with session parameters and tuning",
+        "description": "Password auth plus a jsonData.settings array of Snowflake session parameters, a plugin-side rowLimit, and login/request timeouts. Session parameters marked secure store their value in secureJsonData under a key equal to the setting name.",
+        "value": {
+          "jsonData": {
+            "account": "myorg-myaccount",
+            "authType": "password",
+            "database": "ANALYTICS",
+            "loginTimeout": 30,
+            "requestTimeout": 90,
+            "rowLimit": 1000000,
+            "schema": "PUBLIC",
+            "settings": [
+              {
+                "name": "QUERY_TAG",
+                "secure": false,
+                "value": "grafana"
+              }
+            ],
+            "username": "GRAFANA_READER",
+            "warehouse": "COMPUTE_WH"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          }
+        }
+      }
+    }
+  }
+}

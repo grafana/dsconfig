@@ -1,0 +1,116 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "hostname",
+            "team"
+          ],
+          "properties": {
+            "environment": {
+              "description": "Optional. Specify the environment name. This will be useful in data links",
+              "type": "string"
+            },
+            "hostname": {
+              "description": "Customize the api URL. By default this will be https://api.honeycomb.io",
+              "type": "string",
+              "default": "https://api.honeycomb.io",
+              "pattern": "^https://"
+            },
+            "retentionLimit": {
+              "description": "Optional. The maximum time window, in days. Queries will only return data from the last N days, where N is the retention limit. Default is 7 days, since that is the maximum retention limit normally supported by the Honeycomb API. Honeycomb API docs: https://api-docs.honeycomb.io/api/query-data",
+              "type": "number",
+              "default": 7
+            },
+            "team": {
+              "description": "Specify the team name. This will be useful in data links",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "apiKey",
+        "required": true
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the Honeycomb US API (https://api.honeycomb.io) with a 7-day query time window. Fill in jsonData.team and secureJsonData.apiKey (both empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "hostname": "https://api.honeycomb.io",
+            "retentionLimit": 7,
+            "team": ""
+          },
+          "secureJsonData": {
+            "apiKey": ""
+          }
+        }
+      },
+      "euApi": {
+        "summary": "EU region API",
+        "description": "Connection to a non-default (EU) Honeycomb API host. jsonData.hostname selects the region; it must be an https URL and defaults to the US host https://api.honeycomb.io when omitted.",
+        "value": {
+          "jsonData": {
+            "hostname": "https://api.eu1.honeycomb.io",
+            "team": "\u003cyour-honeycomb-team-slug\u003e"
+          },
+          "secureJsonData": {
+            "apiKey": "\u003cyour-honeycomb-api-key\u003e"
+          }
+        }
+      },
+      "extendedRetention": {
+        "summary": "Extended query time window",
+        "description": "Raises jsonData.retentionLimit above the default 7 days. Only set this higher than 7 if your Honeycomb plan retains more than 7 days of data; otherwise queries are clipped and a 'Partial results' warning is attached.",
+        "value": {
+          "jsonData": {
+            "hostname": "https://api.honeycomb.io",
+            "retentionLimit": 30,
+            "team": "\u003cyour-honeycomb-team-slug\u003e"
+          },
+          "secureJsonData": {
+            "apiKey": "\u003cyour-honeycomb-api-key\u003e"
+          }
+        }
+      },
+      "usApi": {
+        "summary": "US API with API key",
+        "description": "Minimal working configuration against the Honeycomb US API. Authenticates with the Team API key (sent as the X-Honeycomb-Team header) in secureJsonData.apiKey.",
+        "value": {
+          "jsonData": {
+            "hostname": "https://api.honeycomb.io",
+            "team": "\u003cyour-honeycomb-team-slug\u003e"
+          },
+          "secureJsonData": {
+            "apiKey": "\u003cyour-honeycomb-api-key\u003e"
+          }
+        }
+      },
+      "withEnvironment": {
+        "summary": "With environment name",
+        "description": "Sets the optional environment name, which (together with the team) is used to build the 'Open in Honeycomb' data-link URLs (.../\u003cteam\u003e/environments/\u003cenvironment\u003e/...). It does not affect API authentication.",
+        "value": {
+          "jsonData": {
+            "environment": "\u003cyour-honeycomb-environment\u003e",
+            "hostname": "https://api.honeycomb.io",
+            "team": "\u003cyour-honeycomb-team-slug\u003e"
+          },
+          "secureJsonData": {
+            "apiKey": "\u003cyour-honeycomb-api-key\u003e"
+          }
+        }
+      }
+    }
+  }
+}

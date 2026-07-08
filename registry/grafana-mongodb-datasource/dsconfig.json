@@ -1,0 +1,516 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-mongodb-datasource",
+    "pluginName": "MongoDB",
+    "docURL": "https://grafana.com/docs/plugins/grafana-mongodb-datasource",
+    "fields": [
+        {
+            "id": "jsonData_connection",
+            "key": "connection",
+            "label": "Connection string",
+            "description": "A connection string contains the parameters required to connect to MongoDB.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "mongodb+srv://cluster.host.net/dbname?retryWrites=true&w=majority"
+            },
+            "help": {
+                "title": "Connection string",
+                "markdown": "A connection string contains the parameters required to connect to MongoDB. [View formatting details here.](https://www.mongodb.com/docs/manual/reference/connection-string/)",
+                "docURL": "https://www.mongodb.com/docs/manual/reference/connection-string/"
+            }
+        },
+        {
+            "id": "jsonData_authType",
+            "key": "authType",
+            "label": "Authentication method",
+            "description": "Choose an authentication method to access the data source",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "BasicAuth",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "NoAuth",
+                        "BasicAuth",
+                        "custom-Kerberos"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "No Authentication",
+                        "value": "NoAuth",
+                        "description": "Data source is available without authentication"
+                    },
+                    {
+                        "label": "Credentials",
+                        "value": "BasicAuth",
+                        "description": "Authenticate with default credentials assigned to the MongoDB account upon creation."
+                    },
+                    {
+                        "label": "Kerberos",
+                        "value": "custom-Kerberos",
+                        "description": "Authenticate with Kerberos. Requires connection string to include `authMethod=GSSAPI` as a query parameter."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "label": "Basic authentication enabled",
+            "description": "Standard Grafana basic-auth enabled flag. The backend initializes BasicAuthEnabled from this value and also forces it on when a username or password is present (pkg/models/settings.go). Set by datasource provisioning and by the config editor's on-load migration of legacy datasources, not by selecting the Credentials method in the current editor.",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "tags": [
+                "backend-only",
+                "legacy"
+            ]
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "description": "The username assigned to the MongoDB account.",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_authType == 'BasicAuth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "User"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "The password assigned to the MongoDB account.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_authType == 'BasicAuth'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_kerberosUser",
+            "key": "kerberosUser",
+            "label": "User",
+            "description": "The client principal's username. Enabled when connection string includes query string authMethod=GSSAPI",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'custom-Kerberos'",
+            "ui": {
+                "component": "input",
+                "placeholder": "hello@EXAMPLE.COM"
+            }
+        },
+        {
+            "id": "secureJsonData_kerberosPassword",
+            "key": "kerberosPassword",
+            "label": "Password",
+            "description": "The client principal password that will be used to authenticate. Optional if a keytab or cache file is present.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "dependsOn": "jsonData_authType == 'custom-Kerberos'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_keyTabFilePath",
+            "key": "keyTabFilePath",
+            "label": "KeyTab file path",
+            "description": "Absolute file path KeyTab for keytab file. If present will ignore password. Enabled when connection string includes query string authMethod=GSSAPI",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'custom-Kerberos'",
+            "ui": {
+                "component": "input",
+                "placeholder": "/tmp/example.keytab"
+            }
+        },
+        {
+            "id": "jsonData_globalCcacheFilePath",
+            "key": "globalCcacheFilePath",
+            "label": "Global ccache file path",
+            "description": "Absolute file path to global compiler cache (ccache) file. If present will ignore password. Enabled when connection string includes query string authMethod=GSSAPI",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'custom-Kerberos'",
+            "ui": {
+                "component": "input",
+                "placeholder": "/tmp/krb5cc_1000"
+            }
+        },
+        {
+            "id": "jsonData_ccacheLookupFile",
+            "key": "ccacheLookupFile",
+            "label": "Ccache lookup file",
+            "description": "Absolute file path to  the JSON file that provides the Kerberos compiler cache (ccache) based on username principal and connection string. If present will ignore password. Enabled when connection string includes query string authMethod=GSSAPI",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authType == 'custom-Kerberos'",
+            "ui": {
+                "component": "input",
+                "placeholder": "/tmp/krb5-ccache-lookup.json"
+            }
+        },
+        {
+            "id": "jsonData_validate",
+            "key": "validate",
+            "label": "Enable syntax validation",
+            "description": "Enable real time query syntax validation. MongoDB BSON syntax will be validated as you type and show contextual errors.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "frontend-only"
+            ],
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCertificateKeyFilePassword",
+            "key": "tlsCertificateKeyFilePassword",
+            "label": "Password",
+            "description": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_responseRowsLimit",
+            "key": "responseRowsLimit",
+            "label": "Rows to Return",
+            "description": "Increasing this too much may lead to performance issues for larger queries",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "description": "TLS server name used to verify the hostname on the server's certificate when tlsAuth is enabled. Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "description": "Enables TLS client-certificate authentication; the backend supplies tlsClientCert and tlsClientKey to the server. Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "description": "Enables verification of the server's TLS certificate against a custom CA (tlsCACert). Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "description": "Skips verification of the server's TLS certificate chain and host name (applied by the backend when tlsAuthWithCACert is enabled). Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "description": "CA certificate PEM used to verify the server's TLS certificate when tlsAuthWithCACert is enabled. Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "description": "Client certificate PEM used when tlsAuth is enabled. Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "description": "Client private key PEM used when tlsAuth is enabled. Not exposed in the configuration editor; set via datasource provisioning.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "tags": [
+                "backend-only"
+            ]
+        },
+        {
+            "id": "jsonData_user",
+            "key": "user",
+            "description": "Legacy username field. Datasources created before v1.9.0 stored the MongoDB username here; the backend migrates it to the root basicAuthUser and enables basic auth (pkg/models/settings.go). New configurations use the root basicAuthUser field.",
+            "valueType": "string",
+            "target": "jsonData",
+            "tags": [
+                "legacy"
+            ]
+        },
+        {
+            "id": "jsonData_skipTLSValidation",
+            "key": "skipTLSValidation",
+            "description": "Legacy flag; the backend copies it to tlsSkipVerify (InsecureSkipVerify) at load time (pkg/models/settings.go). New configurations use tlsSkipVerify.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "legacy"
+            ]
+        },
+        {
+            "id": "jsonData_credentials",
+            "key": "credentials",
+            "description": "Legacy frontend-only flag used by the config editor's on-load migration to detect pre-v1.9.0 basic-auth datasources. Never read by the backend.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "tags": [
+                "legacy",
+                "frontend-only"
+            ]
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "description": "Legacy secure password. Datasources created before v1.9.0 stored the MongoDB password here; the backend migrates it to the basic-auth password (pkg/models/settings.go). New configurations use basicAuthPassword.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "tags": [
+                "legacy"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_connection"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authType",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword",
+                "jsonData_kerberosUser",
+                "secureJsonData_kerberosPassword",
+                "jsonData_keyTabFilePath",
+                "jsonData_globalCcacheFilePath",
+                "jsonData_ccacheLookupFile"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional Settings",
+            "description": "Additional settings are optional settings that can be configured for more control over your data source.",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_validate",
+                "secureJsonData_tlsCertificateKeyFilePassword",
+                "jsonData_responseRowsLimit",
+                "jsonData_httpHeaders"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic-auth (Credentials) username/password pair"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_kerberosUser",
+                "secureJsonData_kerberosPassword",
+                "jsonData_keyTabFilePath",
+                "jsonData_globalCcacheFilePath",
+                "jsonData_ccacheLookupFile"
+            ],
+            "description": "Kerberos credential inputs (used when authType is custom-Kerberos and the connection string includes authMechanism=GSSAPI)"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS client-certificate authentication: enable flag plus the client certificate and key"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Custom-CA server verification toggle and its CA certificate"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_user",
+                "secureJsonData_password"
+            ],
+            "description": "Legacy basic-auth username/password pair migrated to root basicAuthUser + secure basicAuthPassword"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Three authentication methods are available, selected via jsonData.authType: 'NoAuth', 'BasicAuth' (the default, labelled 'Credentials' in the editor), and 'custom-Kerberos'. If authType is empty or unrecognized the backend coerces it to 'BasicAuth'. jsonData.connection (the MongoDB connection string) is required for every method.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Credentials (basic auth), set jsonData.authType='BasicAuth', put the username in the ROOT-level basicAuthUser field (not jsonData) and the password in secureJsonData.basicAuthPassword. Minimal payload: {\"basicAuth\":true,\"basicAuthUser\":\"<user>\",\"jsonData\":{\"authType\":\"BasicAuth\",\"connection\":\"mongodb://host:27017/db\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. The backend injects the credentials into the connection string as 'user:password@'; percent-encode any reserved characters in the username/password (or embed them, already encoded, directly in the connection string).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Kerberos, set jsonData.authType='custom-Kerberos' and include 'authMechanism=GSSAPI' as a query parameter in jsonData.connection (Kerberos is only activated when the connection string contains authMechanism=GSSAPI AND jsonData.kerberosUser is set). Provide jsonData.kerberosUser and one credential source: secureJsonData.kerberosPassword, or jsonData.keyTabFilePath, jsonData.globalCcacheFilePath, or jsonData.ccacheLookupFile (a file path takes precedence over the password). Minimal payload: {\"jsonData\":{\"authType\":\"custom-Kerberos\",\"connection\":\"mongodb://host:27017/?authMechanism=GSSAPI\",\"kerberosUser\":\"user@REALM\"},\"secureJsonData\":{\"kerberosPassword\":\"<password>\"}}. Kerberos requires a custom plugin build and is not available on Grafana Cloud.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: datasources created before v1.9.0 stored the username in jsonData.user and the password in secureJsonData.password. On load the backend copies these into the basic-auth username/password and enables basic auth. The modern root basicAuthUser and secureJsonData.basicAuthPassword override the legacy values when both are present. Do not treat a missing basicAuthUser as unconfigured if jsonData.user is set.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, kerberosPassword, tlsCertificateKeyFilePassword, tlsCACert, tlsClientCert, tlsClientKey, password) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP headers ARE now modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as @grafana/plugin-ui's CustomHeaders component and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "TLS is configured through provisioning only (the config editor exposes no TLS certificate fields): set jsonData.tlsAuth=true for client-certificate auth (supply secureJsonData.tlsClientCert and secureJsonData.tlsClientKey, plus secureJsonData.tlsCertificateKeyFilePassword if the key is encrypted, and optionally jsonData.serverName), and jsonData.tlsAuthWithCACert=true to verify the server against a custom CA (supply secureJsonData.tlsCACert). tls* certificate/key values are read from secureJsonData. If the connection string contains an '@' in the credentials, percent-encode it (e.g. p@ss becomes p%40ss).",
+            "tags": [
+                "llm",
+                "connection",
+                "tls"
+            ]
+        }
+    ]
+}

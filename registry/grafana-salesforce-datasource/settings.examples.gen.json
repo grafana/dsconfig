@@ -1,0 +1,101 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: username-password (Credentials) authentication against the production host (https://login.salesforce.com). jsonData.user and the secureJsonData secrets (empty here) must be filled in — pkg/models/settings.go:112-123 requires user, password, clientID and clientSecret for user auth.",
+      "value": {
+        "jsonData": {
+          "authType": "user",
+          "tokenUrl": "https://login.salesforce.com"
+        },
+        "secureJsonData": {
+          "clientID": "",
+          "clientSecret": "",
+          "password": "",
+          "securityToken": ""
+        }
+      }
+    },
+    "jwt": {
+      "summary": "JWT bearer auth, Production",
+      "description": "OAuth2 JWT bearer grant against https://login.salesforce.com. secureJsonData.cert and privateKey are validated (pkg/models/settings.go:103-110); secureJsonData.clientID (JWT issuer) and jsonData.user (JWT subject) are also required for the token request to succeed (pkg/plugin/client.go:96, pkg/jwt/jwt.go:57-64).",
+      "value": {
+        "jsonData": {
+          "authType": "jwt",
+          "tokenUrl": "https://login.salesforce.com",
+          "user": "user@example.com"
+        },
+        "secureJsonData": {
+          "cert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+          "clientID": "\u003cyour-connected-app-consumer-key\u003e",
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\n\u003credacted\u003e\n-----END RSA PRIVATE KEY-----"
+        }
+      }
+    },
+    "jwtSandbox": {
+      "summary": "JWT bearer auth, SandBox",
+      "description": "Same as the JWT example but pointed at the sandbox host (https://test.salesforce.com) via jsonData.tokenUrl.",
+      "value": {
+        "jsonData": {
+          "authType": "jwt",
+          "tokenUrl": "https://test.salesforce.com",
+          "user": "user@example.com.sandbox"
+        },
+        "secureJsonData": {
+          "cert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+          "clientID": "\u003cyour-connected-app-consumer-key\u003e",
+          "privateKey": "-----BEGIN RSA PRIVATE KEY-----\n\u003credacted\u003e\n-----END RSA PRIVATE KEY-----"
+        }
+      }
+    },
+    "legacySandboxFlag": {
+      "summary": "Legacy: sandbox flag, no authType or tokenUrl",
+      "description": "A pre-existing datasource provisioned before authType/tokenUrl. With no authType the backend defaults to user auth (pkg/models/settings.go:82-90); with no tokenUrl but sandbox=true the token host is derived as https://test.salesforce.com (pkg/models/settings.go:92-100). LoadConfig.ApplyDefaults fills both in on load.",
+      "value": {
+        "jsonData": {
+          "sandbox": true,
+          "user": "user@example.com.sandbox"
+        },
+        "secureJsonData": {
+          "clientID": "\u003cyour-connected-app-consumer-key\u003e",
+          "clientSecret": "\u003cyour-connected-app-consumer-secret\u003e",
+          "password": "\u003cyour-salesforce-password\u003e"
+        }
+      }
+    },
+    "userCredentials": {
+      "summary": "Username-password (Credentials) auth, Production",
+      "description": "OAuth2 password grant against https://login.salesforce.com. jsonData.user plus secureJsonData.password, clientID (consumer key) and clientSecret (consumer secret) are required; securityToken is optional and concatenated onto the password (pkg/plugin/client.go:104).",
+      "value": {
+        "jsonData": {
+          "authType": "user",
+          "tokenUrl": "https://login.salesforce.com",
+          "user": "user@example.com"
+        },
+        "secureJsonData": {
+          "clientID": "\u003cyour-connected-app-consumer-key\u003e",
+          "clientSecret": "\u003cyour-connected-app-consumer-secret\u003e",
+          "password": "\u003cyour-salesforce-password\u003e",
+          "securityToken": "\u003cyour-security-token\u003e"
+        }
+      }
+    },
+    "userCredentialsSandbox": {
+      "summary": "Username-password (Credentials) auth, SandBox",
+      "description": "Same as the Credentials example but pointed at the sandbox host (https://test.salesforce.com) via jsonData.tokenUrl.",
+      "value": {
+        "jsonData": {
+          "authType": "user",
+          "tokenUrl": "https://test.salesforce.com",
+          "user": "user@example.com.sandbox"
+        },
+        "secureJsonData": {
+          "clientID": "\u003cyour-connected-app-consumer-key\u003e",
+          "clientSecret": "\u003cyour-connected-app-consumer-secret\u003e",
+          "password": "\u003cyour-salesforce-password\u003e",
+          "securityToken": "\u003cyour-security-token\u003e"
+        }
+      }
+    }
+  }
+}

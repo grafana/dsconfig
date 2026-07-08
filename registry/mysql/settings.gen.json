@@ -1,0 +1,87 @@
+{
+  "spec": {
+    "type": "object",
+    "required": [
+      "url",
+      "user"
+    ],
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "allowCleartextPasswords": {
+            "description": "Allows using the cleartext client side plugin if required by an account.",
+            "type": "boolean",
+            "default": false
+          },
+          "connMaxLifetime": {
+            "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
+            "type": "number"
+          },
+          "database": {
+            "type": "string"
+          },
+          "maxIdleConns": {
+            "description": "The maximum number of connections in the idle connection pool. If Max open connections is greater than 0 but less than the Max idle connections, then the Max idle connections will be reduced to match the Max open connections limit. If set to 0, no idle connections are retained.",
+            "type": "number"
+          },
+          "maxIdleConnsAuto": {
+            "description": "If enabled, automatically set the number of Maximum idle connections to the same value as Max open connections. If the number of maximum open connections is not set it will be set to the default.",
+            "type": "boolean",
+            "default": true
+          },
+          "maxOpenConns": {
+            "description": "The maximum number of open connections to the database. If Max idle connections is greater than 0 and the Max open connections is less than Max idle connections, then Max idle connections will be reduced to match the Max open connections limit. If set to 0, there is no limit on the number of open connections.",
+            "type": "number"
+          },
+          "timeInterval": {
+            "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+            "type": "string"
+          },
+          "timezone": {
+            "description": "Specify the timezone used in the database session, such as Europe/Berlin or +02:00. Required if the timezone of the database (or the host of the database) is set to something other than UTC. Set this to +00:00 so Grafana can handle times properly. Set the value used in the session with SET time_zone='...'. If you leave this field empty, the timezone will not be updated. You can find more information in the MySQL documentation.",
+            "type": "string"
+          },
+          "tlsAuth": {
+            "description": "Enables TLS authentication using client cert configured in secure json data.",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsAuthWithCACert": {
+            "description": "Needed for verifying self-signed TLS Certs.",
+            "type": "boolean",
+            "default": false
+          },
+          "tlsSkipVerify": {
+            "description": "When enabled, skips verification of the MySQL server's TLS certificate chain and host name.",
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "url": {
+        "type": "string"
+      },
+      "user": {
+        "type": "string"
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "password"
+    },
+    {
+      "key": "tlsClientCert",
+      "description": "To authenticate with an TLS/SSL client certificate, provide the client certificate here."
+    },
+    {
+      "key": "tlsCACert",
+      "description": "If the selected TLS/SSL mode requires a server root certificate, provide it here"
+    },
+    {
+      "key": "tlsClientKey",
+      "description": "To authenticate with a client TLS/SSL certificate, provide the key here."
+    }
+  ]
+}

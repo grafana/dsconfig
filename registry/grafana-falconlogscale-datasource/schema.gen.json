@@ -1,0 +1,274 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "basicAuth": {
+          "type": "boolean",
+          "default": false
+        },
+        "basicAuthUser": {
+          "type": "string",
+          "x-dsconfig-depends-on": "virtual_authMethod == 'BasicAuth'",
+          "x-dsconfig-required-when": "root_basicAuth == true"
+        },
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "authenticateWithToken": {
+              "type": "boolean",
+              "default": false
+            },
+            "baseUrl": {
+              "description": "Snapshot of the datasource URL written by the LogScale token authentication component (src/components/ConfigEditor/ConfigEditor.tsx:155). Never read by the backend, which always reads settings.URL (pkg/plugin/settings.go:38). Preserved for round-trip fidelity.",
+              "type": "string"
+            },
+            "dataLinks": {
+              "description": "Add links to existing fields. Links will be shown in log row details next to the field value.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "field",
+                  "matcherRegex"
+                ],
+                "properties": {
+                  "datasourceUid": {
+                    "description": "UID of a Grafana data source. When set, the derived data link is treated as an internal link to that data source and the URL field is interpreted as a Query.",
+                    "type": "string"
+                  },
+                  "field": {
+                    "description": "Can be exact field name or a regex pattern that will match on the field name.",
+                    "type": "string"
+                  },
+                  "label": {
+                    "description": "Use to provide a meaningful label to the data matched in the regex",
+                    "type": "string"
+                  },
+                  "matcherRegex": {
+                    "description": "Use to parse and capture some part of the log message. You can use the captured groups in the template.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "defaultRepository": {
+              "type": "string"
+            },
+            "httpHeaders": {
+              "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName\u003cN\u003e); header values are write-only in secureJsonData (httpHeaderValue\u003cN\u003e).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "incrementalQueryOverlapWindow": {
+              "description": "Time window to re-fetch on each incremental query to catch late-arriving data (e.g. \"10m\", \"30s\", \"1h\"). Changes take effect after saving and reloading.",
+              "type": "string",
+              "default": "10m",
+              "x-dsconfig-depends-on": "jsonData_incrementalQuerying == true"
+            },
+            "incrementalQuerying": {
+              "description": "Results may be incomplete or incorrect in some cases. On auto-refresh, query new data and merge it with the cached result. This applies only to relative time ranges without aggregation functions.",
+              "type": "boolean",
+              "default": false
+            },
+            "keepCookies": {
+              "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mode": {
+              "description": "Select the data source mode. NGSIEM mode only supports OAuth2 client secret authentication.",
+              "type": "string",
+              "default": "LogScale",
+              "enum": [
+                "LogScale",
+                "NGSIEM"
+              ]
+            },
+            "oauth2": {
+              "type": "boolean",
+              "default": false
+            },
+            "oauth2ClientId": {
+              "description": "The OAuth2 client ID",
+              "type": "string",
+              "x-dsconfig-depends-on": "virtual_authMethod == 'custom-oauth-client-secret'",
+              "x-dsconfig-required-when": "jsonData_oauth2 == true"
+            },
+            "oauthPassThru": {
+              "type": "boolean",
+              "default": false
+            },
+            "timeout": {
+              "description": "HTTP request timeout in seconds",
+              "type": "number"
+            }
+          }
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accessToken"
+      },
+      {
+        "key": "oauth2ClientSecret",
+        "description": "The OAuth2 client secret"
+      },
+      {
+        "key": "basicAuthPassword"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: LogScale mode, LogScale personal-token authentication. Only root.url and secureJsonData.accessToken (empty here) need to be filled in.",
+        "value": {
+          "jsonData": {
+            "authenticateWithToken": true,
+            "mode": "LogScale"
+          },
+          "secureJsonData": {
+            "accessToken": ""
+          },
+          "url": "https://cloud.humio.com"
+        }
+      },
+      "logscaleBasicAuth": {
+        "summary": "LogScale mode with HTTP Basic authentication",
+        "description": "Send HTTP Basic credentials with each request. root.basicAuth toggles the method; root.basicAuthUser and secureJsonData.basicAuthPassword carry the credentials. The backend reads basicAuthUser at pkg/plugin/settings.go:59.",
+        "value": {
+          "basicAuth": true,
+          "basicAuthUser": "grafana",
+          "jsonData": {
+            "mode": "LogScale"
+          },
+          "secureJsonData": {
+            "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+          },
+          "url": "https://cloud.humio.com"
+        }
+      },
+      "logscaleOAuth2Client": {
+        "summary": "LogScale mode with OAuth2 client credentials",
+        "description": "Use the OAuth2 client-credentials grant against a LogScale server. jsonData.oauth2ClientId + secureJsonData.oauth2ClientSecret drive the token exchange; the plugin fetches and refreshes access tokens automatically.",
+        "value": {
+          "jsonData": {
+            "mode": "LogScale",
+            "oauth2": true,
+            "oauth2ClientId": "my-client-id"
+          },
+          "secureJsonData": {
+            "oauth2ClientSecret": "REPLACE_WITH_OAUTH2_CLIENT_SECRET"
+          },
+          "url": "https://cloud.humio.com"
+        }
+      },
+      "logscaleOAuthForward": {
+        "summary": "LogScale mode with Forward OAuth Identity",
+        "description": "Forward the signed-in Grafana user's upstream OAuth identity to LogScale. Sets only jsonData.oauthPassThru; there is no secret to configure.",
+        "value": {
+          "jsonData": {
+            "mode": "LogScale",
+            "oauthPassThru": true
+          },
+          "secureJsonData": {
+            "accessToken": ""
+          },
+          "url": "https://cloud.humio.com"
+        }
+      },
+      "logscaleToken": {
+        "summary": "LogScale token authentication",
+        "description": "Authenticate to a LogScale server with a personal token in secureJsonData.accessToken. The backend derives '\u003curl\u003e/humio/graphql' and '\u003curl\u003e/humio' as the client endpoints (pkg/plugin/settings.go:44-46).",
+        "value": {
+          "jsonData": {
+            "authenticateWithToken": true,
+            "defaultRepository": "example-repo",
+            "mode": "LogScale"
+          },
+          "secureJsonData": {
+            "accessToken": "REPLACE_WITH_LOGSCALE_TOKEN"
+          },
+          "url": "https://cloud.humio.com"
+        }
+      },
+      "logscaleWithDataLinks": {
+        "summary": "LogScale token auth with data links and incremental querying",
+        "description": "A fully-populated LogScale instance: token auth, custom default repository, two data links (one external URL template, one internal link to a Tempo datasource), incremental querying enabled with a 30-second overlap window.",
+        "value": {
+          "jsonData": {
+            "authenticateWithToken": true,
+            "dataLinks": [
+              {
+                "field": "requestId",
+                "label": "View request",
+                "matcherRegex": "req_id=(\\w+)",
+                "url": "https://requests.example.com/${__value.raw}"
+              },
+              {
+                "datasourceUid": "tempo",
+                "field": "traceId",
+                "label": "Trace",
+                "matcherRegex": "trace_id=(\\w+)",
+                "url": "${__value.raw}"
+              }
+            ],
+            "defaultRepository": "production",
+            "incrementalQueryOverlapWindow": "30s",
+            "incrementalQuerying": true,
+            "mode": "LogScale"
+          },
+          "secureJsonData": {
+            "accessToken": "REPLACE_WITH_LOGSCALE_TOKEN"
+          },
+          "url": "https://cloud.humio.com"
+        }
+      },
+      "ngsiemOAuth2": {
+        "summary": "NGSIEM mode with OAuth2 client credentials",
+        "description": "CrowdStrike NGSIEM tenant. Only OAuth2 client credentials is accepted; defaultRepository is auto-pinned to 'search-all' by the editor (ConfigEditor.tsx:127-137) and reflected here. The backend appends '/humio' to the base URL when Mode == NGSIEM (pkg/plugin/plugin.go:54-56); do not include '/humio' in the configured URL.",
+        "value": {
+          "jsonData": {
+            "defaultRepository": "search-all",
+            "mode": "NGSIEM",
+            "oauth2": true,
+            "oauth2ClientId": "my-ngsiem-client-id"
+          },
+          "secureJsonData": {
+            "oauth2ClientSecret": "REPLACE_WITH_NGSIEM_CLIENT_SECRET"
+          },
+          "url": "https://api.us-2.crowdstrike.com"
+        }
+      }
+    }
+  }
+}

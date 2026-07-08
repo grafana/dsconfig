@@ -1,0 +1,32 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: the only auth scheme (api_key) selected and an empty API key placeholder. secureJsonData['auth.api_key.apiKey'] must be filled in for the datasource to authenticate against PagerDuty.",
+      "value": {
+        "jsonData": {
+          "auth": {
+            "id": "api_key"
+          }
+        },
+        "secureJsonData": {
+          "auth.api_key.apiKey": ""
+        }
+      }
+    },
+    "apiKey": {
+      "summary": "PagerDuty REST API key",
+      "description": "Authenticate against https://api.pagerduty.com with a PagerDuty REST API key. Enter the raw key; the backend sends it as 'Authorization: Token token=\u003ckey\u003e'. A read-only key is recommended.",
+      "value": {
+        "jsonData": {
+          "auth": {
+            "id": "api_key"
+          }
+        },
+        "secureJsonData": {
+          "auth.api_key.apiKey": "\u003cyour-pagerduty-api-token\u003e"
+        }
+      }
+    }
+  }
+}

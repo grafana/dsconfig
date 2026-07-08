@@ -1,0 +1,116 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: no authentication, no TLS overrides, no derived fields. Only root.url needs to be filled in to get a working datasource pointed at a Loki server on localhost:3100.",
+      "value": {
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://localhost:3100"
+      }
+    },
+    "basicAuth": {
+      "summary": "Basic authentication",
+      "description": "Authenticate with a Loki that requires HTTP Basic. Both basicAuth and basicAuthUser live at the datasource root; only basicAuthPassword is secret.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {},
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://loki.example.com"
+      }
+    },
+    "noAuth": {
+      "summary": "No authentication",
+      "description": "A public or network-isolated Loki with no HTTP-level auth. Maximum lines is bumped to 5000 for ad-hoc analysis and alerting UI management is enabled.",
+      "value": {
+        "jsonData": {
+          "manageAlerts": true,
+          "maxLines": "5000"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "http://loki.example.com:3100"
+      }
+    },
+    "oauthForward": {
+      "summary": "Forward OAuth Identity",
+      "description": "Forward the signed-in user's upstream OAuth identity to Loki. The editor writes only jsonData.oauthPassThru; there is no accompanying secret.",
+      "value": {
+        "jsonData": {
+          "oauthPassThru": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        },
+        "url": "https://loki.example.com"
+      }
+    },
+    "tlsMutualAuth": {
+      "summary": "TLS mutual auth (mTLS)",
+      "description": "Loki requiring mTLS. jsonData.tlsAuth=true triggers the SDK to build a client-authenticated transport using serverName plus the PEM-encoded client cert and key in secureJsonData.",
+      "value": {
+        "jsonData": {
+          "serverName": "loki.example.com",
+          "tlsAuth": true
+        },
+        "secureJsonData": {
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+        },
+        "url": "https://loki.example.com"
+      }
+    },
+    "tlsSelfSignedCA": {
+      "summary": "Self-signed CA verification",
+      "description": "Loki behind a private CA. jsonData.tlsAuthWithCACert=true tells the SDK to verify the server certificate against the PEM-encoded CA in secureJsonData.tlsCACert.",
+      "value": {
+        "jsonData": {
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+        },
+        "url": "https://loki.internal.corp"
+      }
+    },
+    "withDerivedFields": {
+      "summary": "Basic auth with derived fields",
+      "description": "Loki configured with a derived field that extracts a trace ID from the log line via regex and internally links to a Tempo data source. Two derived fields — one regex-based external link, one label-based internal link — demonstrate the shape.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana",
+        "jsonData": {
+          "derivedFields": [
+            {
+              "datasourceUid": "tempo",
+              "matcherRegex": "traceID=(\\w+)",
+              "matcherType": "regex",
+              "name": "TraceID",
+              "targetBlank": false,
+              "url": "${__value.raw}"
+            },
+            {
+              "matcherRegex": "req_id=(\\w+)",
+              "matcherType": "regex",
+              "name": "requestId",
+              "targetBlank": true,
+              "url": "https://requests.example.com/${__value.raw}",
+              "urlDisplayLabel": "View request"
+            }
+          ],
+          "maxLines": "1500"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "REPLACE_WITH_PASSWORD"
+        },
+        "url": "https://loki.example.com"
+      }
+    }
+  }
+}

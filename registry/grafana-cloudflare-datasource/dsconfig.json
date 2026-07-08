@@ -1,0 +1,103 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-cloudflare-datasource",
+    "pluginName": "Cloudflare",
+    "docURL": "https://grafana.com/docs/plugins/grafana-cloudflare-datasource",
+    "fields": [
+        {
+            "id": "jsonData_services_cloudflare_auth_id",
+            "key": "id",
+            "section": "services.cloudflare.auth",
+            "label": "API Key",
+            "description": "Cloudflare API Key. Provide relevant read-only permissions",
+            "docURL": "https://dash.cloudflare.com/profile/api-tokens",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": "bearer_token",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "bearer_token"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "API Key",
+                        "value": "bearer_token"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "secureJsonData_cloudflare_token",
+            "key": "cloudflare.token",
+            "label": "Token",
+            "description": "Token for accessing the datasource API",
+            "docURL": "https://dash.cloudflare.com/profile/api-tokens",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_services_cloudflare_auth_id == 'bearer_token'",
+            "requiredWhen": "jsonData_services_cloudflare_auth_id == 'bearer_token'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Token value"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_services_cloudflare_auth_id",
+                "secureJsonData_cloudflare_token"
+            ]
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Cloudflare configuration is stored under a service-keyed jsonData shape: jsonData.services.cloudflare.* holds per-service settings, while secrets use flat dotted secureJsonData keys of the form \"cloudflare.<secret>\". There is a single service with id 'cloudflare'.",
+            "tags": [
+                "llm",
+                "structure"
+            ]
+        },
+        {
+            "msg": "Authentication uses a Cloudflare API Key/token (bearer) with relevant read-only permissions. jsonData.services.cloudflare.auth.id is 'bearer_token' (the backend defaults to it) and the token is the write-only secret at secureJsonData key \"cloudflare.token\".",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal working payload: {\"jsonData\":{\"services\":{\"cloudflare\":{\"auth\":{\"id\":\"bearer_token\"}}}},\"secureJsonData\":{\"cloudflare.token\":\"<cloudflare-api-token>\"}}. Create the token at https://dash.cloudflare.com/profile/api-tokens.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Connection: the server URL is fixed at https://api.cloudflare.com/client/v4 (no server selector and no connection variables).",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "The secret at secureJsonData key \"cloudflare.token\" is write-only: it can be set or reset but never read back. To check whether it is already configured, read secureJsonFields[\"cloudflare.token\"] == true rather than secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        }
+    ]
+}

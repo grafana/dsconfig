@@ -1,0 +1,244 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "required": [
+        "url",
+        "user"
+      ],
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "database"
+          ],
+          "properties": {
+            "connMaxLifetime": {
+              "description": "The maximum amount of time in seconds a connection may be reused. If set to 0, connections are reused forever.",
+              "type": "number"
+            },
+            "database": {
+              "type": "string"
+            },
+            "maxOpenConns": {
+              "description": "The maximum number of open connections to the database. If set to 0, there is no limit on the number of open connections.",
+              "type": "number"
+            },
+            "postgresVersion": {
+              "description": "This option controls what functions are available in the PostgreSQL query builder.",
+              "type": "number",
+              "default": 903,
+              "enum": [
+                900,
+                901,
+                902,
+                903,
+                904,
+                905,
+                906,
+                1000,
+                1100,
+                1200,
+                1300,
+                1400,
+                1500
+              ]
+            },
+            "sslCertFile": {
+              "description": "To authenticate with an TLS/SSL client certificate, provide the path to the file here. Be sure that the file is readable by the user executing the grafana process.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'"
+            },
+            "sslKeyFile": {
+              "description": "To authenticate with a client TLS/SSL certificate, provide the path to the corresponding key file here. Be sure that the file is only readable by the user executing the grafana process.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path'"
+            },
+            "sslRootCertFile": {
+              "description": "If the selected TLS/SSL mode requires a server root certificate, provide the path to the file here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_sslmode != 'disable' \u0026\u0026 jsonData_tlsConfigurationMethod == 'file-path' \u0026\u0026 (jsonData_sslmode == 'verify-ca' || jsonData_sslmode == 'verify-full')"
+            },
+            "sslmode": {
+              "description": "This option determines whether or with what priority a secure TLS/SSL TCP/IP connection will be negotiated with the server.",
+              "type": "string",
+              "default": "require",
+              "enum": [
+                "disable",
+                "require",
+                "verify-ca",
+                "verify-full"
+              ]
+            },
+            "timeInterval": {
+              "description": "A lower limit for the auto group by time interval. Recommended to be set to write frequency, for example 1m if your data is written every minute.",
+              "type": "string"
+            },
+            "timescaledb": {
+              "description": "TimescaleDB is a time-series database built as a PostgreSQL extension. If enabled, Grafana will use time_bucket in the $__timeGroup macro and display TimescaleDB specific aggregate functions in the query builder.",
+              "type": "boolean",
+              "default": false
+            },
+            "tlsConfigurationMethod": {
+              "description": "This option determines how TLS/SSL certifications are configured. Selecting 'File system path' will allow you to configure certificates by specifying paths to existing certificates on the local file system where Grafana is running. Be sure that the file is readable by the user executing the Grafana process. Selecting 'Certificate content' will allow you to configure certificates by specifying its content. The content will be stored encrypted in Grafana's database. When connecting to the database the certificates will be written as files to Grafana's configured data path on the local file system.",
+              "type": "string",
+              "default": "file-path",
+              "enum": [
+                "file-path",
+                "file-content"
+              ],
+              "x-dsconfig-depends-on": "jsonData_sslmode != 'disable'"
+            }
+          }
+        },
+        "url": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password"
+      },
+      {
+        "key": "tlsCACert",
+        "description": "If the selected TLS/SSL mode requires a server root certificate, provide it here"
+      },
+      {
+        "key": "tlsClientCert",
+        "description": "To authenticate with an TLS/SSL client certificate, provide the client certificate here."
+      },
+      {
+        "key": "tlsClientKey",
+        "description": "To authenticate with a client TLS/SSL certificate, provide the key here."
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: sslmode='require', tlsConfigurationMethod='file-path'. The user must still supply url, user, jsonData.database, and secureJsonData.password.",
+        "value": {
+          "jsonData": {
+            "sslmode": "require",
+            "tlsConfigurationMethod": "file-path"
+          },
+          "secureJsonData": {
+            "password": ""
+          },
+          "url": "",
+          "user": ""
+        }
+      },
+      "basicAuthNoTLS": {
+        "summary": "Username / password, TLS disabled",
+        "description": "Local dev-style setup with sslmode='disable'. No certificate configuration required.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "sslmode": "disable"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "localhost:5432",
+          "user": "grafana_reader"
+        }
+      },
+      "legacyRootDatabase": {
+        "summary": "Legacy: database stored at root level",
+        "description": "Older datasources stored the database name at the root level. useMigrateDatabaseFields migrates it; the backend (pkg/postgresql/postgres.go:101-104) falls back to root.database when jsonData.database is empty. New configurations should write jsonData.database.",
+        "value": {
+          "database": "metrics",
+          "jsonData": {
+            "sslmode": "require"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "localhost:5432",
+          "user": "grafana_reader"
+        }
+      },
+      "timescaledb": {
+        "summary": "TimescaleDB extension enabled",
+        "description": "jsonData.timescaledb=true tells the query builder to use time_bucket in $__timeGroup and show TimescaleDB-specific aggregate functions.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "postgresVersion": 1500,
+            "sslmode": "require",
+            "timeInterval": "1m",
+            "timescaledb": true
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "timescale.internal:5432",
+          "user": "grafana_reader"
+        }
+      },
+      "tlsRequireFilePath": {
+        "summary": "sslmode=require with file-path certs",
+        "description": "The typical production TLS setup: sslmode='require' asks for encryption but does not verify identity; certificate file paths are read from the Grafana host's local filesystem.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "sslCertFile": "/etc/secrets/postgres/client.crt",
+            "sslKeyFile": "/etc/secrets/postgres/client.key",
+            "sslmode": "require",
+            "tlsConfigurationMethod": "file-path"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "postgres.internal:5432",
+          "user": "grafana_reader"
+        }
+      },
+      "tlsVerifyCAInlineContent": {
+        "summary": "sslmode=verify-ca with inline PEM content",
+        "description": "TLS credentials stored as encrypted content in secureJsonData; the backend writes them to disk at connection time.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "sslmode": "verify-ca",
+            "tlsConfigurationMethod": "file-content"
+          },
+          "secureJsonData": {
+            "password": "changeme",
+            "tlsCACert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+            "tlsClientCert": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n",
+            "tlsClientKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+          },
+          "url": "postgres.internal:5432",
+          "user": "grafana_reader"
+        }
+      },
+      "tlsVerifyFullFilePath": {
+        "summary": "sslmode=verify-full with file-path certs",
+        "description": "Strictest TLS mode — verifies the server certificate is signed by the supplied root CA AND that the server hostname matches the certificate.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "sslCertFile": "/etc/secrets/postgres/client.crt",
+            "sslKeyFile": "/etc/secrets/postgres/client.key",
+            "sslRootCertFile": "/etc/secrets/postgres/ca.crt",
+            "sslmode": "verify-full",
+            "tlsConfigurationMethod": "file-path"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "postgres.internal:5432",
+          "user": "grafana_reader"
+        }
+      }
+    }
+  }
+}

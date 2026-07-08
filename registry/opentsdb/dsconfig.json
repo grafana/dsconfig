@@ -1,0 +1,487 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "opentsdb",
+    "pluginName": "OpenTSDB",
+    "docURL": "https://grafana.com/docs/grafana/latest/datasources/opentsdb/",
+    "fields": [
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Specify a complete HTTP URL (for example http://your_server:8080)",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:4242"
+            }
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "label": "Basic auth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_withCredentials",
+            "key": "withCredentials",
+            "label": "With Credentials",
+            "description": "Whether credentials such as cookies or auth headers should be sent with cross-site requests.",
+            "valueType": "boolean",
+            "target": "root",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "user"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "root_basicAuth == true",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Auth",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying self-signed TLS Certs",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "label": "Forward OAuth Identity",
+            "description": "Forward the user's upstream OAuth identity to the data source (Their access token gets passed along).",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "label": "ServerName",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Cert",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "placeholder": "Begins with -----BEGIN RSA PRIVATE KEY-----"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_tsdbVersion",
+            "key": "tsdbVersion",
+            "label": "Version",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 1,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        1,
+                        2,
+                        3,
+                        4
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "<=2.1",
+                        "value": 1
+                    },
+                    {
+                        "label": "==2.2",
+                        "value": 2
+                    },
+                    {
+                        "label": "==2.3",
+                        "value": 3
+                    },
+                    {
+                        "label": "==2.4",
+                        "value": 4
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_tsdbResolution",
+            "key": "tsdbResolution",
+            "label": "Resolution",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 1,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        1,
+                        2
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "second",
+                        "value": 1
+                    },
+                    {
+                        "label": "millisecond",
+                        "value": 2
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_lookupLimit",
+            "key": "lookupLimit",
+            "label": "Lookup limit",
+            "valueType": "number",
+            "target": "jsonData",
+            "defaultValue": 1000,
+            "validations": [
+                {
+                    "type": "range",
+                    "min": 0
+                }
+            ],
+            "ui": {
+                "component": "input"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "http",
+            "title": "HTTP",
+            "order": 1,
+            "fieldRefs": [
+                "root_url",
+                "jsonData_keepCookies",
+                "jsonData_timeout",
+                "jsonData_httpHeaders"
+            ]
+        },
+        {
+            "id": "auth",
+            "title": "Auth",
+            "order": 2,
+            "fieldRefs": [
+                "root_basicAuth",
+                "root_withCredentials",
+                "jsonData_tlsAuth",
+                "jsonData_tlsAuthWithCACert",
+                "jsonData_tlsSkipVerify",
+                "jsonData_oauthPassThru",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ]
+        },
+        {
+            "id": "tls-details",
+            "title": "TLS/SSL Auth Details",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_serverName",
+                "secureJsonData_tlsCACert",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ]
+        },
+        {
+            "id": "opentsdb-settings",
+            "title": "OpenTSDB settings",
+            "order": 4,
+            "fieldRefs": [
+                "jsonData_tsdbVersion",
+                "jsonData_tsdbResolution",
+                "jsonData_lookupLimit"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic auth credentials. Both fields are used together when root.basicAuth is true."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS mutual auth: enabling jsonData.tlsAuth reveals the ServerName input and the Client Cert / Client Key secret slots in @grafana/ui TLSAuthSettings.tsx. All three are required for a working mTLS handshake."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Self-signed / custom CA verification: enabling jsonData.tlsAuthWithCACert requires the CA certificate PEM in secureJsonData.tlsCACert."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tsdbVersion",
+                "jsonData_tsdbResolution",
+                "jsonData_lookupLimit"
+            ],
+            "description": "OpenTSDB-specific behaviour knobs. tsdbVersion (1..4 mapping to <=2.1, ==2.2, ==2.3, ==2.4) drives response parsing and rate-option shape (pkg/opentsdb/utils.go:138,225-266; src/datasource.ts:187). tsdbResolution (1=second, 2=millisecond) controls the msResolution flag on outgoing queries (src/datasource.ts:178-180). lookupLimit caps the /api/search/lookup response size for tag-value autocomplete (pkg/opentsdb/callresource.go:361; src/datasource.ts:230)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "OpenTSDB authentication is a direct-toggle model — not a discriminator field. root.basicAuth and root.withCredentials are independent boolean switches rendered by @grafana/ui DataSourceHttpSettings (src/components/ConfigEditor.tsx:15-20); jsonData.oauthPassThru is a third independent switch inside HttpProxySettings. All three can be true simultaneously. Only when root.basicAuth is true does the editor render the User (root.basicAuthUser) + Password (secureJsonData.basicAuthPassword) inputs. There is no visible 'No Authentication' option — leaving every switch off is the No-auth mode. The plugin's Go backend never inspects these fields directly; it delegates everything to the SDK's settings.HTTPClientOptions(ctx) (pkg/opentsdb/opentsdb.go:29-37).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal No-auth payload: {\"url\":\"http://localhost:4242\",\"jsonData\":{\"tsdbVersion\":1,\"tsdbResolution\":1,\"lookupLimit\":1000}}. Minimal Basic-auth payload: {\"url\":\"http://opentsdb.example.com:4242\",\"basicAuth\":true,\"basicAuthUser\":\"<user>\",\"jsonData\":{\"tsdbVersion\":1,\"tsdbResolution\":1,\"lookupLimit\":1000},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. Minimal OAuth-forward payload: {\"url\":\"http://opentsdb.example.com:4242\",\"jsonData\":{\"tsdbVersion\":1,\"oauthPassThru\":true}}. root.url is required — pkg/opentsdb/opentsdb.go:47 reads settings.URL directly and the CheckHealth probe issues an api/suggest?q=cpu&type=metrics GET against it (pkg/opentsdb/opentsdb.go:87-138).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "TLS is independent of the auth toggles. jsonData.tlsAuth=true enables mTLS and reveals the ServerName input plus Client Cert / Client Key secret textareas in @grafana/ui TLSAuthSettings; provisioning must supply jsonData.serverName, secureJsonData.tlsClientCert, and secureJsonData.tlsClientKey for the SDK to build a valid mTLS transport. jsonData.tlsAuthWithCACert=true enables server-cert verification against a custom CA and requires secureJsonData.tlsCACert. Both can be enabled together; the TLSAuthSettings block only renders when either is true. jsonData.tlsSkipVerify=true bypasses verification entirely and should only be used for testing. All TLS fields are consumed by settings.HTTPClientOptions(ctx) inside NewDatasource (pkg/opentsdb/opentsdb.go:29).",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP headers are modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as the @grafana/ui CustomHeadersSettings component and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "OpenTSDB-specific storage: jsonData.tsdbVersion is a numeric enum stored as a JSON number (1 → '<=2.1', 2 → '==2.2', 3 → '==2.3', 4 → '==2.4'; default 1 per src/datasource.ts:60 and src/components/OpenTsdbDetails.tsx:37). The backend Go type is float32 (pkg/opentsdb/opentsdb.go:66) — Version 4 triggers array-response parsing (pkg/opentsdb/utils.go:138,247-254) and adds ?arrays=true to /api/query. jsonData.tsdbResolution is 1 (second, default) or 2 (millisecond); resolution 2 sets msResolution=true on outgoing query bodies (src/datasource.ts:178-180). jsonData.lookupLimit is an int32 that caps /api/search/lookup responses for keyvalue autocomplete (pkg/opentsdb/callresource.go:361); default 1000 per src/datasource.ts:62. All three are stored as JSON numbers.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        },
+        {
+            "msg": "Connection quirks: OpenTSDB expects a base URL such as http://host:4242 (default TSD port). The plugin constructs endpoint paths by joining the base URL with /api/query, /api/suggest, /api/aggregators, /api/config/filters, and /api/search/lookup (pkg/opentsdb/opentsdb.go:100, pkg/opentsdb/callresource.go). Do not include a trailing /api segment in root.url — path.Join will still work but the SDK's URL validator flags trailing slashes. A URL that parses but points at a non-OpenTSDB backend passes admission but fails CheckHealth (which requires a 200 from /api/suggest). Note: jsonData.lookupLimit is written by an <Input type=\"number\"> whose onChange stores event.currentTarget.value (a string) — see the upstream findings in the README; the backend expects int32 so the raw value may fail unmarshal after the first edit.",
+            "tags": [
+                "llm",
+                "settings",
+                "connection"
+            ]
+        }
+    ]
+}

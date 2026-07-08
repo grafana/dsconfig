@@ -1,0 +1,213 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "assumeRoleArn",
+            "workspaceId"
+          ],
+          "properties": {
+            "assumeRoleArn": {
+              "description": "Optional. Specifying the ARN of a role will ensure that the\n                     selected authentication provider is used to assume the role rather than the\n                     credentials directly.",
+              "type": "string",
+              "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$"
+            },
+            "assumeRoleArnWriter": {
+              "description": "Specify the ARN of a role to assume when writing property values in IoT TwinMaker",
+              "type": "string",
+              "pattern": "^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$",
+              "x-dsconfig-depends-on": "virtual_alarmConfigEnabled == true"
+            },
+            "authType": {
+              "description": "Specify which AWS credentials chain to use.",
+              "type": "string",
+              "default": "default",
+              "enum": [
+                "default",
+                "keys",
+                "credentials",
+                "ec2_iam_role",
+                "grafana_assume_role",
+                "arn"
+              ]
+            },
+            "defaultRegion": {
+              "description": "Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.",
+              "type": "string",
+              "default": "us-east-1",
+              "enum": [
+                "ap-south-1",
+                "ap-northeast-1",
+                "ap-northeast-2",
+                "ap-southeast-1",
+                "ap-southeast-2",
+                "eu-central-1",
+                "eu-west-1",
+                "us-east-1",
+                "us-west-2",
+                "us-gov-west-1",
+                "cn-north-1"
+              ]
+            },
+            "endpoint": {
+              "description": "Optionally, specify a custom endpoint for the service",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "externalId": {
+              "description": "If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType != 'grafana_assume_role'"
+            },
+            "profile": {
+              "description": "Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.",
+              "type": "string",
+              "x-dsconfig-depends-on": "jsonData_authType == 'credentials'"
+            },
+            "workspaceId": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "accessKey"
+      },
+      {
+        "key": "secretKey"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a fresh datasource starts with: AWS SDK Default credentials, defaultRegion 'us-east-1' (set on mount by the editor and again by the backend Load). workspaceId and assumeRoleArn are still required before the datasource passes CheckHealth; secureJsonData is empty because the default provider reads credentials from the AWS SDK chain.",
+        "value": {
+          "jsonData": {
+            "authType": "default",
+            "defaultRegion": "us-east-1"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "accessAndSecretKey": {
+        "summary": "Access \u0026 secret key",
+        "description": "IAM user credentials supplied directly via secureJsonData. The IoT TwinMaker dashboard IAM role in assumeRoleArn is still required.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "authType": "keys",
+            "defaultRegion": "us-east-1",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": "AKIAIOSFODNN7EXAMPLE",
+            "secretKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          }
+        }
+      },
+      "awsSdkDefault": {
+        "summary": "AWS SDK Default",
+        "description": "Uses the AWS SDK default credential chain (env vars, shared config, EC2/ECS/EKS metadata). The IoT TwinMaker dashboard IAM role in assumeRoleArn is required at runtime by CheckHealth.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "authType": "default",
+            "defaultRegion": "us-east-1",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "credentialsFile": {
+        "summary": "Credentials file",
+        "description": "Reads a named profile from ~/.aws/credentials on the Grafana host. Leave `profile` blank to pick the default profile.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "authType": "credentials",
+            "defaultRegion": "us-east-1",
+            "profile": "my-twinmaker-profile",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "legacyArnAuthType": {
+        "summary": "Legacy: authType = 'arn'",
+        "description": "Datasources provisioned before the 'arn' value was renamed still store `authType: \"arn\"`. The backend (awsds.AuthType.UnmarshalJSON) maps this to the modern 'default' at load time.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "authType": "arn",
+            "defaultRegion": "us-east-1",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "withAlarmWriteRole": {
+        "summary": "Alarm Configuration Panel write permissions",
+        "description": "Sets assumeRoleArnWriter so the AWS IoT TwinMaker Alarm Configuration Panel can write property values back to IoT TwinMaker. On load, the editor's 'Define write permissions for Alarm Configuration Panel' switch is derived to on because assumeRoleArnWriter is non-empty.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "assumeRoleArnWriter": "arn:aws:iam::123456789012:role/TwinMakerAlarmWriter",
+            "authType": "default",
+            "defaultRegion": "us-east-1",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "withExternalId": {
+        "summary": "AWS SDK Default + STS AssumeRole with External ID",
+        "description": "Cross-account AssumeRole flow: the External ID is passed to STS when assuming the dashboard IAM role. External ID is only meaningful when assumeRoleArn is set.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "authType": "default",
+            "defaultRegion": "us-east-1",
+            "externalId": "external-id-abc123",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      },
+      "workspaceIamRole": {
+        "summary": "Workspace IAM Role (ec2_iam_role)",
+        "description": "Uses the IAM role attached to the Grafana workload (EC2 instance profile / ECS task role / EKS IRSA). Editor label is 'Workspace IAM Role'; storage value is 'ec2_iam_role'. Editor label is 'Workspace IAM Role' — no relation to the TwinMaker Workspace itself.",
+        "value": {
+          "jsonData": {
+            "assumeRoleArn": "arn:aws:iam::123456789012:role/TwinMakerDashboardRole",
+            "authType": "ec2_iam_role",
+            "defaultRegion": "us-east-1",
+            "workspaceId": "MyTwinMakerWorkspace"
+          },
+          "secureJsonData": {
+            "accessKey": ""
+          }
+        }
+      }
+    }
+  }
+}

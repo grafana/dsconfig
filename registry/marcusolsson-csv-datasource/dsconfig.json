@@ -1,0 +1,521 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "marcusolsson-csv-datasource",
+    "pluginName": "CSV",
+    "docURL": "https://grafana.com/docs/plugins/marcusolsson-csv-datasource/latest/",
+    "fields": [
+        {
+            "id": "jsonData_storage",
+            "key": "storage",
+            "label": "Storage Location",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "http",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "http",
+                        "local"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "HTTP",
+                        "value": "http"
+                    },
+                    {
+                        "label": "Local",
+                        "value": "local"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "root_url",
+            "key": "url",
+            "label": "URL",
+            "description": "Specify a complete HTTP URL (for example https://example.com:8080)",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "overrides": [
+                {
+                    "when": "jsonData_storage == 'local'",
+                    "description": "Path to the CSV file on the Grafana server filesystem. Local storage must be enabled by an administrator via the GF_PLUGIN_ALLOW_LOCAL_MODE=true environment variable on the plugin process.",
+                    "placeholder": "Path to the CSV file"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "http://localhost:8080"
+            }
+        },
+        {
+            "id": "virtual_authMethod",
+            "key": "authMethod",
+            "label": "Authentication method",
+            "description": "Choose an authentication method to access the data source",
+            "valueType": "string",
+            "kind": "virtual",
+            "defaultValue": "NoAuth",
+            "dependsOn": "jsonData_storage == 'http'",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "BasicAuth",
+                        "OAuthForward",
+                        "NoAuth"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "Basic authentication",
+                        "value": "BasicAuth"
+                    },
+                    {
+                        "label": "Forward OAuth Identity",
+                        "value": "OAuthForward"
+                    },
+                    {
+                        "label": "No Authentication",
+                        "value": "NoAuth"
+                    }
+                ]
+            },
+            "storage": {
+                "type": "computed",
+                "read": "root.basicAuth == true ? 'BasicAuth' : (jsonData.oauthPassThru == true ? 'OAuthForward' : 'NoAuth')"
+            },
+            "effects": [
+                {
+                    "when": "value == 'BasicAuth'",
+                    "set": {
+                        "root_basicAuth": true,
+                        "jsonData_oauthPassThru": false
+                    }
+                },
+                {
+                    "when": "value == 'OAuthForward'",
+                    "set": {
+                        "root_basicAuth": false,
+                        "jsonData_oauthPassThru": true
+                    }
+                },
+                {
+                    "when": "value == 'NoAuth'",
+                    "set": {
+                        "root_basicAuth": false,
+                        "jsonData_oauthPassThru": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "root_basicAuth",
+            "key": "basicAuth",
+            "valueType": "boolean",
+            "target": "root",
+            "role": "auth.basic.enabled",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_authMethod"
+            ]
+        },
+        {
+            "id": "root_basicAuthUser",
+            "key": "basicAuthUser",
+            "label": "User",
+            "description": "The username of the data source account",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "dependsOn": "virtual_authMethod == 'BasicAuth'",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "User"
+            }
+        },
+        {
+            "id": "secureJsonData_basicAuthPassword",
+            "key": "basicAuthPassword",
+            "label": "Password",
+            "description": "The password of the data source account",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "virtual_authMethod == 'BasicAuth'",
+            "requiredWhen": "root_basicAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "Password"
+            }
+        },
+        {
+            "id": "jsonData_oauthPassThru",
+            "key": "oauthPassThru",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "auth.forwardOAuthToken.enabled",
+            "defaultValue": false,
+            "tags": [
+                "managed-by:virtual_authMethod"
+            ]
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "Add self-signed certificate",
+            "description": "Add your own Certificate Authority (CA) certificate on top of one generated by the certificate authorities for additional security measures",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_storage == 'http'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Certificate",
+            "description": "Your self-signed certificate",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 6,
+                "placeholder": "Begins with --- BEGIN CERTIFICATE ---"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuth",
+            "key": "tlsAuth",
+            "label": "TLS Client Authentication",
+            "description": "Validate using TLS client authentication, in which the server authenticates the client",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_storage == 'http'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_serverName",
+            "key": "serverName",
+            "label": "ServerName",
+            "description": "A Servername is used to verify the hostname on the returned certificate",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "domain.example.com"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "Client Certificate",
+            "description": "The client certificate can be generated from a Certificate Authority or be self-signed",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 6,
+                "placeholder": "Begins with --- BEGIN CERTIFICATE ---"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "Client Key",
+            "description": "The client key can be generated from a Certificate Authority or be self-signed",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "jsonData_tlsAuth == true",
+            "requiredWhen": "jsonData_tlsAuth == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 6,
+                "placeholder": "Begins with --- RSA PRIVATE KEY CERTIFICATE ---"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS certificate validation",
+            "description": "Skipping TLS certificate validation is not recommended unless absolutely necessary or for testing",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "dependsOn": "jsonData_storage == 'http'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "jsonData_keepCookies",
+            "key": "keepCookies",
+            "label": "Allowed cookies",
+            "description": "Grafana proxy deletes forwarded cookies by default. Specify cookies by name that should be forwarded to the data source.",
+            "valueType": "array",
+            "target": "jsonData",
+            "dependsOn": "jsonData_storage == 'http'",
+            "item": {
+                "valueType": "string"
+            },
+            "ui": {
+                "component": "list",
+                "placeholder": "New cookie (hit enter to add)"
+            }
+        },
+        {
+            "id": "jsonData_timeout",
+            "key": "timeout",
+            "label": "Timeout",
+            "description": "HTTP request timeout in seconds",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "dependsOn": "jsonData_storage == 'http'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Timeout in seconds"
+            }
+        },
+        {
+            "id": "jsonData_httpHeaders",
+            "key": "httpHeaders",
+            "label": "Custom HTTP Headers",
+            "description": "Additional HTTP headers sent with every request. Header names are stored in jsonData (httpHeaderName<N>); header values are write-only in secureJsonData (httpHeaderValue<N>).",
+            "valueType": "array",
+            "target": "jsonData",
+            "role": "http.header",
+            "dependsOn": "jsonData_storage == 'http'",
+            "item": {
+                "valueType": "object",
+                "fields": [
+                    {
+                        "id": "jsonData_httpHeaders.item.name",
+                        "key": "name",
+                        "label": "Header",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.name",
+                        "required": true,
+                        "validations": [
+                            {
+                                "type": "pattern",
+                                "pattern": "^[A-Za-z][A-Za-z0-9-]*$",
+                                "message": "Header name must start with a letter and contain only letters, digits, or hyphens."
+                            }
+                        ],
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "X-Custom-Header"
+                        }
+                    },
+                    {
+                        "id": "jsonData_httpHeaders.item.value",
+                        "key": "value",
+                        "label": "Value",
+                        "valueType": "string",
+                        "isItemField": true,
+                        "role": "http.header.value",
+                        "ui": {
+                            "component": "input",
+                            "placeholder": "Header Value"
+                        }
+                    }
+                ]
+            },
+            "storage": {
+                "type": "indexedPair",
+                "key": {
+                    "target": "jsonData",
+                    "pattern": "httpHeaderName{index}"
+                },
+                "value": {
+                    "target": "secureJsonData",
+                    "pattern": "httpHeaderValue{index}"
+                },
+                "startIndex": 1
+            }
+        },
+        {
+            "id": "jsonData_queryParams",
+            "key": "queryParams",
+            "label": "Custom query parameters",
+            "description": "Add custom parameters to your queries.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_storage == 'http'",
+            "ui": {
+                "component": "input",
+                "placeholder": "limit=100"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "storage",
+            "title": "Storage",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_storage"
+            ]
+        },
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 2,
+            "fieldRefs": [
+                "root_url"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 3,
+            "fieldRefs": [
+                "virtual_authMethod",
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ]
+        },
+        {
+            "id": "tls-settings",
+            "title": "TLS settings",
+            "order": 4,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert",
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey",
+                "jsonData_tlsSkipVerify"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_keepCookies",
+                "jsonData_timeout",
+                "jsonData_httpHeaders",
+                "jsonData_queryParams"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "pair",
+            "fields": [
+                "root_basicAuthUser",
+                "secureJsonData_basicAuthPassword"
+            ],
+            "description": "Basic auth credentials. Both fields are used together when root.basicAuth is true."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_tlsAuth",
+                "jsonData_serverName",
+                "secureJsonData_tlsClientCert",
+                "secureJsonData_tlsClientKey"
+            ],
+            "description": "TLS mutual auth: enabling jsonData.tlsAuth requires serverName + client cert + client key. See @grafana/plugin-ui TLSClientAuth.js."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "Self-signed / custom CA verification: enabling jsonData.tlsAuthWithCACert requires the CA certificate PEM in secureJsonData.tlsCACert."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_storage",
+                "root_url"
+            ],
+            "description": "The root.url field is dual-purpose depending on jsonData.storage. When storage='http' (default) it is the base HTTP URL of the CSV endpoint (src/ConfigEditor.tsx:82; pkg/http_storage.go:79). When storage='local' it is the filesystem path to the CSV file or directory used as a base by pkg/local_storage.go:33-45. Local storage requires the GF_PLUGIN_ALLOW_LOCAL_MODE=true environment variable on the plugin process (pkg/datasource.go:44,158-160)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The CSV plugin has TWO storage modes, selected by jsonData.storage: 'http' (default) fetches CSV over HTTP against root.url + the query editor's per-query Path (pkg/http_storage.go:73-131); 'local' reads CSV from the filesystem at root.url — treated as a base path — plus the query's Path (pkg/local_storage.go:33-46). Local mode is admin-gated: the plugin process must be started with GF_PLUGIN_ALLOW_LOCAL_MODE=true (pkg/datasource.go:44,158-160). If not, the backend returns a downstream error 'local mode has been disabled by your administrator'. When storage is empty on load, both the frontend (src/utils.ts:4-10) and backend (pkg/settings.go:22-24) default to 'http' for backwards compatibility.",
+            "tags": [
+                "llm",
+                "settings",
+                "connection"
+            ]
+        },
+        {
+            "msg": "In HTTP mode, authentication uses the @grafana/plugin-ui Auth widget with default visibleMethods = [BasicAuth, OAuthForward, NoAuth] (auth-method/AuthMethodSettings.js:47-52). The editor's selector writes: 'Basic authentication' -> root.basicAuth=true + root.basicAuthUser + secureJsonData.basicAuthPassword; 'Forward OAuth Identity' -> jsonData.oauthPassThru=true; 'No Authentication' -> both false. Only one of basicAuth / oauthPassThru should be true at a time — convertLegacyAuthProps writes both flags on every selection (utils.js:36-48). CrossSiteCredentials (root.withCredentials) is recognised by getSelectedMethod but not offered in the default visibleMethods; a provisioning payload with withCredentials=true is preserved but not user-selectable in the editor. In 'local' storage mode the Auth widget is not rendered at all (src/ConfigEditor.tsx:77-112).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal HTTP no-auth payload: {\"url\":\"http://localhost:8080\",\"jsonData\":{\"storage\":\"http\"}}. Minimal HTTP basic-auth payload: {\"url\":\"http://csv.example.com\",\"basicAuth\":true,\"basicAuthUser\":\"<user>\",\"jsonData\":{\"storage\":\"http\"},\"secureJsonData\":{\"basicAuthPassword\":\"<password>\"}}. Minimal HTTP oauth-forward payload: {\"url\":\"http://csv.example.com\",\"jsonData\":{\"storage\":\"http\",\"oauthPassThru\":true}}. Minimal local-file payload: {\"url\":\"/var/lib/csv-data\",\"jsonData\":{\"storage\":\"local\"}}. root.url is required for storage='http' — pkg/datasource.go:121-125 CheckHealth rejects an empty URL with 'URL is required for HTTP storage'. For storage='local' the backend does not health-check the URL up front, but every query os.Stat's it (pkg/local_storage.go:48-50).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "TLS is independent of the auth method and only applies to HTTP storage. jsonData.tlsAuth=true enables mTLS and requires jsonData.serverName plus secureJsonData.tlsClientCert and secureJsonData.tlsClientKey. jsonData.tlsAuthWithCACert=true enables server-cert verification against a custom CA and requires secureJsonData.tlsCACert. Both can be enabled together. jsonData.tlsSkipVerify=true bypasses verification entirely and should only be used for testing. All TLS fields are consumed by the SDK's settings.HTTPClientOptions(ctx) call in pkg/datasource.go:35-42 and are inert when storage='local'.",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (basicAuthPassword, tlsCACert, tlsClientCert, tlsClientKey) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.basicAuthPassword == true) instead of secureJsonData. Custom HTTP headers ARE now modeled by the jsonData_httpHeaders array field using an indexedPair storage mapping: each header's name is written to jsonData.httpHeaderName<N> and its value is written write-only to secureJsonData.httpHeaderValue<N> (starting at N=1), exactly as @grafana/plugin-ui's CustomHeaders component and the SDK HTTPClientOptions expect. The per-header httpHeaderValue<N> secrets are dynamic and are therefore not listed among the static SecureJsonDataKeys. The CSV plugin itself defines no other plugin-specific secrets beyond the shared HTTP-settings set.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "CSV-specific storage: jsonData.queryParams is a **string** of URL-encoded key=value pairs (e.g. 'limit=100&format=csv') appended to every outgoing HTTP query — pkg/http_storage.go:102-109 parses it with url.ParseQuery and merges it INTO the query editor's own params, so admin-configured query params override per-query params on key collisions. It is only meaningful when storage='http'. jsonData.storage itself is a simple string enum ('http' or 'local'); the backend PluginSettings.Storage (pkg/settings.go:11) matches it verbatim. Delimiter, header, decimalSeparator, skipRows, schema, ignoreUnknown, timezone, and the experimental.regex flag are all per-query (src/types.ts:9-28) and never live on the datasource itself.",
+            "tags": [
+                "llm",
+                "settings"
+            ]
+        }
+    ]
+}

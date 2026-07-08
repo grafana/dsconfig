@@ -1,0 +1,97 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "required": [
+        "url",
+        "user"
+      ],
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "required": [
+            "database"
+          ],
+          "properties": {
+            "database": {
+              "type": "string"
+            }
+          }
+        },
+        "url": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "password"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The empty defaults a new datasource starts with. The user must supply url ('host:port'), user, jsonData.database, and secureJsonData.password before the datasource will connect.",
+        "value": {
+          "jsonData": {
+            "database": ""
+          },
+          "secureJsonData": {
+            "password": ""
+          },
+          "url": "",
+          "user": ""
+        }
+      },
+      "localDev": {
+        "summary": "Local YugabyteDB (default port 5433)",
+        "description": "Typical local development setup pointing at a YugabyteDB YSQL node on the default port. TLS is not configurable; the backend hardcodes sslmode='allow' (pkg/settings.go:52).",
+        "value": {
+          "jsonData": {
+            "database": "yb_demo"
+          },
+          "secureJsonData": {
+            "password": "yugabyte"
+          },
+          "url": "localhost:5433",
+          "user": "yugabyte"
+        }
+      },
+      "remoteCluster": {
+        "summary": "Remote YugabyteDB cluster",
+        "description": "Points at a remote YSQL endpoint (still 'host:port', no scheme). Whether the connection is encrypted depends entirely on the server: libpq's 'allow' mode tries plaintext first and falls back to TLS only if the server rejects the plaintext handshake.",
+        "value": {
+          "jsonData": {
+            "database": "metrics"
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "yb.internal.example.com:5433",
+          "user": "grafana_reader"
+        }
+      },
+      "secureSocksProxy": {
+        "summary": "With Secure Socks Proxy enabled",
+        "description": "The editor's SecureSocksProxyToggle (ConfigEditor.tsx:83) writes jsonData.enableSecureSocksProxy=true. The backend then routes the pgx connection through the configured secure socks proxy (pkg/driver.go:41-53). This field is stored in jsonData but is intentionally excluded from the dsconfig schema per repo policy.",
+        "value": {
+          "jsonData": {
+            "database": "metrics",
+            "enableSecureSocksProxy": true
+          },
+          "secureJsonData": {
+            "password": "changeme"
+          },
+          "url": "yb.internal.example.com:5433",
+          "user": "grafana_reader"
+        }
+      }
+    }
+  }
+}

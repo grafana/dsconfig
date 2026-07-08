@@ -1,0 +1,102 @@
+{
+  "targetApiVersion": "v0alpha1",
+  "settings": {
+    "spec": {
+      "type": "object",
+      "properties": {
+        "jsonData": {
+          "type": "object",
+          "properties": {
+            "services": {
+              "type": "object",
+              "properties": {
+                "logicmonitor": {
+                  "type": "object",
+                  "properties": {
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "Bearer token for LogicMonitor REST API v3.",
+                          "type": "string",
+                          "default": "auth_bearer",
+                          "enum": [
+                            "auth_bearer"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "variables": {
+              "type": "object",
+              "required": [
+                "account_name"
+              ],
+              "properties": {
+                "account_name": {
+                  "description": "Your LogicMonitor account name. Example: Use foo for the logic monitor URL https://foo.logicmonitor.com/`",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secureValues": [
+      {
+        "key": "logicmonitor.token",
+        "description": "Token for accessing the datasource API"
+      }
+    ]
+  },
+  "settingsExamples": {
+    "examples": {
+      "": {
+        "summary": "Default configuration",
+        "description": "The defaults a new datasource starts with: the single service 'logicmonitor' preselects its only auth method, auth_bearer. Fill in the account name (jsonData.variables.account_name) and API v3 key (secureJsonData \"logicmonitor.token\", empty here) to get a working datasource.",
+        "value": {
+          "jsonData": {
+            "services": {
+              "logicmonitor": {
+                "auth": {
+                  "id": "auth_bearer"
+                }
+              }
+            },
+            "variables": {
+              "account_name": ""
+            }
+          },
+          "secureJsonData": {
+            "logicmonitor.token": ""
+          }
+        }
+      },
+      "apiKey": {
+        "summary": "API v3 key (bearer)",
+        "description": "Authenticate against https://{account_name}.logicmonitor.com/santaba/rest with a REST API v3 bearer token provided as the write-only secret at secureJsonData \"logicmonitor.token\".",
+        "value": {
+          "jsonData": {
+            "services": {
+              "logicmonitor": {
+                "auth": {
+                  "id": "auth_bearer"
+                }
+              }
+            },
+            "variables": {
+              "account_name": "foo"
+            }
+          },
+          "secureJsonData": {
+            "logicmonitor.token": "\u003clogicmonitor-api-v3-key\u003e"
+          }
+        }
+      }
+    }
+  }
+}

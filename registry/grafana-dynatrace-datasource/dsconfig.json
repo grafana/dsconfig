@@ -1,0 +1,273 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-dynatrace-datasource",
+    "pluginName": "Dynatrace",
+    "docURL": "https://grafana.com/docs/plugins/grafana-dynatrace-datasource",
+    "fields": [
+        {
+            "id": "jsonData_apiType",
+            "key": "apiType",
+            "label": "Dynatrace API Type",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "saas",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "saas",
+                        "managed",
+                        "url"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "SaaS Environment",
+                        "value": "saas"
+                    },
+                    {
+                        "label": "Managed Cluster",
+                        "value": "managed"
+                    },
+                    {
+                        "label": "Raw URL",
+                        "value": "url"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_environmentId",
+            "key": "environmentId",
+            "label": "Environment ID",
+            "description": "Get environment ID from your instance URL: [environmentId].live.dynatrace.com",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "overrides": [
+                {
+                    "when": "jsonData_apiType == 'url'",
+                    "description": "Enter the URL for your dynatrace instance: myenv.live.dynatrace.com",
+                    "placeholder": "Dynatrace URL"
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "Your Environment ID"
+            }
+        },
+        {
+            "id": "jsonData_domain",
+            "key": "domain",
+            "label": "Domain",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.domain",
+            "dependsOn": "jsonData_apiType == 'managed'",
+            "requiredWhen": "jsonData_apiType == 'managed'",
+            "ui": {
+                "component": "input",
+                "placeholder": "Your Domain"
+            }
+        },
+        {
+            "id": "secureJsonData_apiToken",
+            "key": "apiToken",
+            "label": "Dynatrace API Token",
+            "description": "The API token for the Dynatrace API. This is required for Older api endpoints on Dynatrace like Metrics, Problems, Logs, etc.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.apiKey.value",
+            "requiredWhen": "secureJsonData_platformToken == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Your API Token"
+            }
+        },
+        {
+            "id": "secureJsonData_platformToken",
+            "key": "platformToken",
+            "label": "Dynatrace Platform Token",
+            "description": "The Platform token for the Dynatrace Platform API. This is required for Newer api endpoints on Dynatrace like Grail",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "requiredWhen": "secureJsonData_apiToken == ''",
+            "ui": {
+                "component": "input",
+                "placeholder": "Your Platform Token"
+            }
+        },
+        {
+            "id": "jsonData_httpClientTimeout",
+            "key": "httpClientTimeout",
+            "label": "Timeout",
+            "description": "The timeout for the HTTP client in seconds. Default is 30 seconds.",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "transport.timeoutSeconds",
+            "defaultValue": 30,
+            "validations": [
+                {
+                    "type": "range",
+                    "min": 0
+                }
+            ],
+            "ui": {
+                "component": "input",
+                "placeholder": "30"
+            }
+        },
+        {
+            "id": "jsonData_tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS Verify",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "defaultValue": false,
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "jsonData_tlsAuthWithCACert",
+            "key": "tlsAuthWithCACert",
+            "label": "With CA Cert",
+            "description": "Needed for verifying self-signed TLS Certificates",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "ui": {
+                "component": "checkbox"
+            }
+        },
+        {
+            "id": "secureJsonData_tlsCACert",
+            "key": "tlsCACert",
+            "label": "CA Cert",
+            "description": "TLS/SSL Certs are encrypted and stored in the Grafana database.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "jsonData_tlsAuthWithCACert == true",
+            "requiredWhen": "jsonData_tlsAuthWithCACert == true",
+            "ui": {
+                "component": "textarea",
+                "multiline": true,
+                "rows": 5,
+                "placeholder": "Begins with -----BEGIN CERTIFICATE-----"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_apiType",
+                "jsonData_environmentId",
+                "jsonData_domain"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "secureJsonData_apiToken",
+                "secureJsonData_platformToken"
+            ]
+        },
+        {
+            "id": "additional-settings",
+            "title": "Additional settings",
+            "order": 3,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_httpClientTimeout",
+                "jsonData_tlsSkipVerify",
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_apiType",
+                "jsonData_environmentId",
+                "jsonData_domain"
+            ],
+            "description": "Connection target. jsonData.apiType selects how the API base URL is built from environmentId (and domain): 'saas' -> https://<environmentId>.live.dynatrace.com/api/...; 'managed' -> https://<domain>/e/<environmentId>/api/... (domain required); 'url' -> environmentId is the full base URL, with /api/... appended (pkg/dynatrace/client/rest.go:24-53)."
+        },
+        {
+            "type": "group",
+            "fields": [
+                "secureJsonData_apiToken",
+                "secureJsonData_platformToken"
+            ],
+            "description": "Dynatrace tokens. At least one is required (pkg/dynatrace/handler_healthcheck.go:151-153). apiToken authenticates the classic API endpoints as 'Api-Token <token>' (Metrics, Problems, Logs, USQL, audit logs); platformToken authenticates the Grail platform API as 'Bearer <token>' (pkg/dynatrace/client/rest.go:170-179). Set both to use classic and Grail endpoints together."
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_tlsAuthWithCACert",
+                "secureJsonData_tlsCACert"
+            ],
+            "description": "The CA Cert textarea is rendered only when 'With CA Cert' is enabled (ConfigEditor.tsx:184) and the backend then requires a valid PEM certificate (pkg/models/settings.go:68-76)."
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "The Dynatrace datasource authenticates with two independent Dynatrace tokens, both stored in secureJsonData and both always shown in the editor (there is no auth-method selector): secureJsonData.apiToken is a classic Dynatrace API token, sent as the 'Authorization: Api-Token <token>' header and used for the classic API endpoints (Metrics, Problems, Logs, USQL, audit logs, etc.); secureJsonData.platformToken is a Dynatrace platform token, sent as 'Authorization: Bearer <token>' and used for the newer Grail platform API. At least one of the two is required; set both to use classic and Grail endpoints together (pkg/dynatrace/client/rest.go:170-179; pkg/dynatrace/handler_healthcheck.go:42-54,151-153).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Minimal payloads. Classic API only: {\"jsonData\":{\"apiType\":\"saas\",\"environmentId\":\"<environment-id>\"},\"secureJsonData\":{\"apiToken\":\"<your-dynatrace-api-token>\"}}. Grail only: {\"jsonData\":{\"apiType\":\"saas\",\"environmentId\":\"<environment-id>\"},\"secureJsonData\":{\"platformToken\":\"<your-dynatrace-platform-token>\"}}. If neither token is set, the health check fails with 'Enter an API token or Platform token.' (pkg/dynatrace/handler_healthcheck.go:22,151-153).",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (apiToken, platformToken, tlsCACert) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.apiToken == true) instead of secureJsonData.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "jsonData.apiType selects how the API base URL is built and defaults to 'saas' when empty (pkg/dynatrace/client/rest.go:24-53): 'saas' -> https://<environmentId>.live.dynatrace.com/api/... (environmentId is the SaaS environment/tenant ID); 'managed' -> https://<domain>/e/<environmentId>/api/... (jsonData.domain, the Managed cluster host, is also required); 'url' -> environmentId holds the full base URL, e.g. https://myenv.live.dynatrace.com, and /api/... is appended. jsonData.environmentId is always required (pkg/dynatrace/handler_healthcheck.go:142-144). Note the editor relabels the Environment ID field to 'URL' when apiType is 'url'.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "For SaaS Grail queries the platform token endpoint switches host from '.live.dynatrace.com' to '.apps.dynatrace.com' and drops the /api/ prefix automatically (pkg/dynatrace/client/rest.go:62-68) — configure only environmentId, not a separate Grail URL. In 'url' mode, environmentId must include the scheme (https://...); the backend concatenates '/api/<version>' onto it.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        },
+        {
+            "msg": "TLS options live in jsonData: tlsSkipVerify disables server certificate verification; tlsAuthWithCACert=true enables a custom CA and then requires secureJsonData.tlsCACert to be a valid PEM certificate (the backend rejects an empty or unparseable PEM with 'invalid TLS certificate' / 'failed to parse TLS CA PEM certificate', pkg/models/settings.go:64-77). jsonData.httpClientTimeout is the HTTP timeout in seconds and defaults to 30 when unset or <= 0 (pkg/models/settings.go:50-53).",
+            "tags": [
+                "llm",
+                "tls"
+            ]
+        }
+    ]
+}

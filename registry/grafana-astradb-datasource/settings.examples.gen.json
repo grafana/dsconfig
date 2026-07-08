@@ -1,0 +1,73 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Token authentication against DataStax Astra Cloud (authKind=0). Both jsonData.uri and secureJsonData.token (both empty here) must be filled in to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "authKind": 0
+        },
+        "secureJsonData": {
+          "token": ""
+        }
+      }
+    },
+    "credentialsSelfHostedPlaintext": {
+      "summary": "Credentials authentication (self-hosted Stargate, plaintext)",
+      "description": "Local/dev Stargate over plaintext: secure=false uses insecure gRPC credentials and http:// on the auth endpoint. Only appropriate for localhost or trusted networks.",
+      "value": {
+        "jsonData": {
+          "authEndpoint": "localhost:8081",
+          "authKind": 1,
+          "grpcEndpoint": "localhost:8090",
+          "secure": false,
+          "user": "cassandra"
+        },
+        "secureJsonData": {
+          "password": "cassandra"
+        }
+      }
+    },
+    "credentialsSelfHostedTLS": {
+      "summary": "Credentials authentication (self-hosted Stargate, TLS)",
+      "description": "Authenticate against a self-hosted Stargate deployment with basic-auth username/password. secure=true uses TLS on the gRPC channel and https:// on the auth endpoint.",
+      "value": {
+        "jsonData": {
+          "authEndpoint": "stargate.example.com:8081",
+          "authKind": 1,
+          "grpcEndpoint": "stargate.example.com:8090",
+          "secure": true,
+          "user": "cassandra"
+        },
+        "secureJsonData": {
+          "password": "cassandra"
+        }
+      }
+    },
+    "legacyMissingAuthKind": {
+      "summary": "Legacy: no authKind stored",
+      "description": "Datasources saved without authKind in jsonData are treated as Token mode (authKind=0) because the numeric zero value equals AuthKindToken. The editor mirrors this via `jsonData.authKind || Connection.TOKEN` (ConfigEditor.tsx:71).",
+      "value": {
+        "jsonData": {
+          "uri": "cluster-id-region.apps.astra.datastax.com:443"
+        },
+        "secureJsonData": {
+          "token": "AstraCS:XXXXXXXXXXXXXXXXXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+      }
+    },
+    "tokenAstraCloud": {
+      "summary": "Token authentication (DataStax Astra Cloud)",
+      "description": "Authenticate against DataStax Astra Cloud with an application token (starts with AstraCS:). The URI is the Astra gRPC host:port; the backend always uses TLS in this mode.",
+      "value": {
+        "jsonData": {
+          "authKind": 0,
+          "uri": "cluster-id-region.apps.astra.datastax.com:443"
+        },
+        "secureJsonData": {
+          "token": "AstraCS:XXXXXXXXXXXXXXXXXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+      }
+    }
+  }
+}

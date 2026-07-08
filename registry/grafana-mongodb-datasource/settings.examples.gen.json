@@ -1,0 +1,90 @@
+{
+  "examples": {
+    "": {
+      "summary": "Default configuration",
+      "description": "The defaults a new datasource starts with: Credentials (basic auth). The user must still supply jsonData.connection, the root basicAuthUser, and secureJsonData.basicAuthPassword to get a working datasource.",
+      "value": {
+        "jsonData": {
+          "authType": "BasicAuth"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": ""
+        }
+      }
+    },
+    "credentials": {
+      "summary": "Credentials (basic auth)",
+      "description": "Username/password authentication. The username is stored at the ROOT basicAuthUser field (not jsonData); the password is written to secureJsonData.basicAuthPassword. The backend injects them into the connection string as user:password@.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana_reader",
+        "jsonData": {
+          "authType": "BasicAuth",
+          "connection": "mongodb://mongodb.example.com:27017/mydb"
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "\u003cyour-password\u003e"
+        }
+      }
+    },
+    "kerberos": {
+      "summary": "Kerberos (GSSAPI)",
+      "description": "Kerberos authentication. The connection string must include authMechanism=GSSAPI and jsonData.kerberosUser must be set for Kerberos to activate. Provide secureJsonData.kerberosPassword, or a keytab/ccache file path in jsonData. Requires a custom plugin build; not available on Grafana Cloud.",
+      "value": {
+        "jsonData": {
+          "authType": "custom-Kerberos",
+          "connection": "mongodb://mongodb.example.com:27017/?authMechanism=GSSAPI",
+          "kerberosUser": "hello@EXAMPLE.COM"
+        },
+        "secureJsonData": {
+          "kerberosPassword": "\u003ckerberos-password\u003e"
+        }
+      }
+    },
+    "legacyCredentials": {
+      "summary": "Legacy: username/password in jsonData",
+      "description": "Datasources created before v1.9.0 stored the username in jsonData.user and the password in secureJsonData.password. The backend migrates them to the basic-auth username/password and enables basic auth. New configurations should use the root basicAuthUser + secureJsonData.basicAuthPassword instead.",
+      "value": {
+        "jsonData": {
+          "connection": "mongodb://mongodb.example.com:27017/mydb",
+          "user": "grafana_reader"
+        },
+        "secureJsonData": {
+          "password": "\u003cyour-password\u003e"
+        }
+      }
+    },
+    "noAuth": {
+      "summary": "No authentication",
+      "description": "Connects without authentication. No secrets are required; secureJsonData is intentionally empty for this method.",
+      "value": {
+        "jsonData": {
+          "authType": "NoAuth",
+          "connection": "mongodb://mongodb.example.com:27017/mydb"
+        },
+        "secureJsonData": {}
+      }
+    },
+    "tlsClientAuth": {
+      "summary": "TLS client-certificate auth (provisioning)",
+      "description": "TLS is configured through provisioning only. jsonData.tlsAuth supplies a client certificate + key; jsonData.tlsAuthWithCACert verifies the server against a custom CA. Populate the PEM material in secureJsonData; add secureJsonData.tlsCertificateKeyFilePassword if the client key is encrypted.",
+      "value": {
+        "basicAuth": true,
+        "basicAuthUser": "grafana_reader",
+        "jsonData": {
+          "authType": "BasicAuth",
+          "connection": "mongodb://mongodb.example.com:27017/?tls=true",
+          "serverName": "mongodb.example.com",
+          "tlsAuth": true,
+          "tlsAuthWithCACert": true
+        },
+        "secureJsonData": {
+          "basicAuthPassword": "\u003cyour-password\u003e",
+          "tlsCACert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+          "tlsClientCert": "-----BEGIN CERTIFICATE-----\n\u003credacted\u003e\n-----END CERTIFICATE-----",
+          "tlsClientKey": "-----BEGIN PRIVATE KEY-----\n\u003credacted\u003e\n-----END PRIVATE KEY-----"
+        }
+      }
+    }
+  }
+}

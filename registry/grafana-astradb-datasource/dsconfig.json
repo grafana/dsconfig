@@ -1,0 +1,234 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "schemaVersion": "v1",
+    "pluginType": "grafana-astradb-datasource",
+    "pluginName": "AstraDB",
+    "docURL": "https://grafana.com/grafana/plugins/grafana-astradb-datasource/",
+    "fields": [
+        {
+            "id": "jsonData_authKind",
+            "key": "authKind",
+            "label": "Authentication",
+            "valueType": "number",
+            "target": "jsonData",
+            "role": "auth.discriminator",
+            "defaultValue": 0,
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        0,
+                        1
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "radio",
+                "options": [
+                    {
+                        "label": "Token",
+                        "value": 0
+                    },
+                    {
+                        "label": "Credentials",
+                        "value": 1
+                    }
+                ]
+            }
+        },
+        {
+            "id": "jsonData_uri",
+            "key": "uri",
+            "label": "URI",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "dependsOn": "jsonData_authKind == 0",
+            "requiredWhen": "jsonData_authKind == 0",
+            "ui": {
+                "component": "input",
+                "placeholder": "$ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443"
+            }
+        },
+        {
+            "id": "secureJsonData_token",
+            "key": "token",
+            "label": "Token",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.bearer.token",
+            "dependsOn": "jsonData_authKind == 0",
+            "requiredWhen": "jsonData_authKind == 0",
+            "ui": {
+                "component": "input",
+                "placeholder": "AstraCS:xxxxx"
+            }
+        },
+        {
+            "id": "jsonData_grpcEndpoint",
+            "key": "grpcEndpoint",
+            "label": "GRPC Endpoint",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "endpoint.baseUrl",
+            "dependsOn": "jsonData_authKind == 1",
+            "requiredWhen": "jsonData_authKind == 1",
+            "ui": {
+                "component": "input",
+                "placeholder": "localhost:8090"
+            }
+        },
+        {
+            "id": "jsonData_authEndpoint",
+            "key": "authEndpoint",
+            "label": "Auth Endpoint",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "jsonData_authKind == 1",
+            "requiredWhen": "jsonData_authKind == 1",
+            "ui": {
+                "component": "input",
+                "placeholder": "localhost:8081"
+            }
+        },
+        {
+            "id": "jsonData_user",
+            "key": "user",
+            "label": "User Name",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "auth.basic.username",
+            "dependsOn": "jsonData_authKind == 1",
+            "requiredWhen": "jsonData_authKind == 1",
+            "ui": {
+                "component": "input",
+                "placeholder": "localhost:8090"
+            }
+        },
+        {
+            "id": "secureJsonData_password",
+            "key": "password",
+            "label": "Password",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "dependsOn": "jsonData_authKind == 1",
+            "requiredWhen": "jsonData_authKind == 1",
+            "ui": {
+                "component": "input",
+                "placeholder": "xxxxx"
+            }
+        },
+        {
+            "id": "jsonData_secure",
+            "key": "secure",
+            "label": "Secure",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "jsonData_authKind == 1",
+            "ui": {
+                "component": "checkbox"
+            }
+        }
+    ],
+    "groups": [
+        {
+            "id": "connection",
+            "title": "Connection",
+            "order": 1,
+            "fieldRefs": [
+                "jsonData_uri",
+                "jsonData_grpcEndpoint",
+                "jsonData_authEndpoint",
+                "jsonData_secure"
+            ]
+        },
+        {
+            "id": "authentication",
+            "title": "Authentication",
+            "order": 2,
+            "fieldRefs": [
+                "jsonData_authKind",
+                "secureJsonData_token",
+                "jsonData_user",
+                "secureJsonData_password"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_uri",
+                "secureJsonData_token"
+            ],
+            "description": "Astra Cloud connection: gRPC URI and application token used together in Token auth mode"
+        },
+        {
+            "type": "group",
+            "fields": [
+                "jsonData_grpcEndpoint",
+                "jsonData_authEndpoint",
+                "jsonData_user",
+                "secureJsonData_password",
+                "jsonData_secure"
+            ],
+            "description": "Self-hosted Stargate connection: gRPC endpoint, table-based auth endpoint, username, password, and TLS toggle used together in Credentials auth mode"
+        },
+        {
+            "type": "pair",
+            "fields": [
+                "jsonData_user",
+                "secureJsonData_password"
+            ],
+            "description": "Basic-auth username/password pair posted to the Stargate table-based auth endpoint"
+        }
+    ],
+    "instructions": [
+        {
+            "msg": "Two authentication modes are available, selected via jsonData.authKind: 0 = 'Token' (default; DataStax Astra Cloud) and 1 = 'Credentials' (self-hosted Stargate). authKind is a JSON number, not a string. Only the fields for the selected mode are read by the backend; the other mode's values are ignored but not cleared when switching.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Token authentication (Astra Cloud), set jsonData.authKind to 0, put the Astra gRPC URI in jsonData.uri (e.g. $ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443), and put the Astra application token in secureJsonData.token. Minimal payload: {\"jsonData\":{\"authKind\":0,\"uri\":\"<cluster-id>-<region>.apps.astra.datastax.com:443\"},\"secureJsonData\":{\"token\":\"AstraCS:<token>\"}}. Both values are mandatory: CheckHealth returns 'Invalid AstraDB URL' or 'Invalid AstraDB Token' if either is empty.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "To configure Credentials authentication (self-hosted Stargate), set jsonData.authKind to 1, provide jsonData.grpcEndpoint (Stargate gRPC listener, host:port), jsonData.authEndpoint (Stargate REST auth listener, host:port), jsonData.user, jsonData.secure (boolean; true = TLS/https, false = plaintext/http), and put the password in secureJsonData.password. Minimal payload: {\"jsonData\":{\"authKind\":1,\"grpcEndpoint\":\"stargate:8090\",\"authEndpoint\":\"stargate:8081\",\"user\":\"cassandra\",\"secure\":true},\"secureJsonData\":{\"password\":\"<password>\"}}. When secure=true the backend calls https://<authEndpoint>/v1/auth; when false it calls http://<authEndpoint>/v1/auth. All four jsonData fields plus the password are required — CheckHealth fails with a specific 'GRPC Endpoint Required' / 'Auth Endpoint Required' / 'User Name Required' / 'Password Required' message when any is empty.",
+            "tags": [
+                "llm",
+                "auth"
+            ]
+        },
+        {
+            "msg": "Legacy interpretation: authKind is a JSON number (0 or 1) — not a string. Old datasources that stored no authKind at all effectively read as 0 (Token) because the frontend uses `jsonData.authKind || Connection.TOKEN` (which resolves to 0), and the backend struct AuthType (uint8) zero-values to AuthTypeToken. Do not assume a missing authKind means the datasource is unconfigured; treat it as Token mode and validate uri + token.",
+            "tags": [
+                "llm",
+                "auth",
+                "legacy"
+            ]
+        },
+        {
+            "msg": "secureJsonData values (token, password) are write-only: they can be set or reset but never read back. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.token == true) instead of secureJsonData. Note the editor sets secureJsonFields.token=false while the SecretFormField is being edited — a temporary state that clears on save.",
+            "tags": [
+                "llm",
+                "auth",
+                "secure"
+            ]
+        },
+        {
+            "msg": "Connection endpoints are raw host:port strings, not URLs — do not prefix them with http:// or https://. jsonData.uri is passed directly to grpc.NewClient with TLS enabled. jsonData.grpcEndpoint is passed to grpc.NewClient (TLS only when jsonData.secure=true). jsonData.authEndpoint has scheme prepended by the backend as fmt.Sprintf('https://%s/v1/auth', authEndpoint) or 'http://...' depending on jsonData.secure. A stray scheme prefix produces an invalid URL like https://https://host/v1/auth.",
+            "tags": [
+                "llm",
+                "connection"
+            ]
+        }
+    ]
+}

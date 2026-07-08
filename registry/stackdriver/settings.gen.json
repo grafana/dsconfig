@@ -1,0 +1,82 @@
+{
+  "spec": {
+    "type": "object",
+    "properties": {
+      "jsonData": {
+        "type": "object",
+        "properties": {
+          "authenticationType": {
+            "type": "string",
+            "default": "jwt",
+            "enum": [
+              "jwt",
+              "gce",
+              "workloadIdentityFederation",
+              "forwardOAuthIdentity"
+            ]
+          },
+          "clientEmail": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
+          },
+          "defaultProject": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce' || jsonData_authenticationType == 'workloadIdentityFederation' || jsonData_authenticationType == 'forwardOAuthIdentity'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'forwardOAuthIdentity' || jsonData_authenticationType == 'workloadIdentityFederation'"
+          },
+          "gceDefaultProject": {
+            "description": "Frontend-managed cache of the GCE metadata server's default project ID, populated at runtime by ensureGCEDefaultProject (src/datasource.ts:186-191) via the /gceDefaultProject resource endpoint. The backend never reads this key — it always calls utils.GCEDefaultProject fresh for GCE auth (pkg/cloudmonitoring/cloudmonitoring.go:666-675). Do not populate this in provisioning payloads; leave it empty and let the frontend fill it in.",
+            "type": "string"
+          },
+          "oauthPassThru": {
+            "description": "Automatically set to true when authenticationType is 'forwardOAuthIdentity' or 'workloadIdentityFederation'; otherwise false. Written by AuthConfig.tsx:73-74 as a side-effect of the auth-type radio, not by a direct UI toggle.",
+            "type": "boolean",
+            "default": false
+          },
+          "privateKeyPath": {
+            "description": "Paste private key or provide path to private key file",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'"
+          },
+          "serviceAccountToImpersonate": {
+            "type": "string",
+            "x-dsconfig-depends-on": "(jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce') \u0026\u0026 jsonData_usingImpersonation == true"
+          },
+          "tokenUri": {
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
+          },
+          "universeDomain": {
+            "description": "Optional Google Cloud universe domain (Trusted Partner Cloud / Trusted Cloud by S3NS). Empty string is treated as 'googleapis.com' by the backend (pkg/cloudmonitoring/httpclient.go:79-83). Only rendered in the editor when the Grafana instance has secureSocksDSProxyEnabled set (ConfigEditor.tsx:78) — provisioning can set it regardless of that flag.",
+            "type": "string"
+          },
+          "usingImpersonation": {
+            "description": "Read more about service account impersonation here: https://cloud.google.com/iam/docs/service-account-impersonation",
+            "type": "boolean",
+            "default": false,
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce'"
+          },
+          "wifServiceAccountEmail": {
+            "description": "Optional. If set, the federated identity impersonates this service account when calling Google APIs.",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'workloadIdentityFederation'"
+          },
+          "workloadIdentityPoolProvider": {
+            "description": "Full resource name of the workload identity pool provider (e.g. projects/123/locations/global/workloadIdentityPools/my-pool/providers/my-provider)",
+            "type": "string",
+            "x-dsconfig-depends-on": "jsonData_authenticationType == 'workloadIdentityFederation'",
+            "x-dsconfig-required-when": "jsonData_authenticationType == 'workloadIdentityFederation'"
+          }
+        }
+      }
+    }
+  },
+  "secureValues": [
+    {
+      "key": "privateKey",
+      "description": "Paste private key or provide path to private key file"
+    }
+  ]
+}
