@@ -11,7 +11,7 @@ Reads a completed o11y-bench job directory and writes, into --out-dir:
 It reuses o11y-bench's own parsing (reporting.compare_report.load_job) so the
 numbers match run_report.html exactly. It is executed with o11y-bench's Python
 environment (see run.sh), and adds the o11y-bench repo root to sys.path so the
-`reporting` package is importable.
+`reporting` package is importable
 """
 
 import argparse
