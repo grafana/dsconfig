@@ -301,6 +301,42 @@ func TestJSONDataTypesMatchStruct(t *testing.T) {
 		require.False(t, runCapture(func(tt *testing.T) { JSONDataTypesMatchStruct(tt, p) }))
 	})
 
+	t.Run("pointer field matches underlying kind", func(t *testing.T) {
+		p := validParams()
+		// A *int64 field is nullable but marshals as a JSON number, so a
+		// "number" schema declaration must match the pointed-to kind rather
+		// than reflect.Ptr.
+		p.SettingsJSONModel = struct {
+			SeriesLimit *int64 `json:"seriesLimit"`
+		}{}
+		p.DSConfigSchema.Fields = []dsconfig.ConfigField{
+			{
+				ID:        "seriesLimit",
+				Key:       "seriesLimit",
+				ValueType: dsconfig.NumberType,
+				Target:    targetPtr(dsconfig.JSONDataTarget),
+			},
+		}
+		require.False(t, runCapture(func(tt *testing.T) { JSONDataTypesMatchStruct(tt, p) }))
+	})
+
+	t.Run("pointer field type mismatch still fails", func(t *testing.T) {
+		p := validParams()
+		// A *int64 declared as string must still be reported as a mismatch.
+		p.SettingsJSONModel = struct {
+			SeriesLimit *int64 `json:"seriesLimit"`
+		}{}
+		p.DSConfigSchema.Fields = []dsconfig.ConfigField{
+			{
+				ID:        "seriesLimit",
+				Key:       "seriesLimit",
+				ValueType: dsconfig.StringType,
+				Target:    targetPtr(dsconfig.JSONDataTarget),
+			},
+		}
+		require.True(t, runCapture(func(tt *testing.T) { JSONDataTypesMatchStruct(tt, p) }))
+	})
+
 	t.Run("type mismatch fails", func(t *testing.T) {
 		p := validParams()
 		// Declare path as number while the struct field is a string.
@@ -502,5 +538,31 @@ func TestValueTypesForKind(t *testing.T) {
 
 	for _, c := range cases {
 		require.Equal(t, c.want, valueTypesForKind(c.kind), "kind %s", c.kind)
+	}
+}
+
+// ----------------------------------------------------------------------------
+// derefKind
+// ----------------------------------------------------------------------------
+
+func TestDerefKind(t *testing.T) {
+	var i64 int64
+	var pInt *int64
+	var ppInt **int64
+	var s string
+
+	cases := []struct {
+		name string
+		typ  reflect.Type
+		want reflect.Kind
+	}{
+		{"non-pointer", reflect.TypeOf(i64), reflect.Int64},
+		{"single pointer", reflect.TypeOf(pInt), reflect.Int64},
+		{"double pointer", reflect.TypeOf(ppInt), reflect.Int64},
+		{"string", reflect.TypeOf(s), reflect.String},
+	}
+
+	for _, c := range cases {
+		require.Equal(t, c.want, derefKind(c.typ), c.name)
 	}
 }
