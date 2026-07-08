@@ -358,7 +358,7 @@ func jsonTagFields(t reflect.Type, prefix string, sections map[string]bool) map[
 		}
 
 		fields[path] = fieldInfo{
-			kind:       field.Type.Kind(),
+			kind:       derefKind(field.Type),
 			customJSON: implementsJSONMarshaler(field.Type),
 		}
 	}
@@ -382,6 +382,16 @@ func implementsJSONMarshaler(t reflect.Type) bool {
 		return reflect.PtrTo(t).Implements(jsonMarshalerType)
 	}
 	return false
+}
+
+// derefKind returns the reflect.Kind of t with pointer indirection removed. A
+// pointer is transparent to encoding/json (a *int64 marshals as a number or
+// null), so the JSON type is determined by the pointed-to kind, not reflect.Ptr.
+func derefKind(t reflect.Type) reflect.Kind {
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t.Kind()
 }
 
 // valueTypesForKind returns the dsconfig ValueTypes compatible with a given Go

@@ -14,7 +14,7 @@
     "additionalProperties": false,
     "properties": {
         "$schema": {
-            "const": "https://raw.githubusercontent.com/grafana/dsconfig/refs/heads/main/dsconfig/schema.json"
+            "type": "string"
         },
         "schemaVersion": {
             "type": "string",
