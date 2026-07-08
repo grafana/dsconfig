@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      LLMSpec Benchmark Report - 10d9855a-6515-45e6-8365-061c847e6c02
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
+    <style>
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      details > summary {
+        list-style: none;
+      }
+      details > summary::before {
+        content: "▶";
+        display: inline-block;
+        width: 1em;
+        margin-right: 0.5em;
+        color: #9ca3af;
+      }
+      details[open] > summary::before {
+        content: "▼";
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+    <div class="max-w-7xl mx-auto p-6">
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <h1 class="text-3xl font-bold">LLMSpec Benchmark Report</h1>
+          <span
+            class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800"
+            >failed</span
+          >
+        </div>
+      </div>
+
+      <div class="text-sm text-gray-600 space-y-1 mb-3">
+        <p>
+          <strong>Run ID:</strong>
+          <code class="bg-gray-200 px-2 py-0.5 rounded"
+            >10d9855a-6515-45e6-8365-061c847e6c02</code
+          >
+        </p>
+
+        <p>
+          <strong>Agent:</strong> grafana_assistant
+          <span
+            class="px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-700"
+            >f66e747b4f3f4953</span
+          >
+        </p>
+        <p><strong>Benchmark Started at:</strong> 2026-07-07 18:39:05</p>
+        <p><strong>Report Generated at:</strong> 2026-07-07 19:29:52</p>
+      </div>
+
+      <div
+        class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 mb-3"
+      >
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-2 text-xs text-gray-600"
+        >
+          <div>
+            <span class="text-gray-400">Agent model</span>
+            <div class="font-medium text-gray-700">
+              claude-sonnet-4-6
+              <span
+                class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-100 text-orange-700 border border-orange-200"
+                >Thinking medium</span
+              >
+            </div>
+          </div>
+          <div>
+            <span class="text-gray-400">Tool model</span>
+            <div class="font-medium text-gray-700">
+              claude-haiku-4-5-20251001
+            </div>
+          </div>
+          <div>
+            <span class="text-gray-400">Verifier model</span>
+            <div class="font-medium text-gray-700">
+              claude-haiku-4-5-20251001
+            </div>
+          </div>
+          <div>
+            <span class="text-gray-400">Harness</span>
+            <div class="font-medium text-gray-700">frontend</div>
+          </div>
+          <div>
+            <span class="text-gray-400">Environment</span>
+            <div class="font-medium text-gray-700">
+              local <span class="text-green-600">controlled</span>
+            </div>
+          </div>
+          <div>
+            <span class="text-gray-400">Git</span>
+            <div class="font-medium text-gray-700 truncate">
+              jck/dsconfig-benchmarking
+              <code class="bg-gray-100 px-1 rounded">05aa97a6</code>
+              <span class="text-yellow-600">dirty</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div
+          class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 min-w-0"
+        >
+          <div class="text-sm text-gray-400">Pass^3</div>
+          <div class="mt-1 text-2xl font-bold text-red-600">0.0%</div>
+          <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-red-500" style="width: 0%"></div>
+          </div>
+          <div class="mt-1 text-sm text-gray-500">0/21 tasks</div>
+        </div>
+        <div
+          class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 min-w-0"
+        >
+          <div class="text-sm text-gray-400">Pass@3</div>
+          <div class="mt-1 text-2xl font-bold text-red-600">4.8%</div>
+          <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-red-500"
+              style="width: 4.761904761904762%"
+            ></div>
+          </div>
+          <div class="mt-1 text-sm text-gray-500">1/21 tasks</div>
+        </div>
+        <div
+          class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 min-w-0"
+        >
+          <div class="text-sm text-gray-400">Executions</div>
+          <div class="mt-1 flex items-baseline gap-2">
+            <span class="text-2xl font-bold text-gray-900">63</span>
+            <span class="text-sm text-gray-500">executions</span>
+          </div>
+          <div class="mt-3 text-sm text-gray-500">
+            <span class="text-green-600">2 passed</span> /
+            <span class="text-red-600">7 failed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+          <div class="flex items-baseline justify-between gap-3 mb-2">
+            <div class="text-sm font-semibold text-gray-700">
+              Cost &#43; Tokens
+            </div>
+            <div class="text-sm font-semibold text-gray-500 tabular-nums">
+              $0.94 · 1.8m tok
+            </div>
+          </div>
+          <div class="flex h-2 overflow-hidden rounded-full bg-gray-100">
+            <div
+              class="bg-blue-500"
+              style="width: 87.96%"
+              title="Agent: $0.82 · 1.7m tok"
+            ></div>
+
+            <div
+              class="bg-orange-400"
+              style="width: 7.75%"
+              title="Thinking (est.): $0.07 · 4.8k tok"
+            ></div>
+
+            <div
+              class="bg-gray-500"
+              style="width: 4.29%"
+              title="Verifier: $0.04 · 25.8k tok"
+            ></div>
+          </div>
+          <div class="mt-2 space-y-1.5">
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="h-2 w-2 rounded-full flex-none bg-blue-500"></span>
+                <span class="font-medium text-gray-700 truncate">Agent</span>
+              </div>
+              <div class="text-gray-500 tabular-nums text-right">
+                $0.82 · 1.7m tok
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span
+                  class="h-2 w-2 rounded-full flex-none bg-orange-400"
+                ></span>
+                <span class="font-medium text-gray-700 truncate"
+                  >Thinking (est.)</span
+                >
+              </div>
+              <div class="text-gray-500 tabular-nums text-right">
+                $0.07 · 4.8k tok
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="h-2 w-2 rounded-full flex-none bg-gray-500"></span>
+                <span class="font-medium text-gray-700 truncate">Verifier</span>
+              </div>
+              <div class="text-gray-500 tabular-nums text-right">
+                $0.04 · 25.8k tok
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+          <div class="flex items-baseline justify-between gap-3 mb-2">
+            <div class="text-sm font-semibold text-gray-700">Timing</div>
+            <div class="text-sm font-semibold text-gray-500 tabular-nums">
+              246.2m
+            </div>
+          </div>
+          <div class="flex h-2 overflow-hidden rounded-full bg-gray-100">
+            <div
+              class="bg-blue-500"
+              style="width: 1.55%"
+              title="Agent: 3.8m"
+            ></div>
+
+            <div
+              class="bg-green-500"
+              style="width: 1%"
+              title="Tool Execution: 23.0s"
+            ></div>
+
+            <div
+              class="bg-gray-300"
+              style="width: 98.29%"
+              title="Other: 242.0m"
+            ></div>
+          </div>
+          <div class="mt-2 space-y-1.5">
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="h-2 w-2 rounded-full flex-none bg-blue-500"></span>
+                <span class="font-medium text-gray-700 truncate">Agent</span>
+              </div>
+              <div class="text-gray-500 tabular-nums text-right">3.8m</div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span
+                  class="h-2 w-2 rounded-full flex-none bg-green-500"
+                ></span>
+                <span class="font-medium text-gray-700 truncate"
+                  >Tool Execution</span
+                >
+              </div>
+              <div class="text-gray-500 tabular-nums text-right">23.0s</div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="h-2 w-2 rounded-full flex-none bg-gray-300"></span>
+                <span class="font-medium text-gray-700 truncate">Other</span>
+              </div>
+              <div class="text-gray-500 tabular-nums text-right">242.0m</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 mb-4"
+      >
+        <div class="flex items-baseline justify-between gap-3 mb-2">
+          <div class="text-sm font-semibold text-gray-700">Tool Calls</div>
+          <div class="text-sm font-semibold text-gray-500 tabular-nums">
+            23 total
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm">
+          <span class="flex items-center gap-1.5"
+            ><span class="h-2 w-2 rounded-full flex-none bg-green-500"></span
+            ><span class="font-medium text-gray-700">23 successful</span></span
+          >
+          <span class="flex items-center gap-1.5"
+            ><span class="h-2 w-2 rounded-full flex-none bg-gray-300"></span
+            ><span class="font-medium text-gray-400">0 failed</span></span
+          >
+        </div>
+
+        <div class="mt-2 border-t border-gray-100 pt-2">
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1"
+          >
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span
+                  class="h-1.5 w-1.5 rounded-full flex-none bg-green-500"
+                ></span>
+                <span
+                  class="font-mono text-gray-700 truncate"
+                  title="manage_datasources"
+                  >manage_datasources</span
+                >
+              </div>
+              <span class="tabular-nums text-right flex-none"
+                ><span class="text-gray-500">14&times;</span></span
+              >
+            </div>
+
+            <div class="flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span
+                  class="h-1.5 w-1.5 rounded-full flex-none bg-green-500"
+                ></span>
+                <span
+                  class="font-mono text-gray-700 truncate"
+                  title="grafana_search"
+                  >grafana_search</span
+                >
+              </div>
+              <span class="tabular-nums text-right flex-none"
+                ><span class="text-gray-500">9&times;</span></span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+        <div class="px-5 py-3 border-b border-gray-200">
+          <h2 class="text-lg font-semibold">Scenarios (21)</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-bigquery"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-bigquery
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new BigQuery data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-clickhouse"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-clickhouse
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new ClickHouse data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-infinity"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-infinity
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a JSON/REST API source via Infinity
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >2/3 passed (1 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/2
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">24.5s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.03</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-influxdb"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-influxdb
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new InfluxDB data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/2
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.02</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-loki"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-loki
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new Loki data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.02</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-mysql"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-mysql
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new MySQL data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-postgres"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-postgres
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new PostgreSQL data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">3.6m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-prometheus"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-prometheus
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new Prometheus data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/add-tempo"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/add-tempo
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Connect a new Tempo data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.5m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.02</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/edit-clickhouse-protocol"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/edit-clickhouse-protocol
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Switch an existing ClickHouse data source from native to
+                    HTTP protocol
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/4
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.3m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.04</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/edit-influxdb-database"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/edit-influxdb-database
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Repoint an existing InfluxDB data source to a different
+                    database
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.6m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/edit-loki-derived-fields"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/edit-loki-derived-fields
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Add a trace-correlation derived field to an existing Loki
+                    data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">6.4m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.02</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/edit-postgres-enable-tls"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/edit-postgres-enable-tls
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Enable TLS on an existing PostgreSQL data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">3.6m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.0000</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/edit-prometheus-scrape-interval"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/edit-prometheus-scrape-interval
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Update the scrape interval on an existing Prometheus data
+                    source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">3.6m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.0000</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/edit-tempo-traces-to-logs"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/edit-tempo-traces-to-logs
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Configure trace-to-logs on an existing Tempo data source
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >behavior</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-yellow-600 font-medium"
+                    >0/3 passed (3 errors)</span
+                  >
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">3.6m</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.0000</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/explain-bigquery-auth"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/explain-bigquery-auth
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Explain BigQuery authentication options
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >learn</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">24.5s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/explain-clickhouse-protocol-choice"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/explain-clickhouse-protocol-choice
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Explain the ClickHouse protocol and port choices
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >learn</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">23.0s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/explain-infinity-config"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/explain-infinity-config
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Explain Infinity data source configuration
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >learn</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">24.9s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.02</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/explain-influxdb-query-language"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/explain-influxdb-query-language
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Explain the InfluxDB query language choice
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >learn</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">23.4s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/explain-postgres-tls-options"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/explain-postgres-tls-options
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Explain PostgreSQL TLS/SSL mode options
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >learn</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">24.9s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.01</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+
+          <details
+            class="scenario-row"
+            data-scenario="assistant/datasource-config/explain-prometheus-type-and-auth"
+          >
+            <summary
+              class="px-5 py-3 cursor-pointer hover:bg-gray-50 flex items-center justify-between list-none scenario-summary"
+            >
+              <div class="flex items-center gap-4 flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
+                  <div class="font-medium truncate">
+                    assistant/datasource-config/explain-prometheus-type-and-auth
+                  </div>
+                  <div class="text-sm text-gray-500 truncate">
+                    Explain the key Prometheus connection settings
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 flex-shrink-0">
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                  >learn</span
+                >
+
+                <div class="text-sm">
+                  <span class="text-red-600 font-medium">0/3 passed</span>
+                </div>
+
+                <div class="w-20 text-right">
+                  <div
+                    class="text-[9px] uppercase tracking-wide text-gray-400 leading-none"
+                  >
+                    Failed tool calls
+                  </div>
+                  <div
+                    class="text-xs font-medium tabular-nums leading-tight mt-0.5 text-green-600"
+                  >
+                    0/1
+                  </div>
+                </div>
+
+                <div class="text-sm text-gray-500 w-20 text-right">25.1s</div>
+                <div class="text-sm text-gray-500 w-16 text-right">$0.02</div>
+              </div>
+            </summary>
+            <div
+              class="px-5 py-3 bg-gray-50 border-t border-gray-100"
+              data-scenario-detail
+            ></div>
+          </details>
+        </div>
+      </div>
+
+      <div class="text-center text-sm text-gray-500 mt-1">
+        <p>Generated by LLMSpec CLI</p>
+      </div>
+    </div>
+
+    <script>
+      const scenarioDetailsCompressed = {
+        "assistant/datasource-config/add-bigquery":
+          "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",
+        "assistant/datasource-config/add-clickhouse":
+          "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",
+        "assistant/datasource-config/add-infinity":
+          "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",
+        "assistant/datasource-config/add-influxdb":
+          "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",
+        "assistant/datasource-config/add-loki":
+          "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",
+        "assistant/datasource-config/add-mysql":
+          "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",
+        "assistant/datasource-config/add-postgres":
+          "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",
+        "assistant/datasource-config/add-prometheus":
+          "H4sIAAAAAAAA/+xZX4vjOBJ/709RZI+mm205cpx0J+7uwDLMwsLBLUwP93Aci2JXHF3LkpHk/IH7Xvd+n+yQbCdO4qSnuWF2YNIP7siSSqWqX9WvZF1VfwBXAE8pX0IimDHPvXxGhlCQCGYZ0ZiSEYWZ0inq+p9/OaAUtCpliilYXFti8t70CmBf1FxJS3JMeZlXo9zUMaWQz0jYm/7KtbHwUWul46d+ype1hEJjI2E764HS3nSulbQoUyi0ygsLupQwZ1xgGkPBMgxwyUTJLMa1VPjV94JVwJIECwsWdW5iGNEIPqFe8gThs2RLxgWbCfTrMwtODtz4Z91yUuEmHkxoHNHbO7gW9pFJJTe5Ks11Zh/jcTx4uG0EMLORScegKLyPI/rULzS6zW53fXXghNqmldUyzTbkvjLbsDGzKZjcuky7978sM/hksTAx0CB66rsRZwe/KCXgAxPii2bUpmxP2hu1U3XkfEX7YS3wvFyw3Ap87v0mi9KCVa8oDSgJdoEw9wBhGUoLCRMiBrMxFvPG/z+DddqkOOeSW66kgZ/rSaVBDTkawzK8gxnOlUZgclPN0GhKYU3Qm35kGWpIHK7WNoZxeD+kToud0rWPzgfKasEtbiNiP168TUJnk6MA8TZbGzgKlLbLw97UG91ZwLTjpCUo0zwF9yCJEoaEYPJ41xyAyFrNCDJWkDUZ+v8bt4AX6Hd4FMMC18At5oYkKC1q+FdpLJ9vyAztClF6IRHUW9mKekuKmzWAnEuyIrQ16wAjCxIGI1j5Z21eMi+FACeRSCXRmT/TiLLCXRttHfIqSyupWnZ+oBSsLmXCLG7xmDPJMvwjZZYZVeoETW96/O5wtZZ7jpa2bFYKpoksc1OnQ54t7G4nvem5gAqvLc/RPHZE1cG6V3tvTuYYU7AEyYZEtfWPQHUK18V2ynuhks/I4H0IOY2MYk0GUGwI3SEDuuJplpENCqFWLgarEXXbMVHK9Gu8GzJpXrXHDZz50RHKG+Bqlj/w3IAO7gl9IPQBwkk8GMd0+BZuOnLEgdCWDhSMS/t3QH12M3fwFxpQSmm3+F1COxHyuXWWJYNWBXBg4LYPfxy2Pg60fRseNhvLomVcmLZ1e6AKbLvflHnO9OaszyEptVGaFIr7+FioJep4L431ph+UXKI2zLHhU78W2w2s3JKwcXPDUUeR1CSJ/UDs/nmE2n+EtFj/s7WLIaVQFgXqhBkEq1nyymVGVjxFz3QNZc72uNMVm4XnwU8JSqa5Al8tHATNl6hVCDJsZAu39Xo9USKJDsKqkzlaHO0neaN/Nugq2MPcsKdFV6rYue0TWigLYCBxBb9rlaNdYGnAUQ1UXAPe71xmDrELa4u43y+2I4NcSW6V5jILzDKJJ3RCA/g7Xv8UTR41uuCTbu6SSS4Ea60RvKl425YnTX6YYirQnyksfJZ5K7m9+HowBgpcQh8oqNJeHa19kgRdTF4dLVo73R4WaFCcVGkbB1WtdFwMevpyjBUGo64S/WSF15u+8JzLLD4qk6d/swvUMBgFoTkqRwGumjx+dbD3C49/Ex6nNKb3PwKP/66MheufouFjnXWESphYKGPjiNKwr0vpe+PmGAUpslRwiYDrBNGtd/NBcJQ2eOE5qtLuOlYLLhDYinGf2hbIUtTm9sK5F869cG4H/OHCud+Ac0Ma0PzCud8Z547jaBKPRl+Vc8OGc8M25w6/35NzV9+WTf2n0j9sRbLP9652oLm5kOmFTC9k2gH/0yb/FlBp8+IpvPzi7z4+rjEpq4D4WoApSl2I90OmnuZd7nX7/1DTNfn0N3DIhbPJv/0dlInh+HP8jSpQ+9TxnGhkFu9Ashyfd2C5A7sp8LlovSi1eP4iON6+sdevha3vyJPt9bllgifQRrvPwB7MRUsj0fxQmsmsVu3YrXVvVY8tuHxtVWRnrxZfFljd762YtAasAnMm+1TQCOA3MAtVitRN9beLx/CpLgetggo8wG0Af0ULOYJBppMFzJUGu2C2GlldNRouEzfWZyoDDFKco9b+Q7YSwfa+5gAc74+M7+2AMAgn4+qMMIiGe6cE6MN9dA8JSxYIK80ttrsexmPadGpk6ZmjxNvF3J98f7zd195FMtyEplrytnWn/Gccmb7Seemzs0PHcaniJ1cyR/Df/8A4DB5e3VZdo4lpuEFjg9vqY1ZEXdeADjov2b/VKa9SexSMjNOmOvNN3n/kq1v/CwAA///7eRTqSiMAAA==",
+        "assistant/datasource-config/add-tempo":
+          "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",
+        "assistant/datasource-config/edit-clickhouse-protocol":
+          "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",
+        "assistant/datasource-config/edit-influxdb-database":
+          "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",
+        "assistant/datasource-config/edit-loki-derived-fields":
+          "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",
+        "assistant/datasource-config/edit-postgres-enable-tls":
+          "H4sIAAAAAAAA/+xXXW/rNgx9z68gsuGiBapEdpJ+uF2AodgFBlxgG5L7NOxBsVlHqywJEp2Pfz/IsRPHSW+3hw0Dmj4kkUVS1OEhj9vb/QH0AJ4yuYJUCe9/6BcLNgbLRrDImcOMTTgsjMvQ1V/Vw5hzcKbUGWZAuCHmi/60B3Ac6sVoYgVmsix2VsH1nnMoFizqTz9L5wl+cs645GmYyVUdwTpsIuy97jjvT1+c0YQ6A+tMYQlcqeFFSIVZAlbkOMCVUKUgTOqo8LnaBTIg0hQtAaErfAITPoIZupVMEb5qsRJSiYXC6nxBEOLAVfVZr0JUuEriB56M+PUNfFL0KLTR28KU/lNOj8l9Et9dNwGE3+r0jNEouk1G/GloHYbL7m/d6xShxnSHWu7Elt3uYBs3MHsr9L5kLjz/cZXDjND6BPiAPw2DxTeN58YoeBZKnXo0H3WCZzL0VqTItmzUb3m0DRY5Wy8l4Z4nNYvs3qVDFoUbkISFZylqQgd/lp7ky5YtkNaIOlw/3ru+55wLe2TdQcFuWAx2y/hgckzkjYc2bRc526JSZs0izncW9TrwOBPuNTmYPDSP2nZxYC4GOrYBPpNSc/yh5pPgGvP4lvE7xu8gekji+2R02w3Uap4uMG8EbeXAwQfS3AAHMkb5G/ieDzjn/Hz4AyP2Ve/MDwrIsrg1PzoAt2v4cXr9BMkOht1lgyySkMq30e2Dsdguvy+LQrjtN2sOaem8ccwaWfXH0qzQJQeTCvRno1fovCBp9NOwDnueWAWxqClzFSDqSsLGQzMkjhvx/M8T1v4ecbv5o3WLMedQWosuFR6BnEhfpc7ZWmZYKUojUIvmR+UVpMpWejNLUQsnDfysbUmdpvk7aVnFxk1sFa5en6dKZKNOW3Wa+0QKK6cK9K8eg/51Z8NRFudGxaFsM0xLJ2kLa6HJgykd/Go85Q5nv32BTJAAb0qXYmgOT8ZCarTGlKTOYS1paUqC+ZfZAOYyXxJqkASlHbybVBunN+Hsjo8doafvTJD3BtfcvKIOwgVSwxA4mJJ6J2ef7bv6q9c7ObQuKB0RKBDbvpnSnuNRldzp+1QlTUGNosHknHifMKOR+/50Lgup8+REyqe/0BIdxJMB94fNw8tEM6N7nbtfNPo/0eiIJzG/aPRFoy8afdHoi0Z/dI0eXzT6/6bR98mEJ/xD/B8dhgx8+m40flwS2WQ4VCYVamk8JSPOo6ErdbWbhHkTXCFDkSmpEXCTIobzrp6VRE2DuSwwjKH9xnopFYJYC1mNqSWKDJ2/vujpRU8venrR039BTyM+4MU/1NN69VcAAAD//+bj+XbxGAAA",
+        "assistant/datasource-config/edit-prometheus-scrape-interval":
+          "H4sIAAAAAAAA/+xXTW/jNhO++1cM/L4IEiC0KdnOh5IaKIIu0NMukORU9EBLE5kNRRLkyB//vqAs2bLsbNpDiwKrHGxTnBkOn3lmHmWw+wMYADxmcgWpEt7/NCwWbAqWTWCRM4cZm3FYGJehq7+qhzHn4EypM8yAcEPMF8P5AOA41JvRxArMZFnsrILrHedQLFg0nH+RzhP84pxxyeM4k6s6gnXYRNh73XI+nL85owl1BtaZwhK4UsObkAqzBKzIcYQroUpBmNRR4Uu1C2RApClaAkJX+ARmfALP6FYyRXjVYiWkEguF1fmCIMSBy+qzXoWocJnE9zyZ8KtruFD0ILTR28KU/iKnh+QuiW+vmgDCb3V6xmgS3SQT/ji2DsNl97cedIpQY7pDLXdiy252sE0bmL0Vel8yF57/vMrhmdD6BPiIP46DxXeNX4xR8CSUOvVoPuoEz2TorUiRbdlk2PJoGyxytl5Kwj1PahbZvUuHLAo3IAkLz1LUhA7+KD3Jty1bIK0Rdbh+vHf9zDkX9si6g4LdsBjslvHR7JjIGw9t2i5ytkWlzJpFnO8s6nXgcSbce3IwuW8ete3iwFwMdGwDfCal5vhDzWfBNebxDeO3jN9CdJ/Ed8nkphuo1TxdYD4I2sqBgw+kuQYOZIzy1/B/PuKc8/PhD4zYV70zPyggy+LW/OgA3K7hj9PrJ0h2MOwuG2SRhFS+je4QjMV2+X1ZFMJtv1tzSEvnjWPWyKo/lmaFLjmYVKA/Gb1C5wVJox/HddjzxCqIRU2ZqwBRVxI2HpohcdyI53+esPa3iNvN761bTDmH0lp0qfAI5ET6LnXO1jLDSlEagVo0PyqvIFW20pvnFLVw0sCv2pbUaZq/kpZVbNrEVuHq9XmqRDbptFWnuU+ksHKqQH/1GPSvOxuOsjg3Kg5l+1o6+OZMgbTE0kMmSIA3pUsRPEmlQHhfFuhBwIR78KkTFqHiwUqoa1iUBGuEwqx2/RPNGiM/glebhX6QNPo0xzZsH6LbnSY7fs8/GSifzbEX84466BhIDWPgYEoanJx9tg3rr8Hg5NC6vnTEp8Bz+2FKe8pHVXKnr1eVUgVxikazc1p+QpRG/YfzF1lInScnyj7/Skt0EM9GkT9sHt4tmpE96Ny9l+x/RbIjnsS8l+xesnvJ7iW7l+xeso8ke9pL9n9Nsu+SGU/4D/Ff9jfjCS7+N5k+LIlsMh4rkwq1NJ6SCefR2JW62k0gDdq+IchQZEpqBNykiOG8yyclUdPoRRZoSjpsrJdSIYi1kCR1DksUGTp/1ctrL6+9vPby+s/La8RHvPib8lqv/gwAAP//vvzu4h4ZAAA=",
+        "assistant/datasource-config/edit-tempo-traces-to-logs":
+          "H4sIAAAAAAAA/+xXXWvrOBO+z68Y8r6UFipHtpN+qN3AUvbAwsIutOdq2QvFnjo6lSUhyfn494scO3Gc9HQXlmWh7kUSWTOj0TPPzOOOdn8AI4DHXKwgk9y5H8blgkzBkBQWBbGYkxmFhbY52uarfphQClZXKsccPG48ceV4PgI4DvWqlScl5qIqd1bB9Y5SKBckHs+/COs8/GSttuxxkotVE8FYbCPsvW4pHc9frVYeVQ7G6tJ4sJWCVy4k5gwMLzDCFZcV98iaqPCl3gWvgWcZGg8ebekYzGgKz2hXIkP4qviKC8kXEuvzuYcQBy7rz2YVosIlS+4pS+nVNVxI/8CVVttSV+6i8A/sjiW3V20A7rYqO2OUxjcspY8TYzFcdn/rUa8IDaY71ArLt+RmB9u0hdkZrvYls+H5j6sCnj0ax4BG9HESLL5r/KK1hCcu5alH+9EkeCZDZ3iGZEvScceja7AoyHopPO550rDI7F16ZJG4AeGxdCRD5dHCt8p58bolC/RrRBWun+xdP3IuuDmy7qFgNiQBsyU0mh0TeeOgS9tFQbYopV6TmNKdRbMOPM65fWMHk/v2UdcuCczFQMcuwGdSao8/1HwWXBOa3BB6S+gtxPcsuWPpTT9Qp3n6wLwTtJMDBRdIcw0UvNbSXcP/aUQppefDHxixr3pvfviALEk686MHcLeGn6fXT5DsYdhftsii50K6Lrpj0Aa75XdVWXK7/W7NIaus05YYLer+WOoVWnYwqUF/0mqF1nEvtHqcNGHPE6v0JG7LXAeI+5KwcdAOieNGPP/zhLW/x9Rs/ujcYkopVMagzbhD8JZnb0IVZC1yrBWlFahF+6P2ClJlar15zlBxKzT8rEzle03zV9Iykkzb2DJcvTlPVkjSXlv1mvtECmunGvSvDoP+9WfDURbnRsVR2V5FUVkEXVl4wdJoyLnn4HRlMwSnIZOiRgs41IG+VaVxoVf8EsGi5B5zkLpwIBT8ot9E9GFGXZDexbI/O3Zsnn8wPj6aWi/6DVVQrZDtBCjoyo9Ozj7bdM3XaHRyaFNNf8SewGrzbkp7gsd1cqcvU7UuBSmKo9k55T6hRav14/mLKIUq2ImOz3/1S7SQzKLYHTYPbxLtgB717j4I9L8i0DFlSTwI9CDQg0APAj0I9CcW6Gl0Owj0f02g79iMMvop/oP+TTsPF/9Lpw9L7w2bTKTOuFxq51lKaTyxlap3GWRByTcecuS5FAoBNxliOO/ySQpUPnoRJerKHzbWSyER+JoLH4bWEnmO1l0NYjqI6SCm+8Ugpv+QmMY0ouXfFNNm9WcAAAD//waznMroGAAA",
+        "assistant/datasource-config/explain-bigquery-auth":
+          "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",
+        "assistant/datasource-config/explain-clickhouse-protocol-choice":
+          "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",
+        "assistant/datasource-config/explain-infinity-config":
+          "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",
+        "assistant/datasource-config/explain-influxdb-query-language":
+          "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",
+        "assistant/datasource-config/explain-postgres-tls-options":
+          "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",
+        "assistant/datasource-config/explain-prometheus-type-and-auth":
+          "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",
+      };
+
+      async function inflateBase64(b64) {
+        if (typeof DecompressionStream === "undefined") {
+          throw new Error("DecompressionStream not supported in this browser");
+        }
+        const binary = atob(b64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        const stream = new Response(bytes).body.pipeThrough(
+          new DecompressionStream("gzip"),
+        );
+        return await new Response(stream).text();
+      }
+
+      async function renderScenarioDetails(detailsEl, scenarioId) {
+        if (!detailsEl || detailsEl.dataset.rendered === "true") {
+          return;
+        }
+        const payload = scenarioDetailsCompressed[scenarioId];
+        if (!payload) {
+          detailsEl.innerHTML =
+            '<div class="text-xs text-gray-400">No details available</div>';
+          detailsEl.dataset.rendered = "true";
+          return;
+        }
+        try {
+          detailsEl.innerHTML = await inflateBase64(payload);
+          detailsEl.dataset.rendered = "true";
+        } catch (err) {
+          detailsEl.innerHTML =
+            '<div class="text-xs text-red-600">Unable to decode details in this browser.</div>';
+        }
+      }
+
+      document.querySelectorAll("details[data-scenario]").forEach((details) => {
+        details.addEventListener("toggle", () => {
+          if (!details.open) {
+            return;
+          }
+          const container = details.querySelector("[data-scenario-detail]");
+          renderScenarioDetails(container, details.dataset.scenario);
+        });
+      });
+
+      document.querySelectorAll(".scenario-row-tr").forEach((row) => {
+        const scenarioId = row.dataset.scenario;
+        const detailRow = document.querySelector(
+          '[data-scenario-detail-for="' + scenarioId + '"]',
+        );
+        if (!detailRow) return;
+
+        row.querySelectorAll(".scenario-toggle").forEach((cell) => {
+          cell.addEventListener("click", () => {
+            const isHidden = detailRow.classList.contains("hidden");
+            detailRow.classList.toggle("hidden");
+            const chevron = row.querySelector(".scenario-chevron");
+            if (chevron) {
+              chevron.textContent = isHidden ? "▼" : "▶";
+            }
+            if (isHidden) {
+              const container = detailRow.querySelector(
+                "[data-scenario-detail]",
+              );
+              renderScenarioDetails(container, scenarioId);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
