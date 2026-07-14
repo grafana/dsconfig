@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.10/dsconfig/schema.json",
+    "$schema": "https://raw.githubusercontent.com/grafana/dsconfig/refs/tags/dsconfig/v0.0.12/dsconfig/schema.json",
     "schemaVersion": "v1",
     "pluginType": "grafana-clickhouse-datasource",
     "pluginName": "ClickHouse",
@@ -28,9 +28,20 @@
             "target": "jsonData",
             "role": "endpoint.port",
             "required": true,
+            "defaultValue": 9000,
+            "help": {
+                "markdown": "ClickHouse supports two server protocols: Native TCP and HTTP. Both protocols can be secured with TLS. <br/>[Native TCP](https://clickhouse.com/docs/interfaces/tcp) is the default and recommended option.<br/>[HTTP](https://clickhouse.com/docs/interfaces/http) is for servers configured to accept HTTP connections."
+            },
             "ui": {
                 "component": "input"
-            }
+            },
+            "overrides": [
+                {
+                    "when": "jsonData_protocol == 'http'",
+                    "defaultValue": 8123,
+                    "tooltip": "ClickHouse server port (default for HTTP: 8123)"
+                }
+            ]
         },
         {
             "id": "jsonData_protocol",
