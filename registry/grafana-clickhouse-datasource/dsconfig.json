@@ -1065,7 +1065,9 @@
                 "jsonData_port",
                 "jsonData_protocol",
                 "jsonData_secure",
-                "jsonData_path"
+                "jsonData_path",
+                "jsonData_httpHeaders",
+                "jsonData_forwardGrafanaHeaders"
             ]
         },
         {
@@ -1100,19 +1102,9 @@
             ]
         },
         {
-            "id": "http-headers",
-            "title": "HTTP Headers",
-            "order": 5,
-            "optional": true,
-            "fieldRefs": [
-                "jsonData_httpHeaders",
-                "jsonData_forwardGrafanaHeaders"
-            ]
-        },
-        {
             "id": "default-db-table",
             "title": "Default DB and table",
-            "order": 6,
+            "order": 5,
             "optional": true,
             "fieldRefs": [
                 "jsonData_defaultDatabase",
@@ -1122,7 +1114,7 @@
         {
             "id": "query-settings",
             "title": "Query settings",
-            "order": 7,
+            "order": 6,
             "optional": true,
             "fieldRefs": [
                 "jsonData_dialTimeout",
@@ -1137,7 +1129,7 @@
         {
             "id": "logs-config",
             "title": "Logs configuration",
-            "order": 8,
+            "order": 7,
             "optional": true,
             "fieldRefs": [
                 "jsonData_logs_defaultDatabase",
@@ -1156,7 +1148,7 @@
         {
             "id": "traces-config",
             "title": "Traces configuration",
-            "order": 9,
+            "order": 8,
             "optional": true,
             "fieldRefs": [
                 "jsonData_traces_defaultDatabase",
@@ -1189,7 +1181,7 @@
         {
             "id": "additional-settings",
             "title": "Additional settings",
-            "order": 10,
+            "order": 9,
             "optional": true,
             "fieldRefs": [
                 "jsonData_aliasTables",
