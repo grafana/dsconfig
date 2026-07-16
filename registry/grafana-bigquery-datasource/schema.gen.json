@@ -23,12 +23,12 @@
             },
             "clientEmail": {
               "type": "string",
-              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+              "x-dsconfig-depends-on": "virtual_jwtUpload == 'manual'",
               "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
             },
             "defaultProject": {
               "type": "string",
-              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce' || jsonData_authenticationType == 'workloadIdentityFederation'",
+              "x-dsconfig-depends-on": "virtual_jwtUpload == 'manual'",
               "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
             },
             "flatRateProject": {
@@ -43,7 +43,7 @@
             "privateKeyPath": {
               "description": "Paste private key or provide path to private file",
               "type": "string",
-              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'"
+              "x-dsconfig-depends-on": "virtual_jwtUpload == 'manual'"
             },
             "processingLocation": {
               "description": "Read more about processing location here: https://cloud.google.com/bigquery/docs/locations",
@@ -112,7 +112,7 @@
             },
             "tokenUri": {
               "type": "string",
-              "x-dsconfig-depends-on": "jsonData_authenticationType == 'jwt'",
+              "x-dsconfig-depends-on": "virtual_jwtUpload == 'manual'",
               "x-dsconfig-required-when": "jsonData_authenticationType == 'jwt' \u0026\u0026 jsonData_privateKeyPath == ''"
             },
             "usingImpersonation": {
