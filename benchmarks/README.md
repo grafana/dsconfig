@@ -4,8 +4,8 @@
 > (the `datasource_config` task category). It measures how well an LLM agent configures Grafana
 > data sources through the MCP `create_datasource` / `update_datasource` / etc. tools.
 >
-> A separate benchmark for **assistant flows** will be added later under its own directory/README.
-> Do not mix the two here.
+> The **assistant-flow** benchmark (Grafana Assistant configuring data sources via the
+> `manage_datasources` tool) lives under [`assistant/`](./assistant/). Do not mix the two here.
 
 ## What's in here
 
