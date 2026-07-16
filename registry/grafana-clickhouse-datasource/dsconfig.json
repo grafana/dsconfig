@@ -9,7 +9,7 @@
             "id": "jsonData_host",
             "key": "host",
             "label": "Server address",
-            "description": "ClickHouse host address",
+            "description": "Enter server address",
             "valueType": "string",
             "target": "jsonData",
             "role": "endpoint.domain",
@@ -37,9 +37,24 @@
             },
             "overrides": [
                 {
-                    "when": "jsonData_protocol == 'http'",
-                    "defaultValue": 8123,
-                    "tooltip": "ClickHouse server port (default for HTTP: 8123)"
+                    "when": "jsonData_protocol == 'native' && jsonData_secure != true",
+                    "description": "ClickHouse server port (default for Native: 9000).",
+                    "defaultValue": 9000
+                },
+                {
+                    "when": "jsonData_protocol == 'native' && jsonData_secure == true",
+                    "description": "ClickHouse server port (default for Native (secure): 9440).",
+                    "defaultValue": 9440
+                },
+                {
+                    "when": "jsonData_protocol == 'http' && jsonData_secure != true",
+                    "description": "ClickHouse server port (default for HTTP: 8123).",
+                    "defaultValue": 8123
+                },
+                {
+                    "when": "jsonData_protocol == 'http' && jsonData_secure == true",
+                    "description": "ClickHouse server port (default for HTTPS: 8443).",
+                    "defaultValue": 8443
                 }
             ]
         },
@@ -103,7 +118,7 @@
             "id": "jsonData_username",
             "key": "username",
             "label": "Username",
-            "description": "ClickHouse username",
+            "description": "We recommend configuring a read-only user.",
             "valueType": "string",
             "target": "jsonData",
             "role": "auth.basic.username",
@@ -245,6 +260,7 @@
             "description": "What kind of data does this table contain?",
             "valueType": "string",
             "target": "jsonData",
+            "defaultValue": "logs",
             "dependsOn": "jsonData_configMode == 'single-table'",
             "validations": [
                 {
@@ -1022,6 +1038,14 @@
             }
         },
         {
+            "id": "jsonData_rowLimit",
+            "key": "rowLimit",
+            "label": "Row Limit",
+            "description": "Row Limit",
+            "valueType": "number",
+            "target": "jsonData"
+        },
+        {
             "id": "jsonData_hideTableNameInAdhocFilters",
             "key": "hideTableNameInAdhocFilters",
             "label": "Hide table name in ad hoc filters",
@@ -1109,40 +1133,7 @@
             "order": 4,
             "fieldRefs": [
                 "jsonData_configMode",
-                "jsonData_signalType"
-            ]
-        },
-        {
-            "id": "default-db-table",
-            "title": "Default DB and table",
-            "order": 5,
-            "optional": true,
-            "fieldRefs": [
-                "jsonData_defaultDatabase",
-                "jsonData_defaultTable"
-            ]
-        },
-        {
-            "id": "query-settings",
-            "title": "Query settings",
-            "order": 6,
-            "optional": true,
-            "fieldRefs": [
-                "jsonData_dialTimeout",
-                "jsonData_queryTimeout",
-                "jsonData_connMaxLifetime",
-                "jsonData_maxIdleConns",
-                "jsonData_maxOpenConns",
-                "jsonData_validateSql",
-                "jsonData_enableMapKeysDiscovery"
-            ]
-        },
-        {
-            "id": "logs-config",
-            "title": "Logs configuration",
-            "order": 7,
-            "optional": true,
-            "fieldRefs": [
+                "jsonData_signalType",
                 "jsonData_logs_defaultDatabase",
                 "jsonData_logs_defaultTable",
                 "jsonData_logs_otelEnabled",
@@ -1153,15 +1144,7 @@
                 "jsonData_logs_messageColumn",
                 "jsonData_logs_selectContextColumns",
                 "jsonData_logs_contextColumns",
-                "jsonData_logs_showLogLinks"
-            ]
-        },
-        {
-            "id": "traces-config",
-            "title": "Traces configuration",
-            "order": 8,
-            "optional": true,
-            "fieldRefs": [
+                "jsonData_logs_showLogLinks",
                 "jsonData_traces_defaultDatabase",
                 "jsonData_traces_defaultTable",
                 "jsonData_traces_otelEnabled",
@@ -1190,9 +1173,34 @@
             ]
         },
         {
+            "id": "default-db-table",
+            "title": "Default DB and table",
+            "order": 5,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_defaultDatabase",
+                "jsonData_defaultTable"
+            ]
+        },
+        {
+            "id": "query-settings",
+            "title": "Query settings",
+            "order": 6,
+            "optional": true,
+            "fieldRefs": [
+                "jsonData_dialTimeout",
+                "jsonData_queryTimeout",
+                "jsonData_connMaxLifetime",
+                "jsonData_maxIdleConns",
+                "jsonData_maxOpenConns",
+                "jsonData_validateSql",
+                "jsonData_enableMapKeysDiscovery"
+            ]
+        },
+        {
             "id": "additional-settings",
             "title": "Additional settings",
-            "order": 9,
+            "order": 7,
             "optional": true,
             "fieldRefs": [
                 "jsonData_aliasTables",
@@ -1202,76 +1210,12 @@
             ]
         }
     ],
-    "relationships": [
-        {
-            "type": "group",
-            "fields": [
-                "secureJsonData_tlsClientCert",
-                "secureJsonData_tlsClientKey"
-            ],
-            "description": "TLS client key-pair — supplied together when jsonData.tlsAuth is enabled"
-        },
-        {
-            "type": "pair",
-            "fields": [
-                "jsonData_tlsAuthWithCACert",
-                "secureJsonData_tlsCACert"
-            ],
-            "description": "CA-cert verification toggle and the CA certificate PEM it enables"
-        },
-        {
-            "type": "pair",
-            "fields": [
-                "jsonData_configMode",
-                "jsonData_signalType"
-            ],
-            "description": "configMode='single-table' pins the datasource to one table; signalType then declares whether that table holds logs or traces"
-        }
-    ],
     "instructions": [
         {
             "msg": "Authentication is username + password over the ClickHouse native TCP protocol (port 9000 / 9440) or HTTP protocol (port 8123 / 8443). Minimal payload: {\"jsonData\":{\"host\":\"<host>\",\"port\":9000,\"protocol\":\"native\",\"secure\":false,\"username\":\"default\"},\"secureJsonData\":{\"password\":\"<password>\"}}. host and port are required — the backend hard-fails with 'invalid host' / 'invalid port' otherwise. protocol defaults to 'native' when unset; secure defaults to false. Grant the ClickHouse user only the SELECT privileges Grafana should query — the backend does not sandbox SQL, so any statement will run.",
             "tags": [
                 "llm",
                 "auth"
-            ]
-        },
-        {
-            "msg": "Port picker: when jsonData.secure is false use 9000 for native and 8123 for http; when secure is true use 9440 for native and 8443 for http. These are only the editor placeholders — jsonData.port must always be supplied explicitly. jsonData.path is an optional URL prefix for HTTP requests (ignored for native protocol).",
-            "tags": [
-                "llm",
-                "connection"
-            ]
-        },
-        {
-            "msg": "TLS: set jsonData.tlsAuth=true to use a client certificate (supply secureJsonData.tlsClientCert AND secureJsonData.tlsClientKey together); set jsonData.tlsAuthWithCACert=true to verify the server's TLS cert against a custom CA (supply secureJsonData.tlsCACert); set jsonData.tlsSkipVerify=true to disable certificate verification (development only). tlsAuth and tlsAuthWithCACert are independent switches — enable either, both, or neither. TLS toggles are independent of jsonData.secure: 'secure' picks the default port and enables the driver's TLS handshake, the tlsAuth* toggles configure certificate policy on top of that handshake.",
-            "tags": [
-                "llm",
-                "auth",
-                "tls"
-            ]
-        },
-        {
-            "msg": "secureJsonData values (password, tlsCACert, tlsClientCert, tlsClientKey, and per-header secureHttpHeaders.<Name>) are write-only: they can be set or reset but never read back. Custom HTTP headers stored as secure are written under keys of the form 'secureHttpHeaders.<Header Name>' in secureJsonData while the header's plaintext name/secure flag still lives in jsonData.httpHeaders — the schema exposes the value field in that array as an empty string when secure=true. To check whether a secret is already configured on an existing datasource, read the secureJsonFields object (e.g. secureJsonFields.password == true, secureJsonFields['secureHttpHeaders.X-API-Key'] == true) instead of secureJsonData.",
-            "tags": [
-                "llm",
-                "auth",
-                "secure"
-            ]
-        },
-        {
-            "msg": "Legacy v3 storage keys the backend still accepts (pkg/plugin/settings.go:87-88,160-168): jsonData.server (renamed to jsonData.host) and jsonData.timeout (renamed to jsonData.dialTimeout). The config editor's useConfigDefaults hook migrates them into jsonData on first render; the backend also mirrors them into settings.Host / settings.DialTimeout at load time. New configurations should write host and dialTimeout directly. Timeout-like knobs (dialTimeout, queryTimeout, connMaxLifetime, maxIdleConns, maxOpenConns) are stored as JSON strings — the backend also tolerates JSON numbers as a legacy shape.",
-            "tags": [
-                "llm",
-                "legacy"
-            ]
-        },
-        {
-            "msg": "OpenTelemetry integration: for each of the logs and traces schemas, set jsonData.logs.otelEnabled=true or jsonData.traces.otelEnabled=true and pick a version in jsonData.logs.otelVersion / jsonData.traces.otelVersion (\"latest\" or \"1.29.0\" today; see src/otel.ts) — every column-name field in that schema is then derived from the OTel column map at runtime and the editor disables the manual inputs. Default tables are otel_logs and otel_traces respectively; leave jsonData.traces.traceTimestampTableSuffix blank to inherit the OTel convention (_trace_id_ts). jsonData.configMode='single-table' plus jsonData.signalType='logs'|'traces' pins the datasource to one table and hides all other databases from the query builder.",
-            "tags": [
-                "llm",
-                "otel",
-                "settings"
             ]
         }
     ]

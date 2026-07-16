@@ -222,8 +222,9 @@ type Config struct {
 
 	CustomSettings []CustomSetting `json:"customSettings,omitempty"`
 
-	EnableRowLimit              bool `json:"enableRowLimit,omitempty"`
-	HideTableNameInAdhocFilters bool `json:"hideTableNameInAdhocFilters,omitempty"`
+	EnableRowLimit              bool  `json:"enableRowLimit,omitempty"`
+	RowLimit                    int64 `json:"rowLimit,omitempty"`
+	HideTableNameInAdhocFilters bool  `json:"hideTableNameInAdhocFilters,omitempty"`
 
 	// Frontend-only fields (stored in jsonData, never read by the backend).
 	ConfigMode ConfigMode `json:"configMode,omitempty"`

@@ -99,7 +99,7 @@
             "default": false
           },
           "host": {
-            "description": "ClickHouse host address",
+            "description": "Enter server address",
             "type": "string"
           },
           "httpHeaders": {
@@ -193,7 +193,8 @@
           },
           "port": {
             "description": "ClickHouse server port",
-            "type": "number"
+            "type": "number",
+            "default": 9000
           },
           "protocol": {
             "description": "Native or HTTP for server protocol",
@@ -209,6 +210,10 @@
             "type": "string",
             "default": "60"
           },
+          "rowLimit": {
+            "description": "Row Limit",
+            "type": "number"
+          },
           "schemaCacheTTLSeconds": {
             "description": "Controls how long schema-introspection results are considered fresh. Not exposed in the configuration editor; backend defaults it to 60 when unset or \u003c=0.",
             "type": "number",
@@ -222,6 +227,7 @@
           "signalType": {
             "description": "What kind of data does this table contain?",
             "type": "string",
+            "default": "logs",
             "enum": [
               "logs",
               "traces"
@@ -358,7 +364,7 @@
             }
           },
           "username": {
-            "description": "ClickHouse username",
+            "description": "We recommend configuring a read-only user.",
             "type": "string"
           },
           "validateSql": {
