@@ -22,6 +22,7 @@ import datetime
 import glob
 import json
 import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -47,18 +48,33 @@ def _model_display(model_id: str) -> str:
 
 
 def _exec_score(exec_dir: str, passed: bool) -> float:
-    """Mean assertion score for an execution (0-1).
+    """Weighted criterion quality for an execution (0-1).
 
-    If the run was never graded (no assertions.json), fall back to the binary
-    pass/fail so the number is still meaningful.
+    Mirrors LLMSpec's own metric (cmd/sigil-export/transform.go:buildScore and
+    llmspec-compare's executionCriteriaScore): value = Σ(score×weight) / Σ(weight)
+    over the `criteria_results` nested in each assertion. Weight defaults to 1.0;
+    a missing criterion score falls back to its `passed` flag. Only semantic
+    assertions carry criteria_results — simple tool/path assertions do not and
+    contribute nothing here. When no criteria exist at all, LLMSpec falls back to
+    the binary pass/fail from the execution status.
     """
+    weighted = 0.0
+    total = 0.0
     path = os.path.join(exec_dir, "verifier", "assertions.json")
-    if not os.path.exists(path):
-        return 1.0 if passed else 0.0
-    assertions = json.load(open(path))
-    if not assertions:
-        return 1.0 if passed else 0.0
-    return sum(a.get("score", 0) for a in assertions) / len(assertions)
+    if os.path.exists(path):
+        for assertion in json.load(open(path)):
+            for c in assertion.get("criteria_results") or []:
+                weight = c.get("weight")
+                if not isinstance(weight, (int, float)) or weight <= 0:
+                    weight = 1.0
+                score = c.get("score")
+                if score is None:
+                    score = 1.0 if c.get("passed") else 0.0
+                total += weight
+                weighted += score * weight
+    if total > 0:
+        return weighted / total
+    return 1.0 if passed else 0.0
 
 
 def _latest_job_dir(jobs_dir: Path) -> Path:
@@ -105,6 +121,18 @@ def build_summary(job_dir: Path) -> dict:
         steps.append(r.get("totalToolCalls", 0) or 0)
 
     tasks = sorted(scores)
+
+    # pass^k requires ALL k shots to pass, so a task with fewer than `shots`
+    # executions on disk (an errored/never-created trial) would be scored over a
+    # partial set and could be wrongly marked consistent. Flag rather than lie.
+    uneven = {t: len(passed[t]) for t in tasks if len(passed[t]) != shots}
+    if uneven:
+        print(
+            f"WARNING: {len(uneven)} task(s) have != {shots} executions; "
+            f"pass^{shots}/pass@{shots} for these are over a partial set: {uneven}",
+            file=sys.stderr,
+        )
+
     task_scores = {t: max(scores[t]) for t in tasks}
     task_passed = {t: any(passed[t]) for t in tasks}
     task_consistent = {t: all(passed[t]) for t in tasks}
