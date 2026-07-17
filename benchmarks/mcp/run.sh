@@ -10,10 +10,10 @@
 #
 # On start it prompts for which benchmark to run:
 #   1) mcp as is  — the current setup; updates RESULTS.md, latest.json, report.html
-#   2) no tools   — build the no-tools mcp-grafana; updates only the "no tools" column of RESULTS.md
-#   3) no schema  — (not implemented yet)
+#   2) no tools   — build the no-tools mcp-grafana; updates the "no tools" column + report_notools.html
+#   3) no schema  — build the no-schema mcp-grafana; updates the "no schema" column + report_noschema.html
 #   4) All        — (not implemented yet)
-# Set MODE=asis|notools to skip the prompt (e.g. for automation / SKIP_RUN reruns).
+# Set MODE=asis|notools|noschema to skip the prompt (e.g. for automation / SKIP_RUN reruns).
 #
 # Usage:
 #   ./run.sh                       # prompt for mode, then run + render, no git
@@ -22,11 +22,11 @@
 #   JOB_NAME=ds-v2 ./run.sh        # name the job dir (use a fresh name after editing task specs,
 #                                  # otherwise Harbor's lock rejects the changed task set)
 #   SKIP_RUN=1 ./run.sh            # skip the (slow, paid) bench run; just re-render latest job
-#   MODE=notools ./run.sh          # pick the no-tools mode non-interactively
+#   MODE=noschema ./run.sh         # pick the no-schema mode non-interactively
 #
 # Requirements: the o11y-bench repo checked out as a sibling (or set O11Y_BENCH_DIR),
-# the mcp-grafana repo checked out as a sibling (or set MCP_GRAFANA_DIR) for the no-tools mode,
-# Docker running, and model API keys exported (ANTHROPIC_API_KEY + provider key).
+# the mcp-grafana repo checked out as a sibling (or set MCP_GRAFANA_DIR) for the no-tools /
+# no-schema modes, Docker running, and model API keys exported (ANTHROPIC_API_KEY + provider key).
 
 set -euo pipefail
 
@@ -61,9 +61,9 @@ if [[ -z "$MODE" ]]; then
 fi
 
 case "$MODE" in
-  asis | notools) ;;
-  noschema | all)
-    echo "Mode '$MODE' is not implemented yet." >&2
+  asis | notools | noschema) ;;
+  all)
+    echo "Mode 'all' is not implemented yet." >&2
     exit 1
     ;;
   *)
@@ -72,19 +72,24 @@ case "$MODE" in
     ;;
 esac
 
-# no-tools: point the local checkouts at the no-tools mcp-grafana build. o11y-bench's
+# no-tools / no-schema: point the local checkouts at a custom mcp-grafana build. o11y-bench's
 # benchmarking/local-mcp-grafana branch builds mcp-grafana from this sibling checkout into its
 # Docker build context, so checking out the branches here is enough — the usual run below picks
-# up the no-tools build.
-if [[ "$MODE" == "notools" ]]; then
-  echo "==> no-tools: preparing local repos for a no-tools run"
+# up the custom build. Both modes share the o11y-bench branch and differ only in the mcp-grafana
+# branch.
+if [[ "$MODE" == "notools" || "$MODE" == "noschema" ]]; then
+  case "$MODE" in
+    notools)  MCP_BRANCH="benchmarking/no-tools" ;;
+    noschema) MCP_BRANCH="benchmarking/no-schema" ;;
+  esac
+  echo "==> $MODE: preparing local repos for a $MODE run"
   if [[ ! -d "$MCP_GRAFANA_DIR" ]]; then
     echo "mcp-grafana repo not found at: $MCP_GRAFANA_DIR" >&2
     echo "Set MCP_GRAFANA_DIR to its path and retry." >&2
     exit 1
   fi
-  echo "==> mcp-grafana: checkout benchmarking/no-tools && go build ./cmd/mcp-grafana"
-  ( cd "$MCP_GRAFANA_DIR" && git checkout benchmarking/no-tools && go build ./cmd/mcp-grafana )
+  echo "==> mcp-grafana: checkout $MCP_BRANCH && go build ./cmd/mcp-grafana"
+  ( cd "$MCP_GRAFANA_DIR" && git checkout "$MCP_BRANCH" && go build ./cmd/mcp-grafana )
   echo "==> o11y-bench: checkout benchmarking/local-mcp-grafana"
   ( cd "$O11Y_BENCH_DIR" && git checkout benchmarking/local-mcp-grafana )
 fi
