@@ -55,12 +55,12 @@ LLMSPEC_ARGS=(--agent="$AGENT" --scenarios="$SCENARIOS" --shots="$SHOTS" --repor
 [[ -n "${MODEL:-}" ]] && LLMSPEC_ARGS+=(--agent-model="$MODEL")
 mise run -C "$GA_APP_DIR" llmspec -- "${LLMSPEC_ARGS[@]}"
 
-# Copy the just-written job's structured result alongside the HTML report.
-LATEST_JOB="$(ls -dt "$GA_APP_DIR"/tools/llmspec/jobs/*/ 2>/dev/null | head -1 || true)"
-if [[ -n "$LATEST_JOB" && -f "${LATEST_JOB}result.json" ]]; then
-  cp "${LATEST_JOB}result.json" "$SCRIPT_DIR/latest.json"
-  echo "==> Wrote $SCRIPT_DIR/latest.json (job $(basename "$LATEST_JOB"))"
-fi
+# Render the just-run job into a slim, diffable latest.json (same schema as
+# benchmarks/mcp/latest.json). render.py picks the latest completed job.
+echo "==> Rendering latest.json"
+python3 "$SCRIPT_DIR/render.py" \
+  --jobs-dir "$GA_APP_DIR/tools/llmspec/jobs" \
+  --out-dir "$SCRIPT_DIR"
 
 if [[ "${PUBLISH:-0}" == "1" ]]; then
   echo "==> Publishing (commit + push)"
