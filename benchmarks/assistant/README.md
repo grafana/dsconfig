@@ -18,11 +18,14 @@ via `--report`, so the whole harness is essentially the single `mise run llmspec
 
 ## Prerequisites
 
-1. **The `grafana-assistant-app` repo checked out as a sibling** of this repo (i.e. `../../../grafana-assistant-app`
-   relative to this folder). Override with `GA_APP_DIR=/path/to/grafana-assistant-app` if it lives elsewhere.
-2. **Docker running** — LLMSpec spins up a Grafana + datasource stack with deterministic UIDs
-   (`prometheus`, `loki`, `tempo`, `mysql`, `postgres`, `clickhouse`, `bigquery`, `influxdb`, `infinity`).
-3. **`ANTHROPIC_API_KEY` exported** in your shell (used by the agent and the semantic grader).
+Shared prerequisites (sibling repo checkouts, Docker, `ANTHROPIC_API_KEY`) live in the
+[top-level benchmarks README](../README.md). Specific to this suite:
+
+1. **`grafana-assistant-app` checked out as a sibling** of this repo (`../../../grafana-assistant-app`
+   relative to this folder). Override with `GA_APP_DIR=/path/to/grafana-assistant-app`.
+2. LLMSpec's Docker stack brings up a Grafana + datasource stack with **deterministic UIDs**
+   (`prometheus`, `loki`, `tempo`, `mysql`, `postgres`, `clickhouse`, `bigquery`, `influxdb`, `infinity`)
+   that the scenarios assert against.
 
 ## Usage
 

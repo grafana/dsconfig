@@ -3,10 +3,17 @@
 
 Reads a completed o11y-bench job directory and writes, into --out-dir:
 
-  RESULTS.md    human-facing summary (renders natively on GitHub)
-  latest.json   slim structured metrics (diffable across runs)
-  report.html   the full o11y-bench HTML report, regenerated with --full-args
-                (untruncated tool-call arguments)
+  RESULTS.md    human-facing summary (renders natively on GitHub). The Summary
+                and Per-task tables have one column per run mode (mcp as is /
+                no tools / no schema). It carries a hidden BENCH_DATA JSON block
+                so each mode's numbers survive when another mode is re-rendered.
+  report*.html  the full o11y-bench HTML report, regenerated with --full-args
+                (untruncated tool-call arguments). Each mode writes its own file:
+                report.html (asis), report_notools.html, report_noschema.html.
+  latest.json   slim structured metrics (diffable across runs) — mcp-as-is only
+
+Every mode updates its own RESULTS.md column and its own report*.html. Only the
+"asis" mode additionally writes latest.json.
 
 It reuses o11y-bench's own parsing (reporting.compare_report.load_job) so the
 numbers match run_report.html exactly. It is executed with o11y-bench's Python
@@ -17,16 +24,123 @@ environment (see run.sh), and adds the o11y-bench repo root to sys.path so the
 import argparse
 import datetime
 import json
+import re
 import sys
 from pathlib import Path
+
+# (data key, human-facing column label), in display order.
+MODES = [("asis", "mcp as is"), ("notools", "no tools"), ("noschema", "no schema")]
+
+# HTML report filename written per mode.
+REPORT_NAMES = {
+    "asis": "report.html",
+    "notools": "report_notools.html",
+    "noschema": "report_noschema.html",
+}
+
+# Marker for the machine-readable per-mode data embedded in RESULTS.md.
+_DATA_RE = re.compile(r"<!-- BENCH_DATA\n(.*?)\n-->", re.S)
 
 
 def _pct(x: float) -> str:
     return f"{x * 100:.0f}%"
 
 
-def _yn(flag: bool) -> str:
-    return "✅" if flag else "—"
+def _read_embedded_data(results_path: Path) -> dict:
+    """Recover the per-mode data block previously embedded in RESULTS.md."""
+    if not results_path.exists():
+        return {}
+    match = _DATA_RE.search(results_path.read_text())
+    if not match:
+        return {}
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return {}
+
+
+def _build_markdown(data: dict) -> str:
+    """Render RESULTS.md from the per-mode data map ({mode: summary})."""
+    labels = [label for _, label in MODES]
+    # Representative shot count for the pass^k / pass@k labels: prefer as-is.
+    k = next((data[m]["shots_per_task"] for m, _ in MODES if m in data), 0)
+
+    def cell(mode: str, fn) -> str:
+        summary = data.get(mode)
+        return fn(summary) if summary else "—"
+
+    lines = ["# o11y-bench Results — Datasource Config", ""]
+
+    provenance = [
+        f"{label}: `{data[m]['job']}` ({data[m]['generated']})"
+        for m, label in MODES
+        if m in data
+    ]
+    if provenance:
+        lines += ["_Generated from o11y-bench jobs — " + "; ".join(provenance) + "._", ""]
+
+    lines += [
+        "Benchmark of an LLM agent on the `datasource_config` task category "
+        "(creating, editing, and explaining Grafana datasources via mcp-grafana tools).",
+        "",
+    ]
+    report_links = [
+        f"[{label}](./{REPORT_NAMES[m]})" for m, label in MODES if m in data
+    ]
+    if report_links:
+        lines += ["📊 Full HTML reports with transcripts — " + " · ".join(report_links), ""]
+
+    header = "| Metric | " + " | ".join(labels) + " |"
+    separator = "|" + "---|" * (len(labels) + 1)
+
+    summary_rows = [
+        ("Model", lambda s: s["model"]),
+        ("Tasks", lambda s: str(s["total_tasks"])),
+        (
+            f"pass^{k} (consistent)",
+            lambda s: f"{s['tasks_consistent']}/{s['total_tasks']} ({_pct(s['pass_hat_rate'])})",
+        ),
+        (
+            f"pass@{k} (any)",
+            lambda s: f"{s['tasks_passed']}/{s['total_tasks']} ({_pct(s['pass_rate'])})",
+        ),
+        ("Mean score", lambda s: _pct(s["mean_score"])),
+        ("Cost", lambda s: f"${s['total_cost']:.2f}"),
+        ("Steps/trial", lambda s: str(s["steps_per_trial"])),
+    ]
+
+    lines += ["## Summary", "", header, separator]
+    for name, fn in summary_rows:
+        cells = " | ".join(cell(m, fn) for m, _ in MODES)
+        lines.append(f"| {name} | {cells} |")
+    lines += [
+        "",
+        f"- **pass^{k}** — task passes only if *all* {k} attempts pass (strict consistency).",
+        f"- **pass@{k}** — task passes if *any* of {k} attempts pass.",
+        "- **Mean score** — average per-trial score (0–100%) across all trials.",
+        "",
+    ]
+
+    tasks = sorted(
+        {task for m, _ in MODES if m in data for task in data[m]["task_scores"]}
+    )
+    lines += ["## Per-task best score", "", "| Task | " + " | ".join(labels) + " |", separator]
+    for task in tasks:
+        def score_cell(mode: str, task: str = task) -> str:
+            summary = data.get(mode)
+            if not summary or task not in summary["task_scores"]:
+                return "—"
+            return _pct(summary["task_scores"][task])
+
+        cells = " | ".join(score_cell(m) for m, _ in MODES)
+        lines.append(f"| `{task}` | {cells} |")
+    lines += [
+        "",
+        f"> Per-task **best score** is the highest of the {k} attempts for that mode "
+        "(matches the HTML report).",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def _latest_job_dir(jobs_dir: Path) -> Path:
@@ -41,70 +155,6 @@ def _latest_job_dir(jobs_dir: Path) -> Path:
     return max(candidates, key=lambda d: d.stat().st_mtime)
 
 
-def _build_markdown(summary: dict, report_link: str | None) -> str:
-    k = summary["shots_per_task"]
-    tasks = sorted(summary["task_scores"])
-
-    lines = [
-        "# o11y-bench Results — Datasource Config",
-        "",
-        f"_Last updated: {summary['generated']} · generated from o11y-bench job "
-        f"`{summary['job']}`_",
-        "",
-        "Benchmark of an LLM agent on the `datasource_config` task category "
-        "(creating, editing, and explaining Grafana datasources via mcp-grafana tools).",
-        "",
-    ]
-    if report_link:
-        lines += [f"📊 [Full HTML report with transcripts]({report_link})", ""]
-
-    lines += [
-        "## Summary",
-        "",
-        f"| Model | Tasks | pass^{k} (consistent) | pass@{k} (any) | Mean score | Cost | Steps/trial |",
-        "|---|---|---|---|---|---|---|",
-        "| {model} | {total} | {cons}/{total} ({consp}) | {pass}/{total} ({passp}) | "
-        "{mean} | ${cost:.2f} | {steps} |".format(
-            model=summary["model"],
-            total=summary["total_tasks"],
-            cons=summary["tasks_consistent"],
-            consp=_pct(summary["pass_hat_rate"]),
-            **{"pass": summary["tasks_passed"]},
-            passp=_pct(summary["pass_rate"]),
-            mean=_pct(summary["mean_score"]),
-            cost=summary["total_cost"],
-            steps=summary["steps_per_trial"],
-        ),
-        "",
-        f"- **pass^{k}** — task passes only if *all* {k} attempts pass (strict consistency).",
-        f"- **pass@{k}** — task passes if *any* of {k} attempts pass.",
-        "- **Mean score** — average per-trial score (0–100%) across all trials.",
-        "",
-        "## Per-task results",
-        "",
-        f"| Task | Best score | pass@{k} | pass^{k} | Cost |",
-        "|---|---|---|---|---|",
-    ]
-    for task in tasks:
-        lines.append(
-            "| `{t}` | {best} | {atk} | {hatk} | ${cost:.2f} |".format(
-                t=task,
-                best=_pct(summary["task_scores"][task]),
-                atk=_yn(summary["task_passed"][task]),
-                hatk=_yn(summary["task_consistent"][task]),
-                cost=summary["task_cost"].get(task, 0.0),
-            )
-        )
-    lines += [
-        "",
-        "> Per-task **best score** is the highest of the "
-        f"{k} attempts (matches the HTML report). The summary **mean score** "
-        "averages every trial.",
-        "",
-    ]
-    return "\n".join(lines)
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Render o11y-bench results into this repo")
     parser.add_argument("--o11y-root", type=Path, required=True, help="Path to the o11y-bench repo")
@@ -114,6 +164,13 @@ def main() -> None:
         type=Path,
         default=None,
         help="Specific job dir (default: latest graded job under <o11y-root>/jobs)",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=[m for m, _ in MODES],
+        default="asis",
+        help="Which run this is. Only 'asis' writes latest.json + report.html; "
+        "every mode updates its own column in RESULTS.md (default: asis)",
     )
     args = parser.parse_args()
 
@@ -151,17 +208,45 @@ def main() -> None:
         "task_cost": job["task_cost"],
     }
 
-    # Regenerate the HTML report with untruncated tool-call arguments (--full-args).
-    report_path = out_dir / "report.html"
-    write_report(job_dir, output=report_path, full_args=True)
+    # Merge this mode's numbers into the per-mode data carried by RESULTS.md, then
+    # re-render the whole file (the other modes' columns are preserved).
+    results_path = out_dir / "RESULTS.md"
+    data = _read_embedded_data(results_path)
 
-    (out_dir / "latest.json").write_text(json.dumps(summary, indent=2))
-    (out_dir / "RESULTS.md").write_text(_build_markdown(summary, report_link="./report.html"))
+    # The job is chosen by mtime, so re-rendering a mode without a fresh run for it
+    # (e.g. SKIP_RUN=1 after a different mode's run) can pull another mode's job into
+    # this column. Warn if the chosen job is already recorded under a different mode.
+    clashes = sorted(
+        m for m, prev in data.items() if m != args.mode and prev.get("job") == job_dir.name
+    )
+    if clashes:
+        print(
+            f"WARNING: job '{job_dir.name}' is already recorded under mode(s) "
+            f"[{', '.join(clashes)}]; rendering it as '{args.mode}' attributes the same "
+            f"run to multiple modes. If you didn't just run a fresh '{args.mode}' "
+            f"benchmark, pass --job-dir (JOB_NAME in run.sh) to select the right job.",
+            file=sys.stderr,
+        )
+
+    data[args.mode] = summary
+    markdown = _build_markdown(data)
+    markdown += "\n<!-- BENCH_DATA\n" + json.dumps(data, indent=2) + "\n-->\n"
+    results_path.write_text(markdown)
+
+    # Every mode writes its own HTML report (regenerated with untruncated args).
+    report_path = out_dir / REPORT_NAMES[args.mode]
+    write_report(job_dir, output=report_path, full_args=True)
+    wrote = [str(results_path), str(report_path)]
+
+    # Only the as-is run owns latest.json.
+    if args.mode == "asis":
+        (out_dir / "latest.json").write_text(json.dumps(summary, indent=2))
+        wrote.append(str(out_dir / "latest.json"))
 
     print(f"Job:        {job_dir}")
-    print(f"Wrote:      {out_dir / 'RESULTS.md'}")
-    print(f"Wrote:      {out_dir / 'latest.json'}")
-    print(f"Wrote:      {report_path}")
+    print(f"Mode:       {args.mode}")
+    for path in wrote:
+        print(f"Wrote:      {path}")
     print(
         f"Summary:    pass^{summary['shots_per_task']} "
         f"{summary['tasks_consistent']}/{summary['total_tasks']} · "
