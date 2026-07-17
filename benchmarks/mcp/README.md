@@ -63,22 +63,23 @@ On start `run.sh` prompts for which benchmark to run (or set `MODE` to skip the 
 |---|---|---|---|---|
 | 1 | mcp as is | `asis` | ✅ | `report.html`, `RESULTS.md` (as-is column), `latest.json` |
 | 2 | no tools | `notools` | ✅ | `report_notools.html`, `RESULTS.md` (no-tools column) |
-| 3 | no schema | `noschema` | 🚧 not implemented | — |
+| 3 | no schema | `noschema` | ✅ | `report_noschema.html`, `RESULTS.md` (no-schema column) |
 | 4 | All | `all` | 🚧 not implemented | — |
 
 - **Only the "mcp as is" mode writes `latest.json`.** The other modes update just their own column
   in `RESULTS.md` (and their own `report*.html`); the untouched columns are preserved via a hidden
   data block embedded in `RESULTS.md`.
-- **no tools** prepares the local checkouts before running: it checks out `benchmarking/no-tools` in
-  `mcp-grafana` and `go build ./cmd/mcp-grafana`, then checks out `benchmarking/local-mcp-grafana` in
-  o11y-bench (which builds that mcp-grafana binary into its Docker image). The usual run then picks
-  up the no-tools MCP server.
+- **no tools** and **no schema** prepare the local checkouts before running: they check out the
+  matching mcp-grafana branch (`benchmarking/no-tools` / `benchmarking/no-schema`) and
+  `go build ./cmd/mcp-grafana`, then check out `benchmarking/local-mcp-grafana` in o11y-bench (which
+  builds that mcp-grafana binary into its Docker image). The usual run then picks up the custom MCP
+  server. Both modes share the same o11y-bench branch and differ only in the mcp-grafana branch.
 
 ### Environment variables
 
 | Var | Default | Notes |
 |---|---|---|
-| `MODE` | _(prompt)_ | `asis` / `notools` — skips the interactive prompt. (`noschema` / `all` not implemented yet.) |
+| `MODE` | _(prompt)_ | `asis` / `notools` / `noschema` — skips the interactive prompt. (`all` not implemented yet.) |
 | `MODEL` | `anthropic/claude-sonnet-4-6` | Model to benchmark (`provider/model`). |
 | `JOB_NAME` | _(unset)_ | Names the o11y-bench job dir. **Use a fresh name whenever the task specs changed** — otherwise Harbor's lock rejects the changed task set. When set, results render from exactly that job. |
 | `TASKS_PATH` | `tasks-spec/datasource_config` | Which o11y-bench task specs to run (relative to the o11y-bench repo). |
@@ -100,8 +101,9 @@ ANTHROPIC_API_KEY=... JOB_NAME=ds-v2 ./run.sh
 
 `run.sh` does the following:
 
-1. **Select mode** — prompts (or reads `MODE`). For **no tools** it first checks out the no-tools
-   mcp-grafana branch + builds the binary and the `benchmarking/local-mcp-grafana` o11y-bench branch.
+1. **Select mode** — prompts (or reads `MODE`). For **no tools** / **no schema** it first checks out
+   the matching mcp-grafana branch + builds the binary and the `benchmarking/local-mcp-grafana`
+   o11y-bench branch.
 2. **Run** — invokes `mise run bench:job` in the o11y-bench repo for `TASKS_PATH`
    (skipped if `SKIP_RUN=1`).
 3. **Render** — runs `render.py` under o11y-bench's Python environment (`uv run --project`), which
