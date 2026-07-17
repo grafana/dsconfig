@@ -17,6 +17,7 @@
 #   ./run.sh                       # env up + run, no git
 #   PUBLISH=1 ./run.sh             # also commit + push to the current branch
 #   SKIP_ENV=1 ./run.sh            # reuse an already-running stack
+#   SKIP_INSTALL=1 ./run.sh        # skip the assistant-app pnpm install
 #   SHOTS=1 ./run.sh               # single-shot instead of pass^3
 #   MODEL=claude-haiku-4-5-20251001 ./run.sh
 #
@@ -35,6 +36,12 @@ if [[ ! -d "$GA_APP_DIR" ]]; then
   echo "grafana-assistant-app repo not found at: $GA_APP_DIR" >&2
   echo "Set GA_APP_DIR to its path and retry." >&2
   exit 1
+fi
+
+# The run shells into grafana-assistant-app's prompt-generation step
+if [[ "${SKIP_INSTALL:-0}" != "1" ]]; then
+  echo "==> Ensuring $GA_APP_DIR dependencies are installed"
+  pnpm -C "$GA_APP_DIR" install
 fi
 
 if [[ "${SKIP_ENV:-0}" != "1" ]]; then
