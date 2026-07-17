@@ -22,7 +22,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-O11Y_BENCH_DIR="${O11Y_BENCH_DIR:-$(cd "$SCRIPT_DIR/../.." && pwd)/o11y-bench}"
+O11Y_BENCH_DIR="${O11Y_BENCH_DIR:-$(cd "$SCRIPT_DIR/../../.." && pwd)/o11y-bench}"
 MODEL="${MODEL:-anthropic/claude-sonnet-4-6}"
 TASKS_PATH="${TASKS_PATH:-tasks-spec/datasource_config}"
 N_CONCURRENT="${N_CONCURRENT:-2}"
