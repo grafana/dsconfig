@@ -2,3 +2,22 @@
 
 > [!WARNING]  
 > This is an experimental project and still under active development
+
+# Releasing a new dsconfig SDK version
+
+Go to https://github.com/grafana/dsconfig/tags to verify the latest version that has been published.
+
+
+From the root folder:
+
+Pull the latest changes into your local main branch
+
+`git checkout main && git pull`
+
+Bump the version you saw above
+
+`git tag dsconfig/v<x.x.x> && git tag schema/v<x.x.x>`
+
+Then push the tags:
+
+`git push --tags`
