@@ -95,7 +95,7 @@ Each mode checks out the branch(es) it needs in the sibling repos before running
 | `JOB_NAME` | _(unset)_ | Names the o11y-bench job dir. **Use a fresh name whenever the task specs changed** — otherwise Harbor's lock rejects the changed task set. When set, results render from exactly that job. In `all` mode each sub-run uses `<JOB_NAME>-<mode>`. |
 | `TASKS_PATH` | `tasks-spec/datasource_config` | Which o11y-bench task specs to run (relative to the o11y-bench repo). |
 | `N_CONCURRENT` | `2` | Concurrent trials. |
-| `SKIP_RUN` | `0` | `1` = skip the benchmark, just re-render the latest graded job (and skip the jobs-dir cleanup, so the job stays around to re-render). |
+| `SKIP_RUN` | `0` | `1` = skip the benchmark (and the jobs-dir wipe), just re-render the latest graded job still under `<o11y-bench>/jobs/`. |
 | `PUBLISH` | `0` | `1` = commit + push the generated files after rendering. |
 | `O11Y_BENCH_DIR` | `../../../o11y-bench` | Path to the o11y-bench repo. |
 | `MCP_GRAFANA_DIR` | `../../../mcp-grafana` | Path to the mcp-grafana repo (no-tools / no-schema modes). |
@@ -117,19 +117,20 @@ ANTHROPIC_API_KEY=... JOB_NAME=ds-v2 ./run.sh
 2. **Prepare repos** — checks out the branch(es) the mode needs (see [Run modes](#run-modes)):
    `asis` switches only o11y-bench (published mcp-grafana); `notools`/`noschema` also
    `go build ./cmd/mcp-grafana` from the local sibling.
-3. **Run** — invokes `mise run bench:job` in the o11y-bench repo for `TASKS_PATH`
+3. **Clear jobs** — wipes `<o11y-bench>/jobs/` (prior results are already captured in `RESULTS.md` +
+   `report*.html`). o11y-bench refuses to run when a job already exists, so this must happen
+   **before** the run. Skipped under `SKIP_RUN=1`.
+4. **Run** — invokes `mise run bench:job` in the o11y-bench repo for `TASKS_PATH`
    (skipped if `SKIP_RUN=1`).
-4. **Render** — runs `render.py` under o11y-bench's Python environment (`uv run --project`), which
+5. **Render** — runs `render.py` under o11y-bench's Python environment (`uv run --project`), which
    loads the job via o11y-bench's `reporting.compare_report.load_job` and writes the mode's column
    into `RESULTS.md`, the mode's `report*.html`, and — for `asis` only — `latest.json`.
-5. **Clean up** — clears `<o11y-bench>/jobs/` (results are already captured above) so the next run
-   doesn't collide with an existing job. Skipped under `SKIP_RUN=1`.
 6. **Publish** (optional, once) — `git add benchmarks && git commit && git push` when `PUBLISH=1`.
 
 By default `render.py` picks the most-recently-modified graded job under `<o11y-bench>/jobs/`;
-when `JOB_NAME` is set, `run.sh` points it at that specific job dir. Because the jobs dir is cleared
-after each real run, `SKIP_RUN=1` re-renders only work while a job is still present (e.g. right
-after a run that you didn't let clean up, or a job produced by running o11y-bench directly).
+when `JOB_NAME` is set, `run.sh` points it at that specific job dir. The jobs dir is cleared
+**before** each run (not after), so the most recent run's job survives afterward — `SKIP_RUN=1`
+re-renders it as long as you don't start another run first.
 
 ## Viewing the HTML reports
 
