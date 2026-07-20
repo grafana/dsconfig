@@ -18,6 +18,10 @@
 # notools/noschema build mcp-grafana from the local sibling, which o11y-bench's local-mcp-grafana
 # branch bakes into its Docker image. Repos are left on the last mode's branches (no restore).
 #
+# After each real run renders, o11y-bench's jobs/ dir is cleared — its results are already captured
+# in RESULTS.md + report*.html, and o11y-bench refuses new runs when a job already exists. (Skipped
+# under SKIP_RUN=1, which re-renders an existing job.)
+#
 # Usage:
 #   ./run.sh                       # prompt for mode, then run + render, no git
 #   MODE=all ./run.sh              # run every mode
@@ -127,6 +131,14 @@ run_one() {
   local render_args=(--o11y-root "$O11Y_BENCH_DIR" --out-dir "$SCRIPT_DIR" --mode "$mode")
   [[ -n "$job_name" ]] && render_args+=(--job-dir "$O11Y_BENCH_DIR/jobs/$job_name")
   uv run --project "$O11Y_BENCH_DIR" python "$SCRIPT_DIR/render.py" "${render_args[@]}"
+
+  # Clear o11y-bench's jobs dir now that results are captured in RESULTS.md + report*.html. It
+  # otherwise refuses new runs when a job already exists. Only after a real run (a SKIP_RUN
+  # re-render must keep the job it just read). The :? guard makes an empty path impossible.
+  if [[ "${SKIP_RUN:-0}" != "1" ]]; then
+    echo "==> Clearing o11y-bench jobs dir ($O11Y_BENCH_DIR/jobs)"
+    rm -rf "${O11Y_BENCH_DIR:?}/jobs/"*
+  fi
 }
 
 if [[ "$MODE" == "all" ]]; then
