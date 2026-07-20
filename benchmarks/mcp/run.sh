@@ -18,9 +18,9 @@
 # notools/noschema build mcp-grafana from the local sibling, which o11y-bench's local-mcp-grafana
 # branch bakes into its Docker image. Repos are left on the last mode's branches (no restore).
 #
-# After each real run renders, o11y-bench's jobs/ dir is cleared — its results are already captured
-# in RESULTS.md + report*.html, and o11y-bench refuses new runs when a job already exists. (Skipped
-# under SKIP_RUN=1, which re-renders an existing job.)
+# o11y-bench refuses new runs when a job already exists under its jobs/ dir, so run.sh wipes that
+# dir before each run. Prior results are already captured in RESULTS.md + report*.html. The last
+# run's job therefore survives afterward (handy for SKIP_RUN=1 re-renders). Skipped under SKIP_RUN.
 #
 # Usage:
 #   ./run.sh                       # prompt for mode, then run + render, no git
@@ -121,6 +121,14 @@ run_one() {
   [[ -n "$job_name" ]] && job_args+=(--job-name "$job_name")
 
   if [[ "${SKIP_RUN:-0}" != "1" ]]; then
+    # o11y-bench refuses to run when any job already exists under jobs/, so wipe it first. Prior
+    # results are already captured in RESULTS.md + report*.html by earlier renders. Remove the
+    # whole dir (catches hidden files/locks) and recreate it empty. The :? guard makes an empty
+    # path impossible (never "rm -rf /jobs").
+    echo "==> Clearing o11y-bench jobs dir ($O11Y_BENCH_DIR/jobs)"
+    rm -rf "${O11Y_BENCH_DIR:?}/jobs"
+    mkdir -p "$O11Y_BENCH_DIR/jobs"
+
     echo "==> Running o11y-bench ($MODEL) on $TASKS_PATH${job_name:+ as job '$job_name'} [$mode]"
     ( cd "$O11Y_BENCH_DIR" && mise run bench:job -- "${job_args[@]}" )
   else
@@ -129,16 +137,9 @@ run_one() {
 
   echo "==> Rendering $mode results into $SCRIPT_DIR"
   local render_args=(--o11y-root "$O11Y_BENCH_DIR" --out-dir "$SCRIPT_DIR" --mode "$mode")
+  [[ "${SKIP_RUN:-0}" != "1" ]] && render_args+=(--fresh-run)
   [[ -n "$job_name" ]] && render_args+=(--job-dir "$O11Y_BENCH_DIR/jobs/$job_name")
   uv run --project "$O11Y_BENCH_DIR" python "$SCRIPT_DIR/render.py" "${render_args[@]}"
-
-  # Clear o11y-bench's jobs dir now that results are captured in RESULTS.md + report*.html. It
-  # otherwise refuses new runs when a job already exists. Only after a real run (a SKIP_RUN
-  # re-render must keep the job it just read). The :? guard makes an empty path impossible.
-  if [[ "${SKIP_RUN:-0}" != "1" ]]; then
-    echo "==> Clearing o11y-bench jobs dir ($O11Y_BENCH_DIR/jobs)"
-    rm -rf "${O11Y_BENCH_DIR:?}/jobs/"*
-  fi
 }
 
 if [[ "$MODE" == "all" ]]; then
