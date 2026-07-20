@@ -172,6 +172,13 @@ def main() -> None:
         help="Which run this is. Only 'asis' writes latest.json + report.html; "
         "every mode updates its own column in RESULTS.md (default: asis)",
     )
+    parser.add_argument(
+        "--fresh-run",
+        action="store_true",
+        help="This render follows a fresh benchmark run, so the chosen job is authoritative for "
+        "--mode. Suppresses the job-reuse warning (o11y-bench auto-names jobs by model/config, so "
+        "different modes' fresh jobs legitimately share a name).",
+    )
     args = parser.parse_args()
 
     o11y_root = args.o11y_root.resolve()
@@ -215,11 +222,13 @@ def main() -> None:
 
     # The job is chosen by mtime, so re-rendering a mode without a fresh run for it
     # (e.g. SKIP_RUN=1 after a different mode's run) can pull another mode's job into
-    # this column. Warn if the chosen job is already recorded under a different mode.
+    # this column. Warn if the chosen job is already recorded under a different mode —
+    # but not after a fresh run, where the job is authoritative for this mode (and modes
+    # legitimately share an auto-generated job name).
     clashes = sorted(
         m for m, prev in data.items() if m != args.mode and prev.get("job") == job_dir.name
     )
-    if clashes:
+    if clashes and not args.fresh_run:
         print(
             f"WARNING: job '{job_dir.name}' is already recorded under mode(s) "
             f"[{', '.join(clashes)}]; rendering it as '{args.mode}' attributes the same "
