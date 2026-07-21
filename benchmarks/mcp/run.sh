@@ -9,20 +9,18 @@
 #   4) All        — runs asis, then notools, then noschema (one render each), publishes once
 # Set MODE=asis|notools|noschema|all to skip the prompt (e.g. for automation / SKIP_RUN reruns).
 #
-# NOTE: only "mcp as is" currently works against o11y-bench-2.0. The port from o11y-bench 1.0
-# brought over just the datasource task specs (on the jck/dsconfig-spec branch); the no-tools /
-# no-schema infrastructure was NOT ported. Those modes need three branches that don't yet exist:
-#   o11y-bench-2.0: benchmarking/local-mcp-grafana   (bakes a local mcp-grafana build into Docker)
-#   mcp-grafana:    benchmarking/no-tools, benchmarking/no-schema
-# and 2.0 has no local mcp-grafana build hook (docker/Dockerfile downloads a published release).
-# Until those are recreated, notools/noschema exit with an error and All runs only asis.
-# TODO(port): restore notools/noschema for o11y-bench-2.0, then re-enable the guard below.
-#
-# The asis mode checks out the o11y-bench-2.0 baseline branch before running:
-#   mode   o11y-bench-2.0 branch
-#   asis   jck/dsconfig-spec   (temporary until the ds-config specs merge to 2.0 main — then "main")
-# asis uses the published mcp-grafana (baked into 2.0's Docker image), so it needs no mcp-grafana
-# checkout. The repo is left on the asis branch afterward (no restore).
+# Each mode checks out the branch(es) it needs in the sibling repos before running:
+#   mode      mcp-grafana                    o11y-bench-2.0 branch
+#   asis      (published, baked into Docker) jck/dsconfig-spec   (temporary; see below)
+#   notools   benchmarking/no-tools          benchmarking/local-mcp-grafana
+#   noschema  benchmarking/no-schema         benchmarking/local-mcp-grafana
+# asis uses the published mcp-grafana (2.0's Docker image downloads a pinned release), so it needs
+# no mcp-grafana checkout. notools/noschema check out an mcp-grafana branch in the sibling; that's
+# all run.sh does — o11y-bench-2.0's benchmarking/local-mcp-grafana branch has a preflight step
+# (scripts/harbor_preflight.sh, run automatically by `bench:job`) that `go build`s mcp-grafana from
+# its ../mcp-grafana sibling and bakes the binary into the sidecar Docker image. So the sibling
+# checkout must be that same directory (the default MCP_GRAFANA_DIR is o11y-bench-2.0's sibling).
+# Repos are left on the last mode's branches (no restore).
 #
 # o11y-bench-2.0 refuses new runs when a job already exists under its jobs/ dir, so run.sh wipes
 # that dir before each run. Prior results are already captured in RESULTS.md + report*.html. The
@@ -30,16 +28,18 @@
 #
 # Usage:
 #   ./run.sh                       # prompt for mode, then run + render, no git
-#   MODE=asis ./run.sh             # run the (only currently-working) as-is mode
+#   MODE=all ./run.sh              # run every mode
 #   PUBLISH=1 ./run.sh             # also commit + push to the current branch
 #   MODEL=anthropic/claude-haiku-4-5-20251001 ./run.sh
 #   JOB_NAME=ds-v2 ./run.sh        # name the job dir (use a fresh name after editing task specs,
 #                                  # otherwise Harbor's lock rejects the changed task set).
+#                                  # In All mode each sub-run uses "<JOB_NAME>-<mode>".
 #   SKIP_RUN=1 ./run.sh            # skip the (slow, paid) bench run; just re-render latest job
 #
-# Requirements: the o11y-bench-2.0 repo checked out as a sibling (or set O11Y_BENCH_DIR); Docker
-# running; and model API keys exported (ANTHROPIC_API_KEY + provider key). (mcp-grafana as a
-# sibling is only needed once the no-tools / no-schema modes are restored — see TODO above.)
+# Requirements: the o11y-bench-2.0 repo checked out as a sibling (or set O11Y_BENCH_DIR); the
+# mcp-grafana repo too (as o11y-bench-2.0's sibling, or set MCP_GRAFANA_DIR) for the no-tools /
+# no-schema modes; Docker running; a Go toolchain (preflight builds mcp-grafana for those modes);
+# and model API keys exported (ANTHROPIC_API_KEY + provider key).
 
 set -euo pipefail
 
@@ -85,22 +85,21 @@ case "$MODE" in
     ;;
 esac
 
-# no-tools / no-schema aren't ported to o11y-bench-2.0 yet (see header). Fail fast on a direct
-# selection; All is reduced to asis-only further down. Once the sibling branches are recreated and
-# a local mcp-grafana build hook exists, drop this guard and restore the mcp-grafana upfront check.
-# TODO(port): re-enable notools/noschema for o11y-bench-2.0.
-if [[ "$MODE" == "notools" || "$MODE" == "noschema" ]]; then
-  echo "MODE '$MODE' is not yet supported against o11y-bench-2.0." >&2
-  echo "It needs branches that weren't ported from o11y-bench 1.0:" >&2
-  echo "  o11y-bench-2.0: benchmarking/local-mcp-grafana" >&2
-  echo "  mcp-grafana:    benchmarking/$([[ "$MODE" == notools ]] && echo no-tools || echo no-schema)" >&2
-  echo "Recreate those branches (and a local mcp-grafana build hook) first — see run.sh header." >&2
+# mcp-grafana is only needed for the local-build modes (notools / noschema, and all, which runs
+# them). asis uses the published mcp-grafana baked into o11y-bench-2.0's Docker image. Check upfront
+# so an All run doesn't fail partway through.
+if [[ "$MODE" != "asis" && ! -d "$MCP_GRAFANA_DIR" ]]; then
+  echo "mcp-grafana repo not found at: $MCP_GRAFANA_DIR" >&2
+  echo "Set MCP_GRAFANA_DIR to o11y-bench-2.0's mcp-grafana sibling and retry (needed for the" >&2
+  echo "no-tools / no-schema modes — o11y-bench-2.0's preflight builds mcp-grafana from it)." >&2
   exit 1
 fi
 
 # Check out the sibling-repo branches a mode needs. asis just switches o11y-bench-2.0 (published
-# mcp-grafana); notools/noschema also build mcp-grafana from the local sibling, which o11y-bench-2.0's
-# local-mcp-grafana branch would bake into its Docker image (once that branch is restored — see header).
+# mcp-grafana). notools/noschema also switch mcp-grafana to the matching branch; the actual build
+# happens inside o11y-bench-2.0's benchmarking/local-mcp-grafana branch — its preflight step (run by
+# `bench:job`) `go build`s that sibling checkout and bakes the binary into the sidecar Docker image.
+# So run.sh only checks the branch out here; it does not build.
 prepare_repos() {
   local mode="$1" mcp_branch o11y_branch
   case "$mode" in
@@ -109,8 +108,8 @@ prepare_repos() {
     noschema) mcp_branch="benchmarking/no-schema"; o11y_branch="benchmarking/local-mcp-grafana" ;;
   esac
   if [[ -n "$mcp_branch" ]]; then
-    echo "==> $mode: mcp-grafana@$mcp_branch (+ go build ./cmd/mcp-grafana), o11y-bench-2.0@$o11y_branch"
-    ( cd "$MCP_GRAFANA_DIR" && git checkout "$mcp_branch" && go build ./cmd/mcp-grafana )
+    echo "==> $mode: mcp-grafana@$mcp_branch (built by o11y-bench-2.0 preflight), o11y-bench-2.0@$o11y_branch"
+    ( cd "$MCP_GRAFANA_DIR" && git checkout "$mcp_branch" )
   else
     echo "==> $mode: o11y-bench-2.0@$o11y_branch (published mcp-grafana)"
   fi
@@ -152,11 +151,8 @@ run_one() {
 }
 
 if [[ "$MODE" == "all" ]]; then
-  # notools/noschema aren't ported to o11y-bench-2.0 yet (see header), so All runs only asis for
-  # now. TODO(port): restore `modes_to_run=(asis notools noschema)` and `RUN_ALL=1` once they work.
-  echo "==> All: no-tools / no-schema not yet supported on o11y-bench-2.0 — running only 'mcp as is'." >&2
-  RUN_ALL=0
-  modes_to_run=(asis)
+  RUN_ALL=1
+  modes_to_run=(asis notools noschema)
 else
   RUN_ALL=0
   modes_to_run=("$MODE")
