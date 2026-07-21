@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Render o11y-bench datasource results into this repo.
+"""Render o11y-bench-2.0 datasource results into this repo.
 
-Reads a completed o11y-bench job directory and writes, into --out-dir:
+Reads a completed o11y-bench-2.0 job directory and writes, into --out-dir:
 
   RESULTS.md    human-facing summary (renders natively on GitHub). The Summary
                 and Per-task tables have one column per run mode (mcp as is /
                 no tools / no schema). It carries a hidden BENCH_DATA JSON block
                 so each mode's numbers survive when another mode is re-rendered.
-  report*.html  the full o11y-bench HTML report, regenerated with --full-args
+  report*.html  the full o11y-bench-2.0 HTML report, regenerated with --full-args
                 (untruncated tool-call arguments). Each mode writes its own file:
                 report.html (asis), report_notools.html, report_noschema.html.
   latest.json   slim structured metrics (diffable across runs) — mcp-as-is only
@@ -15,9 +15,9 @@ Reads a completed o11y-bench job directory and writes, into --out-dir:
 Every mode updates its own RESULTS.md column and its own report*.html. Only the
 "asis" mode additionally writes latest.json.
 
-It reuses o11y-bench's own parsing (reporting.compare_report.load_job) so the
-numbers match run_report.html exactly. It is executed with o11y-bench's Python
-environment (see run.sh), and adds the o11y-bench repo root to sys.path so the
+It reuses o11y-bench-2.0's own parsing (reporting.compare_report.load_job) so the
+numbers match run_report.html exactly. It is executed with o11y-bench-2.0's Python
+environment (see run.sh), and adds the o11y-bench-2.0 repo root to sys.path so the
 `reporting` package is importable
 """
 
@@ -69,7 +69,7 @@ def _build_markdown(data: dict) -> str:
         summary = data.get(mode)
         return fn(summary) if summary else "—"
 
-    lines = ["# o11y-bench Results — Datasource Config", ""]
+    lines = ["# o11y-bench-2.0 Results — Datasource Config", ""]
 
     provenance = [
         f"{label}: `{data[m]['job']}` ({data[m]['generated']})"
@@ -77,7 +77,7 @@ def _build_markdown(data: dict) -> str:
         if m in data
     ]
     if provenance:
-        lines += ["_Generated from o11y-bench jobs — " + "; ".join(provenance) + "._", ""]
+        lines += ["_Generated from o11y-bench-2.0 jobs — " + "; ".join(provenance) + "._", ""]
 
     lines += [
         "Benchmark of an LLM agent on the `datasource_config` task category "
@@ -156,8 +156,8 @@ def _latest_job_dir(jobs_dir: Path) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Render o11y-bench results into this repo")
-    parser.add_argument("--o11y-root", type=Path, required=True, help="Path to the o11y-bench repo")
+    parser = argparse.ArgumentParser(description="Render o11y-bench-2.0 results into this repo")
+    parser.add_argument("--o11y-root", type=Path, required=True, help="Path to the o11y-bench-2.0 repo")
     parser.add_argument("--out-dir", type=Path, required=True, help="Where to write results files")
     parser.add_argument(
         "--job-dir",
@@ -176,7 +176,7 @@ def main() -> None:
         "--fresh-run",
         action="store_true",
         help="This render follows a fresh benchmark run, so the chosen job is authoritative for "
-        "--mode. Suppresses the job-reuse warning (o11y-bench auto-names jobs by model/config, so "
+        "--mode. Suppresses the job-reuse warning (o11y-bench-2.0 auto-names jobs by model/config, so "
         "different modes' fresh jobs legitimately share a name).",
     )
     args = parser.parse_args()
@@ -188,7 +188,7 @@ def main() -> None:
         from reporting.run_report import write_report
     except ImportError as exc:  # pragma: no cover
         raise SystemExit(
-            f"Could not import o11y-bench reporting modules from {o11y_root}: {exc}"
+            f"Could not import o11y-bench-2.0 reporting modules from {o11y_root}: {exc}"
         ) from exc
 
     job_dir = args.job_dir.resolve() if args.job_dir else _latest_job_dir(o11y_root / "jobs")
