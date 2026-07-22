@@ -13,10 +13,10 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
 | Model | Sonnet 4.6 | Sonnet 4.6 | Sonnet 4.6 |
 | Tasks | 27 | 27 | 27 |
 | pass^3 (consistent) | 15/27 (56%) | 15/27 (56%) | 15/27 (56%) |
-| pass@3 (any) | 23/27 (85%) | 21/27 (78%) | 21/27 (78%) |
-| Mean score | 92% | 90% | 91% |
-| Cost | $4.24 | $2.84 | $2.71 |
-| Steps/trial | 2.7 | 2.1 | 2.3 |
+| pass@3 (any) | 23/27 (85%) | 20/27 (74%) | 21/27 (78%) |
+| Mean score | 92% | 89% | 91% |
+| Cost | $4.24 | $3.34 | $2.71 |
+| Steps/trial | 2.7 | 2.3 | 2.3 |
 
 - **pass^3** — task passes only if *all* 3 attempts pass (strict consistency).
 - **pass@3** — task passes if *any* of 3 attempts pass.
@@ -27,15 +27,15 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
 | Task | mcp as is | no tools | no schema |
 |---|---|---|---|
 | `add-bigquery` | 100% | 100% | 100% |
-| `add-clickhouse` | 100% | 90% | 90% |
-| `add-infinity` | 100% | 40% | 100% |
+| `add-clickhouse` | 100% | 60% | 90% |
+| `add-infinity` | 100% | 95% | 100% |
 | `add-infinity-auth` | 85% | 100% | 85% |
 | `add-influxdb` | 100% | 100% | 100% |
 | `add-loki` | 100% | 85% | 100% |
-| `add-mysql` | 100% | 60% | 60% |
-| `add-postgres` | 100% | 100% | 60% |
-| `add-prometheus` | 100% | 95% | 90% |
-| `add-tempo` | 65% | 100% | 100% |
+| `add-mysql` | 100% | 100% | 60% |
+| `add-postgres` | 100% | 60% | 60% |
+| `add-prometheus` | 100% | 100% | 90% |
+| `add-tempo` | 65% | 65% | 100% |
 | `check-datasource-health` | 100% | 100% | 100% |
 | `diagnose-unhealthy-datasource` | 100% | 100% | 100% |
 | `edit-clickhouse-protocol` | 100% | 100% | 100% |
@@ -43,9 +43,9 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
 | `edit-influxdb-database` | 100% | 100% | 100% |
 | `edit-loki-derived-fields` | 100% | 100% | 100% |
 | `edit-postgres-enable-tls` | 100% | 100% | 100% |
-| `edit-prometheus-scrape-interval` | 85% | 100% | 100% |
+| `edit-prometheus-scrape-interval` | 85% | 85% | 100% |
 | `edit-tempo-traces-to-logs` | 60% | 100% | 100% |
-| `explain-bigquery-auth` | 100% | 85% | 70% |
+| `explain-bigquery-auth` | 100% | 70% | 70% |
 | `explain-clickhouse-protocol-choice` | 100% | 100% | 100% |
 | `explain-infinity-config` | 100% | 100% | 100% |
 | `explain-influxdb-query-language` | 100% | 100% | 100% |
@@ -194,24 +194,24 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
     "model": "Sonnet 4.6",
     "shots_per_task": 3,
     "total_tasks": 27,
-    "tasks_passed": 21,
+    "tasks_passed": 20,
     "tasks_consistent": 15,
-    "pass_rate": 0.7777777777777778,
+    "pass_rate": 0.7407407407407407,
     "pass_hat_rate": 0.5555555555555556,
-    "mean_score": 0.9,
-    "total_cost": 2.8363845,
-    "steps_per_trial": "2.1",
+    "mean_score": 0.8932098765432098,
+    "total_cost": 3.3362526,
+    "steps_per_trial": "2.3",
     "task_scores": {
       "add-bigquery": 1.0,
-      "add-clickhouse": 0.9,
+      "add-clickhouse": 0.6,
       "add-infinity-auth": 1.0,
-      "add-infinity": 0.4,
+      "add-infinity": 0.9500000000000001,
       "add-influxdb": 1.0,
       "add-loki": 0.8500000000000001,
-      "add-mysql": 0.6,
-      "add-postgres": 1.0,
-      "add-prometheus": 0.9500000000000001,
-      "add-tempo": 1.0,
+      "add-mysql": 1.0,
+      "add-postgres": 0.6,
+      "add-prometheus": 1.0,
+      "add-tempo": 0.65,
       "check-datasource-health": 1.0,
       "diagnose-unhealthy-datasource": 1.0,
       "edit-clickhouse-protocol": 1.0,
@@ -219,9 +219,9 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
       "edit-influxdb-database": 1.0,
       "edit-loki-derived-fields": 1.0,
       "edit-postgres-enable-tls": 1.0,
-      "edit-prometheus-scrape-interval": 1.0,
+      "edit-prometheus-scrape-interval": 0.8500000000000001,
       "edit-tempo-traces-to-logs": 1.0,
-      "explain-bigquery-auth": 0.85,
+      "explain-bigquery-auth": 0.7,
       "explain-clickhouse-protocol-choice": 1.0,
       "explain-infinity-config": 1.0,
       "explain-influxdb-query-language": 1.0,
@@ -237,10 +237,10 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
       "add-infinity": false,
       "add-influxdb": true,
       "add-loki": false,
-      "add-mysql": false,
-      "add-postgres": true,
-      "add-prometheus": false,
-      "add-tempo": true,
+      "add-mysql": true,
+      "add-postgres": false,
+      "add-prometheus": true,
+      "add-tempo": false,
       "check-datasource-health": true,
       "diagnose-unhealthy-datasource": true,
       "edit-clickhouse-protocol": true,
@@ -248,7 +248,7 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
       "edit-influxdb-database": true,
       "edit-loki-derived-fields": true,
       "edit-postgres-enable-tls": true,
-      "edit-prometheus-scrape-interval": true,
+      "edit-prometheus-scrape-interval": false,
       "edit-tempo-traces-to-logs": true,
       "explain-bigquery-auth": false,
       "explain-clickhouse-protocol-choice": true,
@@ -260,24 +260,24 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
       "provision-datasources-yaml": true
     },
     "task_consistent": {
-      "add-bigquery": true,
+      "add-bigquery": false,
       "add-clickhouse": false,
       "add-infinity-auth": true,
       "add-infinity": false,
       "add-influxdb": false,
       "add-loki": false,
       "add-mysql": false,
-      "add-postgres": true,
-      "add-prometheus": false,
-      "add-tempo": true,
+      "add-postgres": false,
+      "add-prometheus": true,
+      "add-tempo": false,
       "check-datasource-health": true,
       "diagnose-unhealthy-datasource": true,
-      "edit-clickhouse-protocol": false,
-      "edit-infinity-auth": false,
+      "edit-clickhouse-protocol": true,
+      "edit-infinity-auth": true,
       "edit-influxdb-database": true,
-      "edit-loki-derived-fields": false,
+      "edit-loki-derived-fields": true,
       "edit-postgres-enable-tls": true,
-      "edit-prometheus-scrape-interval": true,
+      "edit-prometheus-scrape-interval": false,
       "edit-tempo-traces-to-logs": false,
       "explain-bigquery-auth": false,
       "explain-clickhouse-protocol-choice": true,
@@ -289,33 +289,33 @@ Benchmark of an LLM agent on the `datasource_config` task category (creating, ed
       "provision-datasources-yaml": true
     },
     "task_cost": {
-      "add-bigquery": 0.0909981,
-      "add-clickhouse": 0.0667743,
-      "add-infinity-auth": 0.0790332,
-      "add-infinity": 0.0783024,
-      "add-influxdb": 0.17710365,
-      "add-loki": 0.10565325,
-      "add-mysql": 0.0882291,
-      "add-postgres": 0.1346088,
-      "add-prometheus": 0.0569424,
-      "add-tempo": 0.053048399999999996,
-      "check-datasource-health": 0.0858921,
-      "diagnose-unhealthy-datasource": 0.09853499999999998,
-      "edit-clickhouse-protocol": 0.14223585,
-      "edit-infinity-auth": 0.12816705,
-      "edit-influxdb-database": 0.1029168,
-      "edit-loki-derived-fields": 0.17749065,
-      "edit-postgres-enable-tls": 0.1077648,
-      "edit-prometheus-scrape-interval": 0.09746579999999999,
-      "edit-tempo-traces-to-logs": 0.21856845,
-      "explain-bigquery-auth": 0.11286135,
-      "explain-clickhouse-protocol-choice": 0.09596355000000001,
-      "explain-infinity-config": 0.0643944,
-      "explain-influxdb-query-language": 0.055496699999999996,
-      "explain-postgres-tls-options": 0.14805405,
-      "explain-prometheus-type-and-auth": 0.0634377,
-      "provision-datasource-terraform": 0.14960294999999998,
-      "provision-datasources-yaml": 0.0568437
+      "add-bigquery": 0.1161636,
+      "add-clickhouse": 0.1140216,
+      "add-infinity-auth": 0.1275906,
+      "add-infinity": 0.23418299999999997,
+      "add-influxdb": 0.1958097,
+      "add-loki": 0.10284059999999999,
+      "add-mysql": 0.1136616,
+      "add-postgres": 0.13783289999999998,
+      "add-prometheus": 0.16904655,
+      "add-tempo": 0.1099356,
+      "check-datasource-health": 0.14070375,
+      "diagnose-unhealthy-datasource": 0.096843,
+      "edit-clickhouse-protocol": 0.1316145,
+      "edit-infinity-auth": 0.11950259999999999,
+      "edit-influxdb-database": 0.1273845,
+      "edit-loki-derived-fields": 0.15490379999999998,
+      "edit-postgres-enable-tls": 0.14153549999999998,
+      "edit-prometheus-scrape-interval": 0.12572850000000002,
+      "edit-tempo-traces-to-logs": 0.1705278,
+      "explain-bigquery-auth": 0.13490475000000002,
+      "explain-clickhouse-protocol-choice": 0.0382335,
+      "explain-infinity-config": 0.084783,
+      "explain-influxdb-query-language": 0.05483249999999999,
+      "explain-postgres-tls-options": 0.07467599999999999,
+      "explain-prometheus-type-and-auth": 0.0654585,
+      "provision-datasource-terraform": 0.0873687,
+      "provision-datasources-yaml": 0.16616595
     }
   },
   "noschema": {
