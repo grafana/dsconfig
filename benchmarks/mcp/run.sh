@@ -54,7 +54,7 @@ MODE="${MODE:-}"
 
 # Baseline o11y-bench-2.0 branch for "mcp as is". TEMPORARY until the ds-config specs merge to 2.0
 # main — set this to "main" then. (asis uses the published mcp-grafana, so only o11y-bench-2.0 matters.)
-ASIS_O11Y_BRANCH="jck/dsconfig-spec"
+ASIS_O11Y_BRANCH="jck/simulated-user"
 
 if [[ ! -d "$O11Y_BENCH_DIR" ]]; then
   echo "o11y-bench-2.0 repo not found at: $O11Y_BENCH_DIR" >&2
