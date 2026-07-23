@@ -1,132 +1,179 @@
 # Amazon Timestream configuration
 
-How to configure the **Amazon Timestream** data source (`grafana-timestream-datasource`) in Grafana.
+Configuration reference for the **Amazon Timestream** data source (`grafana-timestream-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/grafana/plugins/grafana-timestream-datasource/).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Authentication](#authentication)
-- [Assume Role](#assume-role)
-- [Additional Settings](#additional-settings)
-- [Timestream Details](#timestream-details)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.authType` | enum (ec2_iam_role, grafana_assume_role, default, keys, credentials) | jsonData |  | Specify which AWS credentials chain to use. |
+| `jsonData.profile` | string | jsonData |  | Credentials profile name, as specified in ~/.aws/credentials, leave blank for default. |
+| `secureJsonData.accessKey` 🔒 | string | secureJsonData | conditional | Access Key ID |
+| `secureJsonData.secretKey` 🔒 | string | secureJsonData | conditional | Secret Access Key |
+| `secureJsonData.sessionToken` 🔒 | string | secureJsonData |  |  |
+| `jsonData.assumeRoleArn` | string | jsonData |  | Optional. Specifying the ARN of a role will ensure that the                      selected authentication provider is used to assume the role rather than the                      credentials directly. |
+| `jsonData.externalId` | string | jsonData |  | If you are assuming a role in another account, that has been created with an external ID, specify the external ID here. |
+| `jsonData.endpoint` | string | jsonData |  | Optionally, specify a custom endpoint for the service |
+| `jsonData.defaultRegion` | enum (us-east-1, us-east-2, us-west-2, eu-west-1, eu-central-1, ap-south-1, ap-southeast-2, ap-northeast-1, us-gov-west-1) | jsonData |  | Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region. |
+| `jsonData.defaultDatabase` | enum | jsonData |  | Default database to use as the {{database}} macro in queries. |
+| `jsonData.defaultTable` | enum | jsonData |  | Default table to use as the {{table}} macro in queries. Depends on the selected database. |
+| `jsonData.defaultMeasure` | enum | jsonData |  | Default measure to use as the {{measure}} macro in queries. Depends on the selected database and table. |
 
-## Authentication
+## Provisioning examples
 
-### Authentication Provider
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · select_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Specify which AWS credentials chain to use.
+### Workspace IAM Role (`ec2_iam_role`)
 
-| | |
-|---|---|
-| Default | `default` |
-| Allowed values | `ec2_iam_role` (Workspace IAM Role), `grafana_assume_role` (Grafana Assume Role), `default` (AWS SDK Default), `keys` (Access & secret key), `credentials` (Credentials file) |
+**Grafana provisioning YAML**
 
-### Credentials Profile Name
+```yaml
+apiVersion: 1
+datasources:
+  - name: Amazon Timestream
+    type: grafana-timestream-datasource
+    access: proxy
+    jsonData:
+      authType: ec2_iam_role
+```
 
-_optional · string_
+**Terraform**
 
-Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.
+```hcl
+resource "grafana_data_source" "grafana_timestream_datasource_ec2_iam_role" {
+  type = "grafana-timestream-datasource"
+  name = "Amazon Timestream"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `default` |
-| Shown when | **Authentication Provider** is **Credentials file** (`credentials`) |
+  json_data_encoded = jsonencode({
+    authType = "ec2_iam_role"
+  })
+}
+```
 
-### Access Key ID
+### Grafana Assume Role (`grafana_assume_role`)
 
-_🔒 secret (write-only) · conditionally required · string_
+**Grafana provisioning YAML**
 
-| | |
-|---|---|
-| Shown when | **Authentication Provider** is **Access & secret key** (`keys`) |
+```yaml
+apiVersion: 1
+datasources:
+  - name: Amazon Timestream
+    type: grafana-timestream-datasource
+    access: proxy
+    jsonData:
+      authType: grafana_assume_role
+```
 
-### Secret Access Key
+**Terraform**
 
-_🔒 secret (write-only) · conditionally required · string_
+```hcl
+resource "grafana_data_source" "grafana_timestream_datasource_grafana_assume_role" {
+  type = "grafana-timestream-datasource"
+  name = "Amazon Timestream"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Shown when | **Authentication Provider** is **Access & secret key** (`keys`) |
+  json_data_encoded = jsonencode({
+    authType = "grafana_assume_role"
+  })
+}
+```
 
-## Assume Role
+### AWS SDK Default (`default`)
 
-### Assume Role ARN
+**Grafana provisioning YAML**
 
-_optional · string_
+```yaml
+apiVersion: 1
+datasources:
+  - name: Amazon Timestream
+    type: grafana-timestream-datasource
+    access: proxy
+    jsonData:
+      authType: default
+```
 
-Optional. Specifying the ARN of a role will ensure that the
-                     selected authentication provider is used to assume the role rather than the
-                     credentials directly.
+**Terraform**
 
-| | |
-|---|---|
-| Example | `arn:aws:iam:*` |
-| Must match | `^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$` |
+```hcl
+resource "grafana_data_source" "grafana_timestream_datasource_default" {
+  type = "grafana-timestream-datasource"
+  name = "Amazon Timestream"
+  url = "https://example.com"
 
-### External ID
+  json_data_encoded = jsonencode({
+    authType = "default"
+  })
+}
+```
 
-_optional · string_
+### Access & secret key (`keys`)
 
-If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.
+**Grafana provisioning YAML**
 
-| | |
-|---|---|
-| Example | `External ID` |
-| Shown when | `jsonData_authType != 'grafana_assume_role'` |
+```yaml
+apiVersion: 1
+datasources:
+  - name: Amazon Timestream
+    type: grafana-timestream-datasource
+    access: proxy
+    jsonData:
+      authType: keys
+    secureJsonData:
+      accessKey: "<YOUR_ACCESS_KEY_ID>"
+      secretKey: "<YOUR_SECRET_ACCESS_KEY>"
+```
 
-## Additional Settings
+**Terraform**
 
-### Endpoint
+```hcl
+resource "grafana_data_source" "grafana_timestream_datasource_keys" {
+  type = "grafana-timestream-datasource"
+  name = "Amazon Timestream"
+  url = "https://example.com"
 
-_optional · string_
+  json_data_encoded = jsonencode({
+    authType = "keys"
+  })
 
-Optionally, specify a custom endpoint for the service.
+  secure_json_data_encoded = jsonencode({
+    accessKey = "<YOUR_ACCESS_KEY_ID>"
+    secretKey = "<YOUR_SECRET_ACCESS_KEY>"
+  })
+}
+```
 
-| | |
-|---|---|
-| Example | `https://query-{cell}.timestream.{region}.amazonaws.com` |
-| Shown when | `jsonData_authType != 'grafana_assume_role'` |
+### Credentials file (`credentials`)
 
-### Default Region
+**Grafana provisioning YAML**
 
-_optional · select_
+```yaml
+apiVersion: 1
+datasources:
+  - name: Amazon Timestream
+    type: grafana-timestream-datasource
+    access: proxy
+    jsonData:
+      authType: credentials
+```
 
-Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.
+**Terraform**
 
-| | |
-|---|---|
-| Allowed values | `us-east-1`, `us-east-2`, `us-west-2`, `eu-west-1`, `eu-central-1`, `ap-south-1`, `ap-southeast-2`, `ap-northeast-1`, `us-gov-west-1` |
+```hcl
+resource "grafana_data_source" "grafana_timestream_datasource_credentials" {
+  type = "grafana-timestream-datasource"
+  name = "Amazon Timestream"
+  url = "https://example.com"
 
-## Timestream Details
-
-### Database
-
-_optional · select_
-
-Default database to use as the {{database}} macro in queries.
-
-### Table
-
-_optional · select_
-
-Default table to use as the {{table}} macro in queries. Depends on the selected database.
-
-| | |
-|---|---|
-| Shown when | `jsonData_defaultDatabase != ''` |
-
-### Measure
-
-_optional · select_
-
-Default measure to use as the {{measure}} macro in queries. Depends on the selected database and table.
-
-| | |
-|---|---|
-| Shown when | `jsonData_defaultDatabase != '' && jsonData_defaultTable != ''` |
+  json_data_encoded = jsonencode({
+    authType = "credentials"
+  })
+}
+```
 

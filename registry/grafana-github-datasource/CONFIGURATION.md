@@ -1,111 +1,107 @@
 # GitHub configuration
 
-How to configure the **GitHub** data source (`grafana-github-datasource`) in Grafana.
+Configuration reference for the **GitHub** data source (`grafana-github-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-github-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection) — _optional_
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.githubPlan` | enum (github-basic, github-enterprise-cloud, github-enterprise-server) | jsonData |  |  |
+| `jsonData.githubUrl` | string | jsonData | conditional | GitHub Enterprise Server URL |
+| `jsonData.selectedAuthType` | enum (personal-access-token, github-app) | jsonData |  | Authentication Type |
+| `secureJsonData.accessToken` 🔒 | string | secureJsonData | conditional | Personal Access Token |
+| `jsonData.appId` | string | jsonData | conditional | App ID |
+| `jsonData.installationId` | string | jsonData | conditional | Installation ID |
+| `secureJsonData.privateKey` 🔒 | string (multiline) | secureJsonData | conditional | Private Key |
+| `jsonData.cachingEnabled` | boolean | jsonData |  | Enables the query caching wrapper in the plugin backend. Not exposed in the configuration editor; the backend currently enables caching for every datasource instance. |
 
-## Connection
+## Provisioning examples
 
-_This section is optional._
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-### GitHub License Type
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-_optional · radio_
+### Personal Access Token (`personal-access-token`)
 
-| | |
-|---|---|
-| Default | `github-basic` |
-| Allowed values | `github-basic` (Free, Pro & Team), `github-enterprise-cloud` (Enterprise Cloud), `github-enterprise-server` (Enterprise Server) |
+**Grafana provisioning YAML**
 
-### GitHub Enterprise Server URL
+```yaml
+apiVersion: 1
+datasources:
+  - name: GitHub
+    type: grafana-github-datasource
+    access: proxy
+    jsonData:
+      cachingEnabled: true
+      githubUrl: "http(s)://HOSTNAME/"
+      selectedAuthType: personal-access-token
+    secureJsonData:
+      accessToken: "<YOUR_PERSONAL_ACCESS_TOKEN>"
+```
 
-_conditionally required · string_
+**Terraform**
 
-| | |
-|---|---|
-| Example | `http(s)://HOSTNAME/` |
-| Shown when | **GitHub License Type** is **Enterprise Server** (`github-enterprise-server`) |
-| Required when | **githubPlan** is `github-enterprise-server` |
+```hcl
+resource "grafana_data_source" "grafana_github_datasource_personal_access_token" {
+  type = "grafana-github-datasource"
+  name = "GitHub"
+  url = "https://example.com"
 
-## Authentication
+  json_data_encoded = jsonencode({
+    cachingEnabled = true
+    githubUrl = "http(s)://HOSTNAME/"
+    selectedAuthType = "personal-access-token"
+  })
 
-### Authentication Type
+  secure_json_data_encoded = jsonencode({
+    accessToken = "<YOUR_PERSONAL_ACCESS_TOKEN>"
+  })
+}
+```
 
-_optional · radio_
+### GitHub App (`github-app`)
 
-| | |
-|---|---|
-| Default | `personal-access-token` |
-| Allowed values | `personal-access-token` (Personal Access Token), `github-app` (GitHub App) |
+**Grafana provisioning YAML**
 
-### Personal Access Token
+```yaml
+apiVersion: 1
+datasources:
+  - name: GitHub
+    type: grafana-github-datasource
+    access: proxy
+    jsonData:
+      appId: App ID
+      cachingEnabled: true
+      githubUrl: "http(s)://HOSTNAME/"
+      installationId: Installation ID
+      selectedAuthType: github-app
+    secureJsonData:
+      privateKey: "<YOUR_PRIVATE_KEY>"
+```
 
-_🔒 secret (write-only) · conditionally required · string_
+**Terraform**
 
-| | |
-|---|---|
-| Example | `Personal Access Token` |
-| Shown when | **Authentication Type** is **Personal Access Token** (`personal-access-token`) |
+```hcl
+resource "grafana_data_source" "grafana_github_datasource_github_app" {
+  type = "grafana-github-datasource"
+  name = "GitHub"
+  url = "https://example.com"
 
-**Access Token & Permissions**
+  json_data_encoded = jsonencode({
+    appId = "App ID"
+    cachingEnabled = true
+    githubUrl = "http(s)://HOSTNAME/"
+    installationId = "Installation ID"
+    selectedAuthType = "github-app"
+  })
 
-#### How to create a access token
-
-To create a new fine grained access token, navigate to [Personal Access Tokens](https://github.com/settings/personal-access-tokens/new) or refer the guidelines from [the Github documentation.](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token)
-
-#### Repository access
-
-In the **Repository access** section, Select the required repositories you want to use with the plugin.
-
-#### Permissions
-
-In the repository permissions, Ensure to provide **read-only access** to the necessary section which you want to use with the plugin. **The plugin does not require any write access.**
-Along with other permissions such as `Issues`, `Pull Requests`, ensure to provide read-only access to `Meta data` section as well.
-This plugin does not require any org level permissions
-
-### App ID
-
-_conditionally required · string_
-
-| | |
-|---|---|
-| Example | `App ID` |
-| Shown when | **Authentication Type** is **GitHub App** (`github-app`) |
-
-### Installation ID
-
-_conditionally required · string_
-
-| | |
-|---|---|
-| Example | `Installation ID` |
-| Shown when | **Authentication Type** is **GitHub App** (`github-app`) |
-
-### Private Key
-
-_🔒 secret (write-only) · conditionally required · multiline text_
-
-| | |
-|---|---|
-| Example | `-----BEGIN CERTIFICATE-----` |
-| Shown when | **Authentication Type** is **GitHub App** (`github-app`) |
-
-## Other settings
-
-### cachingEnabled
-
-_optional · boolean_
-
-Enables the query caching wrapper in the plugin backend. Not exposed in the configuration editor; the backend currently enables caching for every datasource instance.
-
-| | |
-|---|---|
-| Default | `true` |
+  secure_json_data_encoded = jsonencode({
+    privateKey = "<YOUR_PRIVATE_KEY>"
+  })
+}
+```
 

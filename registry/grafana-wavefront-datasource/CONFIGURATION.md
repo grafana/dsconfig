@@ -1,51 +1,58 @@
 # Wavefront configuration
 
-How to configure the **Wavefront** data source (`grafana-wavefront-datasource`) in Grafana.
+Configuration reference for the **Wavefront** data source (`grafana-wavefront-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-wavefront-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Wavefront settings](#wavefront-settings)
-- [Customization](#customization) — _optional_
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.url` | string | jsonData | yes | URL to Wavefront API |
+| `secureJsonData.token` 🔒 | string | secureJsonData | yes | Wavefront token |
+| `jsonData.requestTimeout` | number | jsonData |  | Request timeout in seconds. Defaults to 30 |
 
-## Wavefront settings
+## Provisioning examples
 
-### API URL
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_**required** · string_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-URL to Wavefront API.
+### Default configuration
 
-| | |
-|---|---|
-| Default | `https://try.wavefront.com` |
-| Example | `https://try.wavefront.com` |
+**Grafana provisioning YAML**
 
-### Token
+```yaml
+apiVersion: 1
+datasources:
+  - name: Wavefront
+    type: grafana-wavefront-datasource
+    access: proxy
+    jsonData:
+      requestTimeout: 30
+      url: "https://try.wavefront.com"
+    secureJsonData:
+      token: "<YOUR_TOKEN>"
+```
 
-_🔒 secret (write-only) · **required** · string_
+**Terraform**
 
-Wavefront token.
+```hcl
+resource "grafana_data_source" "grafana_wavefront_datasource" {
+  type = "grafana-wavefront-datasource"
+  name = "Wavefront"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `Wavefront token` |
+  json_data_encoded = jsonencode({
+    requestTimeout = 30
+    url = "https://try.wavefront.com"
+  })
 
-## Customization
-
-_This section is optional._
-
-### Request timeout in seconds
-
-_optional · number_
-
-Request timeout in seconds. Defaults to 30.
-
-| | |
-|---|---|
-| Default | `30` |
-| Example | `30` |
+  secure_json_data_encoded = jsonencode({
+    token = "<YOUR_TOKEN>"
+  })
+}
+```
 

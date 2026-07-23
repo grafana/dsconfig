@@ -1,34 +1,62 @@
 # Supabase configuration
 
-How to configure the **Supabase** data source (`grafana-supabase-datasource`) in Grafana.
+Configuration reference for the **Supabase** data source (`grafana-supabase-datasource`) in Grafana.
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.services.mgmt.auth.id` | enum (mgmt_bearer) | jsonData |  | Supabase personal token |
+| `secureJsonData.mgmt.token` 🔒 | string | secureJsonData | conditional | Token for accessing the datasource API |
 
-## Authentication
+## Provisioning examples
 
-### Supabase personal token
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · select_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Supabase personal token.
+### Supabase personal token (`mgmt_bearer`)
 
-| | |
-|---|---|
-| Default | `mgmt_bearer` |
-| Allowed values | `mgmt_bearer` (Supabase personal token) |
+**Grafana provisioning YAML**
 
-### Token
+```yaml
+apiVersion: 1
+datasources:
+  - name: Supabase
+    type: grafana-supabase-datasource
+    access: proxy
+    jsonData:
+      services:
+        mgmt:
+          auth:
+            id: mgmt_bearer
+    secureJsonData:
+      mgmt.token: "<YOUR_TOKEN>"
+```
 
-_🔒 secret (write-only) · conditionally required · string_
+**Terraform**
 
-Token for accessing the datasource API.
+```hcl
+resource "grafana_data_source" "grafana_supabase_datasource_mgmt_bearer" {
+  type = "grafana-supabase-datasource"
+  name = "Supabase"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `Token value` |
-| Shown when | **Supabase personal token** is **Supabase personal token** (`mgmt_bearer`) |
+  json_data_encoded = jsonencode({
+    services = {
+      mgmt = {
+        auth = {
+          id = "mgmt_bearer"
+        }
+      }
+    }
+  })
+
+  secure_json_data_encoded = jsonencode({
+    "mgmt.token" = "<YOUR_TOKEN>"
+  })
+}
+```
 

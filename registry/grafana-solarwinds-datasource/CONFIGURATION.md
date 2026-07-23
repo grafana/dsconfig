@@ -1,115 +1,80 @@
 # Solarwinds configuration
 
-How to configure the **Solarwinds** data source (`grafana-solarwinds-datasource`) in Grafana.
+Configuration reference for the **Solarwinds** data source (`grafana-solarwinds-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-solarwinds-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection)
-- [Authentication](#authentication)
-- [TLS Settings](#tls-settings) — _optional_
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.variables.url` | string | jsonData | yes | The URL of your SolarWinds instance, including `https://` and without trailing `/` |
+| `jsonData.services.solarwinds.auth.id` | enum (basic_auth) | jsonData |  | Basic Auth |
+| `jsonData.services.solarwinds.auth.username` | string | jsonData | conditional | SolarWinds Username |
+| `secureJsonData.solarwinds.password` 🔒 | string | secureJsonData | conditional | SolarWinds Password |
+| `jsonData.services.solarwinds.auth.tls.selfSignedCert.enabled` | boolean | jsonData |  | Add self-signed certificate |
+| `secureJsonData.solarwinds.tls.selfSignedCert` 🔒 | string (multiline) | secureJsonData |  | Your self-signed certificate |
+| `jsonData.services.solarwinds.auth.tls.clientAuth.enabled` | boolean | jsonData |  | Validate using TLS client authentication, in which the server authenticates the client |
+| `jsonData.services.solarwinds.auth.tls.clientAuth.serverName` | string | jsonData |  | A Servername is used to verify the hostname on the returned certificate |
+| `secureJsonData.solarwinds.tls.clientCert` 🔒 | string (multiline) | secureJsonData |  | The client certificate can be generated from a Certificate Authority or be self-signed |
+| `secureJsonData.solarwinds.tls.clientKey` 🔒 | string (multiline) | secureJsonData |  | The client key can be generated from a Certificate Authority or be self-signed |
+| `jsonData.services.solarwinds.auth.tls.skipVerification` | boolean | jsonData |  | Skip TLS certificate validation |
 
-## Connection
+## Provisioning examples
 
-Provide information to connect to the data source
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-### URL
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-_**required** · string_
+### Basic Auth (`basic_auth`)
 
-The URL of your SolarWinds instance, including `https://` and without trailing `/`.
+**Grafana provisioning YAML**
 
-## Authentication
+```yaml
+apiVersion: 1
+datasources:
+  - name: Solarwinds
+    type: grafana-solarwinds-datasource
+    access: proxy
+    jsonData:
+      services:
+        solarwinds:
+          auth:
+            id: basic_auth
+            username: Username
+      variables:
+        url: "<YOUR_URL>"
+    secureJsonData:
+      solarwinds.password: "<YOUR_PASSWORD>"
+```
 
-### Basic Auth
+**Terraform**
 
-_optional · select_
+```hcl
+resource "grafana_data_source" "grafana_solarwinds_datasource_basic_auth" {
+  type = "grafana-solarwinds-datasource"
+  name = "Solarwinds"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Default | `basic_auth` |
-| Allowed values | `basic_auth` (Basic Auth) |
+  json_data_encoded = jsonencode({
+    services = {
+      solarwinds = {
+        auth = {
+          id = "basic_auth"
+          username = "Username"
+        }
+      }
+    }
+    variables = {
+      url = "<YOUR_URL>"
+    }
+  })
 
-### Username
-
-_conditionally required · string_
-
-SolarWinds Username.
-
-| | |
-|---|---|
-| Example | `Username` |
-| Shown when | **Basic Auth** is **Basic Auth** (`basic_auth`) |
-
-### Password
-
-_🔒 secret (write-only) · conditionally required · string_
-
-SolarWinds Password.
-
-| | |
-|---|---|
-| Example | `Password` |
-| Shown when | **Basic Auth** is **Basic Auth** (`basic_auth`) |
-
-## TLS Settings
-
-_This section is optional._
-
-### Add self-signed certificate
-
-_optional · toggle_
-
-### CA Certificate
-
-_🔒 secret (write-only) · optional · multiline text_
-
-Your self-signed certificate.
-
-| | |
-|---|---|
-| Shown when | **Add self-signed certificate** is `true` |
-
-### TLS Client Authentication
-
-_optional · toggle_
-
-Validate using TLS client authentication, in which the server authenticates the client.
-
-### ServerName
-
-_optional · string_
-
-A Servername is used to verify the hostname on the returned certificate.
-
-| | |
-|---|---|
-| Shown when | **TLS Client Authentication** is `true` |
-
-### Client Certificate
-
-_🔒 secret (write-only) · optional · multiline text_
-
-The client certificate can be generated from a Certificate Authority or be self-signed.
-
-| | |
-|---|---|
-| Shown when | **TLS Client Authentication** is `true` |
-
-### Client Key
-
-_🔒 secret (write-only) · optional · multiline text_
-
-The client key can be generated from a Certificate Authority or be self-signed.
-
-| | |
-|---|---|
-| Shown when | **TLS Client Authentication** is `true` |
-
-### Skip TLS certificate validation
-
-_optional · toggle_
+  secure_json_data_encoded = jsonencode({
+    "solarwinds.password" = "<YOUR_PASSWORD>"
+  })
+}
+```
 

@@ -1,135 +1,173 @@
 # AWS IoT TwinMaker configuration
 
-How to configure the **AWS IoT TwinMaker** data source (`grafana-iot-twinmaker-datasource`) in Grafana.
+Configuration reference for the **AWS IoT TwinMaker** data source (`grafana-iot-twinmaker-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/grafana/plugins/grafana-iot-twinmaker-app/).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Authentication](#authentication)
-- [Assume Role](#assume-role)
-- [Additional Settings](#additional-settings)
-- [Twinmaker Settings](#twinmaker-settings)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.authType` | enum (ec2_iam_role, default, keys, credentials) | jsonData |  | Specify which AWS credentials chain to use. |
+| `jsonData.profile` | string | jsonData |  | Credentials profile name, as specified in ~/.aws/credentials, leave blank for default. |
+| `secureJsonData.accessKey` 🔒 | string | secureJsonData | conditional | Access Key ID |
+| `secureJsonData.secretKey` 🔒 | string | secureJsonData | conditional | Secret Access Key |
+| `jsonData.assumeRoleArn` | string | jsonData | yes | Optional. Specifying the ARN of a role will ensure that the                      selected authentication provider is used to assume the role rather than the                      credentials directly. |
+| `jsonData.externalId` | string | jsonData |  | If you are assuming a role in another account, that has been created with an external ID, specify the external ID here. |
+| `jsonData.endpoint` | string | jsonData |  | Optionally, specify a custom endpoint for the service |
+| `jsonData.defaultRegion` | enum (ap-south-1, ap-northeast-1, ap-northeast-2, ap-southeast-1, ap-southeast-2, eu-central-1, eu-west-1, us-east-1, us-west-2, us-gov-west-1, cn-north-1) | jsonData |  | Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region. |
+| `jsonData.workspaceId` | enum | jsonData | yes | Workspace |
+| `jsonData.assumeRoleArnWriter` | string | jsonData |  | Specify the ARN of a role to assume when writing property values in IoT TwinMaker |
 
-## Authentication
+## Provisioning examples
 
-### Authentication Provider
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · select_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Specify which AWS credentials chain to use.
+### Workspace IAM Role (`ec2_iam_role`)
 
-| | |
-|---|---|
-| Default | `default` |
-| Allowed values | `ec2_iam_role` (Workspace IAM Role), `default` (AWS SDK Default), `keys` (Access & secret key), `credentials` (Credentials file) |
+**Grafana provisioning YAML**
 
-### Credentials Profile Name
+```yaml
+apiVersion: 1
+datasources:
+  - name: AWS IoT TwinMaker
+    type: grafana-iot-twinmaker-datasource
+    access: proxy
+    jsonData:
+      assumeRoleArn: "arn:aws:iam:*"
+      authType: ec2_iam_role
+      defaultRegion: us-east-1
+      workspaceId: Select a workspace
+```
 
-_optional · string_
+**Terraform**
 
-Credentials profile name, as specified in ~/.aws/credentials, leave blank for default.
+```hcl
+resource "grafana_data_source" "grafana_iot_twinmaker_datasource_ec2_iam_role" {
+  type = "grafana-iot-twinmaker-datasource"
+  name = "AWS IoT TwinMaker"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `default` |
-| Shown when | **Authentication Provider** is **Credentials file** (`credentials`) |
+  json_data_encoded = jsonencode({
+    assumeRoleArn = "arn:aws:iam:*"
+    authType = "ec2_iam_role"
+    defaultRegion = "us-east-1"
+    workspaceId = "Select a workspace"
+  })
+}
+```
 
-### Access Key ID
+### AWS SDK Default (`default`)
 
-_🔒 secret (write-only) · conditionally required · string_
+**Grafana provisioning YAML**
 
-| | |
-|---|---|
-| Shown when | **Authentication Provider** is **Access & secret key** (`keys`) |
+```yaml
+apiVersion: 1
+datasources:
+  - name: AWS IoT TwinMaker
+    type: grafana-iot-twinmaker-datasource
+    access: proxy
+    jsonData:
+      assumeRoleArn: "arn:aws:iam:*"
+      authType: default
+      defaultRegion: us-east-1
+      workspaceId: Select a workspace
+```
 
-### Secret Access Key
+**Terraform**
 
-_🔒 secret (write-only) · conditionally required · string_
+```hcl
+resource "grafana_data_source" "grafana_iot_twinmaker_datasource_default" {
+  type = "grafana-iot-twinmaker-datasource"
+  name = "AWS IoT TwinMaker"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Shown when | **Authentication Provider** is **Access & secret key** (`keys`) |
+  json_data_encoded = jsonencode({
+    assumeRoleArn = "arn:aws:iam:*"
+    authType = "default"
+    defaultRegion = "us-east-1"
+    workspaceId = "Select a workspace"
+  })
+}
+```
 
-## Assume Role
+### Access & secret key (`keys`)
 
-### Assume Role ARN
+**Grafana provisioning YAML**
 
-_**required** · string_
+```yaml
+apiVersion: 1
+datasources:
+  - name: AWS IoT TwinMaker
+    type: grafana-iot-twinmaker-datasource
+    access: proxy
+    jsonData:
+      assumeRoleArn: "arn:aws:iam:*"
+      authType: keys
+      defaultRegion: us-east-1
+      workspaceId: Select a workspace
+    secureJsonData:
+      accessKey: "<YOUR_ACCESS_KEY_ID>"
+      secretKey: "<YOUR_SECRET_ACCESS_KEY>"
+```
 
-Optional. Specifying the ARN of a role will ensure that the
-                     selected authentication provider is used to assume the role rather than the
-                     credentials directly.
+**Terraform**
 
-| | |
-|---|---|
-| Example | `arn:aws:iam:*` |
-| Must match | `^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$` |
+```hcl
+resource "grafana_data_source" "grafana_iot_twinmaker_datasource_keys" {
+  type = "grafana-iot-twinmaker-datasource"
+  name = "AWS IoT TwinMaker"
+  url = "https://example.com"
 
-### External ID
+  json_data_encoded = jsonencode({
+    assumeRoleArn = "arn:aws:iam:*"
+    authType = "keys"
+    defaultRegion = "us-east-1"
+    workspaceId = "Select a workspace"
+  })
 
-_optional · string_
+  secure_json_data_encoded = jsonencode({
+    accessKey = "<YOUR_ACCESS_KEY_ID>"
+    secretKey = "<YOUR_SECRET_ACCESS_KEY>"
+  })
+}
+```
 
-If you are assuming a role in another account, that has been created with an external ID, specify the external ID here.
+### Credentials file (`credentials`)
 
-| | |
-|---|---|
-| Example | `External ID` |
-| Shown when | `jsonData_authType != 'grafana_assume_role'` |
+**Grafana provisioning YAML**
 
-## Additional Settings
+```yaml
+apiVersion: 1
+datasources:
+  - name: AWS IoT TwinMaker
+    type: grafana-iot-twinmaker-datasource
+    access: proxy
+    jsonData:
+      assumeRoleArn: "arn:aws:iam:*"
+      authType: credentials
+      defaultRegion: us-east-1
+      workspaceId: Select a workspace
+```
 
-### Endpoint
+**Terraform**
 
-_optional · string_
+```hcl
+resource "grafana_data_source" "grafana_iot_twinmaker_datasource_credentials" {
+  type = "grafana-iot-twinmaker-datasource"
+  name = "AWS IoT TwinMaker"
+  url = "https://example.com"
 
-Optionally, specify a custom endpoint for the service.
-
-| | |
-|---|---|
-| Example | `https://{service}.{region}.amazonaws.com` |
-| Shown when | `jsonData_authType != 'grafana_assume_role'` |
-
-### Default Region
-
-_optional · select_
-
-Specify the region, such as for US West (Oregon) use ` us-west-2 ` as the region.
-
-| | |
-|---|---|
-| Default | `us-east-1` |
-| Allowed values | `ap-south-1`, `ap-northeast-1`, `ap-northeast-2`, `ap-southeast-1`, `ap-southeast-2`, `eu-central-1`, `eu-west-1`, `us-east-1`, `us-west-2`, `us-gov-west-1`, `cn-north-1` |
-
-## Twinmaker Settings
-
-### Workspace
-
-_**required** · select_
-
-| | |
-|---|---|
-| Example | `Select a workspace` |
-
-### Define write permissions for Alarm Configuration Panel
-
-_optional · toggle_
-
-| | |
-|---|---|
-| Default | `false` |
-
-### Assume Role ARN Write
-
-_optional · string_
-
-Specify the ARN of a role to assume when writing property values in IoT TwinMaker.
-
-| | |
-|---|---|
-| Example | `arn:aws:iam:*` |
-| Must match | `^(arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+)?$` |
-| Shown when | **Define write permissions for Alarm Configuration Panel** is `true` |
+  json_data_encoded = jsonencode({
+    assumeRoleArn = "arn:aws:iam:*"
+    authType = "credentials"
+    defaultRegion = "us-east-1"
+    workspaceId = "Select a workspace"
+  })
+}
+```
 

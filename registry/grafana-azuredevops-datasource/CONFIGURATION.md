@@ -1,60 +1,62 @@
 # Azure DevOps configuration
 
-How to configure the **Azure DevOps** data source (`grafana-azuredevops-datasource`) in Grafana.
+Configuration reference for the **Azure DevOps** data source (`grafana-azuredevops-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-azuredevops-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Azure DevOps settings](#azure-devops-settings)
-- [Optional Configuration](#optional-configuration) — _optional_
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.url` | string | jsonData | yes | Azure DevOps instance URL |
+| `jsonData.authType` | enum (patToken) | jsonData |  |  |
+| `secureJsonData.patToken` 🔒 | string | secureJsonData | yes | Azure DevOps personal access token |
+| `jsonData.projectsLimit` | number | jsonData |  | Number of items to retrieve in projects list query |
+| `jsonData.username` | string | jsonData |  | Username of the user that owns the Azure DevOps PAT. May be needed for some versions of Azure DevOps Server. |
 
-## Azure DevOps settings
+## Provisioning examples
 
-### URL
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_**required** · string_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Azure DevOps instance URL.
+### `patToken`
 
-| | |
-|---|---|
-| Example | `https://dev.azure.com/XXXX` |
+**Grafana provisioning YAML**
 
-### PAT
+```yaml
+apiVersion: 1
+datasources:
+  - name: Azure DevOps
+    type: grafana-azuredevops-datasource
+    access: proxy
+    jsonData:
+      authType: patToken
+      projectsLimit: 100
+      url: "https://dev.azure.com/XXXX"
+    secureJsonData:
+      patToken: "<YOUR_PAT>"
+```
 
-_🔒 secret (write-only) · **required** · string_
+**Terraform**
 
-Azure DevOps personal access token.
+```hcl
+resource "grafana_data_source" "grafana_azuredevops_datasource_patToken" {
+  type = "grafana-azuredevops-datasource"
+  name = "Azure DevOps"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `Azure DevOps PAT` |
+  json_data_encoded = jsonencode({
+    authType = "patToken"
+    projectsLimit = 100
+    url = "https://dev.azure.com/XXXX"
+  })
 
-## Optional Configuration
-
-_This section is optional._
-
-### Projects limit
-
-_optional · number_
-
-Number of items to retrieve in projects list query.
-
-| | |
-|---|---|
-| Default | `100` |
-| Example | `100` |
-
-### Username
-
-_optional · string_
-
-Username of the user that owns the Azure DevOps PAT. May be needed for some versions of Azure DevOps Server.
-
-| | |
-|---|---|
-| Example | `ado` |
+  secure_json_data_encoded = jsonencode({
+    patToken = "<YOUR_PAT>"
+  })
+}
+```
 

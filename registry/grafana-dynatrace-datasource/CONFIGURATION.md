@@ -1,113 +1,76 @@
 # Dynatrace configuration
 
-How to configure the **Dynatrace** data source (`grafana-dynatrace-datasource`) in Grafana.
+Configuration reference for the **Dynatrace** data source (`grafana-dynatrace-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-dynatrace-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection)
-- [Authentication](#authentication)
-- [Additional settings](#additional-settings) — _optional_
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.apiType` | enum (saas, managed, url) | jsonData |  | Dynatrace API Type |
+| `jsonData.environmentId` | string | jsonData | yes | Get environment ID from your instance URL: [environmentId].live.dynatrace.com |
+| `jsonData.domain` | string | jsonData | conditional | Domain |
+| `secureJsonData.apiToken` 🔒 | string | secureJsonData | conditional | The API token for the Dynatrace API. This is required for Older api endpoints on Dynatrace like Metrics, Problems, Logs, etc. |
+| `secureJsonData.platformToken` 🔒 | string | secureJsonData | conditional | The Platform token for the Dynatrace Platform API. This is required for Newer api endpoints on Dynatrace like Grail |
+| `jsonData.httpClientTimeout` | number | jsonData |  | The timeout for the HTTP client in seconds. Default is 30 seconds. |
+| `jsonData.tlsSkipVerify` | boolean | jsonData |  | Skip TLS Verify |
+| `jsonData.tlsAuthWithCACert` | boolean | jsonData |  | Needed for verifying self-signed TLS Certificates |
+| `secureJsonData.tlsCACert` 🔒 | string (multiline) | secureJsonData | conditional | TLS/SSL Certs are encrypted and stored in the Grafana database. |
 
-## Connection
+## Provisioning examples
 
-### Dynatrace API Type
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · radio_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-| | |
-|---|---|
-| Default | `saas` |
-| Allowed values | `saas` (SaaS Environment), `managed` (Managed Cluster), `url` (Raw URL) |
+### Default configuration
 
-### Environment ID
+**Grafana provisioning YAML**
 
-_**required** · string_
+```yaml
+apiVersion: 1
+datasources:
+  - name: Dynatrace
+    type: grafana-dynatrace-datasource
+    access: proxy
+    jsonData:
+      apiType: saas
+      domain: Your Domain
+      environmentId: Your Environment ID
+      httpClientTimeout: 30
+      tlsAuthWithCACert: false
+      tlsSkipVerify: false
+    secureJsonData:
+      apiToken: "<YOUR_DYNATRACE_API_TOKEN>"
+      platformToken: "<YOUR_DYNATRACE_PLATFORM_TOKEN>"
+      tlsCACert: "<YOUR_CA_CERT>"
+```
 
-Get environment ID from your instance URL: [environmentId].live.dynatrace.com.
+**Terraform**
 
-| | |
-|---|---|
-| Example | `Your Environment ID` |
+```hcl
+resource "grafana_data_source" "grafana_dynatrace_datasource" {
+  type = "grafana-dynatrace-datasource"
+  name = "Dynatrace"
+  url = "https://example.com"
 
-### Domain
+  json_data_encoded = jsonencode({
+    apiType = "saas"
+    domain = "Your Domain"
+    environmentId = "Your Environment ID"
+    httpClientTimeout = 30
+    tlsAuthWithCACert = false
+    tlsSkipVerify = false
+  })
 
-_conditionally required · string_
-
-| | |
-|---|---|
-| Example | `Your Domain` |
-| Shown when | **Dynatrace API Type** is **Managed Cluster** (`managed`) |
-
-## Authentication
-
-### Dynatrace API Token
-
-_🔒 secret (write-only) · conditionally required · string_
-
-The API token for the Dynatrace API. This is required for Older api endpoints on Dynatrace like Metrics, Problems, Logs, etc.
-
-| | |
-|---|---|
-| Example | `Your API Token` |
-| Required when | **Dynatrace Platform Token** is `` |
-
-### Dynatrace Platform Token
-
-_🔒 secret (write-only) · conditionally required · string_
-
-The Platform token for the Dynatrace Platform API. This is required for Newer api endpoints on Dynatrace like Grail.
-
-| | |
-|---|---|
-| Example | `Your Platform Token` |
-| Required when | **Dynatrace API Token** is `` |
-
-## Additional settings
-
-_This section is optional._
-
-### Timeout
-
-_optional · number_
-
-The timeout for the HTTP client in seconds. Default is 30 seconds.
-
-| | |
-|---|---|
-| Default | `30` |
-| Example | `30` |
-| Range | at least 0 |
-
-### Skip TLS Verify
-
-_optional · toggle_
-
-| | |
-|---|---|
-| Default | `false` |
-
-### With CA Cert
-
-_optional · toggle_
-
-Needed for verifying self-signed TLS Certificates.
-
-| | |
-|---|---|
-| Default | `false` |
-
-### CA Cert
-
-_🔒 secret (write-only) · conditionally required · multiline text_
-
-TLS/SSL Certs are encrypted and stored in the Grafana database.
-
-| | |
-|---|---|
-| Example | `Begins with -----BEGIN CERTIFICATE-----` |
-| Shown when | **With CA Cert** is `true` |
+  secure_json_data_encoded = jsonencode({
+    apiToken = "<YOUR_DYNATRACE_API_TOKEN>"
+    platformToken = "<YOUR_DYNATRACE_PLATFORM_TOKEN>"
+    tlsCACert = "<YOUR_CA_CERT>"
+  })
+}
+```
 

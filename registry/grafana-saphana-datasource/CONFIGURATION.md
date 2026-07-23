@@ -1,180 +1,86 @@
 # SAP HANA® configuration
 
-How to configure the **SAP HANA®** data source (`grafana-saphana-datasource`) in Grafana.
+Configuration reference for the **SAP HANA®** data source (`grafana-saphana-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-saphana-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [HTTP](#http)
-- [Auth](#auth)
-- [TLS / SSL Settings](#tls--ssl-settings)
-- [Tenant Properties](#tenant-properties)
-- [Additional Properties](#additional-properties)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.server` | string | jsonData | yes | SAP HANA server address |
+| `jsonData.port` | number | jsonData | conditional | SAP HANA server port (optional if database name filled). Typically this will be 443 for SAP HANA Cloud. For on-prem/multi-tenanted instances, use the corresponding port number |
+| `jsonData.username` | string | jsonData | conditional | SAP HANA username |
+| `secureJsonData.password` 🔒 | string | secureJsonData | conditional | SAP HANA password |
+| `jsonData.tlsDisabled` | boolean | jsonData |  | Enable TLS/SSL encryption for the connection to SAP HANA. Enabled by default. Disable only when your SAP HANA instance does not have TLS configured (plaintext connections). |
+| `jsonData.tlsSkipVerify` | boolean | jsonData |  | Skip TLS Verify |
+| `jsonData.tlsAuth` | boolean | jsonData |  | TLS Client Auth |
+| `secureJsonData.tlsClientCert` 🔒 | string (multiline) | secureJsonData | conditional | Client Cert |
+| `secureJsonData.tlsClientKey` 🔒 | string (multiline) | secureJsonData | conditional | Client Key |
+| `jsonData.tlsAuthWithCACert` | boolean | jsonData |  | Needed for verifying self-signed TLS Certs |
+| `secureJsonData.tlsCACert` 🔒 | string (multiline) | secureJsonData |  | CA Cert |
+| `jsonData.databaseName` | string | jsonData |  | Tenant database name (optional). If database name is set as well as the instance number, port is not required. |
+| `jsonData.instance` | string | jsonData |  | SAP HANA tenant instance number (optional). If instance number is set, port is not required. |
+| `jsonData.defaultSchema` | string | jsonData |  | Default schema to be used. Can be empty. |
+| `jsonData.timeout` | string | jsonData |  | Timeout |
 
-## HTTP
+## Provisioning examples
 
-### Server address
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_**required** · string_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-SAP HANA server address.
+### Default configuration
 
-| | |
-|---|---|
-| Example | `Server address` |
+**Grafana provisioning YAML**
 
-### Server port
+```yaml
+apiVersion: 1
+datasources:
+  - name: SAP HANA®
+    type: grafana-saphana-datasource
+    access: proxy
+    jsonData:
+      port: 0
+      server: Server address
+      timeout: "30"
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      tlsDisabled: false
+      tlsSkipVerify: false
+      username: Username
+    secureJsonData:
+      password: "<YOUR_PASSWORD>"
+      tlsClientCert: "<YOUR_CLIENT_CERT>"
+      tlsClientKey: "<YOUR_CLIENT_KEY>"
+```
 
-_conditionally required · number_
+**Terraform**
 
-SAP HANA server port (optional if database name filled). Typically this will be 443 for SAP HANA Cloud. For on-prem/multi-tenanted instances, use the corresponding port number.
+```hcl
+resource "grafana_data_source" "grafana_saphana_datasource" {
+  type = "grafana-saphana-datasource"
+  name = "SAP HANA®"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `Server port` |
-| Required when | `jsonData_instance == '' || jsonData_databaseName == ''` |
+  json_data_encoded = jsonencode({
+    port = 0
+    server = "Server address"
+    timeout = "30"
+    tlsAuth = false
+    tlsAuthWithCACert = false
+    tlsDisabled = false
+    tlsSkipVerify = false
+    username = "Username"
+  })
 
-## Auth
-
-### Username
-
-_conditionally required · string_
-
-SAP HANA username.
-
-| | |
-|---|---|
-| Example | `Username` |
-| Required when | `jsonData_tlsAuth != true` |
-
-### Password
-
-_🔒 secret (write-only) · conditionally required · string_
-
-SAP HANA password.
-
-| | |
-|---|---|
-| Example | `Password` |
-| Required when | `jsonData_tlsAuth != true` |
-
-## TLS / SSL Settings
-
-### TLS
-
-_optional · toggle_
-
-Enable TLS/SSL encryption for the connection to SAP HANA. Enabled by default. Disable only when your SAP HANA instance does not have TLS configured (plaintext connections).
-
-| | |
-|---|---|
-| Default | `false` |
-
-### Skip TLS Verify
-
-_optional · toggle_
-
-Skip TLS Verify.
-
-| | |
-|---|---|
-| Default | `false` |
-| Shown when | `jsonData_tlsDisabled != true` |
-
-### TLS Client Auth
-
-_optional · toggle_
-
-TLS Client Auth.
-
-| | |
-|---|---|
-| Default | `false` |
-| Shown when | `jsonData_tlsDisabled != true` |
-
-### Client Cert
-
-_🔒 secret (write-only) · conditionally required · multiline text_
-
-| | |
-|---|---|
-| Example | `Client Cert. Begins with -----BEGIN CERTIFICATE-----` |
-| Shown when | `jsonData_tlsDisabled != true && jsonData_tlsAuth == true` |
-| Required when | **TLS Client Auth** is `true` |
-
-### Client Key
-
-_🔒 secret (write-only) · conditionally required · multiline text_
-
-| | |
-|---|---|
-| Example | `Client Key. Begins with -----BEGIN RSA PRIVATE KEY-----` |
-| Shown when | `jsonData_tlsDisabled != true && jsonData_tlsAuth == true` |
-| Required when | **TLS Client Auth** is `true` |
-
-### With CA Cert
-
-_optional · toggle_
-
-Needed for verifying self-signed TLS Certs.
-
-| | |
-|---|---|
-| Default | `false` |
-| Shown when | `jsonData_tlsDisabled != true` |
-
-### CA Cert
-
-_🔒 secret (write-only) · optional · multiline text_
-
-| | |
-|---|---|
-| Example | `CA Cert. Begins with -----BEGIN CERTIFICATE-----` |
-| Shown when | `jsonData_tlsDisabled != true && jsonData_tlsAuthWithCACert == true` |
-
-## Tenant Properties
-
-### Tenant database name
-
-_optional · string_
-
-Tenant database name (optional). If database name is set as well as the instance number, port is not required.
-
-| | |
-|---|---|
-| Example | `Tenant database name` |
-
-### Tenant instance number
-
-_optional · string_
-
-SAP HANA tenant instance number (optional). If instance number is set, port is not required.
-
-| | |
-|---|---|
-| Example | `Tenant instance number` |
-
-## Additional Properties
-
-### Default schema
-
-_optional · string_
-
-Default schema to be used. Can be empty.
-
-| | |
-|---|---|
-| Example | `Default schema` |
-
-### Timeout
-
-_optional · string_
-
-| | |
-|---|---|
-| Default | `30` |
-| Example | `Timeout for connections` |
+  secure_json_data_encoded = jsonencode({
+    password = "<YOUR_PASSWORD>"
+    tlsClientCert = "<YOUR_CLIENT_CERT>"
+    tlsClientKey = "<YOUR_CLIENT_KEY>"
+  })
+}
+```
 

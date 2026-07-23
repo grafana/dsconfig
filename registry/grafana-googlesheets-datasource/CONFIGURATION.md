@@ -1,141 +1,129 @@
 # Google Sheets configuration
 
-How to configure the **Google Sheets** data source (`grafana-googlesheets-datasource`) in Grafana.
+Configuration reference for the **Google Sheets** data source (`grafana-googlesheets-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-googlesheets-datasource/).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Authentication](#authentication)
-- [Settings](#settings) — _optional_
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.authenticationType` | enum (key, jwt, gce) | jsonData |  | Authentication type |
+| `jsonData.authType` | enum (key, jwt, gce) | jsonData |  | Legacy authentication type field. Older provisioning stored the auth type here; the backend copies its value into `authenticationType` on load. Prefer `authenticationType` for new configurations. |
+| `secureJsonData.apiKey` 🔒 | string | secureJsonData | conditional | API Key |
+| `jsonData.defaultProject` | string | jsonData |  | Default project |
+| `jsonData.clientEmail` | string | jsonData | conditional | Client email |
+| `jsonData.tokenUri` | string | jsonData | conditional | Token URI |
+| `jsonData.privateKeyPath` | string | jsonData |  | Paste private key or provide path to private file |
+| `secureJsonData.privateKey` 🔒 | string | secureJsonData | conditional | Paste private key or provide path to private file |
+| `secureJsonData.jwt` 🔒 | string | secureJsonData |  | Legacy write-only secret used by older versions of the plugin. The backend still copies its decrypted value into memory but no runtime code path depends on it; new configurations should use `privateKey` instead. |
+| `jsonData.defaultSheetID` | string | jsonData |  | Optional spreadsheet ID to use as default when creating new queries |
 
-## Authentication
+## Provisioning examples
 
-### Authentication type
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · radio_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-| | |
-|---|---|
-| Default | `jwt` |
-| Allowed values | `key` (API Key), `jwt` (Google JWT File), `gce` (GCE Default Service Account) |
+### API Key (`key`)
 
-**Configure Google Sheets Authentication**
+**Grafana provisioning YAML**
 
-#### Choosing an authentication type
+```yaml
+apiVersion: 1
+datasources:
+  - name: Google Sheets
+    type: grafana-googlesheets-datasource
+    access: proxy
+    jsonData:
+      authenticationType: key
+    secureJsonData:
+      apiKey: "<YOUR_API_KEY>"
+```
 
-- **Google JWT File**: provides access to private spreadsheets and works in all environments where Grafana is running.
-- **API Key**: simpler configuration, but requires spreadsheets to be public.
-- **GCE Default Service Account**: automatically retrieves default credentials. Requires Grafana to be running on a Google Compute Engine virtual machine.
+**Terraform**
 
-Select an Authentication type below and expand **Configure Google Sheets Authentication** for detailed guidance on configuration.
+```hcl
+resource "grafana_data_source" "grafana_googlesheets_datasource_key" {
+  type = "grafana-googlesheets-datasource"
+  name = "Google Sheets"
+  url = "https://example.com"
 
-### JWT token
+  json_data_encoded = jsonencode({
+    authenticationType = "key"
+  })
 
-_optional · file upload_
+  secure_json_data_encoded = jsonencode({
+    apiKey = "<YOUR_API_KEY>"
+  })
+}
+```
 
-Upload or paste a Google service-account JWT key file (.json). Its project_id, client_email, token_uri, and private_key are distributed into the JWT fields below.
+### Google JWT File (`jwt`)
 
-| | |
-|---|---|
-| Shown when | **Authentication type** is **Google JWT File** (`jwt`) |
+**Grafana provisioning YAML**
 
-### API Key
+```yaml
+apiVersion: 1
+datasources:
+  - name: Google Sheets
+    type: grafana-googlesheets-datasource
+    access: proxy
+    jsonData:
+      authenticationType: jwt
+      clientEmail: "<YOUR_CLIENT_EMAIL>"
+      tokenUri: "<YOUR_TOKEN_URI>"
+    secureJsonData:
+      privateKey: "<YOUR_PRIVATE_KEY>"
+```
 
-_🔒 secret (write-only) · conditionally required · string_
+**Terraform**
 
-| | |
-|---|---|
-| Example | `Enter API key` |
-| Shown when | **Authentication type** is **API Key** (`key`) |
+```hcl
+resource "grafana_data_source" "grafana_googlesheets_datasource_jwt" {
+  type = "grafana-googlesheets-datasource"
+  name = "Google Sheets"
+  url = "https://example.com"
 
-**Generate an API key**
+  json_data_encoded = jsonencode({
+    authenticationType = "jwt"
+    clientEmail = "<YOUR_CLIENT_EMAIL>"
+    tokenUri = "<YOUR_TOKEN_URI>"
+  })
 
-1. Open the [Google Sheets](https://console.cloud.google.com/apis/library/sheets.googleapis.com?q=sheet) page in the API Library and enable access for your account.
-2. Open the [Credentials page](https://console.developers.google.com/apis/credentials) in the Google API Console.
-3. Click **Create Credentials** and then click **API key**.
-4. Copy the key and paste it in the API Key field below. The file contents are encrypted and saved in the Grafana database.
+  secure_json_data_encoded = jsonencode({
+    privateKey = "<YOUR_PRIVATE_KEY>"
+  })
+}
+```
 
-### Default project
+### GCE Default Service Account (`gce`)
 
-_optional · string_
+**Grafana provisioning YAML**
 
-| | |
-|---|---|
-| Shown when | `jsonData_authenticationType == 'jwt' || jsonData_authenticationType == 'gce'` |
+```yaml
+apiVersion: 1
+datasources:
+  - name: Google Sheets
+    type: grafana-googlesheets-datasource
+    access: proxy
+    jsonData:
+      authenticationType: gce
+```
 
-### Client email
+**Terraform**
 
-_conditionally required · string_
+```hcl
+resource "grafana_data_source" "grafana_googlesheets_datasource_gce" {
+  type = "grafana-googlesheets-datasource"
+  name = "Google Sheets"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Shown when | **Authentication type** is **Google JWT File** (`jwt`) |
-| Required when | `jsonData_authenticationType == 'jwt' && jsonData_privateKeyPath == ''` |
-
-### Token URI
-
-_conditionally required · string_
-
-| | |
-|---|---|
-| Shown when | **Authentication type** is **Google JWT File** (`jwt`) |
-| Required when | `jsonData_authenticationType == 'jwt' && jsonData_privateKeyPath == ''` |
-
-### Private key path
-
-_optional · string_
-
-Paste private key or provide path to private file.
-
-| | |
-|---|---|
-| Example | `File location of your private key (e.g. /etc/secrets/gce.pem)` |
-| Shown when | **Authentication type** is **Google JWT File** (`jwt`) |
-
-### Private key
-
-_🔒 secret (write-only) · conditionally required · string_
-
-Paste private key or provide path to private file.
-
-| | |
-|---|---|
-| Example | `Enter Private key` |
-| Shown when | **Authentication type** is **Google JWT File** (`jwt`) |
-| Required when | `jsonData_authenticationType == 'jwt' && jsonData_privateKeyPath == ''` |
-
-## Settings
-
-_This section is optional._
-
-### Default Spreadsheet ID
-
-_optional · string_
-
-Optional spreadsheet ID to use as default when creating new queries.
-
-| | |
-|---|---|
-| Example | `Select Spreadsheet ID` |
-
-## Other settings
-
-### authType
-
-_optional · string_
-
-Legacy authentication type field. Older provisioning stored the auth type here; the backend copies its value into `authenticationType` on load. Prefer `authenticationType` for new configurations.
-
-| | |
-|---|---|
-| Allowed values | `key`, `jwt`, `gce` |
-
-### jwt
-
-_🔒 secret (write-only) · optional · string_
-
-Legacy write-only secret used by older versions of the plugin. The backend still copies its decrypted value into memory but no runtime code path depends on it; new configurations should use `privateKey` instead.
+  json_data_encoded = jsonencode({
+    authenticationType = "gce"
+  })
+}
+```
 

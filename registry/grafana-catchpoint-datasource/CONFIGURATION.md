@@ -1,36 +1,64 @@
 # Catchpoint configuration
 
-How to configure the **Catchpoint** data source (`grafana-catchpoint-datasource`) in Grafana.
+Configuration reference for the **Catchpoint** data source (`grafana-catchpoint-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-catchpoint-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.services.catchpoint.auth.id` | enum (bearer_token) | jsonData |  | Catchpoint REST API v2 Key. |
+| `secureJsonData.catchpoint.token` 🔒 | string | secureJsonData | conditional | Token for accessing the datasource API |
 
-## Authentication
+## Provisioning examples
 
-### API v2 Key
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · select_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Catchpoint REST API v2 Key.
+### API v2 Key (`bearer_token`)
 
-| | |
-|---|---|
-| Default | `bearer_token` |
-| Allowed values | `bearer_token` (API v2 Key) |
+**Grafana provisioning YAML**
 
-### Token
+```yaml
+apiVersion: 1
+datasources:
+  - name: Catchpoint
+    type: grafana-catchpoint-datasource
+    access: proxy
+    jsonData:
+      services:
+        catchpoint:
+          auth:
+            id: bearer_token
+    secureJsonData:
+      catchpoint.token: "<YOUR_TOKEN>"
+```
 
-_🔒 secret (write-only) · conditionally required · string_
+**Terraform**
 
-Token for accessing the datasource API.
+```hcl
+resource "grafana_data_source" "grafana_catchpoint_datasource_bearer_token" {
+  type = "grafana-catchpoint-datasource"
+  name = "Catchpoint"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Example | `Token value` |
-| Shown when | **API v2 Key** is **API v2 Key** (`bearer_token`) |
+  json_data_encoded = jsonencode({
+    services = {
+      catchpoint = {
+        auth = {
+          id = "bearer_token"
+        }
+      }
+    }
+  })
+
+  secure_json_data_encoded = jsonencode({
+    "catchpoint.token" = "<YOUR_TOKEN>"
+  })
+}
+```
 

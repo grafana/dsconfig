@@ -1,145 +1,132 @@
 # Datadog configuration
 
-How to configure the **Datadog** data source (`grafana-datadog-datasource`) in Grafana.
+Configuration reference for the **Datadog** data source (`grafana-datadog-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-datadog-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection)
-- [Authentication](#authentication)
-- [Additional settings](#additional-settings) — _optional_
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.pluginMode` | enum (default, hosted-metrics) | jsonData |  |  |
+| `basicAuth` | boolean | root |  |  |
+| `jsonData.url` | string | jsonData | yes | A URL to the Datadog API (e.g.: https://api.datadoghq.com) |
+| `secureJsonData.apiKey` 🔒 | string | secureJsonData | conditional | An API key is unique to your organization. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-an-api-key-and-application-key-from-datadog). |
+| `secureJsonData.appKey` 🔒 | string | secureJsonData | conditional | An application key is used with the API key to give access to the Datadog API. By default, application keys have the permissions of the user who created them. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-api-key-and-application-key-from-datadog). You can also customize the scope of the application key in the [Datadog docs](https://docs.datadoghq.com/api/latest/scopes/). |
+| `basicAuthUser` | string | root | conditional | Your username is your Grafana Cloud Prometheus username. This can be found in the Prometheus details in your cloud portal. |
+| `secureJsonData.basicAuthPassword` 🔒 | string | secureJsonData | conditional | Your password is your Grafana Cloud API Key with read permissions. This can be found in the Prometheus details in your cloud portal. |
+| `jsonData.logApiRateLimits` | boolean | jsonData |  | Show Datadog API limits for each queried endpoint. To view the API rate limits, go to the **Query Inspector**, select **JSON**, and set **select source** to **DataFrame structure**. |
+| `jsonData.rateLimitEnabled` | boolean | jsonData |  | Enable rate limit. Datadog query will stop once it reaches entered threshold. |
+| `jsonData.rateLimitMetrics` | number | jsonData |  | Enter percentage of threshold. (If the API hit the % of rate limit, plugin will block subsequent requests till next reset) |
+| `jsonData.disableDataLinks` | boolean | jsonData |  | Data links take users directly to the relevant location in the Datadog app when they interact with panels. |
+| `jsonData.size` | number | jsonData |  | Set maximum number of items to retrieve in a single API request (default is 100). |
 
-## Connection
+## Provisioning examples
 
-### Mode
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · radio_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Choose **Hosted Datadog Metrics**, if you want to connect using a Datadog proxy through [Hosted Datadog Metrics](https://grafana.com/docs/grafana-cloud/data-configuration/metrics/metrics-datadog/). Otherwise choose **Default** to directly connect to DataDog API endpoints.
+### `default`
 
-| | |
-|---|---|
-| Default | `default` |
-| Allowed values | `default` (Default), `hosted-metrics` (Hosted Datadog Metrics) |
+**Grafana provisioning YAML**
 
-### API URL / Region
+```yaml
+apiVersion: 1
+datasources:
+  - name: Datadog
+    type: grafana-datadog-datasource
+    access: proxy
+    basicAuth: false
+    jsonData:
+      disableDataLinks: false
+      logApiRateLimits: false
+      pluginMode: default
+      rateLimitEnabled: false
+      rateLimitMetrics: 100
+      size: 100
+      url: "https://api.datadoghq.com"
+    secureJsonData:
+      apiKey: "<YOUR_API_KEY>"
+      appKey: "<YOUR_APP_KEY>"
+```
 
-_**required** · string_
+**Terraform**
 
-A URL to the Datadog API (e.g.: https://api.datadoghq.com).
+```hcl
+resource "grafana_data_source" "grafana_datadog_datasource_default" {
+  type = "grafana-datadog-datasource"
+  name = "Datadog"
+  url = "https://example.com"
 
-| | |
-|---|---|
-| Default | `https://api.datadoghq.com` |
-| Example | `https://api.datadoghq.com` |
+  json_data_encoded = jsonencode({
+    disableDataLinks = false
+    logApiRateLimits = false
+    pluginMode = "default"
+    rateLimitEnabled = false
+    rateLimitMetrics = 100
+    size = 100
+    url = "https://api.datadoghq.com"
+  })
 
-## Authentication
+  secure_json_data_encoded = jsonencode({
+    apiKey = "<YOUR_API_KEY>"
+    appKey = "<YOUR_APP_KEY>"
+  })
+}
+```
 
-### API key
+### `hosted-metrics`
 
-_🔒 secret (write-only) · conditionally required · string_
+**Grafana provisioning YAML**
 
-An API key is unique to your organization. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-an-api-key-and-application-key-from-datadog).
+```yaml
+apiVersion: 1
+datasources:
+  - name: Datadog
+    type: grafana-datadog-datasource
+    access: proxy
+    basicAuth: false
+    basicAuthUser: User
+    jsonData:
+      disableDataLinks: false
+      logApiRateLimits: false
+      pluginMode: hosted-metrics
+      rateLimitEnabled: false
+      rateLimitMetrics: 100
+      size: 100
+      url: "https://api.datadoghq.com"
+    secureJsonData:
+      apiKey: "<YOUR_API_KEY>"
+      appKey: "<YOUR_APP_KEY>"
+      basicAuthPassword: "<YOUR_PASSWORD>"
+```
 
-| | |
-|---|---|
-| Example | `Datadog API key` |
-| Shown when | **Mode** is **Default** (`default`) |
-| Required when | `jsonData_pluginMode != 'hosted-metrics'` |
+**Terraform**
 
-### App key
+```hcl
+resource "grafana_data_source" "grafana_datadog_datasource_hosted_metrics" {
+  type = "grafana-datadog-datasource"
+  name = "Datadog"
+  url = "https://example.com"
 
-_🔒 secret (write-only) · conditionally required · string_
+  json_data_encoded = jsonencode({
+    disableDataLinks = false
+    logApiRateLimits = false
+    pluginMode = "hosted-metrics"
+    rateLimitEnabled = false
+    rateLimitMetrics = 100
+    size = 100
+    url = "https://api.datadoghq.com"
+  })
 
-An application key is used with the API key to give access to the Datadog API. By default, application keys have the permissions of the user who created them. [Learn more](https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/#get-api-key-and-application-key-from-datadog). You can also customize the scope of the application key in the [Datadog docs](https://docs.datadoghq.com/api/latest/scopes/).
-
-| | |
-|---|---|
-| Example | `Datadog App key` |
-| Shown when | **Mode** is **Default** (`default`) |
-| Required when | `jsonData_pluginMode != 'hosted-metrics'` |
-
-### User
-
-_conditionally required · string_
-
-Your username is your Grafana Cloud Prometheus username. This can be found in the Prometheus details in your cloud portal.
-
-| | |
-|---|---|
-| Example | `User` |
-| Shown when | **Mode** is **Hosted Datadog Metrics** (`hosted-metrics`) |
-| Required when | **pluginMode** is `hosted-metrics` |
-
-### Password
-
-_🔒 secret (write-only) · conditionally required · string_
-
-Your password is your Grafana Cloud API Key with read permissions. This can be found in the Prometheus details in your cloud portal.
-
-| | |
-|---|---|
-| Example | `Password` |
-| Shown when | **Mode** is **Hosted Datadog Metrics** (`hosted-metrics`) |
-| Required when | **pluginMode** is `hosted-metrics` |
-
-## Additional settings
-
-_This section is optional._
-
-### Show API rate limits
-
-_optional · toggle_
-
-Show Datadog API limits for each queried endpoint. To view the API rate limits, go to the **Query Inspector**, select **JSON**, and set **select source** to **DataFrame structure**.
-
-| | |
-|---|---|
-| Default | `false` |
-
-### Enable API rate limit threshold
-
-_optional · toggle_
-
-Enable rate limit. Datadog query will stop once it reaches entered threshold.
-
-| | |
-|---|---|
-| Default | `false` |
-
-### API rate limit threshold %
-
-_optional · number_
-
-Enter percentage of threshold. (If the API hit the % of rate limit, plugin will block subsequent requests till next reset).
-
-| | |
-|---|---|
-| Default | `100` |
-| Range | 0 – 100 |
-| Shown when | **Enable API rate limit threshold** is `true` |
-
-### Disable data links
-
-_optional · toggle_
-
-Data links take users directly to the relevant location in the Datadog app when they interact with panels.
-
-| | |
-|---|---|
-| Default | `false` |
-
-### Response Size
-
-_optional · number_
-
-Set maximum number of items to retrieve in a single API request (default is 100).
-
-| | |
-|---|---|
-| Default | `100` |
-| Example | `100` |
+  secure_json_data_encoded = jsonencode({
+    apiKey = "<YOUR_API_KEY>"
+    appKey = "<YOUR_APP_KEY>"
+    basicAuthPassword = "<YOUR_PASSWORD>"
+  })
+}
+```
 

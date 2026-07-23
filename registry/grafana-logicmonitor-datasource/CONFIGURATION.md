@@ -1,47 +1,70 @@
 # LogicMonitor Devices configuration
 
-How to configure the **LogicMonitor Devices** data source (`grafana-logicmonitor-datasource`) in Grafana.
+Configuration reference for the **LogicMonitor Devices** data source (`grafana-logicmonitor-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-logicmonitor-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection)
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.variables.account_name` | string | jsonData | yes | Your LogicMonitor account name. Example: Use foo for the logic monitor URL https://foo.logicmonitor.com/` |
+| `jsonData.services.logicmonitor.auth.id` | enum (auth_bearer) | jsonData |  | Bearer token for LogicMonitor REST API v3. |
+| `secureJsonData.logicmonitor.token` 🔒 | string | secureJsonData | conditional | Token for accessing the datasource API |
 
-## Connection
+## Provisioning examples
 
-Provide information to connect to the data source
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-### Account Name
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-_**required** · string_
+### API v3 Key (`auth_bearer`)
 
-Your LogicMonitor account name. Example: Use foo for the logic monitor URL https://foo.logicmonitor.com/`.
+**Grafana provisioning YAML**
 
-## Authentication
+```yaml
+apiVersion: 1
+datasources:
+  - name: LogicMonitor Devices
+    type: grafana-logicmonitor-datasource
+    access: proxy
+    jsonData:
+      services:
+        logicmonitor:
+          auth:
+            id: auth_bearer
+      variables:
+        account_name: "<YOUR_ACCOUNT_NAME>"
+    secureJsonData:
+      logicmonitor.token: "<YOUR_TOKEN>"
+```
 
-### API v3 Key
+**Terraform**
 
-_optional · select_
+```hcl
+resource "grafana_data_source" "grafana_logicmonitor_datasource_auth_bearer" {
+  type = "grafana-logicmonitor-datasource"
+  name = "LogicMonitor Devices"
+  url = "https://example.com"
 
-Bearer token for LogicMonitor REST API v3.
+  json_data_encoded = jsonencode({
+    services = {
+      logicmonitor = {
+        auth = {
+          id = "auth_bearer"
+        }
+      }
+    }
+    variables = {
+      account_name = "<YOUR_ACCOUNT_NAME>"
+    }
+  })
 
-| | |
-|---|---|
-| Default | `auth_bearer` |
-| Allowed values | `auth_bearer` (API v3 Key) |
-
-### Token
-
-_🔒 secret (write-only) · conditionally required · string_
-
-Token for accessing the datasource API.
-
-| | |
-|---|---|
-| Example | `Token value` |
-| Shown when | **API v3 Key** is **API v3 Key** (`auth_bearer`) |
+  secure_json_data_encoded = jsonencode({
+    "logicmonitor.token" = "<YOUR_TOKEN>"
+  })
+}
+```
 

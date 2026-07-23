@@ -1,89 +1,119 @@
 # AstraDB configuration
 
-How to configure the **AstraDB** data source (`grafana-astradb-datasource`) in Grafana.
+Configuration reference for the **AstraDB** data source (`grafana-astradb-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/grafana/plugins/grafana-astradb-datasource/).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection)
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.authKind` | enum (0, 1) | jsonData |  | Authentication |
+| `jsonData.uri` | string | jsonData | conditional | URI |
+| `secureJsonData.token` 🔒 | string | secureJsonData | conditional | Token |
+| `jsonData.grpcEndpoint` | string | jsonData | conditional | GRPC Endpoint |
+| `jsonData.authEndpoint` | string | jsonData | conditional | Auth Endpoint |
+| `jsonData.user` | string | jsonData | conditional | User Name |
+| `secureJsonData.password` 🔒 | string | secureJsonData | conditional | Password |
+| `jsonData.secure` | boolean | jsonData |  | Secure |
 
-## Connection
+## Provisioning examples
 
-### URI
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_conditionally required · string_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-| | |
-|---|---|
-| Example | `$ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443` |
-| Shown when | **Authentication** is **Token** (`0`) |
+### Token (`0`)
 
-### GRPC Endpoint
+**Grafana provisioning YAML**
 
-_conditionally required · string_
+```yaml
+apiVersion: 1
+datasources:
+  - name: AstraDB
+    type: grafana-astradb-datasource
+    access: proxy
+    jsonData:
+      authEndpoint: "localhost:8081"
+      authKind: "0"
+      grpcEndpoint: "localhost:8090"
+      secure: false
+      uri: "$ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443"
+      user: "localhost:8090"
+    secureJsonData:
+      password: "<YOUR_PASSWORD>"
+      token: "<YOUR_TOKEN>"
+```
 
-| | |
-|---|---|
-| Example | `localhost:8090` |
-| Shown when | **Authentication** is **Credentials** (`1`) |
+**Terraform**
 
-### Auth Endpoint
+```hcl
+resource "grafana_data_source" "grafana_astradb_datasource_0" {
+  type = "grafana-astradb-datasource"
+  name = "AstraDB"
+  url = "https://example.com"
 
-_conditionally required · string_
+  json_data_encoded = jsonencode({
+    authEndpoint = "localhost:8081"
+    authKind = "0"
+    grpcEndpoint = "localhost:8090"
+    secure = false
+    uri = "$ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443"
+    user = "localhost:8090"
+  })
 
-| | |
-|---|---|
-| Example | `localhost:8081` |
-| Shown when | **Authentication** is **Credentials** (`1`) |
+  secure_json_data_encoded = jsonencode({
+    password = "<YOUR_PASSWORD>"
+    token = "<YOUR_TOKEN>"
+  })
+}
+```
 
-### Secure
+### Credentials (`1`)
 
-_optional · toggle_
+**Grafana provisioning YAML**
 
-| | |
-|---|---|
-| Default | `false` |
-| Shown when | **Authentication** is **Credentials** (`1`) |
+```yaml
+apiVersion: 1
+datasources:
+  - name: AstraDB
+    type: grafana-astradb-datasource
+    access: proxy
+    jsonData:
+      authEndpoint: "localhost:8081"
+      authKind: "1"
+      grpcEndpoint: "localhost:8090"
+      secure: false
+      uri: "$ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443"
+      user: "localhost:8090"
+    secureJsonData:
+      password: "<YOUR_PASSWORD>"
+      token: "<YOUR_TOKEN>"
+```
 
-## Authentication
+**Terraform**
 
-### Authentication
+```hcl
+resource "grafana_data_source" "grafana_astradb_datasource_1" {
+  type = "grafana-astradb-datasource"
+  name = "AstraDB"
+  url = "https://example.com"
 
-_optional · radio_
+  json_data_encoded = jsonencode({
+    authEndpoint = "localhost:8081"
+    authKind = "1"
+    grpcEndpoint = "localhost:8090"
+    secure = false
+    uri = "$ASTRA_CLUSTER_ID-$ASTRA_REGION.apps.astra.datastax.com:443"
+    user = "localhost:8090"
+  })
 
-| | |
-|---|---|
-| Default | `0` |
-| Allowed values | `0` (Token), `1` (Credentials) |
-
-### Token
-
-_🔒 secret (write-only) · conditionally required · string_
-
-| | |
-|---|---|
-| Example | `AstraCS:xxxxx` |
-| Shown when | **Authentication** is **Token** (`0`) |
-
-### User Name
-
-_conditionally required · string_
-
-| | |
-|---|---|
-| Example | `localhost:8090` |
-| Shown when | **Authentication** is **Credentials** (`1`) |
-
-### Password
-
-_🔒 secret (write-only) · conditionally required · string_
-
-| | |
-|---|---|
-| Example | `xxxxx` |
-| Shown when | **Authentication** is **Credentials** (`1`) |
+  secure_json_data_encoded = jsonencode({
+    password = "<YOUR_PASSWORD>"
+    token = "<YOUR_TOKEN>"
+  })
+}
+```
 

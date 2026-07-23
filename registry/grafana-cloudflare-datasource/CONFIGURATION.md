@@ -1,40 +1,64 @@
 # Cloudflare configuration
 
-How to configure the **Cloudflare** data source (`grafana-cloudflare-datasource`) in Grafana.
+Configuration reference for the **Cloudflare** data source (`grafana-cloudflare-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-cloudflare-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.services.cloudflare.auth.id` | enum (bearer_token) | jsonData |  | Cloudflare API Key. Provide relevant read-only permissions |
+| `secureJsonData.cloudflare.token` 🔒 | string | secureJsonData | conditional | Token for accessing the datasource API |
 
-## Authentication
+## Provisioning examples
 
-### API Key
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-_optional · select_
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-Cloudflare API Key. Provide relevant read-only permissions.
+### API Key (`bearer_token`)
 
-| | |
-|---|---|
-| Default | `bearer_token` |
-| Allowed values | `bearer_token` (API Key) |
+**Grafana provisioning YAML**
 
-[Learn more](https://dash.cloudflare.com/profile/api-tokens)
+```yaml
+apiVersion: 1
+datasources:
+  - name: Cloudflare
+    type: grafana-cloudflare-datasource
+    access: proxy
+    jsonData:
+      services:
+        cloudflare:
+          auth:
+            id: bearer_token
+    secureJsonData:
+      cloudflare.token: "<YOUR_TOKEN>"
+```
 
-### Token
+**Terraform**
 
-_🔒 secret (write-only) · conditionally required · string_
+```hcl
+resource "grafana_data_source" "grafana_cloudflare_datasource_bearer_token" {
+  type = "grafana-cloudflare-datasource"
+  name = "Cloudflare"
+  url = "https://example.com"
 
-Token for accessing the datasource API.
+  json_data_encoded = jsonencode({
+    services = {
+      cloudflare = {
+        auth = {
+          id = "bearer_token"
+        }
+      }
+    }
+  })
 
-| | |
-|---|---|
-| Example | `Token value` |
-| Shown when | **API Key** is **API Key** (`bearer_token`) |
-
-[Learn more](https://dash.cloudflare.com/profile/api-tokens)
+  secure_json_data_encoded = jsonencode({
+    "cloudflare.token" = "<YOUR_TOKEN>"
+  })
+}
+```
 

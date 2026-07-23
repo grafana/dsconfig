@@ -3,20 +3,24 @@ package dsconfig
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
 
 // RenderMarkdownDocs renders a consumer-facing Markdown configuration guide
 // for a datasource from its dsconfig schema. The output is intended for
-// operators configuring the plugin in Grafana, not for plugin authors — it
-// deliberately omits internal details like storage keys, roles, storage
-// mappings, effects, and LLM-tagged instructions.
+// operators provisioning the plugin in Grafana. It contains:
+//
+//   - a header with the plugin name, ID and (optional) documentation link;
+//   - a single "Fields" table listing every storage field with its dotted
+//     path, type, target, whether it is required, and description;
+//   - a "Provisioning examples" section with a Grafana YAML block and a
+//     Terraform HCL block per authentication scenario (or a single default
+//     scenario when the schema has no auth discriminator).
 //
 // The schema is expected to have base fields already resolved (via
-// ResolveBaseFields or ParseAndResolveSchemaJSON). If it has not, unresolved
-// base field references are ignored and only the plugin-declared fields
-// appear in the output.
+// ResolveBaseFields or ParseAndResolveSchemaJSON).
 func RenderMarkdownDocs(s *Schema) (string, error) {
 	if s == nil {
 		return "", fmt.Errorf("schema is nil")
@@ -27,466 +31,824 @@ func RenderMarkdownDocs(s *Schema) (string, error) {
 
 	var b strings.Builder
 
-	// Title & intro.
+	// Header.
 	fmt.Fprintf(&b, "# %s configuration\n\n", s.PluginName)
-	fmt.Fprintf(&b, "How to configure the **%s** data source (`%s`) in Grafana.\n\n",
+	fmt.Fprintf(&b, "Configuration reference for the **%s** data source (`%s`) in Grafana.\n\n",
 		s.PluginName, s.PluginType)
 	if s.DocURL != "" {
 		fmt.Fprintf(&b, "For more information, see the [official documentation](%s).\n\n", s.DocURL)
 	}
-	b.WriteString("> This page is generated from [`dsconfig.json`](dsconfig.json). ")
-	b.WriteString("Do not edit it by hand — run `go generate ./...` to refresh.\n\n")
+	b.WriteString("> Generated from [`dsconfig.json`](dsconfig.json). ")
+	b.WriteString("Do not edit by hand — run `go generate ./...` to refresh.\n\n")
 
-	// Index fields for quick lookup and detect item-only fields (fields that
-	// only appear nested inside another field's array item schema).
-	fieldsByID := map[string]*ConfigField{}
-	for i := range s.Fields {
-		f := &s.Fields[i]
-		fieldsByID[f.ID] = f
-	}
-	itemOnly := map[string]bool{}
-	for i := range s.Fields {
-		f := &s.Fields[i]
-		if f.Item != nil {
-			for j := range f.Item.Fields {
-				itemOnly[f.Item.Fields[j].ID] = true
-			}
-		}
-	}
+	// Fields reference table.
+	renderFieldsTable(&b, s)
 
-	// Partition fields into groups and "ungrouped".
-	grouped := map[string]bool{}
-	for _, g := range s.Groups {
-		for _, ref := range g.FieldRefs {
-			grouped[ref] = true
-		}
-	}
-
-	// Groups (sorted by Order, then declaration order).
-	groups := make([]ConfigGroup, len(s.Groups))
-	copy(groups, s.Groups)
-	sort.SliceStable(groups, func(i, j int) bool {
-		oi, oj := 0, 0
-		if groups[i].Order != nil {
-			oi = *groups[i].Order
-		}
-		if groups[j].Order != nil {
-			oj = *groups[j].Order
-		}
-		return oi < oj
-	})
-
-	if len(groups) > 0 {
-		b.WriteString("## Configuration sections\n\n")
-		for _, g := range groups {
-			anchor := anchorize(g.Title)
-			fmt.Fprintf(&b, "- [%s](#%s)", groupTitle(g), anchor)
-			if g.Optional {
-				b.WriteString(" — _optional_")
-			}
-			b.WriteString("\n")
-		}
-		b.WriteString("\n")
-	}
-
-	// Render each group.
-	for _, g := range groups {
-		fmt.Fprintf(&b, "## %s\n\n", groupTitle(g))
-		if g.Description != "" {
-			b.WriteString(g.Description)
-			b.WriteString("\n\n")
-		}
-		if g.Optional {
-			b.WriteString("_This section is optional._\n\n")
-		}
-
-		visible := 0
-		for _, ref := range g.FieldRefs {
-			f, ok := fieldsByID[ref]
-			if !ok {
-				continue
-			}
-			if !isConsumerVisible(f) {
-				continue
-			}
-			renderField(&b, f, s, "###")
-			visible++
-		}
-		if visible == 0 {
-			b.WriteString("_No user-configurable fields in this section._\n\n")
-		}
-	}
-
-	// Ungrouped fields, if any.
-	var ungrouped []*ConfigField
-	for i := range s.Fields {
-		f := &s.Fields[i]
-		if grouped[f.ID] || itemOnly[f.ID] {
-			continue
-		}
-		if !isConsumerVisible(f) {
-			continue
-		}
-		ungrouped = append(ungrouped, f)
-	}
-	if len(ungrouped) > 0 {
-		b.WriteString("## Other settings\n\n")
-		for _, f := range ungrouped {
-			renderField(&b, f, s, "###")
-		}
-	}
-
-	// If there are no visible fields at all, still produce a useful note.
-	if len(groups) == 0 && len(ungrouped) == 0 {
-		b.WriteString("_This data source has no user-configurable fields._\n\n")
-	}
+	// Provisioning examples per auth scenario.
+	renderExamples(&b, s)
 
 	return b.String(), nil
 }
 
-// groupTitle falls back to the group ID when title is empty.
-func groupTitle(g ConfigGroup) string {
-	if g.Title != "" {
-		return g.Title
+// -------------------------------------------------------------------------
+// Fields table
+// -------------------------------------------------------------------------
+
+// renderFieldsTable writes the "Fields" section: one row per storage field
+// in the schema (including nested array item fields). Virtual fields are
+// skipped because they have no storage.
+func renderFieldsTable(b *strings.Builder, s *Schema) {
+	rows := collectFieldRows(s.Fields, "", "")
+	if len(rows) == 0 {
+		b.WriteString("## Fields\n\n_This data source has no configurable fields._\n\n")
+		return
 	}
-	return g.ID
+	b.WriteString("## Fields\n\n")
+	b.WriteString("| Field | Type | Target | Required | Description |\n")
+	b.WriteString("|---|---|---|---|---|\n")
+	for _, r := range rows {
+		fmt.Fprintf(b, "| %s | %s | %s | %s | %s |\n",
+			r.field, r.typ, r.target, r.required, r.description)
+	}
+	b.WriteString("\n")
 }
 
-// isConsumerVisible reports whether a field should appear in the
-// consumer-facing document. Virtual fields (no storage) that carry no UI —
-// typically internal discriminators — are hidden.
-func isConsumerVisible(f *ConfigField) bool {
-	if f == nil {
-		return false
-	}
-	if f.Kind == VirtualField && f.UI == nil {
-		return false
-	}
-	// A single-value select whose only option is a discriminator (e.g. the
-	// only auth method is "none") adds no user choice — but it still
-	// documents the fact that no auth is used, so keep it visible when it
-	// has a label. If it has no label at all, skip.
-	if f.Label == "" && f.Description == "" && f.Help == nil {
-		return false
-	}
-	return true
+type fieldRow struct {
+	field       string // e.g. "jsonData.timeout" or "jsonData.headers[].name"
+	typ         string // e.g. "string", "select (GET, POST)"
+	target      string // "root", "jsonData", "secureJsonData"
+	required    string // "yes", "conditional", ""
+	description string // one-line, escaped for tables
 }
 
-// renderField writes a single field entry using the given heading prefix
-// (e.g. "###" for group children, "####" for nested item fields).
-func renderField(b *strings.Builder, f *ConfigField, s *Schema, headingPrefix string) {
-	label := f.Label
-	if label == "" {
-		label = f.Key
-	}
-	fmt.Fprintf(b, "%s %s\n\n", headingPrefix, label)
-
-	// One-line summary badges.
-	var badges []string
-	if isSecret(f) {
-		badges = append(badges, "🔒 secret (write-only)")
-	}
-	switch {
-	case f.Required:
-		badges = append(badges, "**required**")
-	case f.RequiredWhen != "":
-		badges = append(badges, "conditionally required")
-	default:
-		badges = append(badges, "optional")
-	}
-	if t := humanValueType(f); t != "" {
-		badges = append(badges, t)
-	}
-	if len(badges) > 0 {
-		b.WriteString("_" + strings.Join(badges, " · ") + "_\n\n")
-	}
-
-	if f.Description != "" {
-		b.WriteString(f.Description)
-		if !strings.HasSuffix(f.Description, ".") {
-			b.WriteString(".")
+func collectFieldRows(fields []ConfigField, parentPath, inheritTarget string) []fieldRow {
+	var rows []fieldRow
+	for i := range fields {
+		f := &fields[i]
+		if f.Kind == VirtualField {
+			continue
 		}
-		b.WriteString("\n\n")
-	}
-
-	// Details table.
-	rows := [][2]string{}
-	if def := formatDefault(f.DefaultValue); def != "" {
-		rows = append(rows, [2]string{"Default", def})
-	}
-	if p := placeholder(f); p != "" {
-		rows = append(rows, [2]string{"Example", "`" + p + "`"})
-	}
-	if opts := formatOptions(f); opts != "" {
-		rows = append(rows, [2]string{"Allowed values", opts})
-	}
-	if allowed := formatAllowedValues(f); allowed != "" {
-		rows = append(rows, [2]string{"Allowed values", allowed})
-	}
-	if r := formatRange(f); r != "" {
-		rows = append(rows, [2]string{"Range", r})
-	}
-	if p := formatPattern(f); p != "" {
-		rows = append(rows, [2]string{"Must match", p})
-	}
-	if f.DependsOn != "" {
-		rows = append(rows, [2]string{"Shown when", humanCondition(f.DependsOn, s)})
-	}
-	if f.RequiredWhen != "" && f.RequiredWhen != f.DependsOn {
-		rows = append(rows, [2]string{"Required when", humanCondition(f.RequiredWhen, s)})
-	}
-	if f.DisabledWhen != "" {
-		rows = append(rows, [2]string{"Disabled when", humanCondition(f.DisabledWhen, s)})
-	}
-	if len(rows) > 0 {
-		b.WriteString("| | |\n|---|---|\n")
-		for _, r := range rows {
-			fmt.Fprintf(b, "| %s | %s |\n", r[0], r[1])
+		target := inheritTarget
+		if f.Target != nil {
+			target = string(*f.Target)
 		}
-		b.WriteString("\n")
-	}
-
-	// Help block.
-	if f.Help != nil && f.Help.Markdown != "" {
-		if f.Help.Title != "" {
-			fmt.Fprintf(b, "**%s**\n\n", f.Help.Title)
-		}
-		b.WriteString(f.Help.Markdown)
-		if !strings.HasSuffix(f.Help.Markdown, "\n") {
-			b.WriteString("\n")
-		}
-		b.WriteString("\n")
-	}
-
-	// Per-field doc URL.
-	if f.DocURL != "" {
-		fmt.Fprintf(b, "[Learn more](%s)\n\n", f.DocURL)
-	}
-
-	// Array item schema: describe the shape of each item.
-	if f.Item != nil && len(f.Item.Fields) > 0 {
-		b.WriteString("Each item has the following fields:\n\n")
-		for i := range f.Item.Fields {
-			itemF := &f.Item.Fields[i]
-			if !isConsumerVisible(itemF) {
-				continue
-			}
-			renderField(b, itemF, s, headingPrefix+"#")
+		path := fieldPath(f, parentPath, target)
+		rows = append(rows, fieldRow{
+			field:       "`" + path + "`" + secretMark(target),
+			typ:         fieldTypeLabel(f),
+			target:      target,
+			required:    requiredLabel(f),
+			description: tableEscape(fieldDescription(f)),
+		})
+		if f.Item != nil && len(f.Item.Fields) > 0 {
+			rows = append(rows, collectFieldRows(f.Item.Fields, path+"[]", target)...)
 		}
 	}
+	return rows
 }
 
-// isSecret returns true if the field is stored in secureJsonData.
-func isSecret(f *ConfigField) bool {
-	return f.Target != nil && *f.Target == SecureJSONTarget
+// fieldPath returns the dotted storage path of a field, e.g.
+// "jsonData.services.catchpoint.auth.id" or "secureJsonData.catchpoint.token"
+// or "url" (for root fields).
+func fieldPath(f *ConfigField, parentPath, target string) string {
+	if parentPath != "" {
+		if f.Key == "" {
+			return parentPath
+		}
+		return parentPath + "." + f.Key
+	}
+	// Top-level field. Build target.section.key (skipping empties).
+	var parts []string
+	if target != "" && target != string(RootTarget) {
+		parts = append(parts, target)
+	}
+	if f.Section != "" {
+		parts = append(parts, f.Section)
+	}
+	if f.Key != "" {
+		parts = append(parts, f.Key)
+	}
+	return strings.Join(parts, ".")
 }
 
-// humanValueType renders a short human label for the field's value type.
-func humanValueType(f *ConfigField) string {
+func secretMark(target string) string {
+	if target == string(SecureJSONTarget) {
+		return " 🔒"
+	}
+	return ""
+}
+
+// fieldTypeLabel returns a short type description used in the fields table.
+// Select/multiselect fields include their allowed values inline.
+func fieldTypeLabel(f *ConfigField) string {
+	base := string(f.ValueType)
+	if base == "" {
+		base = "string"
+	}
+	// Prefer UI component names when they are more informative.
 	if f.UI != nil {
 		switch f.UI.Component {
-		case UISelect:
-			return "select"
+		case UISelect, UIRadio:
+			opts := optionValues(f.UI.Options)
+			if len(opts) > 0 {
+				return "enum (" + strings.Join(opts, ", ") + ")"
+			}
+			return "enum"
 		case UIMultiselect:
-			return "multi-select"
-		case UIRadio:
-			return "radio"
+			opts := optionValues(f.UI.Options)
+			if len(opts) > 0 {
+				return "list<enum> (" + strings.Join(opts, ", ") + ")"
+			}
+			return "list<enum>"
 		case UICheckbox, UISwitch:
-			return "toggle"
+			return "boolean"
 		case UITextarea:
-			return "multiline text"
+			return "string (multiline)"
 		case UICode:
 			if f.UI.Language != "" {
-				return f.UI.Language + " code"
+				return f.UI.Language
 			}
-			return "code"
+			return "string (code)"
 		case UIKeyValue:
-			return "key/value pairs"
+			return "map<string,string>"
 		case UIList:
 			return "list"
 		case UIFileUpload:
 			return "file upload"
 		}
 	}
-	switch f.ValueType {
-	case "string":
-		return "string"
-	case "number":
-		return "number"
-	case "integer":
-		return "integer"
-	case "boolean":
-		return "boolean"
-	case "array":
+	if base == "array" {
 		return "list"
-	case "object":
-		return "object"
 	}
-	return ""
-}
-
-// formatDefault renders the default value as inline markdown code.
-func formatDefault(v any) string {
-	if v == nil {
-		return ""
-	}
-	switch t := v.(type) {
-	case string:
-		if t == "" {
-			return "`\"\"`"
-		}
-		return "`" + t + "`"
-	case bool:
-		if t {
-			return "`true`"
-		}
-		return "`false`"
-	case float64:
-		return fmt.Sprintf("`%v`", t)
-	}
-	data, err := json.Marshal(v)
-	if err != nil {
-		return ""
-	}
-	return "`" + string(data) + "`"
-}
-
-// placeholder returns the UI placeholder as an example, if any.
-func placeholder(f *ConfigField) string {
-	if f.UI == nil {
-		return ""
-	}
-	return f.UI.Placeholder
-}
-
-// formatOptions renders UI-provided select/radio options as a list.
-func formatOptions(f *ConfigField) string {
-	if f.UI == nil || len(f.UI.Options) == 0 {
-		return ""
-	}
-	parts := make([]string, 0, len(f.UI.Options))
-	for _, o := range f.UI.Options {
-		val := fmt.Sprintf("%v", o.Value)
-		label := o.Label
-		if label == "" || label == val {
-			parts = append(parts, "`"+val+"`")
-		} else {
-			parts = append(parts, fmt.Sprintf("`%s` (%s)", val, label))
-		}
-	}
-	return strings.Join(parts, ", ")
-}
-
-// formatAllowedValues renders any allowedValues validation rules as a list.
-// If UI options already describe the same set, prefer those and return "".
-func formatAllowedValues(f *ConfigField) string {
-	if f.UI != nil && len(f.UI.Options) > 0 {
-		return ""
-	}
-	var parts []string
+	// Look for an allowedValues validation.
 	for _, v := range f.Validations {
-		if v.Type != AllowedValuesValidation {
-			continue
-		}
-		for _, val := range v.Values {
-			parts = append(parts, fmt.Sprintf("`%v`", val))
-		}
-	}
-	return strings.Join(parts, ", ")
-}
-
-// formatRange renders numeric range / length constraints.
-func formatRange(f *ConfigField) string {
-	for _, v := range f.Validations {
-		if v.Type != RangeValidation && v.Type != LengthValidation && v.Type != ItemCountValidation {
-			continue
-		}
-		unit := ""
-		switch v.Type {
-		case LengthValidation:
-			unit = " (characters)"
-		case ItemCountValidation:
-			unit = " (items)"
-		}
-		switch {
-		case v.Min != nil && v.Max != nil:
-			return fmt.Sprintf("%v – %v%s", *v.Min, *v.Max, unit)
-		case v.Min != nil:
-			return fmt.Sprintf("at least %v%s", *v.Min, unit)
-		case v.Max != nil:
-			return fmt.Sprintf("at most %v%s", *v.Max, unit)
-		}
-	}
-	return ""
-}
-
-// formatPattern returns the first pattern validation as a code block.
-func formatPattern(f *ConfigField) string {
-	for _, v := range f.Validations {
-		if v.Type == PatternValidation && v.Pattern != "" {
-			return "`" + v.Pattern + "`"
-		}
-	}
-	return ""
-}
-
-// humanCondition converts a simple CEL-style condition like
-// "jsonData_services_x_auth_id == 'bearer_token'" into a more readable
-// form using field labels and option labels where possible.
-// For compound expressions (e.g. containing `||`, `&&`, `!=`, `<`, `>`),
-// the raw expression is returned wrapped in a code block.
-func humanCondition(expr string, s *Schema) string {
-	trimmed := strings.TrimSpace(expr)
-	// Only apply the pretty renderer to simple single-comparison expressions.
-	if strings.ContainsAny(trimmed, "|&!<>") {
-		return "`" + expr + "`"
-	}
-	idx := strings.Index(trimmed, "==")
-	if idx <= 0 || strings.Count(trimmed, "==") != 1 {
-		return "`" + expr + "`"
-	}
-	left := strings.TrimSpace(trimmed[:idx])
-	right := strings.TrimSpace(trimmed[idx+2:])
-	right = strings.Trim(right, "'\"")
-	f := findField(s, left)
-	if f == nil {
-		return "`" + expr + "`"
-	}
-	label := f.Label
-	if label == "" {
-		label = f.Key
-	}
-	if f.UI != nil {
-		for _, o := range f.UI.Options {
-			if fmt.Sprintf("%v", o.Value) == right && o.Label != "" && o.Label != right {
-				return fmt.Sprintf("**%s** is **%s** (`%s`)", label, o.Label, right)
+		if v.Type == AllowedValuesValidation && len(v.Values) > 0 {
+			vals := make([]string, 0, len(v.Values))
+			for _, x := range v.Values {
+				vals = append(vals, fmt.Sprintf("%v", x))
 			}
+			return "enum (" + strings.Join(vals, ", ") + ")"
 		}
 	}
-	return fmt.Sprintf("**%s** is `%s`", label, right)
+	return base
 }
 
-// findField locates a field by ID inside the top-level schema (does not
-// recurse into item field schemas).
-func findField(s *Schema, id string) *ConfigField {
+func optionValues(opts []FieldOption) []string {
+	out := make([]string, 0, len(opts))
+	for _, o := range opts {
+		out = append(out, fmt.Sprintf("%v", o.Value))
+	}
+	return out
+}
+
+func requiredLabel(f *ConfigField) string {
+	switch {
+	case f.Required:
+		return "yes"
+	case f.RequiredWhen != "":
+		return "conditional"
+	default:
+		return ""
+	}
+}
+
+// fieldDescription picks the most useful one-line description for the field.
+func fieldDescription(f *ConfigField) string {
+	if f.Description != "" {
+		return f.Description
+	}
+	if f.Label != "" {
+		return f.Label
+	}
+	return ""
+}
+
+// tableEscape sanitises a string for inclusion in a Markdown table cell:
+// replaces `|` and newlines to keep the row intact.
+func tableEscape(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "|", `\|`)
+	return strings.TrimSpace(s)
+}
+
+// -------------------------------------------------------------------------
+// Provisioning examples
+// -------------------------------------------------------------------------
+
+// scenario describes one authentication (or default) configuration for which
+// an example is generated.
+type scenario struct {
+	title  string        // e.g. "******", "No authentication", "Default configuration"
+	discID string        // the discriminator field ID, or "" if none
+	value  string        // the discriminator value, or "" if none
+	fields []*ConfigField // fields to include in this scenario, in order
+}
+
+// renderExamples writes the "Provisioning examples" section. It emits one
+// subsection per authentication scenario (based on the auth discriminator's
+// options) with a Grafana YAML block and a Terraform HCL block.
+func renderExamples(b *strings.Builder, s *Schema) {
+	scenarios := buildScenarios(s)
+	if len(scenarios) == 0 {
+		return
+	}
+	b.WriteString("## Provisioning examples\n\n")
+	b.WriteString("Each scenario below shows how to provision the data source in Grafana ")
+	b.WriteString("using a YAML file (loaded by Grafana's [file provisioner]")
+	b.WriteString("(https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) ")
+	b.WriteString("and using the [Grafana Terraform provider]")
+	b.WriteString("(https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).\n\n")
+	b.WriteString("Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.\n\n")
+
+	for _, sc := range scenarios {
+		fmt.Fprintf(b, "### %s\n\n", sc.title)
+
+		cfg := buildScenarioConfig(s, sc)
+
+		b.WriteString("**Grafana provisioning YAML**\n\n")
+		b.WriteString("```yaml\n")
+		b.WriteString(renderYAML(s, cfg))
+		b.WriteString("```\n\n")
+
+		b.WriteString("**Terraform**\n\n")
+		b.WriteString("```hcl\n")
+		b.WriteString(renderTerraform(s, sc, cfg))
+		b.WriteString("```\n\n")
+	}
+}
+
+// buildScenarios inspects the schema and returns the list of scenarios to
+// document. If the schema has exactly one `auth.discriminator` field, one
+// scenario is produced per allowed value of that field. Otherwise a single
+// "Default configuration" scenario is returned.
+func buildScenarios(s *Schema) []scenario {
+	var disc *ConfigField
+	discCount := 0
 	for i := range s.Fields {
-		if s.Fields[i].ID == id {
-			return &s.Fields[i]
+		f := &s.Fields[i]
+		if f.Role == RoleAuthDiscriminator {
+			disc = f
+			discCount++
+		}
+	}
+	if discCount != 1 || disc == nil {
+		return []scenario{{
+			title:  "Default configuration",
+			fields: collectScenarioFields(s, "", ""),
+		}}
+	}
+
+	values := discriminatorValues(disc)
+	if len(values) == 0 {
+		return []scenario{{
+			title:  "Default configuration",
+			fields: collectScenarioFields(s, "", ""),
+		}}
+	}
+
+	out := make([]scenario, 0, len(values))
+	for _, v := range values {
+		title := authScenarioTitle(disc, v)
+		out = append(out, scenario{
+			title:  title,
+			discID: disc.ID,
+			value:  v,
+			fields: collectScenarioFields(s, disc.ID, v),
+		})
+	}
+	return out
+}
+
+// discriminatorValues returns the list of allowed values for the given
+// auth-discriminator field, preferring UI options for stable ordering.
+func discriminatorValues(disc *ConfigField) []string {
+	if disc.UI != nil && len(disc.UI.Options) > 0 {
+		out := make([]string, 0, len(disc.UI.Options))
+		for _, o := range disc.UI.Options {
+			out = append(out, fmt.Sprintf("%v", o.Value))
+		}
+		return out
+	}
+	for _, v := range disc.Validations {
+		if v.Type == AllowedValuesValidation {
+			out := make([]string, 0, len(v.Values))
+			for _, x := range v.Values {
+				out = append(out, fmt.Sprintf("%v", x))
+			}
+			return out
 		}
 	}
 	return nil
 }
 
-// anchorize converts a heading title into a GitHub-style anchor slug.
-func anchorize(title string) string {
+// authScenarioTitle returns a readable title for an auth-method scenario.
+func authScenarioTitle(disc *ConfigField, value string) string {
+	// Use the option label if available.
+	if disc.UI != nil {
+		for _, o := range disc.UI.Options {
+			if fmt.Sprintf("%v", o.Value) == value {
+				if o.Label != "" && o.Label != value {
+					return fmt.Sprintf("%s (`%s`)", o.Label, value)
+				}
+				return "`" + value + "`"
+			}
+		}
+	}
+	return "`" + value + "`"
+}
+
+// collectScenarioFields returns the top-level fields that should appear in a
+// scenario's example. A field is included when:
+//   - it is a storage field (not virtual), and
+//   - it has no `dependsOn` clause, OR the clause is satisfied by the
+//     scenario's discriminator value, and
+//   - it is required OR requiredWhen is satisfied OR it carries a default.
+//
+// The discriminator field itself is always included when a scenario has one.
+func collectScenarioFields(s *Schema, discID, discValue string) []*ConfigField {
+	var out []*ConfigField
+	for i := range s.Fields {
+		f := &s.Fields[i]
+		if f.Kind == VirtualField {
+			continue
+		}
+		// Filter by dependsOn.
+		if f.DependsOn != "" && !conditionMatches(f.DependsOn, discID, discValue) {
+			continue
+		}
+		// Discriminator itself is always included.
+		if discID != "" && f.ID == discID {
+			out = append(out, f)
+			continue
+		}
+		// Include when required outright, required for this scenario, or has
+		// a default (so operators see a complete, minimally-valid example).
+		if f.Required || (f.RequiredWhen != "" && conditionMatches(f.RequiredWhen, discID, discValue)) || f.DefaultValue != nil {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// simpleCompareRE matches a single "<id> == '<value>'" clause.
+var simpleCompareRE = regexp.MustCompile(`([A-Za-z_][A-Za-z0-9_.]*)\s*==\s*'([^']*)'`)
+
+// conditionMatches returns true when the CEL-style expression is satisfied
+// by the given discriminator (id, value) pair. It recognises single
+// comparisons and OR-joined comparisons of the form:
+//
+//	discID == 'a' || discID == 'b'
+//
+// Any other shape is conservatively treated as "matches" so that fields
+// tied to non-trivial conditions still show up in examples.
+func conditionMatches(expr, discID, discValue string) bool {
+	if strings.ContainsAny(expr, "&<>!") {
+		return true
+	}
+	matches := simpleCompareRE.FindAllStringSubmatch(expr, -1)
+	if len(matches) == 0 {
+		return true
+	}
+	// All comparisons must reference discID; if any do, then require at
+	// least one to match discValue.
+	sawDisc := false
+	for _, m := range matches {
+		if m[1] != discID {
+			// Non-discriminator variable — cannot evaluate, treat as match.
+			return true
+		}
+		sawDisc = true
+		if m[2] == discValue {
+			return true
+		}
+	}
+	if !sawDisc {
+		return true
+	}
+	return false
+}
+
+// buildScenarioConfig produces the concrete config values for a scenario,
+// organised by storage target. The `root` map holds top-level datasource
+// keys (e.g. url, access), `jsonData` holds a nested tree, and
+// `secureJsonData` holds flat dotted keys.
+type scenarioConfig struct {
+	root           map[string]any
+	jsonData       map[string]any
+	secureJSONData map[string]any // flat: dotted keys as-is
+	haveHeaders    bool           // true when at least one field is populated
+}
+
+func buildScenarioConfig(s *Schema, sc scenario) scenarioConfig {
+	cfg := scenarioConfig{
+		root:           map[string]any{},
+		jsonData:       map[string]any{},
+		secureJSONData: map[string]any{},
+	}
+	for _, f := range sc.fields {
+		if f.Target == nil {
+			continue
+		}
+		val := scenarioValue(f, sc)
+		if val == nil {
+			continue
+		}
+		cfg.haveHeaders = true
+		switch *f.Target {
+		case RootTarget:
+			cfg.root[f.Key] = val
+		case JSONDataTarget:
+			setNested(cfg.jsonData, joinPath(f.Section, f.Key), val)
+		case SecureJSONTarget:
+			cfg.secureJSONData[f.Key] = val
+		}
+	}
+	return cfg
+}
+
+// scenarioValue picks a value for the field within the given scenario:
+// discriminator → the scenario's value; else defaultValue when present;
+// else a `<PLACEHOLDER>` derived from the label/key. Boolean and numeric
+// scalars are preserved as-is; strings become placeholders when unknown.
+func scenarioValue(f *ConfigField, sc scenario) any {
+	if sc.discID != "" && f.ID == sc.discID {
+		return sc.value
+	}
+	if f.DefaultValue != nil {
+		return f.DefaultValue
+	}
+	// Prefer a value from ui.options[0] for select-like fields with no
+	// default (rare, but keeps examples valid).
+	if f.UI != nil && (f.UI.Component == UISelect || f.UI.Component == UIRadio) && len(f.UI.Options) > 0 {
+		return fmt.Sprintf("%v", f.UI.Options[0].Value)
+	}
+	// Type-driven fallbacks.
+	switch f.ValueType {
+	case "boolean":
+		return false
+	case "integer":
+		return 0
+	case "number":
+		return 0
+	case "array":
+		return []any{}
+	case "object":
+		return map[string]any{}
+	}
+	// String placeholder.
+	if f.UI != nil && f.UI.Placeholder != "" &&
+		f.Target != nil && *f.Target != SecureJSONTarget {
+		return f.UI.Placeholder
+	}
+	return placeholderFor(f)
+}
+
+var nonWordRE = regexp.MustCompile(`[^A-Za-z0-9]+`)
+
+// placeholderFor returns a "<YOUR_LABEL>" style placeholder derived from the
+// field's label or key.
+func placeholderFor(f *ConfigField) string {
+	name := f.Label
+	if name == "" {
+		name = f.Key
+	}
+	name = nonWordRE.ReplaceAllString(name, "_")
+	name = strings.Trim(name, "_")
+	if name == "" {
+		name = "value"
+	}
+	return "<YOUR_" + strings.ToUpper(name) + ">"
+}
+
+// joinPath joins a dotted section prefix with a key.
+func joinPath(section, key string) string {
+	if section == "" {
+		return key
+	}
+	if key == "" {
+		return section
+	}
+	return section + "." + key
+}
+
+// setNested writes value into m at the dotted path, creating intermediate
+// maps as needed.
+func setNested(m map[string]any, path string, value any) {
+	parts := strings.Split(path, ".")
+	cur := m
+	for i, p := range parts {
+		if i == len(parts)-1 {
+			cur[p] = value
+			return
+		}
+		next, ok := cur[p].(map[string]any)
+		if !ok {
+			next = map[string]any{}
+			cur[p] = next
+		}
+		cur = next
+	}
+}
+
+// -------------------------------------------------------------------------
+// YAML rendering
+// -------------------------------------------------------------------------
+
+// renderYAML renders a scenarioConfig as a Grafana provisioning YAML block.
+func renderYAML(s *Schema, cfg scenarioConfig) string {
 	var b strings.Builder
-	for _, r := range strings.ToLower(title) {
-		switch {
-		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
-			b.WriteRune(r)
-		case r == ' ' || r == '-' || r == '_':
-			b.WriteRune('-')
+	b.WriteString("apiVersion: 1\n")
+	b.WriteString("datasources:\n")
+	fmt.Fprintf(&b, "  - name: %s\n", yamlScalar(s.PluginName))
+	fmt.Fprintf(&b, "    type: %s\n", yamlScalar(s.PluginType))
+	// Grafana defaults; harmless when unused.
+	b.WriteString("    access: proxy\n")
+
+	// Root fields as top-level keys, sorted for determinism.
+	for _, k := range sortedKeys(cfg.root) {
+		if k == "name" || k == "type" || k == "access" {
+			continue
+		}
+		writeYAMLKV(&b, "    ", k, cfg.root[k])
+	}
+
+	if len(cfg.jsonData) > 0 {
+		b.WriteString("    jsonData:\n")
+		writeYAMLMap(&b, "      ", cfg.jsonData)
+	}
+	if len(cfg.secureJSONData) > 0 {
+		b.WriteString("    secureJsonData:\n")
+		for _, k := range sortedKeys(cfg.secureJSONData) {
+			writeYAMLKV(&b, "      ", k, cfg.secureJSONData[k])
 		}
 	}
 	return b.String()
+}
+
+func writeYAMLMap(b *strings.Builder, indent string, m map[string]any) {
+	for _, k := range sortedKeys(m) {
+		writeYAMLKV(b, indent, k, m[k])
+	}
+}
+
+func writeYAMLKV(b *strings.Builder, indent, key string, v any) {
+	switch t := v.(type) {
+	case map[string]any:
+		if len(t) == 0 {
+			fmt.Fprintf(b, "%s%s: {}\n", indent, yamlKey(key))
+			return
+		}
+		fmt.Fprintf(b, "%s%s:\n", indent, yamlKey(key))
+		writeYAMLMap(b, indent+"  ", t)
+	case []any:
+		if len(t) == 0 {
+			fmt.Fprintf(b, "%s%s: []\n", indent, yamlKey(key))
+			return
+		}
+		fmt.Fprintf(b, "%s%s:\n", indent, yamlKey(key))
+		for _, item := range t {
+			fmt.Fprintf(b, "%s- %s\n", indent, yamlScalar(item))
+		}
+	default:
+		fmt.Fprintf(b, "%s%s: %s\n", indent, yamlKey(key), yamlScalar(v))
+	}
+}
+
+// yamlKey quotes a key when it contains characters that would be
+// misinterpreted (dots are fine unquoted in YAML mapping keys, but we quote
+// anything with whitespace or a leading special char to be safe).
+func yamlKey(k string) string {
+	if k == "" {
+		return `""`
+	}
+	if strings.ContainsAny(k, ` :#&*!|>'"%@` + "`") {
+		return strconvQuote(k)
+	}
+	return k
+}
+
+// yamlScalar renders a value as a YAML scalar. Strings are quoted when they
+// contain characters that could be misparsed.
+func yamlScalar(v any) string {
+	switch t := v.(type) {
+	case string:
+		if needsYAMLQuote(t) {
+			return strconvQuote(t)
+		}
+		return t
+	case bool:
+		if t {
+			return "true"
+		}
+		return "false"
+	case json.Number:
+		return string(t)
+	case float64:
+		// Preserve integers when possible.
+		if t == float64(int64(t)) {
+			return fmt.Sprintf("%d", int64(t))
+		}
+		return fmt.Sprintf("%v", t)
+	case int, int32, int64:
+		return fmt.Sprintf("%d", t)
+	case nil:
+		return "null"
+	}
+	data, err := json.Marshal(v)
+	if err != nil {
+		return `""`
+	}
+	return string(data)
+}
+
+func needsYAMLQuote(s string) bool {
+	if s == "" {
+		return true
+	}
+	// Reserved YAML tokens.
+	switch strings.ToLower(s) {
+	case "true", "false", "yes", "no", "null", "~", "on", "off":
+		return true
+	}
+	// Leading/trailing whitespace, or characters that trigger special
+	// parsing.
+	if s != strings.TrimSpace(s) {
+		return true
+	}
+	if strings.ContainsAny(s, ":#&*!|>'\"%@`\n\t") {
+		return true
+	}
+	// Numbers must be quoted to remain strings.
+	if _, err := parseNumber(s); err == nil {
+		return true
+	}
+	return false
+}
+
+func parseNumber(s string) (float64, error) {
+	var f float64
+	_, err := fmt.Sscanf(s, "%g", &f)
+	return f, err
+}
+
+// strconvQuote wraps a string in double quotes and escapes double quotes
+// and backslashes.
+func strconvQuote(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	return `"` + s + `"`
+}
+
+func sortedKeys(m map[string]any) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// -------------------------------------------------------------------------
+// Terraform rendering
+// -------------------------------------------------------------------------
+
+// terraformResourceName sanitises a plugin type into a valid Terraform
+// resource-name identifier.
+var tfNameRE = regexp.MustCompile(`[^A-Za-z0-9_]`)
+
+func terraformResourceName(pluginType string) string {
+	name := tfNameRE.ReplaceAllString(pluginType, "_")
+	if name == "" {
+		name = "datasource"
+	}
+	// Terraform resource names cannot start with a digit.
+	if name[0] >= '0' && name[0] <= '9' {
+		name = "_" + name
+	}
+	return name
+}
+
+// renderTerraform renders a scenarioConfig as a `grafana_data_source` HCL
+// block using the grafana/grafana Terraform provider.
+func renderTerraform(s *Schema, sc scenario, cfg scenarioConfig) string {
+	var b strings.Builder
+	resName := terraformResourceName(s.PluginType)
+	if sc.value != "" {
+		resName = resName + "_" + tfNameRE.ReplaceAllString(sc.value, "_")
+	}
+	fmt.Fprintf(&b, "resource \"grafana_data_source\" %q {\n", resName)
+	fmt.Fprintf(&b, "  type = %q\n", s.PluginType)
+	fmt.Fprintf(&b, "  name = %q\n", s.PluginName)
+
+	// Root fields become top-level provider attributes when they are
+	// recognised (url, access, basic_auth_enabled, ...); otherwise they are
+	// nested inside http_headers or ignored. To keep this generator generic
+	// we emit them as commented hints so operators can map them.
+	rootKeys := sortedKeys(cfg.root)
+	knownRoot := map[string]string{
+		"url":      "url",
+		"access":   "access",
+		"user":     "basic_auth_username",
+		"database": "database_name",
+	}
+	for _, k := range rootKeys {
+		if attr, ok := knownRoot[k]; ok {
+			fmt.Fprintf(&b, "  %s = %s\n", attr, hclScalar(cfg.root[k]))
+		}
+	}
+	// Fallback: if url wasn't in root, use empty placeholder to make the
+	// example resource valid HCL.
+	if _, ok := cfg.root["url"]; !ok {
+		fmt.Fprintf(&b, "  url = %q\n", "https://example.com")
+	}
+
+	// jsonData → json_data_encoded.
+	if len(cfg.jsonData) > 0 {
+		b.WriteString("\n  json_data_encoded = jsonencode(")
+		writeHCLValue(&b, cfg.jsonData, "  ")
+		b.WriteString(")\n")
+	}
+	// secureJsonData → secure_json_data_encoded (sensitive).
+	if len(cfg.secureJSONData) > 0 {
+		b.WriteString("\n  secure_json_data_encoded = jsonencode(")
+		writeHCLValue(&b, mapAny(cfg.secureJSONData), "  ")
+		b.WriteString(")\n")
+	}
+	b.WriteString("}\n")
+	return b.String()
+}
+
+func mapAny(m map[string]any) map[string]any { return m }
+
+// writeHCLValue renders any Go value as an HCL literal — objects use
+// `{ key = value }` syntax and lists use `[...]`.
+func writeHCLValue(b *strings.Builder, v any, indent string) {
+	switch t := v.(type) {
+	case map[string]any:
+		if len(t) == 0 {
+			b.WriteString("{}")
+			return
+		}
+		b.WriteString("{\n")
+		next := indent + "  "
+		for _, k := range sortedKeys(t) {
+			fmt.Fprintf(b, "%s%s = ", next, hclKey(k))
+			writeHCLValue(b, t[k], next)
+			b.WriteString("\n")
+		}
+		fmt.Fprintf(b, "%s}", indent)
+	case []any:
+		if len(t) == 0 {
+			b.WriteString("[]")
+			return
+		}
+		b.WriteString("[\n")
+		next := indent + "  "
+		for _, item := range t {
+			b.WriteString(next)
+			writeHCLValue(b, item, next)
+			b.WriteString(",\n")
+		}
+		fmt.Fprintf(b, "%s]", indent)
+	default:
+		b.WriteString(hclScalar(v))
+	}
+}
+
+// hclScalar renders scalars for HCL/jsonencode.
+func hclScalar(v any) string {
+	switch t := v.(type) {
+	case string:
+		return fmt.Sprintf("%q", t)
+	case bool:
+		if t {
+			return "true"
+		}
+		return "false"
+	case float64:
+		if t == float64(int64(t)) {
+			return fmt.Sprintf("%d", int64(t))
+		}
+		return fmt.Sprintf("%v", t)
+	case int, int32, int64:
+		return fmt.Sprintf("%d", t)
+	case nil:
+		return "null"
+	}
+	data, err := json.Marshal(v)
+	if err != nil {
+		return `""`
+	}
+	return string(data)
+}
+
+// hclKey quotes a key when it is not a bare HCL identifier.
+var hclBareKeyRE = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_-]*$`)
+
+func hclKey(k string) string {
+	if hclBareKeyRE.MatchString(k) {
+		return k
+	}
+	return fmt.Sprintf("%q", k)
 }

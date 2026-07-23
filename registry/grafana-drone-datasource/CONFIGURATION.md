@@ -1,47 +1,70 @@
 # Drone configuration
 
-How to configure the **Drone** data source (`grafana-drone-datasource`) in Grafana.
+Configuration reference for the **Drone** data source (`grafana-drone-datasource`) in Grafana.
 
 For more information, see the [official documentation](https://grafana.com/docs/plugins/grafana-drone-datasource).
 
-> This page is generated from [`dsconfig.json`](dsconfig.json). Do not edit it by hand — run `go generate ./...` to refresh.
+> Generated from [`dsconfig.json`](dsconfig.json). Do not edit by hand — run `go generate ./...` to refresh.
 
-## Configuration sections
+## Fields
 
-- [Connection](#connection)
-- [Authentication](#authentication)
+| Field | Type | Target | Required | Description |
+|---|---|---|---|---|
+| `jsonData.variables.url` | string | jsonData | yes | The URL of the Drone server, including `https://` and without trailing `/` |
+| `jsonData.services.drone.auth.id` | enum (auth_bearer) | jsonData |  | You can find your API token under <YOUR_DRONE_URL>/account |
+| `secureJsonData.drone.token` 🔒 | string | secureJsonData | conditional | Token for accessing the datasource API |
 
-## Connection
+## Provisioning examples
 
-Provide information to connect to the data source
+Each scenario below shows how to provision the data source in Grafana using a YAML file (loaded by Grafana's [file provisioner](https://grafana.com/docs/grafana/latest/administration/provisioning/#data-sources)) and using the [Grafana Terraform provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source).
 
-### URL
+Placeholders like `<YOUR_TOKEN>` must be replaced with real values before use.
 
-_**required** · string_
+### Drone API token (`auth_bearer`)
 
-The URL of the Drone server, including `https://` and without trailing `/`.
+**Grafana provisioning YAML**
 
-## Authentication
+```yaml
+apiVersion: 1
+datasources:
+  - name: Drone
+    type: grafana-drone-datasource
+    access: proxy
+    jsonData:
+      services:
+        drone:
+          auth:
+            id: auth_bearer
+      variables:
+        url: "<YOUR_URL>"
+    secureJsonData:
+      drone.token: "<YOUR_TOKEN>"
+```
 
-### Drone API token
+**Terraform**
 
-_optional · select_
+```hcl
+resource "grafana_data_source" "grafana_drone_datasource_auth_bearer" {
+  type = "grafana-drone-datasource"
+  name = "Drone"
+  url = "https://example.com"
 
-You can find your API token under <YOUR_DRONE_URL>/account.
+  json_data_encoded = jsonencode({
+    services = {
+      drone = {
+        auth = {
+          id = "auth_bearer"
+        }
+      }
+    }
+    variables = {
+      url = "<YOUR_URL>"
+    }
+  })
 
-| | |
-|---|---|
-| Default | `auth_bearer` |
-| Allowed values | `auth_bearer` (Drone API token) |
-
-### Token
-
-_🔒 secret (write-only) · conditionally required · string_
-
-Token for accessing the datasource API.
-
-| | |
-|---|---|
-| Example | `Token value` |
-| Shown when | **Drone API token** is **Drone API token** (`auth_bearer`) |
+  secure_json_data_encoded = jsonencode({
+    "drone.token" = "<YOUR_TOKEN>"
+  })
+}
+```
 
