@@ -5,3 +5,8 @@ package dsconfig
 // dsconfig module root.
 //
 //go:generate go run ./cmd/gen-schema-json
+
+// Regenerate the consumer-facing CONFIGURATION.md documents for every
+// data source in the registry from their dsconfig.json files.
+//
+//go:generate go run ./cmd/gen-docs -dir ../registry
