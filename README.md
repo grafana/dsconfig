@@ -4,8 +4,8 @@
 configuration schema. It provides a single, language-neutral source of truth
 that describes every configurable field of a Grafana datasource — its type,
 storage location, validation rules, UI hints, and inter-field relationships —
-together with the Go SDK, tooling, and reusable field packs required to author,
-validate, and consume that schema across the Grafana ecosystem.
+together with the Go SDK and tooling required to author, validate, and
+consume that schema across the Grafana ecosystem.
 
 The project is designed to eliminate the drift between the many independent
 representations of a datasource's configuration surface (backend structs,
@@ -82,12 +82,9 @@ this reasoning:
    Grafana's datasource storage model. Existing plugins, provisioning
    files, and APIs continue to work unchanged. `dsconfig` is a semantic
    layer over the current `root` / `jsonData` / `secureJsonData` split.
-2. **Reusable field packs.** Rather than force each plugin to redeclare
-   the fields defined by shared SDKs, `dsconfig` provides curated
-   [field packs](#field-packs) that a plugin composes via `baseFields`.
-   A plugin only declares what is genuinely its own; common SDK fields
-   are inherited, and can be surgically excluded or lightly patched for
-   presentation.
+2. **Composable declarations.** A plugin only declares what is genuinely
+   its own; common vocabularies contributed by shared SDKs can be
+   inherited rather than restated in every schema.
 
 The result is a single, versioned contract per datasource that the backend,
 frontend, provisioning system, documentation pipeline, and automation
@@ -133,9 +130,9 @@ assets.
 
 | Path | Description |
 | --- | --- |
-| [`dsconfig/`](./dsconfig) | Primary Go module. Defines the schema types, JSON Schema, resolver, validators, converters, and the field-pack registry. See the module [README](./dsconfig/README.md) for the full field-by-field reference and worked examples. |
-| [`dsconfig/packs/`](./dsconfig/packs) | Built-in reusable field packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`, `sqleng_settings`) that datasources compose via `baseFields`. Each pack ships both a Go registration and a companion JSON definition. |
-| [`dsconfig/cmd/gen-schema-json/`](./dsconfig/cmd/gen-schema-json) | Code generator that keeps `dsconfig/schema.json` in sync with the on-disk pack JSON files, so editor autocomplete and JSON Schema validation always reflect the current pack contents. |
+| [`dsconfig/`](./dsconfig) | Primary Go module. Defines the schema types, JSON Schema, resolver, validators, and converters. See the module [README](./dsconfig/README.md) for the full field-by-field reference and worked examples. |
+| [`dsconfig/packs/`](./dsconfig/packs) | Built-in field packs (experimental — see [Field packs](#field-packs)). |
+| [`dsconfig/cmd/gen-schema-json/`](./dsconfig/cmd/gen-schema-json) | Code generator that keeps `dsconfig/schema.json` in sync with the on-disk pack JSON files. |
 | [`dsconfig/schema.json`](./dsconfig/schema.json) | JSON Schema for `dsconfig` documents. Point your editor at this file to get autocomplete and validation while authoring plugin schemas. |
 | [`dsconfig/schema.md`](./dsconfig/schema.md) | Full design document describing schema semantics, field targets, validations, expressions, and versioning. |
 | [`schema/`](./schema) | Compatibility module that adapts a `dsconfig` schema into the `grafana-plugin-sdk-go` `PluginSchema` (spec + secure values) consumed by Grafana's plugin runtime. |
@@ -163,14 +160,10 @@ assets.
   └───────────┘   └────────────┘          └────────────────┘   └──────────┘
 ```
 
-- **`dsconfig` module** parses, validates, resolves base-field packs, and
-  converts a schema into the shape expected by `grafana-plugin-sdk-go`.
+- **`dsconfig` module** parses, validates, and converts a schema into the
+  shape expected by `grafana-plugin-sdk-go`.
 - **`schema` module** provides a thin backward-compatible façade over the
   primary API for existing consumers.
-- **Packs** are curated bundles of common fields (auth, TLS, AWS/Azure/GCP
-  credentials, SQL engine tuning) that datasources include by reference to
-  avoid duplication and to guarantee a consistent field vocabulary across the
-  ecosystem.
 
 ---
 
@@ -214,21 +207,17 @@ least one field. Each field declares an `id`, `key`, `valueType`, and a storage
 ```
 
 For the full field reference, worked examples covering root, `jsonData`, and
-`secureJsonData` targets, conditional visibility, validations, and base-field
-packs, see the [module documentation](./dsconfig/README.md) and
+`secureJsonData` targets, conditional visibility, and validations, see the
+[module documentation](./dsconfig/README.md) and
 [design document](./dsconfig/schema.md).
 
 ### Consume a schema in Go
 
-The `dsconfig` package parses and validates schema documents, resolves any
-referenced field packs, and produces the `PluginSchema` value consumed by
-`grafana-plugin-sdk-go`:
+The `dsconfig` package parses and validates schema documents and produces the
+`PluginSchema` value consumed by `grafana-plugin-sdk-go`:
 
 ```go
-import (
-    "github.com/grafana/dsconfig/dsconfig"
-    _ "github.com/grafana/dsconfig/dsconfig/packs" // register built-in packs
-)
+import "github.com/grafana/dsconfig/dsconfig"
 ```
 
 Refer to the module README for the complete resolver, validator, and converter
@@ -236,21 +225,11 @@ API surface.
 
 ---
 
-## Field Packs
+## Field packs
 
-The following packs ship in this repository and are registered by importing
-`github.com/grafana/dsconfig/dsconfig/packs`:
-
-| Pack ID | Purpose |
-| --- | --- |
-| `plugin_sdk_settings` | Fields common to every Grafana datasource (URL, basic auth, TLS, proxy, headers, OAuth pass-through). |
-| `aws_sdk_settings` | AWS authentication and region selection shared across AWS-backed datasources. |
-| `azure_sdk_settings` | Azure AD / Managed Identity authentication shared across Azure-backed datasources. |
-| `google_sdk_settings` | Google Cloud authentication (JWT, GCE) shared across Google-backed datasources. |
-| `sqleng_settings` | Connection pool and query behavior fields shared across SQL datasources. |
-
-Datasources compose packs through the `baseFields` array in their schema and
-may override or omit individual pack fields on a per-plugin basis.
+> **Experimental.** Field packs are an experimental mechanism for sharing
+> common field definitions across datasources and their API may change. See
+> [`dsconfig/schema.md`](./dsconfig/schema.md#base-fields) for details.
 
 ---
 
@@ -268,7 +247,7 @@ go build ./...
 # Run the full test suite (includes conformance tests for the SDK adapter)
 go test ./...
 
-# Regenerate the enum lists inside dsconfig/schema.json after editing a pack
+# Regenerate any generated JSON Schema artifacts
 go generate ./...
 ```
 
@@ -309,10 +288,7 @@ Contributions are welcome. When proposing changes, please:
    substantial API or schema changes.
 2. Ensure `go build ./...`, `go test ./...`, and `go generate ./...` all
    succeed locally.
-3. When adding or modifying a field pack, update the companion JSON file and
-   regenerate `dsconfig/schema.json` via `go generate ./...` so editor
-   autocomplete stays consistent with the pack contents.
-4. Follow the existing documentation style and update the relevant reference
+3. Follow the existing documentation style and update the relevant reference
    material in [`dsconfig/README.md`](./dsconfig/README.md) or
    [`dsconfig/schema.md`](./dsconfig/schema.md).
 
