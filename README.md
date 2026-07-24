@@ -14,6 +14,88 @@ promoting a single schema document to the role of contract between them.
 
 ---
 
+## Background
+
+Grafana ships with, and supports, an ever-growing catalog of first- and
+third-party datasource plugins — relational databases, time-series stores,
+observability backends, cloud vendor APIs, SaaS products, and more. Each of
+those plugins exposes a configuration surface that users fill in when they
+add an instance of the datasource: connection URLs, authentication methods,
+TLS material, timeouts, cloud credentials, feature toggles, and so on.
+
+Historically, the shape of that configuration surface has been described
+implicitly, in several places at once:
+
+- A Go `struct` in the plugin backend that unmarshals the settings Grafana
+  sends at query time.
+- A React configuration editor in the plugin frontend that renders inputs,
+  applies validation, and posts values back to Grafana.
+- Hand-written provisioning documentation showing example YAML for the
+  `jsonData` and `secureJsonData` blobs.
+- Reusable helpers in SDKs such as
+  [`grafana-plugin-sdk-go`](https://github.com/grafana/grafana-plugin-sdk-go),
+  [`grafana-aws-sdk`](https://github.com/grafana/grafana-aws-sdk),
+  [`grafana-azure-sdk-go`](https://github.com/grafana/grafana-azure-sdk-go),
+  and
+  [`grafana-google-sdk-go`](https://github.com/grafana/grafana-google-sdk-go)
+  that define well-known field vocabularies (basic auth, TLS, SigV4, Azure
+  AD, GCE service accounts) that many plugins reuse verbatim.
+- Marketing and reference documentation on grafana.com, generally maintained
+  by hand.
+
+Nothing in the platform ties these representations together. In practice
+each plugin ends up owning several parallel definitions of "what fields does
+my datasource have?", and those definitions drift over time. Fields are
+renamed in one place but not another, validation rules diverge between the
+UI and the backend, provisioning docs fall behind the code, and shared SDK
+fields are copy-pasted into each new plugin.
+
+## Reasoning
+
+`dsconfig` was created to collapse those parallel definitions into a single,
+declarative, machine-readable artifact — a JSON document that describes the
+full configuration surface of a datasource in one place. From that document,
+every other representation can be derived or validated:
+
+- **Storage shape.** Each field declares its `target` (`root`, `jsonData`,
+  or `secureJsonData`), so the exact on-disk shape of a Grafana datasource
+  configuration is fully described without changing Grafana's existing
+  storage model.
+- **Backend contracts.** The schema is converted into the `PluginSchema`
+  value consumed by `grafana-plugin-sdk-go`, giving the backend a typed spec
+  and an explicit list of secure values without hand-written boilerplate.
+- **Frontend forms.** With `valueType`, `ui`, `validations`, `dependsOn`,
+  and `requiredWhen` on every field, a configuration editor can be
+  generated from the schema rather than hand-authored per plugin.
+- **Provisioning and documentation.** The same schema drives generated
+  reference documentation, provisioning examples, and validation of
+  provisioned files before deployment.
+- **Automation and AI tooling.** A structured description of every field —
+  including semantic relationships, defaults, and constraints — is a
+  first-class input for LLM-assisted configuration, migration, and
+  troubleshooting workflows.
+
+Two design choices are worth calling out because they follow directly from
+this reasoning:
+
+1. **Additive, not disruptive.** The schema does not attempt to redesign
+   Grafana's datasource storage model. Existing plugins, provisioning
+   files, and APIs continue to work unchanged. `dsconfig` is a semantic
+   layer over the current `root` / `jsonData` / `secureJsonData` split.
+2. **Reusable field packs.** Rather than force each plugin to redeclare
+   the fields defined by shared SDKs, `dsconfig` provides curated
+   [field packs](#field-packs) that a plugin composes via `baseFields`.
+   A plugin only declares what is genuinely its own; common SDK fields
+   are inherited, and can be surgically excluded or lightly patched for
+   presentation.
+
+The result is a single, versioned contract per datasource that the backend,
+frontend, provisioning system, documentation pipeline, and automation
+tooling all consume — dramatically reducing the drift, duplication, and
+maintenance cost that motivated the project.
+
+---
+
 ## Why dsconfig
 
 Datasource plugins historically maintain the shape of their configuration in
