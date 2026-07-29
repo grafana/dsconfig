@@ -1,4 +1,4 @@
-# Grafana Datasource Configuration Schema SDK
+# Grafana data source configuration schema
 
 `dsconfig` is a declarative schema for Grafana datasource configuration. It
 describes every configurable field of a datasource — its type, storage
@@ -95,7 +95,7 @@ least one field:
   "pluginName": "My Datasource",
   "fields": [
     {
-      "id": "connection.url",
+      "id": "connection_url",
       "key": "url",
       "valueType": "string",
       "target": "root",
