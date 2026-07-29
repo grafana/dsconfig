@@ -10,92 +10,12 @@ Declarative schema for Grafana datasource configuration.
 | pluginType    | string              | Required. | Unique plugin identifier (e.g. "prometheus").                                |
 | pluginName    | string              | Required. | Human-readable name.                                                         |
 | docURL        | string              | Optional  | documentation URL.                                                           |
-| baseFields    | BaseFieldRef[]      | Optional  | SDK field packs to merge before validation. See [Base fields](#base-fields). |
 | fields        | ConfigField[]       | Required. | Source of truth for all config fields.                                       |
 | groups        | ConfigGroup[]       | Optional  | UI layout grouping.                                                          |
 | instructions  | Instruction[]       | Optional  | Instructions for LLMs and other consumers.                                   |
 | relationships | FieldRelationship[] | Optional  | semantic relationships between fields.                                       |
+| baseFields    | BaseFieldRef[]      | Optional  | SDK field packs to merge before validation. See [Base fields](#base-fields). |
 
-## Base fields
-
-SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafana-plugin-sdk-go), [`grafana-aws-sdk`](https://github.com/grafana/grafana-aws-sdk), [`grafana-azure-sdk-go`](https://github.com/grafana/grafana-azure-sdk-go), and [`grafana-google-sdk-go`](https://github.com/grafana/grafana-google-sdk-go) define a fixed set of well-known fields (URL, basicAuth, TLS, SigV4 auth, etc.). Without `baseFields`, every plugin that uses these SDKs must redeclare those fields verbatim — creating copy-paste drift and maintenance overhead.
-
-`baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
-
-> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`, `sqleng_settings`) are now populated; `exclude` and `patch` may reference any top-level field ID defined under `fields` in the respective pack JSON under [`dsconfig/packs/`](packs/). Nested item-field IDs (for example, `plugin_sdk_settings.httpHeaders.item.name`) are not eligible.
-
-```json
-{
-  "schemaVersion": "v1",
-  "pluginType": "prometheus",
-  "pluginName": "Prometheus",
-  "baseFields": [
-    {
-      "from": "plugin_sdk_settings",
-      "patch": {
-        "plugin_sdk_settings.url": {
-          "label": "Prometheus server URL",
-          "placeholder": "http://localhost:9090"
-        }
-      }
-    },
-    {
-      "from": "aws_sdk_settings",
-      "exclude": ["aws_sdk_settings.assumeRoleArn"]
-    }
-  ],
-  "fields": [
-    {
-      "id": "jsonData.httpMethod",
-      "key": "httpMethod",
-      "valueType": "string",
-      "target": "jsonData"
-    }
-  ]
-}
-```
-
-### `BaseFieldRef` properties
-
-| property  | type                         | required | description                                                            |
-| --------- | ---------------------------- | -------- | ---------------------------------------------------------------------- |
-| `from`    | `FieldPackID` (string)       | Required | Identifier of the built-in field pack to include.                      |
-| `exclude` | `string[]`                   | Optional | Field IDs from the pack to omit entirely. Each must exist in the pack. |
-| `patch`   | `Record<string, FieldPatch>` | Optional | Presentation-only overrides keyed by field ID.                         |
-
-### `FieldPatch` properties
-
-`FieldPatch` allows customising _presentation_ properties of a pack field without redefining it. Structural properties (`id`, `key`, `valueType`, `target`, `role`) are intentionally absent — those are the pack's immutable contract.
-
-| property       | type      | description                                                             |
-| -------------- | --------- | ----------------------------------------------------------------------- |
-| `label`        | `string`  | Override the field label.                                               |
-| `description`  | `string`  | Override the field description / tooltip.                               |
-| `placeholder`  | `string`  | Override the input placeholder text.                                    |
-| `defaultValue` | `any`     | Override the field default value.                                       |
-| `required`     | `boolean` | Override whether the field is required.                                 |
-| `hidden`       | `boolean` | Reserved for future use (currently ignored by `baseFields` resolution). |
-
-### Built-in packs
-
-| `from` value          | Source SDK              | Content                                             |
-| --------------------- | ----------------------- | --------------------------------------------------- |
-| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | Standard HTTP datasource fields shared by `backend/httpclient/options.go` (`Options`, `BasicAuthOptions`, `TLSOptions`, `TimeoutOptions`, `SigV4Config`, `Header`) and the `@grafana/ui` `DataSourceHttpSettings` editor (URL, access, basic auth, TLS, timeout, OAuth pass-through, SigV4 toggle, custom HTTP headers) — see [`plugin_sdk_settings.json`](packs/plugin_sdk_settings.json) |
-| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | AWS credentials and auth (auth provider, profile, access/secret keys, session token, assume-role ARN, external ID, endpoint, default region, proxy settings) — see [`aws_sdk_settings.json`](packs/aws_sdk_settings.json) |
-| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | Azure credentials and auth (App Registration client secret / client certificate, Managed Identity, Workload Identity, Current User, On-Behalf-Of, Entra Password) — see [`azure_sdk_settings.json`](packs/azure_sdk_settings.json) |
-| `google_sdk_settings` | `grafana-google-sdk-go` | Google credentials and auth (JWT, GCE, WIF, Forward OAuth) — see [`google_sdk_settings.json`](packs/google_sdk_settings.json) |
-| `sqleng_settings`     | `grafana sqleng`        | Common SQL datasource fields shared by grafana-postgresql-datasource, grafana-mysql-datasource, and grafana-mssql-datasource (host URL, database, username/password, TLS certs, TLS server name, connection pool tuning, Secure Socks Proxy). Vendor-specific options (postgres `sslmode`/`timescaledb`, mysql `tlsAuth`/`allowCleartextPasswords`, mssql `encrypt`/`authenticationType`) stay in the individual plugin schemas. mssql plugins should set `exclude: ["sqleng_settings.servername"]` and declare their own `serverName` field (camelCase), since mssql uses a different storage key than postgres/mysql for TLS server name — see [`sqleng_settings.json`](packs/sqleng_settings.json) |
-
-Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`. After editing a pack JSON file, run `go generate ./...` from the `dsconfig` module to refresh the per-pack `exclude`/`patch` enums in `schema.json`.
-
-### Resolution rules
-
-1. `baseFields` is resolved by calling `ResolveBaseFields()` (or the convenience wrapper `ParseAndResolveSchemaJSON()`). **`Validate()` will return an error if called on an unresolved schema.**
-2. Pack fields are prepended to `fields` in declaration order.
-3. If a pack field ID collides with a plugin-declared field, the **plugin field wins** (explicit beats inherited).
-4. `exclude` is validated: every excluded ID must exist in the pack.
-5. `patch` is validated: every patched ID must exist in the pack and must not also appear in `exclude`.
-6. Duplicate `from` values in the same `baseFields` array are an error.
 
 ## Field identity: `id` vs `key`
 
@@ -544,6 +464,87 @@ Some datasources have arrays where individual items may be secrets (e.g. Snowfla
 }
 ```
 
+## Base fields
+
+SDK libraries such as [`grafana-plugin-sdk-go`](https://github.com/grafana/grafana-plugin-sdk-go), [`grafana-aws-sdk`](https://github.com/grafana/grafana-aws-sdk), [`grafana-azure-sdk-go`](https://github.com/grafana/grafana-azure-sdk-go), and [`grafana-google-sdk-go`](https://github.com/grafana/grafana-google-sdk-go) define a fixed set of well-known fields (URL, basicAuth, TLS, SigV4 auth, etc.). Without `baseFields`, every plugin that uses these SDKs must redeclare those fields verbatim — creating copy-paste drift and maintenance overhead.
+
+`baseFields` solves this by letting a plugin _declare_ which SDK field packs it uses. Pack fields are merged into `fields` before validation; a plugin only declares what is genuinely its own.
+
+> **Note:** All built-in packs (`plugin_sdk_settings`, `aws_sdk_settings`, `azure_sdk_settings`, `google_sdk_settings`, `sqleng_settings`) are now populated; `exclude` and `patch` may reference any top-level field ID defined under `fields` in the respective pack JSON under [`dsconfig/packs/`](packs/). Nested item-field IDs (for example, `plugin_sdk_settings.httpHeaders.item.name`) are not eligible.
+
+```json
+{
+  "schemaVersion": "v1",
+  "pluginType": "prometheus",
+  "pluginName": "Prometheus",
+  "baseFields": [
+    {
+      "from": "plugin_sdk_settings",
+      "patch": {
+        "plugin_sdk_settings.url": {
+          "label": "Prometheus server URL",
+          "placeholder": "http://localhost:9090"
+        }
+      }
+    },
+    {
+      "from": "aws_sdk_settings",
+      "exclude": ["aws_sdk_settings.assumeRoleArn"]
+    }
+  ],
+  "fields": [
+    {
+      "id": "jsonData.httpMethod",
+      "key": "httpMethod",
+      "valueType": "string",
+      "target": "jsonData"
+    }
+  ]
+}
+```
+
+### `BaseFieldRef` properties
+
+| property  | type                         | required | description                                                            |
+| --------- | ---------------------------- | -------- | ---------------------------------------------------------------------- |
+| `from`    | `FieldPackID` (string)       | Required | Identifier of the built-in field pack to include.                      |
+| `exclude` | `string[]`                   | Optional | Field IDs from the pack to omit entirely. Each must exist in the pack. |
+| `patch`   | `Record<string, FieldPatch>` | Optional | Presentation-only overrides keyed by field ID.                         |
+
+### `FieldPatch` properties
+
+`FieldPatch` allows customising _presentation_ properties of a pack field without redefining it. Structural properties (`id`, `key`, `valueType`, `target`, `role`) are intentionally absent — those are the pack's immutable contract.
+
+| property       | type      | description                                                             |
+| -------------- | --------- | ----------------------------------------------------------------------- |
+| `label`        | `string`  | Override the field label.                                               |
+| `description`  | `string`  | Override the field description / tooltip.                               |
+| `placeholder`  | `string`  | Override the input placeholder text.                                    |
+| `defaultValue` | `any`     | Override the field default value.                                       |
+| `required`     | `boolean` | Override whether the field is required.                                 |
+| `hidden`       | `boolean` | Reserved for future use (currently ignored by `baseFields` resolution). |
+
+### Built-in packs
+
+| `from` value          | Source SDK              | Content                                             |
+| --------------------- | ----------------------- | --------------------------------------------------- |
+| `plugin_sdk_settings` | `grafana-plugin-sdk-go` | Standard HTTP datasource fields shared by `backend/httpclient/options.go` (`Options`, `BasicAuthOptions`, `TLSOptions`, `TimeoutOptions`, `SigV4Config`, `Header`) and the `@grafana/ui` `DataSourceHttpSettings` editor (URL, access, basic auth, TLS, timeout, OAuth pass-through, SigV4 toggle, custom HTTP headers) — see [`plugin_sdk_settings.json`](packs/plugin_sdk_settings.json) |
+| `aws_sdk_settings`    | `grafana-aws-sdk-go`    | AWS credentials and auth (auth provider, profile, access/secret keys, session token, assume-role ARN, external ID, endpoint, default region, proxy settings) — see [`aws_sdk_settings.json`](packs/aws_sdk_settings.json) |
+| `azure_sdk_settings`  | `grafana-azure-sdk-go`  | Azure credentials and auth (App Registration client secret / client certificate, Managed Identity, Workload Identity, Current User, On-Behalf-Of, Entra Password) — see [`azure_sdk_settings.json`](packs/azure_sdk_settings.json) |
+| `google_sdk_settings` | `grafana-google-sdk-go` | Google credentials and auth (JWT, GCE, WIF, Forward OAuth) — see [`google_sdk_settings.json`](packs/google_sdk_settings.json) |
+| `sqleng_settings`     | `grafana sqleng`        | Common SQL datasource fields shared by grafana-postgresql-datasource, grafana-mysql-datasource, and grafana-mssql-datasource (host URL, database, username/password, TLS certs, TLS server name, connection pool tuning, Secure Socks Proxy). Vendor-specific options (postgres `sslmode`/`timescaledb`, mysql `tlsAuth`/`allowCleartextPasswords`, mssql `encrypt`/`authenticationType`) stay in the individual plugin schemas. mssql plugins should set `exclude: ["sqleng_settings.servername"]` and declare their own `serverName` field (camelCase), since mssql uses a different storage key than postgres/mysql for TLS server name — see [`sqleng_settings.json`](packs/sqleng_settings.json) |
+
+Pack field definitions live in `dsconfig/packs/` as JSON files (e.g. `plugin_sdk_settings.json`), each validated against `dsconfig/packs/pack-schema.json`. After editing a pack JSON file, run `go generate ./...` from the `dsconfig` module to refresh the per-pack `exclude`/`patch` enums in `schema.json`.
+
+### Resolution rules
+
+1. `baseFields` is resolved by calling `ResolveBaseFields()` (or the convenience wrapper `ParseAndResolveSchemaJSON()`). **`Validate()` will return an error if called on an unresolved schema.**
+2. Pack fields are prepended to `fields` in declaration order.
+3. If a pack field ID collides with a plugin-declared field, the **plugin field wins** (explicit beats inherited).
+4. `exclude` is validated: every excluded ID must exist in the pack.
+5. `patch` is validated: every patched ID must exist in the pack and must not also appear in `exclude`.
+6. Duplicate `from` values in the same `baseFields` array are an error.
+7. 
 ## Groups and relationships
 
 **Groups** define UI layout sections. They reference fields by `id`.
