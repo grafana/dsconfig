@@ -696,3 +696,6 @@ Virtual fields are not stored. They derive a value from other fields for UI logi
 | 5   | How should `secureJsonFields` (read-side boolean map) be modeled in the schema or SDK output?                              |
 | 6   | Should validation rule evaluation order, short-circuit behavior, or severity levels be defined?                            |
 | 7   | Should groups enforce completeness? (every field must belong to at least one group)                                        |
+
+
+Once done generating your datasource's `dsconfig.json`, go to [PUBLISH-SCHEMA.md](PUBLISH-SCHEMA.md)
