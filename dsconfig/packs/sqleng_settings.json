@@ -1,0 +1,271 @@
+{
+    "$schema": "./pack-schema.json",
+    "id": "sqleng_settings",
+    "description": "Common SQL datasource fields shared by the grafana SQL engine (`sqleng`) used by grafana-postgresql-datasource, grafana-mysql-datasource, and grafana-mssql-datasource. Fields mirror the shared `sqleng.JsonData` struct (see `pkg/postgresql/sqleng/sql_engine.go`, `pkg/mysql/sqleng/sql_engine.go`, and `pkg/tsdb/mssql/sqleng/sql_engine.go` in grafana/grafana) plus the root-level `url`/`user` and secure `password`/TLS certificate fields rendered by each plugin's `ConfigurationEditor.tsx`. Vendor-specific options (postgres `sslmode`/`timescaledb`/`postgresVersion`, mysql `tlsAuth`/`tlsAuthWithCACert`/`allowCleartextPasswords`/`timezone`, mssql `encrypt`/`serverName`/`authenticationType`/Kerberos/Azure auth) intentionally stay out of this pack and remain in the individual plugin schemas.",
+    "fields": [
+        {
+            "id": "sqleng_settings.url",
+            "key": "url",
+            "label": "Host URL",
+            "description": "Host and port of the SQL server, e.g. `localhost:5432` (Postgres), `localhost:3306` (MySQL), or `localhost:1433` (MSSQL).",
+            "valueType": "string",
+            "target": "root",
+            "role": "endpoint.baseUrl",
+            "required": true,
+            "ui": {
+                "component": "input",
+                "placeholder": "localhost:5432"
+            }
+        },
+        {
+            "id": "sqleng_settings.user",
+            "key": "user",
+            "label": "Username",
+            "description": "Database user the plugin connects as. Stored on the datasource at the root level (`user`), not inside `jsonData`.",
+            "valueType": "string",
+            "target": "root",
+            "role": "auth.basic.username",
+            "ui": {
+                "component": "input",
+                "placeholder": "Username"
+            }
+        },
+        {
+            "id": "sqleng_settings.password",
+            "key": "password",
+            "label": "Password",
+            "description": "Database password, persisted encrypted in `secureJsonData.password`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "auth.basic.password",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "sqleng_settings.database",
+            "key": "database",
+            "label": "Database name",
+            "description": "Name of the database to connect to. Corresponds to `sqleng.JsonData.Database`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "Database"
+            }
+        },
+        {
+            "id": "sqleng_settings.timeInterval",
+            "key": "timeInterval",
+            "label": "Min time interval",
+            "description": "Lower limit for the auto group-by time interval. Recommended to match the write frequency of your data (for example `1m`). Corresponds to `sqleng.JsonData.TimeInterval`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "ui": {
+                "component": "input",
+                "placeholder": "1m"
+            }
+        },
+        {
+            "id": "sqleng_settings.connectionTimeout",
+            "key": "connectionTimeout",
+            "label": "Connection timeout",
+            "description": "Number of seconds to wait before canceling the request when connecting to the database. `0` means no timeout. Corresponds to `sqleng.JsonData.ConnectionTimeout`.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "sqleng_settings.maxOpenConns",
+            "key": "maxOpenConns",
+            "label": "Max open connections",
+            "description": "Maximum number of open connections to the database. Corresponds to `sqleng.JsonData.MaxOpenConns`.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "sqleng_settings.maxIdleConns",
+            "key": "maxIdleConns",
+            "label": "Max idle connections",
+            "description": "Maximum number of idle connections in the pool. Corresponds to `sqleng.JsonData.MaxIdleConns`.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "sqleng_settings.connMaxLifetime",
+            "key": "connMaxLifetime",
+            "label": "Connection max lifetime",
+            "description": "Maximum amount of time (in seconds) a connection may be reused. Corresponds to `sqleng.JsonData.ConnMaxLifetime`.",
+            "valueType": "number",
+            "target": "jsonData",
+            "ui": {
+                "component": "input"
+            }
+        },
+        {
+            "id": "sqleng_settings.tlsSkipVerify",
+            "key": "tlsSkipVerify",
+            "label": "Skip TLS verification",
+            "description": "Skip verification of the SQL server's TLS certificate chain and host name. Corresponds to `sqleng.JsonData.TlsSkipVerify`.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "role": "transport.tlsSkipVerify",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "sqleng_settings.tlsConfigurationMethod",
+            "key": "tlsConfigurationMethod",
+            "label": "TLS/SSL method",
+            "description": "Determines how TLS/SSL certificates are configured. `file-path` references certificates on the local file system; `file-content` stores the certificate bytes encrypted in `secureJsonData` and writes them to disk on connect. Corresponds to `sqleng.JsonData.ConfigurationMethod`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "defaultValue": "file-path",
+            "validations": [
+                {
+                    "type": "allowedValues",
+                    "values": [
+                        "file-path",
+                        "file-content"
+                    ]
+                }
+            ],
+            "ui": {
+                "component": "select",
+                "options": [
+                    {
+                        "label": "File system path",
+                        "value": "file-path"
+                    },
+                    {
+                        "label": "Certificate content",
+                        "value": "file-content"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "sqleng_settings.sslRootCertFile",
+            "key": "sslRootCertFile",
+            "label": "TLS/SSL root certificate file",
+            "description": "Path to the PEM-encoded root certificate file used to verify the server's certificate. Used when `tlsConfigurationMethod` is `file-path`. Corresponds to `sqleng.JsonData.RootCertFile`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "sqleng_settings.tlsConfigurationMethod == 'file-path'",
+            "ui": {
+                "component": "input",
+                "placeholder": "/etc/ssl/certs/ca.pem"
+            }
+        },
+        {
+            "id": "sqleng_settings.sslCertFile",
+            "key": "sslCertFile",
+            "label": "TLS/SSL client certificate file",
+            "description": "Path to the PEM-encoded client certificate file. Used when `tlsConfigurationMethod` is `file-path`. Corresponds to `sqleng.JsonData.CertFile`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "sqleng_settings.tlsConfigurationMethod == 'file-path'",
+            "ui": {
+                "component": "input",
+                "placeholder": "/etc/ssl/certs/client.pem"
+            }
+        },
+        {
+            "id": "sqleng_settings.sslKeyFile",
+            "key": "sslKeyFile",
+            "label": "TLS/SSL client key file",
+            "description": "Path to the PEM-encoded client key file. Used when `tlsConfigurationMethod` is `file-path`. Corresponds to `sqleng.JsonData.CertKeyFile`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "sqleng_settings.tlsConfigurationMethod == 'file-path'",
+            "ui": {
+                "component": "input",
+                "placeholder": "/etc/ssl/private/client.key"
+            }
+        },
+        {
+            "id": "sqleng_settings.servername",
+            "key": "servername",
+            "label": "TLS/SSL server name",
+            "description": "Server name used for TLS SNI / certificate verification. Corresponds to `sqleng.JsonData.Servername` (lowercase `servername` JSON tag) in postgres and mysql. Distinct from `plugin_sdk_settings.serverName` (camelCase, HTTP TLS SNI). mssql uses a different storage key (`serverName`, camelCase) and should exclude this field via `baseFields[].exclude` and declare its own.",
+            "valueType": "string",
+            "target": "jsonData",
+            "role": "tls.serverName",
+            "ui": {
+                "component": "input",
+                "placeholder": "host.example.com"
+            }
+        },
+        {
+            "id": "sqleng_settings.tlsCACert",
+            "key": "tlsCACert",
+            "label": "TLS/SSL root certificate (content)",
+            "description": "PEM-encoded root CA certificate, stored encrypted in `secureJsonData.tlsCACert`. Used when `tlsConfigurationMethod` is `file-content`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.caCert",
+            "dependsOn": "sqleng_settings.tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea"
+            }
+        },
+        {
+            "id": "sqleng_settings.tlsClientCert",
+            "key": "tlsClientCert",
+            "label": "TLS/SSL client certificate (content)",
+            "description": "PEM-encoded client certificate, stored encrypted in `secureJsonData.tlsClientCert`. Used when `tlsConfigurationMethod` is `file-content`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientCert",
+            "dependsOn": "sqleng_settings.tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea"
+            }
+        },
+        {
+            "id": "sqleng_settings.tlsClientKey",
+            "key": "tlsClientKey",
+            "label": "TLS/SSL client key (content)",
+            "description": "PEM-encoded client private key, stored encrypted in `secureJsonData.tlsClientKey`. Used when `tlsConfigurationMethod` is `file-content`.",
+            "valueType": "string",
+            "target": "secureJsonData",
+            "role": "tls.clientKey",
+            "dependsOn": "sqleng_settings.tlsConfigurationMethod == 'file-content'",
+            "ui": {
+                "component": "textarea"
+            }
+        },
+        {
+            "id": "sqleng_settings.enableSecureSocksProxy",
+            "key": "enableSecureSocksProxy",
+            "label": "Enable Secure Socks Proxy",
+            "description": "Route the SQL connection through Grafana's Secure Socks Proxy. Corresponds to `sqleng.JsonData.SecureDSProxy`.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "sqleng_settings.secureSocksProxyUsername",
+            "key": "secureSocksProxyUsername",
+            "label": "Secure Socks Proxy username",
+            "description": "Username forwarded to the Secure Socks Proxy. Corresponds to `sqleng.JsonData.SecureDSProxyUsername`.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "sqleng_settings.enableSecureSocksProxy == true",
+            "ui": {
+                "component": "input"
+            }
+        }
+    ]
+}
