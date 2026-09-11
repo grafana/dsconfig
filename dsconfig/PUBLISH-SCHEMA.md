@@ -109,6 +109,6 @@ export default config;
 
 ## File generation
 
-1. run `generate go test -run TestPlugin -generateArtifacts` this will generate all the necessary artifacts for the configuration schema
+1. run `go test ./...` or `generate go test -run TestPlugin -generateArtifacts` this will generate all the necessary artifacts for the configuration schema
 
 2. To make sure everything looks right run the test that you created above under `dsconfig_test.go`. This will run tests and compare the config schema against the datasource's declared go types to make sure it matches.
