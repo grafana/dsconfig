@@ -53,6 +53,8 @@ func TestAWSSDKSettingsPackValidates(t *testing.T) {
 		"aws_sdk_settings.sessionToken",
 		"aws_sdk_settings.assumeRoleArn",
 		"aws_sdk_settings.externalId",
+		"aws_sdk_settings.usePerDatasourceExternalId",
+		"aws_sdk_settings.grafanaExternalId",
 		"aws_sdk_settings.endpoint",
 		"aws_sdk_settings.defaultRegion",
 		"aws_sdk_settings.proxyType",
