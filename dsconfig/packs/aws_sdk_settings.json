@@ -120,6 +120,32 @@
             }
         },
         {
+            "id": "aws_sdk_settings.usePerDatasourceExternalId",
+            "key": "usePerDatasourceExternalId",
+            "label": "Use per-datasource external ID",
+            "description": "Grafana Assume Role only. When enabled, this datasource uses its own external ID (below) instead of the stack-wide external ID.",
+            "valueType": "boolean",
+            "target": "jsonData",
+            "defaultValue": false,
+            "dependsOn": "aws_sdk_settings.authType == 'grafana_assume_role'",
+            "ui": {
+                "component": "switch"
+            }
+        },
+        {
+            "id": "aws_sdk_settings.grafanaExternalId",
+            "key": "grafanaExternalId",
+            "label": "External ID",
+            "description": "Per-datasource external ID used for Grafana Assume Role. Only takes effect when \"Use per-datasource external ID\" is enabled; otherwise the stack-wide external ID is used.",
+            "valueType": "string",
+            "target": "jsonData",
+            "dependsOn": "aws_sdk_settings.authType == 'grafana_assume_role' && aws_sdk_settings.usePerDatasourceExternalId == true",
+            "ui": {
+                "component": "input",
+                "placeholder": "External ID"
+            }
+        },
+        {
             "id": "aws_sdk_settings.endpoint",
             "key": "endpoint",
             "label": "Endpoint",
