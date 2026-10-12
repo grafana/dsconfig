@@ -1076,7 +1076,7 @@
                 },
                 "secureKey": {
                     "type": "string",
-                    "description": "Override the secureJsonData key the field's value is written to while this override is active."
+                    "description": "The secureJsonData key that consumers should write the field's value to while this override is active. dsconfig stores this value but does not evaluate overrides or route values itself. Consumers such as plugin-ui apply it to fields inside array items and resolve the placeholders {index}, {index1} and {item.KEY}."
                 },
                 "validations": {
                     "type": "array",
