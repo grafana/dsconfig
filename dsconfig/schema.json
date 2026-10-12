@@ -200,13 +200,15 @@
                                         "aws_sdk_settings.defaultRegion",
                                         "aws_sdk_settings.endpoint",
                                         "aws_sdk_settings.externalId",
+                                        "aws_sdk_settings.grafanaExternalId",
                                         "aws_sdk_settings.profile",
                                         "aws_sdk_settings.proxyPassword",
                                         "aws_sdk_settings.proxyType",
                                         "aws_sdk_settings.proxyUrl",
                                         "aws_sdk_settings.proxyUsername",
                                         "aws_sdk_settings.secretKey",
-                                        "aws_sdk_settings.sessionToken"
+                                        "aws_sdk_settings.sessionToken",
+                                        "aws_sdk_settings.usePerDatasourceExternalId"
                                     ]
                                 }
                             },
@@ -219,13 +221,15 @@
                                         "aws_sdk_settings.defaultRegion",
                                         "aws_sdk_settings.endpoint",
                                         "aws_sdk_settings.externalId",
+                                        "aws_sdk_settings.grafanaExternalId",
                                         "aws_sdk_settings.profile",
                                         "aws_sdk_settings.proxyPassword",
                                         "aws_sdk_settings.proxyType",
                                         "aws_sdk_settings.proxyUrl",
                                         "aws_sdk_settings.proxyUsername",
                                         "aws_sdk_settings.secretKey",
-                                        "aws_sdk_settings.sessionToken"
+                                        "aws_sdk_settings.sessionToken",
+                                        "aws_sdk_settings.usePerDatasourceExternalId"
                                     ]
                                 }
                             }
