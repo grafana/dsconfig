@@ -677,8 +677,11 @@ type FieldOverride struct {
 	Placeholder  string `json:"placeholder,omitempty"`
 	Tooltip      string `json:"tooltip,omitempty"`
 
-	// SecureKey overrides the secureJsonData key the field's value is written
-	// to while this override is active.
+	// SecureKey names the secureJsonData key that consumers should write the
+	// field's value to while this override is active. dsconfig only stores it;
+	// it does not evaluate overrides or route values. Consumers such as
+	// plugin-ui apply it to fields inside array items and resolve the
+	// placeholders {index}, {index1} and {item.KEY}.
 	SecureKey string `json:"secureKey,omitempty"`
 
 	Validations []FieldValidationRule `json:"validations,omitempty"`
