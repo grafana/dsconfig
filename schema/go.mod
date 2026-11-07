@@ -6,7 +6,7 @@ require (
 	github.com/grafana/dsconfig/dsconfig v0.0.13
 	github.com/grafana/grafana-plugin-sdk-go v0.298.0
 	github.com/stretchr/testify v1.12.1
-	k8s.io/kube-openapi v0.0.0-20260821135717-be32def86098
+	k8s.io/kube-openapi v0.0.0-20261104182252-5bee61fc5225
 )
 
 require (
